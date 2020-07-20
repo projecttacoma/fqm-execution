@@ -1,0 +1,38 @@
+{
+  "name": "typescript-node-starter",
+  "version": "0.0.1",
+  "description": "",
+  "main": "build/app.js",
+  "files": [
+    "build/*"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^14.0.23",
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "lint": "tsc && eslint \"**/*.{js,ts}\"",
+    "lint:fix": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "prettier": "prettier --check \"**/*.{js,ts}\"",
+    "prettier:fix": "prettier --write \"**/*.{js,ts}\"",
+    "check": "npm run test && npm run lint && npm run prettier"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mgramigna/typescript-node-starter.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mgramigna/typescript-node-starter/issues"
+  },
+  "homepage": "https://github.com/mgramigna/typescript-node-starter#readme"
+}
