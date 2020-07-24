@@ -4,7 +4,7 @@ module.exports = {
       tsConfig: 'tsconfig.json'
     }
   },
-  moduleFileExtensions: ['ts', 'js'],
+  moduleFileExtensions: ['ts', 'js', 'd.ts'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
