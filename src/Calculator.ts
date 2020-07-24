@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ExecutionResult, CalculationOptions } from './types/Calculator';
+import { ExecutionResult, CalculationOptions, FinalResult, Relevance, PopulationType } from './types/Calculator';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -21,7 +21,42 @@ export function calculate(
         resourceType: 'MeasureReport',
         measure: 'Measure/ImplementMe',
         period: {}
-      }
+      },
+      detailedResults: [
+        {
+          groupId: '0',
+          statementResults: [
+            {
+              libraryName: 'BaseLibrary',
+              statementName: 'Initial Population',
+              localId: '102',
+              final: FinalResult.TRUE,
+              raw: true,
+              relevance: Relevance.TRUE,
+              pretty: 'TRUE'
+            }
+          ],
+          clauseResults: [
+            {
+              libraryName: 'BaseLibrary',
+              statementName: 'Initial Population',
+              localId: '102',
+              final: FinalResult.TRUE,
+              raw: true
+            }
+          ],
+          populationResults: [
+            {
+              populationType: PopulationType.IPP,
+              result: true
+            },
+            {
+              populationType: PopulationType.DENOM,
+              result: false
+            }
+          ]
+        }
+      ]
     }
   ];
 }

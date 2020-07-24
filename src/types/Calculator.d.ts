@@ -8,6 +8,8 @@ export interface CalculationOptions {
   includeClauseResults?: boolean;
   /** Option to include pretty results on statement results. Defaults to false. */
   includePrettyResults?: boolean;
+  /** Include highlighting in MeasureReport narrative. Defaults to false. */
+  includeHighlighting?: boolean;
   /** Start of measurement period. */
   measurementPeriodStart?: Date;
   /** End of measurement period */
@@ -32,12 +34,17 @@ export interface ExecutionResult {
  * Detailed results for a single population group for a single patient.
  */
 interface DetailedPopulationGroupResult {
-  /** Index */
+  /** Index of this population group id. */
   groupId: string;
+  /** Index of this stratifier if it is a stratified result. */
   strataId?: string;
-  clauseResults: ClauseResult[];
+  /** Clause results for every CQL clause. */
+  clauseResults?: ClauseResult[];
+  /** Statement results for every CQL define statement. */
   statementResults: StatementResult[];
+  /** Results for each population in this group. */
   populationResults?: PopulationResult[];
+  /** If this is an episode of care measure. Each episode found in IPP will have results. */
   episodeResults?: EpisodeResults[];
 }
 
@@ -73,14 +80,19 @@ interface StatementResult {
   relevance: Relevance;
   /** Raw result from the engine */
   raw: any;
+  /** Pretty result for this statement. */
+  pretty?: string;
 }
 
 /**
  * Result for a patient or episode for a population
  */
 interface PopulationResult {
-  populationType: string;
+  /** Type of population matching http://hl7.org/fhir/ValueSet/measure-population */
+  populationType: PopulationType;
+  /** True if this patient or episode calculates with membership in this population. */
   result: boolean;
+  /** Observations made for this population. */
   observations?: any[];
 }
 
@@ -88,8 +100,25 @@ interface PopulationResult {
  * Result set for an episode for a single population group.
  */
 interface EpisodeResults {
+  /** ID of episode. */
   episodeId: string;
+  /** Results for each population. */
   populationResults: PopulationResult[];
+}
+
+/**
+ * Enum for population types. Matching http://hl7.org/fhir/valueset-measure-population.html
+ */
+export enum PopulationType {
+  IPP = 'initial-population',
+  DENOM = 'denominator',
+  DENEX = 'denominator-exclusion',
+  DENEXCP = 'denominator-exception',
+  NUMER = 'numerator',
+  NUMEX = 'numerator-exclusion',
+  MSRPOPL = 'measure-population',
+  MSRPOPLEX = 'measure-population-exclusion',
+  OBSERV = 'measure-observation'
 }
 
 /**
@@ -107,7 +136,7 @@ interface EpisodeResults {
  *
  * 'FALSE' - This statement is relevant and has a falsey result.
  */
-enum FinalResult {
+export enum FinalResult {
   NA = 'NA',
   UNHIT = 'UNHIT',
   TRUE = 'TRUE',
@@ -122,7 +151,7 @@ enum FinalResult {
  *
  * 'TRUE' - This statement is relevant for one or more of the population inclusion calculations.
  */
-enum Relevance {
+export enum Relevance {
   NA = 'NA',
   TRUE = 'TRUE',
   FALSE = 'FALSE'
