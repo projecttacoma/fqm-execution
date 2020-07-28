@@ -7,6 +7,7 @@
   },
   "rules": {
     "semi": ["error", "always"],
-    "quotes": ["error", "single", { "avoidEscape": true }]
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
