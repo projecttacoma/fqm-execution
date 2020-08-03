@@ -15,6 +15,19 @@ export function calculate(
   patientBundles: R4.IBundle[],
   options: CalculationOptions
 ): ExecutionResult[] {
+  // 1. Prep libraries: parse from measure bundle, pull out ELM
+  //    1a. Determine "root" library. Can do this by looking at which lib is referenced by populations
+
+  // 2. Prep ValueSets: parse the ValueSets from the bundle, put in form the execution engine takes
+  //    2a. Hoss's other project has this code which we could reuse
+
+  // 3. Parameters: measurement period start and end, which should be included in CalculationOptions
+  //    3a. This might be included in the Measure resource.
+  //    3b. If no measurement period specified, use a smart default, possible 2020
+  let start;
+  let end;
+  start = options.measurementPeriodStart?.getUTCMinutes;
+  // 4. Create PatientSource: Call cql-exec-fhir passing in patient bundles. Example in the readme.
   return [
     {
       patientId: '1',
@@ -83,3 +96,9 @@ export function calculateMeasureReports(
     }
   ];
 }
+
+export function calculateRaw(
+  measureBundle: R4.IBundle,
+  patientBundles: R4.IBundle[],
+  options: CalculationOptions
+): void {}
