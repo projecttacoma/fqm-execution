@@ -1,0 +1,415 @@
+{
+  "resourceType": "Bundle",
+  "id": "tests-denom-EXM130-bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "denom-EXM130-1",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99201",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires these 3 key components: A problem focused history; A problem focused examination; Straightforward medical decision making. Counseling and/or coordination of care with other physicians, other qualified health care professionals, or agencies are provided consistent with the nature of the problem(s) and the patient's and/or family's needs. Usually, the presenting problem(s) are self limited or minor. Typically, 10 minutes are spent face-to-face with the patient and/or family."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/denom-EXM130"
+        },
+        "period": {
+          "start": "2019-05-30T00:00:00-00:00",
+          "end": "2019-05-31T00:00:00-00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/denom-EXM130-1"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "measurereport-denom-EXM130",
+        "contained": [
+          {
+            "resourceType": "Bundle",
+            "id": "a1ff4631-43c9-4def-acc4-84afceb28d83",
+            "type": "collection",
+            "entry": [
+              {
+                "fullUrl": "823c4ee0-d1a8-447c-807d-96b89509b07a",
+                "resource": {
+                  "resourceType": "List",
+                  "id": "823c4ee0-d1a8-447c-807d-96b89509b07a",
+                  "title": "initial-population",
+                  "entry": [
+                    {
+                      "item": {
+                        "reference": "denom-EXM130-1"
+                      }
+                    },
+                    {
+                      "item": {
+                        "reference": "denom-EXM130"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "fullUrl": "Procedure/denom-EXM130-2",
+                "resource": {
+                  "resourceType": "Procedure",
+                  "id": "denom-EXM130-2",
+                  "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2020-01-29T16:25:20.081-07:00",
+                    "profile": [
+                      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+                    ]
+                  },
+                  "status": "completed",
+                  "code": {
+                    "coding": [
+                      {
+                        "system": "http://www.ama-assn.org/go/cpt",
+                        "code": "44393",
+                        "display": "Colonoscopy through stoma; with ablation of tumor(s), polyp(s), or other lesion(s) not amenable to removal by hot biopsy forceps, bipolar cautery or snare technique"
+                      }
+                    ]
+                  },
+                  "subject": {
+                    "reference": "Patient/denom-EXM130"
+                  },
+                  "performedPeriod": {
+                    "start": "2009-12-30T12:00:00",
+                    "end": "2009-12-30T13:00:00"
+                  }
+                }
+              },
+              {
+                "fullUrl": "Encounter/denom-EXM130-1",
+                "resource": {
+                  "resourceType": "Encounter",
+                  "id": "denom-EXM130-1",
+                  "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2020-01-29T16:25:20.081-07:00",
+                    "profile": [
+                      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+                    ]
+                  },
+                  "status": "finished",
+                  "class": {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                    "code": "AMB",
+                    "display": "ambulatory"
+                  },
+                  "type": [
+                    {
+                      "coding": [
+                        {
+                          "system": "http://www.ama-assn.org/go/cpt",
+                          "code": "99201",
+                          "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires these 3 key components: A problem focused history; A problem focused examination; Straightforward medical decision making. Counseling and/or coordination of care with other physicians, other qualified health care professionals, or agencies are provided consistent with the nature of the problem(s) and the patient's and/or family's needs. Usually, the presenting problem(s) are self limited or minor. Typically, 10 minutes are spent face-to-face with the patient and/or family."
+                        }
+                      ]
+                    }
+                  ],
+                  "subject": {
+                    "reference": "Patient/denom-EXM130"
+                  },
+                  "period": {
+                    "start": "2019-05-30T00:00:00-00:00",
+                    "end": "2019-05-31T00:00:00-00:00"
+                  }
+                }
+              },
+              {
+                "fullUrl": "9292a1f6-80bf-401b-a856-9fc4f66b1647",
+                "resource": {
+                  "resourceType": "List",
+                  "id": "9292a1f6-80bf-401b-a856-9fc4f66b1647",
+                  "title": "numerator",
+                  "entry": [
+                    {
+                      "item": {
+                        "reference": "denom-EXM130-2"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "fullUrl": "Patient/denom-EXM130",
+                "resource": {
+                  "resourceType": "Patient",
+                  "id": "denom-EXM130",
+                  "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2020-01-29T16:25:20.081-07:00",
+                    "profile": [
+                      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+                    ]
+                  },
+                  "text": {
+                    "status": "generated",
+                    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\">Ben <b>DERE </b></div><table class=\"hapiPropertyTable\"><tbody><tr><td>Identifier</td><td>999999992</td></tr><tr><td>Date of birth</td><td><span>01 January 1965</span></td></tr></tbody></table></div>"
+                  },
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+                      "extension": [
+                        {
+                          "url": "ombCategory",
+                          "valueCoding": {
+                            "system": "urn:oid:2.16.840.1.113883.6.238",
+                            "code": "2028-9",
+                            "display": "Asian"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+                      "extension": [
+                        {
+                          "url": "ombCategory",
+                          "valueCoding": {
+                            "system": "urn:oid:2.16.840.1.113883.6.238",
+                            "code": "2135-2",
+                            "display": "Hispanic or Latino"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "identifier": [
+                    {
+                      "use": "usual",
+                      "type": {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "code": "MR",
+                            "display": "Medical Record Number"
+                          }
+                        ]
+                      },
+                      "system": "http://hospital.smarthealthit.org",
+                      "value": "999999992"
+                    }
+                  ],
+                  "name": [
+                    {
+                      "family": "Dere",
+                      "given": [
+                        "Ben"
+                      ]
+                    }
+                  ],
+                  "gender": "male",
+                  "birthDate": "1965-01-01"
+                }
+              }
+            ]
+          }
+        ],
+        "status": "complete",
+        "type": "individual",
+        "measure": "Measure/measure-EXM130-8.0.000",
+        "subject": {
+          "reference": "Patient/denom-EXM130"
+        },
+        "period": {
+          "start": "2018-12-31T17:00:00-07:00",
+          "end": "2019-12-30T17:00:00-07:00"
+        },
+        "group": [
+          {
+            "id": "group-1",
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population",
+                      "display": "Initial Population"
+                    }
+                  ]
+                },
+                "count": 1
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator",
+                      "display": "Numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator",
+                      "display": "Denominator"
+                    }
+                  ]
+                },
+                "count": 1
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator-exclusion",
+                      "display": "Denominator Exclusion"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0.0
+            }
+          }
+        ],
+        "evaluatedResource": [
+          {
+            "reference": "#a1ff4631-43c9-4def-acc4-84afceb28d83"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/measurereport-denom-EXM130"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "denom-EXM130",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "use": "usual",
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR",
+                  "display": "Medical Record Number"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999992"
+          }
+        ],
+        "name": [
+          {
+            "family": "Dere",
+            "given": [
+              "Ben"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1965-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/denom-EXM130"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "denom-EXM130-2",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ]
+        },
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "code": "44393",
+              "display": "Colonoscopy through stoma; with ablation of tumor(s), polyp(s), or other lesion(s) not amenable to removal by hot biopsy forceps, bipolar cautery or snare technique"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/denom-EXM130"
+        },
+        "performedPeriod": {
+          "start": "2009-12-30T12:00:00",
+          "end": "2009-12-30T13:00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/denom-EXM130-2"
+      }
+    }
+  ]
+}
