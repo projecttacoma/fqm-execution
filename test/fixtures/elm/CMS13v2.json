@@ -1,0 +1,2415 @@
+{
+  "library": {
+    "identifier": {
+      "id": "Test104",
+      "version": "2.0.004"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "1",
+          "locator": "3:1-3:23",
+          "localIdentifier": "QDM",
+          "uri": "urn:healthit-gov:qdm:v5_3",
+          "version": "5.3"
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "2",
+          "locator": "5:1-5:64",
+          "localIdentifier": "global",
+          "path": "MATGlobalCommonFunctions",
+          "version": "2.0.000"
+        },
+        {
+          "localId": "3",
+          "locator": "7:1-7:48",
+          "localIdentifier": "TJC",
+          "path": "TJC_Overall",
+          "version": "7.0.000"
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "localId": "4",
+          "locator": "10:1-10:68",
+          "name": "ONC Administrative Sex",
+          "id": "2.16.840.1.113762.1.4.1",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "5",
+          "locator": "11:1-11:53",
+          "name": "Race",
+          "id": "2.16.840.1.114222.4.11.836",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "6",
+          "locator": "12:1-12:58",
+          "name": "Ethnicity",
+          "id": "2.16.840.1.114222.4.11.837",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "7",
+          "locator": "13:1-13:55",
+          "name": "Payer",
+          "id": "2.16.840.1.114222.4.11.3591",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "8",
+          "locator": "14:1-14:65",
+          "name": "Comfort Measures",
+          "id": "1.3.6.1.4.1.33895.1.3.0.45",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "9",
+          "locator": "15:1-15:78",
+          "name": "Antithrombotic Therapy",
+          "id": "2.16.840.1.113883.3.117.1.7.1.201",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "10",
+          "locator": "16:1-16:71",
+          "name": "Patient Expired",
+          "id": "2.16.840.1.113883.3.117.1.7.1.309",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "11",
+          "locator": "17:1-17:83",
+          "name": "Left Against Medical Advice",
+          "id": "2.16.840.1.113883.3.117.1.7.1.308",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "12",
+          "locator": "18:1-18:107",
+          "name": "Discharged to Health Care Facility for Hospice Care",
+          "id": "2.16.840.1.113883.3.117.1.7.1.207",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "13",
+          "locator": "19:1-19:87",
+          "name": "Discharge To Acute Care Facility",
+          "id": "2.16.840.1.113883.3.117.1.7.1.87",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "14",
+          "locator": "20:1-20:91",
+          "name": "Discharged to Home for Hospice Care",
+          "id": "2.16.840.1.113883.3.117.1.7.1.209",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "15",
+          "locator": "21:1-21:70",
+          "name": "Medical Reason",
+          "id": "2.16.840.1.113883.3.117.1.7.1.473",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "16",
+          "locator": "22:1-22:70",
+          "name": "Patient Refusal",
+          "id": "2.16.840.1.113883.3.117.1.7.1.93",
+          "accessLevel": "Public"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "locator": "26:1-26:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "locator": "26:1-26:15",
+              "dataType": "{urn:healthit-gov:qdm:v5_3}Patient",
+              "templateId": "Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "18",
+          "locator": "28:1-29:50",
+          "name": "SDE Ethnicity",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "18",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Ethnicity\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "17",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Ethnicity\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"Ethnicity\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "17",
+            "locator": "29:2-29:50",
+            "dataType": "{urn:healthit-gov:qdm:v5_3}PatientCharacteristicEthnicity",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "Ethnicity",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "20",
+          "locator": "31:1-32:42",
+          "name": "SDE Payer",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "20",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Payer\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "19",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Payer\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"Payer\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "19",
+            "locator": "32:2-32:42",
+            "dataType": "{urn:healthit-gov:qdm:v5_3}PatientCharacteristicPayer",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "Payer",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "22",
+          "locator": "34:1-35:40",
+          "name": "SDE Race",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "22",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Race\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "21",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Race\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"Race\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "21",
+            "locator": "35:2-35:40",
+            "dataType": "{urn:healthit-gov:qdm:v5_3}PatientCharacteristicRace",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "Race",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "24",
+          "locator": "37:1-38:57",
+          "name": "SDE Sex",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "24",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Sex\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "23",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Sex\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"ONC Administrative Sex\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "23",
+            "locator": "38:2-38:57",
+            "dataType": "{urn:healthit-gov:qdm:v5_3}PatientCharacteristicSex",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "ONC Administrative Sex",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "37",
+          "locator": "40:1-43:59",
+          "name": "Antithrombotic Not Given at Discharge",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "37",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Antithrombotic Not Given at Discharge\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "36",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "26",
+                            "s": [
+                              {
+                                "r": "25",
+                                "s": [
+                                  {
+                                    "r": "25",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Medication, Not Discharged\"",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Antithrombotic Therapy\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Antithrombotic"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n\t\t"
+                        ]
+                      },
+                      {
+                        "r": "35",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "35",
+                            "s": [
+                              {
+                                "r": "30",
+                                "s": [
+                                  {
+                                    "r": "28",
+                                    "s": [
+                                      {
+                                        "r": "27",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Antithrombotic"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "28",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "negationRationale"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " in "
+                                    ]
+                                  },
+                                  {
+                                    "r": "29",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Medical Reason\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "\n\t\t\tor "
+                                ]
+                              },
+                              {
+                                "r": "34",
+                                "s": [
+                                  {
+                                    "r": "32",
+                                    "s": [
+                                      {
+                                        "r": "31",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Antithrombotic"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "32",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "negationRationale"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " in "
+                                    ]
+                                  },
+                                  {
+                                    "r": "33",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Patient Refusal\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "36",
+            "locator": "41:2-43:59",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "26",
+                "locator": "41:2-41:72",
+                "alias": "Antithrombotic",
+                "expression": {
+                  "localId": "25",
+                  "locator": "41:2-41:57",
+                  "dataType": "{urn:healthit-gov:qdm:v5_3}NegativeMedicationDischarge",
+                  "templateId": "NegativeMedicationDischarge",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Antithrombotic Therapy",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+
+            ],
+            "where": {
+              "localId": "35",
+              "locator": "42:3-43:59",
+              "type": "Or",
+              "operand": [
+                {
+                  "localId": "30",
+                  "locator": "42:9-42:60",
+                  "type": "InValueSet",
+                  "code": {
+                    "localId": "28",
+                    "locator": "42:9-42:40",
+                    "path": "negationRationale",
+                    "scope": "Antithrombotic",
+                    "type": "Property"
+                  },
+                  "valueset": {
+                    "localId": "29",
+                    "locator": "42:45-42:60",
+                    "name": "Medical Reason"
+                  }
+                },
+                {
+                  "localId": "34",
+                  "locator": "43:7-43:59",
+                  "type": "InValueSet",
+                  "code": {
+                    "localId": "32",
+                    "locator": "43:7-43:38",
+                    "path": "negationRationale",
+                    "scope": "Antithrombotic",
+                    "type": "Property"
+                  },
+                  "valueset": {
+                    "localId": "33",
+                    "locator": "43:43-43:59",
+                    "name": "Patient Refusal"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "41",
+          "locator": "45:1-46:67",
+          "name": "Antithrombotic Therapy at Discharge",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "41",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Antithrombotic Therapy at Discharge\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "40",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "39",
+                            "s": [
+                              {
+                                "r": "38",
+                                "s": [
+                                  {
+                                    "r": "38",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Medication, Discharge\"",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Antithrombotic Therapy\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Antithrombotic"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "40",
+            "locator": "46:2-46:67",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "39",
+                "locator": "46:2-46:67",
+                "alias": "Antithrombotic",
+                "expression": {
+                  "localId": "38",
+                  "locator": "46:2-46:52",
+                  "dataType": "{urn:healthit-gov:qdm:v5_3}PositiveMedicationDischarge",
+                  "templateId": "PositiveMedicationDischarge",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Antithrombotic Therapy",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+
+            ]
+          }
+        },
+        {
+          "localId": "47",
+          "locator": "76:1-78:51",
+          "name": "Intervention Comfort Measures",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "47",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Intervention Comfort Measures\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "46",
+                    "s": [
+                      {
+                        "r": "44",
+                        "s": [
+                          {
+                            "value": [
+                              "[",
+                              "\"Intervention, Performed\"",
+                              ": "
+                            ]
+                          },
+                          {
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Comfort Measures\""
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "]"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n\t\tunion "
+                        ]
+                      },
+                      {
+                        "r": "45",
+                        "s": [
+                          {
+                            "value": [
+                              "[",
+                              "\"Intervention, Order\"",
+                              ": "
+                            ]
+                          },
+                          {
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Comfort Measures\""
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "]"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "46",
+            "locator": "77:2-78:51",
+            "type": "Union",
+            "operand": [
+              {
+                "locator": "77:2-77:48",
+                "type": "As",
+                "operand": {
+                  "localId": "44",
+                  "locator": "77:2-77:48",
+                  "dataType": "{urn:healthit-gov:qdm:v5_3}PositiveInterventionPerformed",
+                  "templateId": "PositiveInterventionPerformed",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Comfort Measures",
+                    "type": "ValueSetRef"
+                  }
+                },
+                "asTypeSpecifier": {
+                  "type": "ListTypeSpecifier",
+                  "elementType": {
+                    "type": [
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_3}PositiveInterventionPerformed",
+                        "type": "NamedTypeSpecifier"
+                      },
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_3}PositiveInterventionOrder",
+                        "type": "NamedTypeSpecifier"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "locator": "78:9-78:51",
+                "type": "As",
+                "operand": {
+                  "localId": "45",
+                  "locator": "78:9-78:51",
+                  "dataType": "{urn:healthit-gov:qdm:v5_3}PositiveInterventionOrder",
+                  "templateId": "PositiveInterventionOrder",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Comfort Measures",
+                    "type": "ValueSetRef"
+                  }
+                },
+                "asTypeSpecifier": {
+                  "type": "ListTypeSpecifier",
+                  "elementType": {
+                    "type": [
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_3}PositiveInterventionPerformed",
+                        "type": "NamedTypeSpecifier"
+                      },
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_3}PositiveInterventionOrder",
+                        "type": "NamedTypeSpecifier"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "62",
+          "locator": "49:1-52:145",
+          "name": "Comfort Measures during Hospitalization",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "62",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Comfort Measures during Hospitalization\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "61",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "43",
+                            "s": [
+                              {
+                                "r": "42",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "TJC",
+                                          ".",
+                                          "\"Encounter with Principal Diagnosis of Ischemic Stroke\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n\t\t"
+                        ]
+                      },
+                      {
+                        "r": "60",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "49",
+                            "s": [
+                              {
+                                "r": "48",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Intervention Comfort Measures\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "ComfortMeasure"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n\t\t\tsuch that "
+                            ]
+                          },
+                          {
+                            "r": "59",
+                            "s": [
+                              {
+                                "r": "55",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "Coalesce",
+                                      "("
+                                    ]
+                                  },
+                                  {
+                                    "r": "52",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "start of "
+                                        ]
+                                      },
+                                      {
+                                        "r": "51",
+                                        "s": [
+                                          {
+                                            "r": "50",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "ComfortMeasure"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "51",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "relevantPeriod"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ", "
+                                    ]
+                                  },
+                                  {
+                                    "r": "54",
+                                    "s": [
+                                      {
+                                        "r": "53",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "ComfortMeasure"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "54",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "authorDatetime"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ")"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "59",
+                                "value": [
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "58",
+                                "s": [
+                                  {
+                                    "r": "56",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "58",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Hospitalization\"",
+                                          "("
+                                        ]
+                                      },
+                                      {
+                                        "r": "57",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "NonElectiveEncounter"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ")"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "61",
+            "locator": "50:2-52:145",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "43",
+                "locator": "50:2-50:81",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "42",
+                  "locator": "50:2-50:60",
+                  "name": "Encounter with Principal Diagnosis of Ischemic Stroke",
+                  "libraryName": "TJC",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "60",
+                "locator": "51:3-52:145",
+                "alias": "ComfortMeasure",
+                "type": "With",
+                "expression": {
+                  "localId": "48",
+                  "locator": "51:8-51:38",
+                  "name": "Intervention Comfort Measures",
+                  "type": "ExpressionRef"
+                },
+                "suchThat": {
+                  "localId": "59",
+                  "locator": "52:14-52:145",
+                  "type": "In",
+                  "operand": [
+                    {
+                      "localId": "55",
+                      "locator": "52:14-52:92",
+                      "type": "Coalesce",
+                      "operand": [
+                        {
+                          "localId": "52",
+                          "locator": "52:23-52:60",
+                          "type": "Start",
+                          "operand": {
+                            "localId": "51",
+                            "locator": "52:32-52:60",
+                            "path": "relevantPeriod",
+                            "scope": "ComfortMeasure",
+                            "type": "Property"
+                          }
+                        },
+                        {
+                          "localId": "54",
+                          "locator": "52:63-52:91",
+                          "path": "authorDatetime",
+                          "scope": "ComfortMeasure",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "58",
+                      "locator": "52:100-52:145",
+                      "name": "Hospitalization",
+                      "libraryName": "global",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "localId": "57",
+                          "locator": "52:125-52:144",
+                          "name": "NonElectiveEncounter",
+                          "type": "AliasRef"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "65",
+          "locator": "54:1-55:60",
+          "name": "Denominator",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "65",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Denominator\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "64",
+                    "s": [
+                      {
+                        "r": "63",
+                        "s": [
+                          {
+                            "value": [
+                              "TJC"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "."
+                        ]
+                      },
+                      {
+                        "r": "64",
+                        "s": [
+                          {
+                            "value": [
+                              "\"Encounter with Principal Diagnosis of Ischemic Stroke\""
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "64",
+            "locator": "55:2-55:60",
+            "name": "Encounter with Principal Diagnosis of Ischemic Stroke",
+            "libraryName": "TJC",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "localId": "77",
+          "locator": "57:1-60:74",
+          "name": "Denominator Exceptions",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "77",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Denominator Exceptions\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "76",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "67",
+                            "s": [
+                              {
+                                "r": "66",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "TJC",
+                                          ".",
+                                          "\"Encounter with Principal Diagnosis of Ischemic Stroke\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Encounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n\t\t"
+                        ]
+                      },
+                      {
+                        "r": "75",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "69",
+                            "s": [
+                              {
+                                "r": "68",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Antithrombotic Not Given at Discharge\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Antithrombotic"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n\t\t\tsuch that "
+                            ]
+                          },
+                          {
+                            "r": "74",
+                            "s": [
+                              {
+                                "r": "71",
+                                "s": [
+                                  {
+                                    "r": "70",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Antithrombotic"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "71",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "authorDatetime"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "73",
+                                "s": [
+                                  {
+                                    "r": "72",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Encounter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "73",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "relevantPeriod"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "76",
+            "locator": "58:2-60:74",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "67",
+                "locator": "58:2-58:70",
+                "alias": "Encounter",
+                "expression": {
+                  "localId": "66",
+                  "locator": "58:2-58:60",
+                  "name": "Encounter with Principal Diagnosis of Ischemic Stroke",
+                  "libraryName": "TJC",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "75",
+                "locator": "59:3-60:74",
+                "alias": "Antithrombotic",
+                "type": "With",
+                "expression": {
+                  "localId": "68",
+                  "locator": "59:8-59:46",
+                  "name": "Antithrombotic Not Given at Discharge",
+                  "type": "ExpressionRef"
+                },
+                "suchThat": {
+                  "localId": "74",
+                  "locator": "60:14-60:74",
+                  "type": "In",
+                  "operand": [
+                    {
+                      "localId": "71",
+                      "locator": "60:14-60:42",
+                      "path": "authorDatetime",
+                      "scope": "Antithrombotic",
+                      "type": "Property"
+                    },
+                    {
+                      "localId": "73",
+                      "locator": "60:51-60:74",
+                      "path": "relevantPeriod",
+                      "scope": "Encounter",
+                      "type": "Property"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "108",
+          "locator": "62:1-71:2",
+          "name": "Denominator Exclusions",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "108",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Denominator Exclusions\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "107",
+                    "s": [
+                      {
+                        "value": [
+                          "distinct",
+                          "("
+                        ]
+                      },
+                      {
+                        "r": "106",
+                        "s": [
+                          {
+                            "r": "104",
+                            "s": [
+                              {
+                                "value": [
+                                  "("
+                                ]
+                              },
+                              {
+                                "r": "104",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "r": "79",
+                                        "s": [
+                                          {
+                                            "r": "78",
+                                            "s": [
+                                              {
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "TJC",
+                                                      ".",
+                                                      "\"Encounter with Principal Diagnosis of Ischemic Stroke\""
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              " ",
+                                              "Encounter"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "\n\t\t\t\t"
+                                    ]
+                                  },
+                                  {
+                                    "r": "103",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "where "
+                                        ]
+                                      },
+                                      {
+                                        "r": "103",
+                                        "s": [
+                                          {
+                                            "r": "98",
+                                            "s": [
+                                              {
+                                                "r": "93",
+                                                "s": [
+                                                  {
+                                                    "r": "88",
+                                                    "s": [
+                                                      {
+                                                        "r": "83",
+                                                        "s": [
+                                                          {
+                                                            "r": "81",
+                                                            "s": [
+                                                              {
+                                                                "r": "80",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "Encounter"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "value": [
+                                                                  "."
+                                                                ]
+                                                              },
+                                                              {
+                                                                "r": "81",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "dischargeDisposition"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "value": [
+                                                              " in "
+                                                            ]
+                                                          },
+                                                          {
+                                                            "r": "82",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "\"Discharge To Acute Care Facility\""
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          "\n\t\t\t\t\tor "
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "87",
+                                                        "s": [
+                                                          {
+                                                            "r": "85",
+                                                            "s": [
+                                                              {
+                                                                "r": "84",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "Encounter"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "value": [
+                                                                  "."
+                                                                ]
+                                                              },
+                                                              {
+                                                                "r": "85",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "dischargeDisposition"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "value": [
+                                                              " in "
+                                                            ]
+                                                          },
+                                                          {
+                                                            "r": "86",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "\"Left Against Medical Advice\""
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "\n\t\t\t\t\tor "
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "92",
+                                                    "s": [
+                                                      {
+                                                        "r": "90",
+                                                        "s": [
+                                                          {
+                                                            "r": "89",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "Encounter"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "value": [
+                                                              "."
+                                                            ]
+                                                          },
+                                                          {
+                                                            "r": "90",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "dischargeDisposition"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          " in "
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "91",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "\"Patient Expired\""
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "\n\t\t\t\t\tor "
+                                                ]
+                                              },
+                                              {
+                                                "r": "97",
+                                                "s": [
+                                                  {
+                                                    "r": "95",
+                                                    "s": [
+                                                      {
+                                                        "r": "94",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "Encounter"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          "."
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "95",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "dischargeDisposition"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      " in "
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "96",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "\"Discharged to Home for Hospice Care\""
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "\n\t\t\t\t\tor "
+                                            ]
+                                          },
+                                          {
+                                            "r": "102",
+                                            "s": [
+                                              {
+                                                "r": "100",
+                                                "s": [
+                                                  {
+                                                    "r": "99",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "Encounter"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "."
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "100",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "dischargeDisposition"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  " in "
+                                                ]
+                                              },
+                                              {
+                                                "r": "101",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "\"Discharged to Health Care Facility for Hospice Care\""
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "\n\t\t)"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n\t\t\tunion "
+                            ]
+                          },
+                          {
+                            "r": "105",
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Comfort Measures during Hospitalization\""
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n\t)"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "107",
+            "locator": "63:2-71:2",
+            "type": "Distinct",
+            "operand": {
+              "localId": "106",
+              "locator": "63:11-70:50",
+              "type": "Union",
+              "operand": [
+                {
+                  "localId": "104",
+                  "locator": "63:11-69:3",
+                  "type": "Query",
+                  "source": [
+                    {
+                      "localId": "79",
+                      "locator": "63:12-63:80",
+                      "alias": "Encounter",
+                      "expression": {
+                        "localId": "78",
+                        "locator": "63:12-63:70",
+                        "name": "Encounter with Principal Diagnosis of Ischemic Stroke",
+                        "libraryName": "TJC",
+                        "type": "ExpressionRef"
+                      }
+                    }
+                  ],
+                  "relationship": [
+
+                  ],
+                  "where": {
+                    "localId": "103",
+                    "locator": "64:5-68:95",
+                    "type": "Or",
+                    "operand": [
+                      {
+                        "localId": "98",
+                        "locator": "64:11-67:79",
+                        "type": "Or",
+                        "operand": [
+                          {
+                            "localId": "93",
+                            "locator": "64:11-66:59",
+                            "type": "Or",
+                            "operand": [
+                              {
+                                "localId": "88",
+                                "locator": "64:11-65:71",
+                                "type": "Or",
+                                "operand": [
+                                  {
+                                    "localId": "83",
+                                    "locator": "64:11-64:78",
+                                    "type": "InValueSet",
+                                    "code": {
+                                      "localId": "81",
+                                      "locator": "64:11-64:40",
+                                      "path": "dischargeDisposition",
+                                      "scope": "Encounter",
+                                      "type": "Property"
+                                    },
+                                    "valueset": {
+                                      "localId": "82",
+                                      "locator": "64:45-64:78",
+                                      "name": "Discharge To Acute Care Facility"
+                                    }
+                                  },
+                                  {
+                                    "localId": "87",
+                                    "locator": "65:9-65:71",
+                                    "type": "InValueSet",
+                                    "code": {
+                                      "localId": "85",
+                                      "locator": "65:9-65:38",
+                                      "path": "dischargeDisposition",
+                                      "scope": "Encounter",
+                                      "type": "Property"
+                                    },
+                                    "valueset": {
+                                      "localId": "86",
+                                      "locator": "65:43-65:71",
+                                      "name": "Left Against Medical Advice"
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "localId": "92",
+                                "locator": "66:9-66:59",
+                                "type": "InValueSet",
+                                "code": {
+                                  "localId": "90",
+                                  "locator": "66:9-66:38",
+                                  "path": "dischargeDisposition",
+                                  "scope": "Encounter",
+                                  "type": "Property"
+                                },
+                                "valueset": {
+                                  "localId": "91",
+                                  "locator": "66:43-66:59",
+                                  "name": "Patient Expired"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "localId": "97",
+                            "locator": "67:9-67:79",
+                            "type": "InValueSet",
+                            "code": {
+                              "localId": "95",
+                              "locator": "67:9-67:38",
+                              "path": "dischargeDisposition",
+                              "scope": "Encounter",
+                              "type": "Property"
+                            },
+                            "valueset": {
+                              "localId": "96",
+                              "locator": "67:43-67:79",
+                              "name": "Discharged to Home for Hospice Care"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "localId": "102",
+                        "locator": "68:9-68:95",
+                        "type": "InValueSet",
+                        "code": {
+                          "localId": "100",
+                          "locator": "68:9-68:38",
+                          "path": "dischargeDisposition",
+                          "scope": "Encounter",
+                          "type": "Property"
+                        },
+                        "valueset": {
+                          "localId": "101",
+                          "locator": "68:43-68:95",
+                          "name": "Discharged to Health Care Facility for Hospice Care"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "localId": "105",
+                  "locator": "70:10-70:50",
+                  "name": "Comfort Measures during Hospitalization",
+                  "type": "ExpressionRef"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "111",
+          "locator": "73:1-74:49",
+          "name": "Initial Population",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "111",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Initial Population\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "110",
+                    "s": [
+                      {
+                        "r": "109",
+                        "s": [
+                          {
+                            "value": [
+                              "TJC"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "."
+                        ]
+                      },
+                      {
+                        "r": "110",
+                        "s": [
+                          {
+                            "value": [
+                              "\"Encounter with Principal Diagnosis and Age\""
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "110",
+            "locator": "74:2-74:49",
+            "name": "Encounter with Principal Diagnosis and Age",
+            "libraryName": "TJC",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "localId": "123",
+          "locator": "80:1-83:74",
+          "name": "Numerator",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "123",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Numerator\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "122",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "113",
+                            "s": [
+                              {
+                                "r": "112",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "TJC",
+                                          ".",
+                                          "\"Encounter with Principal Diagnosis of Ischemic Stroke\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Encounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n\t\t"
+                        ]
+                      },
+                      {
+                        "r": "121",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "115",
+                            "s": [
+                              {
+                                "r": "114",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Antithrombotic Therapy at Discharge\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Antithrombotic"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n\t\t\tsuch that "
+                            ]
+                          },
+                          {
+                            "r": "120",
+                            "s": [
+                              {
+                                "r": "117",
+                                "s": [
+                                  {
+                                    "r": "116",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Antithrombotic"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "117",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "authorDatetime"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "119",
+                                "s": [
+                                  {
+                                    "r": "118",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Encounter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "119",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "relevantPeriod"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "122",
+            "locator": "81:2-83:74",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "113",
+                "locator": "81:2-81:70",
+                "alias": "Encounter",
+                "expression": {
+                  "localId": "112",
+                  "locator": "81:2-81:60",
+                  "name": "Encounter with Principal Diagnosis of Ischemic Stroke",
+                  "libraryName": "TJC",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "121",
+                "locator": "82:3-83:74",
+                "alias": "Antithrombotic",
+                "type": "With",
+                "expression": {
+                  "localId": "114",
+                  "locator": "82:8-82:44",
+                  "name": "Antithrombotic Therapy at Discharge",
+                  "type": "ExpressionRef"
+                },
+                "suchThat": {
+                  "localId": "120",
+                  "locator": "83:14-83:74",
+                  "type": "In",
+                  "operand": [
+                    {
+                      "localId": "117",
+                      "locator": "83:14-83:42",
+                      "path": "authorDatetime",
+                      "scope": "Antithrombotic",
+                      "type": "Property"
+                    },
+                    {
+                      "localId": "119",
+                      "locator": "83:51-83:74",
+                      "path": "relevantPeriod",
+                      "scope": "Encounter",
+                      "type": "Property"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
