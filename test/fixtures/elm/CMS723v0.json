@@ -1,0 +1,3948 @@
+{
+  "library": {
+    "identifier": {
+      "id": "AnticoagulationTherapyforAtrialFibrillationFlutter",
+      "version": "0.0.009"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "1",
+          "localIdentifier": "QDM",
+          "uri": "urn:healthit-gov:qdm:v5_0_1_draft",
+          "version": "5.0.2"
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "2",
+          "localIdentifier": "global",
+          "path": "MATGlobalCommonFunctions",
+          "version": "1.0.000"
+        }
+      ]
+    },
+    "parameters": {
+      "def": [
+        {
+          "localId": "23",
+          "name": "Measurement Period",
+          "accessLevel": "Public",
+          "parameterTypeSpecifier": {
+            "localId": "22",
+            "type": "IntervalTypeSpecifier",
+            "pointType": {
+              "localId": "21",
+              "name": "{urn:hl7-org:elm-types:r1}DateTime",
+              "type": "NamedTypeSpecifier"
+            }
+          }
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "localId": "3",
+          "name": "ONC Administrative Sex",
+          "id": "2.16.840.1.113762.1.4.1",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "4",
+          "name": "Race",
+          "id": "2.16.840.1.114222.4.11.836",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "5",
+          "name": "Ethnicity",
+          "id": "2.16.840.1.114222.4.11.837",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "6",
+          "name": "Payer",
+          "id": "2.16.840.1.114222.4.11.3591",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "7",
+          "name": "Anticoagulant Therapy",
+          "id": "2.16.840.1.113883.3.117.1.7.1.200",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "8",
+          "name": "Atrial Fibrillation/Flutter",
+          "id": "2.16.840.1.113883.3.117.1.7.1.202",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "9",
+          "name": "Medical Reason",
+          "id": "2.16.840.1.113883.3.117.1.7.1.473",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "10",
+          "name": "Patient Refusal",
+          "id": "2.16.840.1.113883.3.117.1.7.1.93",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "11",
+          "name": "Atrial Ablation",
+          "id": "2.16.840.1.113883.3.117.1.7.1.203",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "12",
+          "name": "Non-Elective Inpatient Encounter",
+          "id": "2.16.840.1.113883.3.117.1.7.1.424",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "13",
+          "name": "Comfort Measures",
+          "id": "1.3.6.1.4.1.33895.1.3.0.45",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "14",
+          "name": "Patient Expired",
+          "id": "2.16.840.1.113883.3.117.1.7.1.309",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "15",
+          "name": "Left Against Medical Advice",
+          "id": "2.16.840.1.113883.3.117.1.7.1.308",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "16",
+          "name": "Discharged to Health Care Facility for Hospice Care",
+          "id": "2.16.840.1.113883.3.117.1.7.1.207",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "17",
+          "name": "Discharge To Acute Care Facility",
+          "id": "2.16.840.1.113883.3.117.1.7.1.87",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "18",
+          "name": "Discharged to Home for Hospice Care",
+          "id": "2.16.840.1.113883.3.117.1.7.1.209",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "19",
+          "name": "Hemorrhagic Stroke",
+          "id": "2.16.840.1.113883.3.117.1.7.1.212",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        },
+        {
+          "localId": "20",
+          "name": "Ischemic Stroke",
+          "id": "2.16.840.1.113883.3.117.1.7.1.247",
+          "version": null,
+          "accessLevel": "Public",
+          "profile": "Most Recent Code System Versions in VSAC"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}Patient",
+              "templateId": "Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "25",
+          "name": "SDE Ethnicity",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "25",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Ethnicity\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "24",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Ethnicity\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"Ethnicity\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "24",
+            "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PatientCharacteristicEthnicity",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "Ethnicity",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "27",
+          "name": "SDE Payer",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "27",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Payer\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "26",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Payer\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"Payer\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "26",
+            "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PatientCharacteristicPayer",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "Payer",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "29",
+          "name": "SDE Race",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "29",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Race\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "28",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Race\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"Race\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "28",
+            "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PatientCharacteristicRace",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "Race",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "31",
+          "name": "SDE Sex",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "31",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SDE Sex\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "30",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "\"Patient Characteristic Sex\"",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"ONC Administrative Sex\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "30",
+            "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PatientCharacteristicSex",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "ONC Administrative Sex",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "44",
+          "name": "Non Elective Inpatient Encounter",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "44",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Non Elective Inpatient Encounter\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "43",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "33",
+                            "s": [
+                              {
+                                "r": "32",
+                                "s": [
+                                  {
+                                    "r": "32",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Encounter, Performed\"",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Non-Elective Inpatient Encounter\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\r\n    "
+                        ]
+                      },
+                      {
+                        "r": "42",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "42",
+                            "s": [
+                              {
+                                "r": "37",
+                                "s": [
+                                  {
+                                    "r": "35",
+                                    "s": [
+                                      {
+                                        "r": "34",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "NonElectiveEncounter"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "35",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "lengthOfStay"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " ",
+                                      "<=",
+                                      " "
+                                    ]
+                                  },
+                                  {
+                                    "r": "36",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "120 ",
+                                          "days"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " \r\n      and "
+                                ]
+                              },
+                              {
+                                "r": "41",
+                                "s": [
+                                  {
+                                    "r": "39",
+                                    "s": [
+                                      {
+                                        "r": "38",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "NonElectiveEncounter"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "39",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "relevantPeriod"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " ",
+                                      "ends during",
+                                      " "
+                                    ]
+                                  },
+                                  {
+                                    "r": "40",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Measurement Period\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "43",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "33",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "32",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveEncounterPerformed",
+                  "templateId": "PositiveEncounterPerformed",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Non-Elective Inpatient Encounter",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+
+            ],
+            "where": {
+              "localId": "42",
+              "type": "And",
+              "operand": [
+                {
+                  "localId": "37",
+                  "type": "LessOrEqual",
+                  "operand": [
+                    {
+                      "localId": "35",
+                      "path": "lengthOfStay",
+                      "scope": "NonElectiveEncounter",
+                      "type": "Property"
+                    },
+                    {
+                      "localId": "36",
+                      "value": 120,
+                      "unit": "days",
+                      "type": "Quantity"
+                    }
+                  ]
+                },
+                {
+                  "localId": "41",
+                  "type": "In",
+                  "operand": [
+                    {
+                      "type": "End",
+                      "operand": {
+                        "localId": "39",
+                        "path": "relevantPeriod",
+                        "scope": "NonElectiveEncounter",
+                        "type": "Property"
+                      }
+                    },
+                    {
+                      "localId": "40",
+                      "name": "Measurement Period",
+                      "type": "ParameterRef"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "69",
+          "name": "Encounter with Principal Diagnosis and Age",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "69",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Encounter with Principal Diagnosis and Age\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "68",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "46",
+                            "s": [
+                              {
+                                "r": "45",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Non Elective Inpatient Encounter\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\r\n "
+                        ]
+                      },
+                      {
+                        "r": "58",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "48",
+                            "s": [
+                              {
+                                "r": "47",
+                                "s": [
+                                  {
+                                    "r": "47",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Patient Characteristic Birthdate\"",
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "P"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\r\n        such that "
+                            ]
+                          },
+                          {
+                            "r": "57",
+                            "s": [
+                              {
+                                "r": "55",
+                                "s": [
+                                  {
+                                    "r": "49",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "55",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"CalendarAgeInYearsAt\"",
+                                          "("
+                                        ]
+                                      },
+                                      {
+                                        "r": "51",
+                                        "s": [
+                                          {
+                                            "r": "50",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "P"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "51",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "birthDatetime"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ", "
+                                        ]
+                                      },
+                                      {
+                                        "r": "54",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "start of "
+                                            ]
+                                          },
+                                          {
+                                            "r": "53",
+                                            "s": [
+                                              {
+                                                "r": "52",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "NonElectiveEncounter"
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "."
+                                                ]
+                                              },
+                                              {
+                                                "r": "53",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "relevantPeriod"
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ")"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  ">=",
+                                  " ",
+                                  "18"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\r\n"
+                        ]
+                      },
+                      {
+                        "r": "67",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "67",
+                            "s": [
+                              {
+                                "value": [
+                                  "("
+                                ]
+                              },
+                              {
+                                "r": "67",
+                                "s": [
+                                  {
+                                    "r": "62",
+                                    "s": [
+                                      {
+                                        "r": "60",
+                                        "s": [
+                                          {
+                                            "r": "59",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "NonElectiveEncounter"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "60",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "principalDiagnosis"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " in "
+                                        ]
+                                      },
+                                      {
+                                        "r": "61",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Hemorrhagic Stroke\""
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "\r\nor "
+                                    ]
+                                  },
+                                  {
+                                    "r": "66",
+                                    "s": [
+                                      {
+                                        "r": "64",
+                                        "s": [
+                                          {
+                                            "r": "63",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "NonElectiveEncounter"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "64",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "principalDiagnosis"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " in "
+                                        ]
+                                      },
+                                      {
+                                        "r": "65",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Ischemic Stroke\""
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  ")"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "68",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "46",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "45",
+                  "name": "Non Elective Inpatient Encounter",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "58",
+                "alias": "P",
+                "type": "With",
+                "expression": {
+                  "localId": "47",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PatientCharacteristicBirthdate",
+                  "type": "Retrieve"
+                },
+                "suchThat": {
+                  "localId": "57",
+                  "type": "GreaterOrEqual",
+                  "operand": [
+                    {
+                      "localId": "55",
+                      "name": "CalendarAgeInYearsAt",
+                      "libraryName": "global",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "localId": "51",
+                          "path": "birthDatetime",
+                          "scope": "P",
+                          "type": "Property"
+                        },
+                        {
+                          "localId": "54",
+                          "type": "Start",
+                          "operand": {
+                            "localId": "53",
+                            "path": "relevantPeriod",
+                            "scope": "NonElectiveEncounter",
+                            "type": "Property"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "56",
+                      "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                      "value": "18",
+                      "type": "Literal"
+                    }
+                  ]
+                }
+              }
+            ],
+            "where": {
+              "localId": "67",
+              "type": "Or",
+              "operand": [
+                {
+                  "localId": "62",
+                  "type": "InValueSet",
+                  "code": {
+                    "localId": "60",
+                    "path": "principalDiagnosis",
+                    "scope": "NonElectiveEncounter",
+                    "type": "Property"
+                  },
+                  "valueset": {
+                    "localId": "61",
+                    "name": "Hemorrhagic Stroke"
+                  }
+                },
+                {
+                  "localId": "66",
+                  "type": "InValueSet",
+                  "code": {
+                    "localId": "64",
+                    "path": "principalDiagnosis",
+                    "scope": "NonElectiveEncounter",
+                    "type": "Property"
+                  },
+                  "valueset": {
+                    "localId": "65",
+                    "name": "Ischemic Stroke"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "71",
+          "name": "Initial Population",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "71",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Initial Population\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "70",
+                    "s": [
+                      {
+                        "value": [
+                          "\"Encounter with Principal Diagnosis and Age\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "70",
+            "name": "Encounter with Principal Diagnosis and Age",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "localId": "79",
+          "name": "Encounter with Principle Diagnosis of Ischemic Stroke",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "79",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Encounter with Principle Diagnosis of Ischemic Stroke\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "78",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "73",
+                            "s": [
+                              {
+                                "r": "72",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Encounter with Principal Diagnosis and Age\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\r\n"
+                        ]
+                      },
+                      {
+                        "r": "77",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "77",
+                            "s": [
+                              {
+                                "r": "75",
+                                "s": [
+                                  {
+                                    "r": "74",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "NonElectiveEncounter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "75",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "principalDiagnosis"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " in "
+                                ]
+                              },
+                              {
+                                "r": "76",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"Ischemic Stroke\""
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "78",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "73",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "72",
+                  "name": "Encounter with Principal Diagnosis and Age",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+
+            ],
+            "where": {
+              "localId": "77",
+              "type": "InValueSet",
+              "code": {
+                "localId": "75",
+                "path": "principalDiagnosis",
+                "scope": "NonElectiveEncounter",
+                "type": "Property"
+              },
+              "valueset": {
+                "localId": "76",
+                "name": "Ischemic Stroke"
+              }
+            }
+          }
+        },
+        {
+          "localId": "92",
+          "name": "Encounter with Atrial Ablation Procedure",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "92",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Encounter with Atrial Ablation Procedure\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "91",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "81",
+                            "s": [
+                              {
+                                "r": "80",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Encounter with Principle Diagnosis of Ischemic Stroke\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "90",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "83",
+                            "s": [
+                              {
+                                "r": "82",
+                                "s": [
+                                  {
+                                    "r": "82",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Procedure, Performed\"",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Atrial Ablation\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "AtrialAblation"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n    such that "
+                            ]
+                          },
+                          {
+                            "r": "89",
+                            "s": [
+                              {
+                                "r": "85",
+                                "s": [
+                                  {
+                                    "r": "84",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "AtrialAblation"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "85",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "relevantPeriod"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "starts before",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "88",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "start of "
+                                    ]
+                                  },
+                                  {
+                                    "r": "87",
+                                    "s": [
+                                      {
+                                        "r": "86",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "NonElectiveEncounter"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "87",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "relevantPeriod"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "91",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "81",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "80",
+                  "name": "Encounter with Principle Diagnosis of Ischemic Stroke",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "90",
+                "alias": "AtrialAblation",
+                "type": "With",
+                "expression": {
+                  "localId": "82",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveProcedurePerformed",
+                  "templateId": "PositiveProcedurePerformed",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Atrial Ablation",
+                    "type": "ValueSetRef"
+                  }
+                },
+                "suchThat": {
+                  "localId": "89",
+                  "type": "Before",
+                  "operand": [
+                    {
+                      "type": "Start",
+                      "operand": {
+                        "localId": "85",
+                        "path": "relevantPeriod",
+                        "scope": "AtrialAblation",
+                        "type": "Property"
+                      }
+                    },
+                    {
+                      "localId": "88",
+                      "type": "Start",
+                      "operand": {
+                        "localId": "87",
+                        "path": "relevantPeriod",
+                        "scope": "NonElectiveEncounter",
+                        "type": "Property"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "100",
+          "name": "Current Diagnosis Atrial FibrillationFlutter",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "100",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Current Diagnosis Atrial FibrillationFlutter\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "99",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "94",
+                            "s": [
+                              {
+                                "r": "93",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Encounter with Principle Diagnosis of Ischemic Stroke\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n"
+                        ]
+                      },
+                      {
+                        "r": "98",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "98",
+                            "s": [
+                              {
+                                "r": "96",
+                                "s": [
+                                  {
+                                    "r": "95",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "NonElectiveEncounter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "96",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "diagnosis"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " in "
+                                ]
+                              },
+                              {
+                                "r": "97",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"Atrial Fibrillation/Flutter\""
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "99",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "94",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "93",
+                  "name": "Encounter with Principle Diagnosis of Ischemic Stroke",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+
+            ],
+            "where": {
+              "localId": "98",
+              "type": "InValueSet",
+              "code": {
+                "localId": "96",
+                "path": "diagnosis",
+                "scope": "NonElectiveEncounter",
+                "type": "Property"
+              },
+              "valueset": {
+                "localId": "97",
+                "name": "Atrial Fibrillation/Flutter"
+              }
+            }
+          }
+        },
+        {
+          "localId": "114",
+          "name": "History of Atrial FibrillationFlutter",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "114",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"History of Atrial FibrillationFlutter\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "113",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "103",
+                            "s": [
+                              {
+                                "r": "102",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Encounter with Principle Diagnosis of Ischemic Stroke\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "112",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "105",
+                            "s": [
+                              {
+                                "r": "104",
+                                "s": [
+                                  {
+                                    "r": "104",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Diagnosis\"",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Atrial Fibrillation/Flutter\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "AtrialFibrillationFlutter"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n    such that "
+                            ]
+                          },
+                          {
+                            "r": "111",
+                            "s": [
+                              {
+                                "r": "107",
+                                "s": [
+                                  {
+                                    "r": "106",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "AtrialFibrillationFlutter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "107",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "prevalencePeriod"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "starts on or before",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "110",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "end of "
+                                    ]
+                                  },
+                                  {
+                                    "r": "109",
+                                    "s": [
+                                      {
+                                        "r": "108",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "NonElectiveEncounter"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "109",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "relevantPeriod"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "113",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "103",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "102",
+                  "name": "Encounter with Principle Diagnosis of Ischemic Stroke",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "112",
+                "alias": "AtrialFibrillationFlutter",
+                "type": "With",
+                "expression": {
+                  "localId": "104",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}Diagnosis",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Atrial Fibrillation/Flutter",
+                    "type": "ValueSetRef"
+                  }
+                },
+                "suchThat": {
+                  "localId": "111",
+                  "type": "SameOrBefore",
+                  "operand": [
+                    {
+                      "type": "Start",
+                      "operand": {
+                        "localId": "107",
+                        "path": "prevalencePeriod",
+                        "scope": "AtrialFibrillationFlutter",
+                        "type": "Property"
+                      }
+                    },
+                    {
+                      "localId": "110",
+                      "type": "End",
+                      "operand": {
+                        "localId": "109",
+                        "path": "relevantPeriod",
+                        "scope": "NonElectiveEncounter",
+                        "type": "Property"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "119",
+          "name": "Denominator",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "119",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Denominator\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "118",
+                    "s": [
+                      {
+                        "r": "116",
+                        "s": [
+                          {
+                            "r": "101",
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Encounter with Atrial Ablation Procedure\""
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\nunion\n"
+                            ]
+                          },
+                          {
+                            "r": "115",
+                            "s": [
+                              {
+                                "value": [
+                                  "\"History of Atrial FibrillationFlutter\""
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\nunion\n"
+                        ]
+                      },
+                      {
+                        "r": "117",
+                        "s": [
+                          {
+                            "value": [
+                              "\"Current Diagnosis Atrial FibrillationFlutter\""
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "118",
+            "type": "Union",
+            "operand": [
+              {
+                "localId": "116",
+                "type": "Union",
+                "operand": [
+                  {
+                    "localId": "101",
+                    "name": "Encounter with Atrial Ablation Procedure",
+                    "type": "ExpressionRef"
+                  },
+                  {
+                    "localId": "115",
+                    "name": "History of Atrial FibrillationFlutter",
+                    "type": "ExpressionRef"
+                  }
+                ]
+              },
+              {
+                "localId": "117",
+                "name": "Current Diagnosis Atrial FibrillationFlutter",
+                "type": "ExpressionRef"
+              }
+            ]
+          }
+        },
+        {
+          "localId": "123",
+          "name": "Anticoagulant Therapy at Discharge",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "123",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Anticoagulant Therapy at Discharge\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "122",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "121",
+                            "s": [
+                              {
+                                "r": "120",
+                                "s": [
+                                  {
+                                    "r": "120",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Medication, Discharge\"",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Anticoagulant Therapy\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Anticoagulant"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "122",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "121",
+                "alias": "Anticoagulant",
+                "expression": {
+                  "localId": "120",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveMedicationDischarge",
+                  "templateId": "PositiveMedicationDischarge",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Anticoagulant Therapy",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+
+            ]
+          }
+        },
+        {
+          "localId": "135",
+          "name": "Numerator",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "135",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Numerator\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "134",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "125",
+                            "s": [
+                              {
+                                "r": "124",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Denominator\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "133",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "127",
+                            "s": [
+                              {
+                                "r": "126",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Anticoagulant Therapy at Discharge\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Anticoagulant"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n        such that "
+                            ]
+                          },
+                          {
+                            "r": "132",
+                            "s": [
+                              {
+                                "r": "129",
+                                "s": [
+                                  {
+                                    "r": "128",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Anticoagulant"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "129",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "authorDatetime"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "131",
+                                "s": [
+                                  {
+                                    "r": "130",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "NonElectiveEncounter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "131",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "relevantPeriod"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "134",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "125",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "124",
+                  "name": "Denominator",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "133",
+                "alias": "Anticoagulant",
+                "type": "With",
+                "expression": {
+                  "localId": "126",
+                  "name": "Anticoagulant Therapy at Discharge",
+                  "type": "ExpressionRef"
+                },
+                "suchThat": {
+                  "localId": "132",
+                  "type": "In",
+                  "operand": [
+                    {
+                      "localId": "129",
+                      "path": "authorDatetime",
+                      "scope": "Anticoagulant",
+                      "type": "Property"
+                    },
+                    {
+                      "localId": "131",
+                      "path": "relevantPeriod",
+                      "scope": "NonElectiveEncounter",
+                      "type": "Property"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "148",
+          "name": "Anticoagulant Not Given at Discharge",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "148",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Anticoagulant Not Given at Discharge\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "147",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "137",
+                            "s": [
+                              {
+                                "r": "136",
+                                "s": [
+                                  {
+                                    "r": "136",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "\"Medication, Not Discharged\"",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Anticoagulant Therapy\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Anticoagulant"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "146",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "146",
+                            "s": [
+                              {
+                                "r": "141",
+                                "s": [
+                                  {
+                                    "r": "139",
+                                    "s": [
+                                      {
+                                        "r": "138",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Anticoagulant"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "139",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "negationRationale"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " in "
+                                    ]
+                                  },
+                                  {
+                                    "r": "140",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Medical Reason\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "\n    or "
+                                ]
+                              },
+                              {
+                                "r": "145",
+                                "s": [
+                                  {
+                                    "r": "143",
+                                    "s": [
+                                      {
+                                        "r": "142",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Anticoagulant"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "143",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "negationRationale"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " in "
+                                    ]
+                                  },
+                                  {
+                                    "r": "144",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Patient Refusal\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "147",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "137",
+                "alias": "Anticoagulant",
+                "expression": {
+                  "localId": "136",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}NegativeMedicationDischarge",
+                  "templateId": "NegativeMedicationDischarge",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Anticoagulant Therapy",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+
+            ],
+            "where": {
+              "localId": "146",
+              "type": "Or",
+              "operand": [
+                {
+                  "localId": "141",
+                  "type": "InValueSet",
+                  "code": {
+                    "localId": "139",
+                    "path": "negationRationale",
+                    "scope": "Anticoagulant",
+                    "type": "Property"
+                  },
+                  "valueset": {
+                    "localId": "140",
+                    "name": "Medical Reason"
+                  }
+                },
+                {
+                  "localId": "145",
+                  "type": "InValueSet",
+                  "code": {
+                    "localId": "143",
+                    "path": "negationRationale",
+                    "scope": "Anticoagulant",
+                    "type": "Property"
+                  },
+                  "valueset": {
+                    "localId": "144",
+                    "name": "Patient Refusal"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "160",
+          "name": "Denominator Exceptions",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "160",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Denominator Exceptions\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "159",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "150",
+                            "s": [
+                              {
+                                "r": "149",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Denominator\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "158",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "152",
+                            "s": [
+                              {
+                                "r": "151",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Anticoagulant Not Given at Discharge\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Anticoagulant"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n        such that "
+                            ]
+                          },
+                          {
+                            "r": "157",
+                            "s": [
+                              {
+                                "r": "154",
+                                "s": [
+                                  {
+                                    "r": "153",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Anticoagulant"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "154",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "authorDatetime"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "156",
+                                "s": [
+                                  {
+                                    "r": "155",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "NonElectiveEncounter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "156",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "relevantPeriod"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "159",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "150",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "149",
+                  "name": "Denominator",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "158",
+                "alias": "Anticoagulant",
+                "type": "With",
+                "expression": {
+                  "localId": "151",
+                  "name": "Anticoagulant Not Given at Discharge",
+                  "type": "ExpressionRef"
+                },
+                "suchThat": {
+                  "localId": "157",
+                  "type": "In",
+                  "operand": [
+                    {
+                      "localId": "154",
+                      "path": "authorDatetime",
+                      "scope": "Anticoagulant",
+                      "type": "Property"
+                    },
+                    {
+                      "localId": "156",
+                      "path": "relevantPeriod",
+                      "scope": "NonElectiveEncounter",
+                      "type": "Property"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "164",
+          "name": "Intervention Comfort Measures",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "164",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Intervention Comfort Measures\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "163",
+                    "s": [
+                      {
+                        "r": "161",
+                        "s": [
+                          {
+                            "value": [
+                              "[",
+                              "\"Intervention, Order\"",
+                              ": "
+                            ]
+                          },
+                          {
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Comfort Measures\""
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "]"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    union "
+                        ]
+                      },
+                      {
+                        "r": "162",
+                        "s": [
+                          {
+                            "value": [
+                              "[",
+                              "\"Intervention, Performed\"",
+                              ": "
+                            ]
+                          },
+                          {
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Comfort Measures\""
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "]"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "163",
+            "type": "Union",
+            "operand": [
+              {
+                "type": "As",
+                "operand": {
+                  "localId": "161",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveInterventionOrder",
+                  "templateId": "PositiveInterventionOrder",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Comfort Measures",
+                    "type": "ValueSetRef"
+                  }
+                },
+                "asTypeSpecifier": {
+                  "type": "ListTypeSpecifier",
+                  "elementType": {
+                    "type": [
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveInterventionPerformed",
+                        "type": "NamedTypeSpecifier"
+                      },
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveInterventionOrder",
+                        "type": "NamedTypeSpecifier"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "As",
+                "operand": {
+                  "localId": "162",
+                  "dataType": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveInterventionPerformed",
+                  "templateId": "PositiveInterventionPerformed",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Comfort Measures",
+                    "type": "ValueSetRef"
+                  }
+                },
+                "asTypeSpecifier": {
+                  "type": "ListTypeSpecifier",
+                  "elementType": {
+                    "type": [
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveInterventionPerformed",
+                        "type": "NamedTypeSpecifier"
+                      },
+                      {
+                        "name": "{urn:healthit-gov:qdm:v5_0_1_draft}PositiveInterventionOrder",
+                        "type": "NamedTypeSpecifier"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "181",
+          "name": "Comfort Measures during Hospitalization",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "181",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Comfort Measures during Hospitalization\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "180",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "166",
+                            "s": [
+                              {
+                                "r": "165",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Denominator\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "NonElectiveEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "179",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "168",
+                            "s": [
+                              {
+                                "r": "167",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Intervention Comfort Measures\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "ComfortMeasure"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n        such that "
+                            ]
+                          },
+                          {
+                            "r": "178",
+                            "s": [
+                              {
+                                "r": "174",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "Coalesce",
+                                      "("
+                                    ]
+                                  },
+                                  {
+                                    "r": "171",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "start of "
+                                        ]
+                                      },
+                                      {
+                                        "r": "170",
+                                        "s": [
+                                          {
+                                            "r": "169",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "ComfortMeasure"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "170",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "relevantPeriod"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ", "
+                                    ]
+                                  },
+                                  {
+                                    "r": "173",
+                                    "s": [
+                                      {
+                                        "r": "172",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "ComfortMeasure"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "173",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "authorDatetime"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ")"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "177",
+                                "s": [
+                                  {
+                                    "r": "175",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "177",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Hospitalization\"",
+                                          "("
+                                        ]
+                                      },
+                                      {
+                                        "r": "176",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "NonElectiveEncounter"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ")"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "180",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "166",
+                "alias": "NonElectiveEncounter",
+                "expression": {
+                  "localId": "165",
+                  "name": "Denominator",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "179",
+                "alias": "ComfortMeasure",
+                "type": "With",
+                "expression": {
+                  "localId": "167",
+                  "name": "Intervention Comfort Measures",
+                  "type": "ExpressionRef"
+                },
+                "suchThat": {
+                  "localId": "178",
+                  "type": "In",
+                  "operand": [
+                    {
+                      "localId": "174",
+                      "type": "Coalesce",
+                      "operand": [
+                        {
+                          "localId": "171",
+                          "type": "Start",
+                          "operand": {
+                            "localId": "170",
+                            "path": "relevantPeriod",
+                            "scope": "ComfortMeasure",
+                            "type": "Property"
+                          }
+                        },
+                        {
+                          "localId": "173",
+                          "path": "authorDatetime",
+                          "scope": "ComfortMeasure",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "177",
+                      "name": "Hospitalization",
+                      "libraryName": "global",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "localId": "176",
+                          "name": "NonElectiveEncounter",
+                          "type": "AliasRef"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "212",
+          "name": "Denominator Exclusions1",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "212",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"Denominator Exclusions1\"",
+                      ": "
+                    ]
+                  },
+                  {
+                    "r": "211",
+                    "s": [
+                      {
+                        "value": [
+                          "distinct",
+                          " ("
+                        ]
+                      },
+                      {
+                        "r": "210",
+                        "s": [
+                          {
+                            "r": "208",
+                            "s": [
+                              {
+                                "value": [
+                                  "(\r\n"
+                                ]
+                              },
+                              {
+                                "r": "208",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "r": "183",
+                                        "s": [
+                                          {
+                                            "r": "182",
+                                            "s": [
+                                              {
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "\"Denominator\""
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              " ",
+                                              "Encounter"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "\r\n\t"
+                                    ]
+                                  },
+                                  {
+                                    "r": "207",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "where "
+                                        ]
+                                      },
+                                      {
+                                        "r": "207",
+                                        "s": [
+                                          {
+                                            "r": "202",
+                                            "s": [
+                                              {
+                                                "r": "197",
+                                                "s": [
+                                                  {
+                                                    "r": "192",
+                                                    "s": [
+                                                      {
+                                                        "r": "187",
+                                                        "s": [
+                                                          {
+                                                            "r": "185",
+                                                            "s": [
+                                                              {
+                                                                "r": "184",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "Encounter"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "value": [
+                                                                  "."
+                                                                ]
+                                                              },
+                                                              {
+                                                                "r": "185",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "dischargeDisposition"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "value": [
+                                                              " in "
+                                                            ]
+                                                          },
+                                                          {
+                                                            "r": "186",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "\"Discharge To Acute Care Facility\""
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          "\r\n\tor "
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "191",
+                                                        "s": [
+                                                          {
+                                                            "r": "189",
+                                                            "s": [
+                                                              {
+                                                                "r": "188",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "Encounter"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              },
+                                                              {
+                                                                "value": [
+                                                                  "."
+                                                                ]
+                                                              },
+                                                              {
+                                                                "r": "189",
+                                                                "s": [
+                                                                  {
+                                                                    "value": [
+                                                                      "dischargeDisposition"
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "value": [
+                                                              " in "
+                                                            ]
+                                                          },
+                                                          {
+                                                            "r": "190",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "\"Left Against Medical Advice\""
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "\r\n\tor "
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "196",
+                                                    "s": [
+                                                      {
+                                                        "r": "194",
+                                                        "s": [
+                                                          {
+                                                            "r": "193",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "Encounter"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "value": [
+                                                              "."
+                                                            ]
+                                                          },
+                                                          {
+                                                            "r": "194",
+                                                            "s": [
+                                                              {
+                                                                "value": [
+                                                                  "dischargeDisposition"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          " in "
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "195",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "\"Patient Expired\""
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "\r\n\tor "
+                                                ]
+                                              },
+                                              {
+                                                "r": "201",
+                                                "s": [
+                                                  {
+                                                    "r": "199",
+                                                    "s": [
+                                                      {
+                                                        "r": "198",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "Encounter"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          "."
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "199",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "dischargeDisposition"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      " in "
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "200",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "\"Discharged to Home for Hospice Care\""
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "\r\n\tor "
+                                            ]
+                                          },
+                                          {
+                                            "r": "206",
+                                            "s": [
+                                              {
+                                                "r": "204",
+                                                "s": [
+                                                  {
+                                                    "r": "203",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "Encounter"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "."
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "204",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "dischargeDisposition"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  " in "
+                                                ]
+                                              },
+                                              {
+                                                "r": "205",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "\"Discharged to Health Care Facility for Hospice Care\""
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "\r\n    )"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\r\nunion "
+                            ]
+                          },
+                          {
+                            "r": "209",
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Comfort Measures during Hospitalization\""
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\r\n)"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "211",
+            "type": "Distinct",
+            "operand": {
+              "localId": "210",
+              "type": "Union",
+              "operand": [
+                {
+                  "localId": "208",
+                  "type": "Query",
+                  "source": [
+                    {
+                      "localId": "183",
+                      "alias": "Encounter",
+                      "expression": {
+                        "localId": "182",
+                        "name": "Denominator",
+                        "type": "ExpressionRef"
+                      }
+                    }
+                  ],
+                  "relationship": [
+
+                  ],
+                  "where": {
+                    "localId": "207",
+                    "type": "Or",
+                    "operand": [
+                      {
+                        "localId": "202",
+                        "type": "Or",
+                        "operand": [
+                          {
+                            "localId": "197",
+                            "type": "Or",
+                            "operand": [
+                              {
+                                "localId": "192",
+                                "type": "Or",
+                                "operand": [
+                                  {
+                                    "localId": "187",
+                                    "type": "InValueSet",
+                                    "code": {
+                                      "localId": "185",
+                                      "path": "dischargeDisposition",
+                                      "scope": "Encounter",
+                                      "type": "Property"
+                                    },
+                                    "valueset": {
+                                      "localId": "186",
+                                      "name": "Discharge To Acute Care Facility"
+                                    }
+                                  },
+                                  {
+                                    "localId": "191",
+                                    "type": "InValueSet",
+                                    "code": {
+                                      "localId": "189",
+                                      "path": "dischargeDisposition",
+                                      "scope": "Encounter",
+                                      "type": "Property"
+                                    },
+                                    "valueset": {
+                                      "localId": "190",
+                                      "name": "Left Against Medical Advice"
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "localId": "196",
+                                "type": "InValueSet",
+                                "code": {
+                                  "localId": "194",
+                                  "path": "dischargeDisposition",
+                                  "scope": "Encounter",
+                                  "type": "Property"
+                                },
+                                "valueset": {
+                                  "localId": "195",
+                                  "name": "Patient Expired"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "localId": "201",
+                            "type": "InValueSet",
+                            "code": {
+                              "localId": "199",
+                              "path": "dischargeDisposition",
+                              "scope": "Encounter",
+                              "type": "Property"
+                            },
+                            "valueset": {
+                              "localId": "200",
+                              "name": "Discharged to Home for Hospice Care"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "localId": "206",
+                        "type": "InValueSet",
+                        "code": {
+                          "localId": "204",
+                          "path": "dischargeDisposition",
+                          "scope": "Encounter",
+                          "type": "Property"
+                        },
+                        "valueset": {
+                          "localId": "205",
+                          "name": "Discharged to Health Care Facility for Hospice Care"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "localId": "209",
+                  "name": "Comfort Measures during Hospitalization",
+                  "type": "ExpressionRef"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
