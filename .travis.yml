@@ -5,5 +5,5 @@ cache:
  - npm
 script:
  - npm run check
- - echo "$TEST_KEY"
- - echo "$TEST_KEY" >/dev/null
+ - unzip -P $VALUESET_KEY test/fixtures/EXM130-8.0.000/EXM130-8.0.000-bundle.zip
+ - rm EXM130-8.0.000-bundle.json
