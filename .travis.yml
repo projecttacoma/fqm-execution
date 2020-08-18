@@ -5,3 +5,5 @@ cache:
  - npm
 script:
  - npm run check
+ - echo "$TEST_KEY"
+ - echo "$TEST_KEY" >/dev/null
