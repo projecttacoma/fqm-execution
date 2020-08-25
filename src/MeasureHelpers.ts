@@ -1,4 +1,4 @@
-import { ELM } from './types/Helpers';
+import { ELM, ELMStatement } from './types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 
 /**
@@ -13,7 +13,7 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
   // and returns do not have localIds in the elm but do in elm_annotations at a consistent calculable offset.
   // BE WEARY of this calaculable offset.
   const emptyResultClauses: any[] = [];
-  const statement = libraryElm.library.statements.def.find((stat: any) => stat.name === statementName);
+  const statement = libraryElm.library.statements.def.find(stat => stat.name === statementName);
   const libraryName = libraryElm.library.identifier.id;
 
   const aliasMap = {};
@@ -21,7 +21,7 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
   const localIds = findAllLocalIdsInStatement(
     statement,
     libraryName,
-    statement.annotation,
+    statement?.annotation,
     {},
     aliasMap,
     emptyResultClauses,
@@ -41,7 +41,7 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
 
   // We do not yet support coverage/coloring of Function statements
   // Mark all the clauses as unsupported so we can mark them 'NA' in the clause_results
-  if (statement.type === 'FunctionDef') {
+  if (statement?.type === 'FunctionDef') {
     for (const localId in localIds) {
       const clause = localIds[localId];
       clause.isUnsupported = true;
@@ -53,7 +53,7 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
 /**
  * Finds all localIds in the statement structure recursively.
  * @private
- * @param {any} statement - The statement structure or child parts of it.
+ * @param {ELMStatement | any} statement - The statement structure or child parts of it.
  * @param {String} libraryName - The name of the library we are looking at.
  * @param {any[]} annotation - The JSON annotation for the entire structure, this is occasionally needed.
  * @param {any} localIds - The hash of localIds we are filling.
@@ -64,9 +64,9 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
  * @return {any} List of local ids in the statement. This is same array, localIds, that is passed in.
  */
 export function findAllLocalIdsInStatement(
-  statement: any,
+  statement: ELMStatement | any,
   libraryName: string,
-  annotation: any[],
+  annotation: any[] | undefined,
   localIds: any,
   aliasMap: any,
   emptyResultClauses: any[],
