@@ -1,6 +1,6 @@
 import * as MeasureHelpers from '../src/MeasureHelpers';
 import { readFileSync } from 'fs';
-import { ELM } from '../src/types/Helpers';
+import { ELM } from '../src/types/ELMTypes';
 
 function getJSONFixture(path: string): any {
   return JSON.parse(readFileSync(`test/fixtures/${path}`).toString());
