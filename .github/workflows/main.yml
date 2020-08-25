@@ -1,0 +1,31 @@
+name: Github Secret Scanner
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      REPO: https://github.com/projecttacoma/fqm-execution
+      REMOTE_EXCLUDES_URL: https://raw.githubusercontent.com/projecttacoma/fqm-execution/master/.github/gitleaks.toml
+      GITLEAKS_VERSION: v4.3.0
+    steps:
+    - name: Execute Gitleaks
+      run: |
+        #wget ${REMOTE_EXCLUDES_URL} -O gitleaks.toml
+        curl -H 'Authorization: token ${{ secrets.ACCESS_TOKEN_GITLEAKS }}' ${REMOTE_EXCLUDES_URL} -o gitleaks.toml
+        wget https://github.com/zricethezav/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks-linux-amd64 -O gitleaks
+        chmod +x gitleaks
+        echo ${GITHUB_SHA}
+        echo "gitleaks --repo=${REPO} -v --pretty --redact --commit=${GITHUB_SHA} --config=gitleaks.toml"
+        ./gitleaks --repo=${REPO} -v --pretty --redact --commit=${GITHUB_SHA} --config=gitleaks.toml --access-token=${{ secrets.ACCESS_TOKEN_GITLEAKS }}
+    - name: Slack notification
+      if: failure()
+      env:
+        SLACK_WEBHOOK_GITLEAKS: ${{ secrets.SLACK_WEBHOOK_GITLEAKS }}
+      uses: Ilshidur/action-slack@master
+      with:
+        args: 'Potential Secrets found in: https://github.com/{{ GITHUB_REPOSITORY }}/commit/{{ GITHUB_SHA }} Link to build with full gitleaks output: https://github.com/{{ GITHUB_REPOSITORY }}/commit/{{ GITHUB_SHA }}/checks'
+
