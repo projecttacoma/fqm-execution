@@ -1,5 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ExecutionResult, CalculationOptions, FinalResult, Relevance, PopulationType } from './types/Calculator';
+import { ExecutionResult, CalculationOptions } from './types/Calculator';
+import { FinalResult, Relevance, PopulationType } from './types/Enums';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
