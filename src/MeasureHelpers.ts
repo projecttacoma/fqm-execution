@@ -1,5 +1,6 @@
 import { ELM, ELMStatement } from './types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { PopulationType } from './types/Enums';
 
 /**
  * Finds all localIds in a statement by it's library and statement name.
@@ -319,15 +320,55 @@ export function isStatementFunction(library: ELM, statementName: string): boolea
  * @return {boolean} Statement does or does not belong to a Supplemental Data Element.
  */
 export function isSupplementalDataElementStatement(
-  supplementalDataElements: R4.IMeasure_SupplementalData[],
+  supplementalDataElements: R4.IMeasure_SupplementalData[] | undefined,
   statementName: string
 ): boolean {
-  for (const supplementalData of supplementalDataElements) {
-    if (supplementalData.criteria.language === 'text/cql' && supplementalData.criteria.expression === statementName) {
-      return true;
+  if (supplementalDataElements != undefined) {
+    for (const supplementalData of supplementalDataElements) {
+      if (supplementalData.criteria.language === 'text/cql' && supplementalData.criteria.expression === statementName) {
+        return true;
+      }
     }
   }
   return false;
+}
+
+const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
+
+/**
+ * Check if a measure is an episode of care measure or not. Look for the cqfm-populationBasis extension.
+ * If it is found return true if valueCode is not 'boolean' otherwise return false.
+ *
+ * @param measure FHIR Measure resource.
+ * @returns true if this is an episode of care, false if it is a patient measure.
+ */
+export function isEpisodeOfCareMeasure(measure: R4.IMeasure): boolean {
+  const popBasisExt = measure.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
+  if (popBasisExt != undefined) {
+    return popBasisExt.valueCode != 'boolean';
+  } else {
+    return false;
+  }
+}
+
+const POPULATION_TYPE_CODESYSTEM = 'http://terminology.hl7.org/CodeSystem/measure-population';
+
+/**
+ * Converts FHIR CodeableConcept value for the measure population type to a PopulationType enum value.
+ *
+ * @param concept The FHIR CodeableConcept value for the measure population.
+ * @returns null if not a proper population type. The PopulationType if it is.
+ */
+export function codeableConceptToPopulationType(concept: R4.ICodeableConcept): PopulationType | null {
+  const populationTypeCoding = concept.coding?.find(coding => {
+    return coding.system == POPULATION_TYPE_CODESYSTEM;
+  });
+
+  if (populationTypeCoding?.code != null && Object.values(<any>PopulationType).includes(populationTypeCoding.code)) {
+    return <PopulationType>populationTypeCoding.code;
+  }
+
+  return null;
 }
 
 function __guard__(value: any, transform: any) {

@@ -1,6 +1,8 @@
 import * as MeasureHelpers from '../src/MeasureHelpers';
 import { readFileSync } from 'fs';
 import { ELM } from '../src/types/ELMTypes';
+import { R4 } from '@ahryman40k/ts-fhir-types';
+import { PopulationType } from '../src/types/Enums';
 
 function getJSONFixture(path: string): any {
   return JSON.parse(readFileSync(`test/fixtures/${path}`).toString());
@@ -137,6 +139,65 @@ describe('MeasureHelpers', () => {
     test('returns null if it does not find the proper libraryName for the expressionRef', () => {
       const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '42', 'notTJC');
       expect(ret).toBeNull();
+    });
+  });
+
+  describe('codeableConceptToPopulationType', () => {
+    test('codeable concept with no codings returns null', () => {
+      const codeableConcept: R4.ICodeableConcept = {
+        text: 'no codings'
+      };
+      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
+    });
+
+    test('codeable concept with empty returns null', () => {
+      const codeableConcept: R4.ICodeableConcept = {
+        text: 'empty codings',
+        coding: []
+      };
+      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
+    });
+
+    test('codeable concept with codings of different system returns null', () => {
+      const codeableConcept: R4.ICodeableConcept = {
+        text: 'bad system coding',
+        coding: [
+          {
+            code: 'initial-population',
+            display: 'Totally Initial Population',
+            system: 'http://example.org/terminology/bad-system'
+          }
+        ]
+      };
+      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
+    });
+
+    test('codeable concept proper coding returns valid enum', () => {
+      const codeableConcept: R4.ICodeableConcept = {
+        text: 'good coding',
+        coding: [
+          {
+            code: 'initial-population',
+            display: 'Initial Population',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      };
+      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toEqual(PopulationType.IPP);
+    });
+
+    test('codeable concept correct system, bad code returns null', () => {
+      const codeableConcept: R4.ICodeableConcept = {
+        text: 'good coding',
+        coding: [
+          {
+            code: 'fake-population',
+            display: 'Fake Population',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      };
+      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
     });
   });
 });
