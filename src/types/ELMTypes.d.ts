@@ -68,6 +68,8 @@ export interface ELMStatement {
   /** Clause id. This is used to reference logic to the annotation structure. */
   localId?: string;
   /** Locator in the original CQL file. Only exists if compiled with this info. */
+  locator?: string;
+  /** Name of the statement. */
   name: string;
   /** The context of this statement. Usually 'Patient'. */
   context: string;
