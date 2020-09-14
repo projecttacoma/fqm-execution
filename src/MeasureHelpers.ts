@@ -359,8 +359,8 @@ const POPULATION_TYPE_CODESYSTEM = 'http://terminology.hl7.org/CodeSystem/measur
  * @param concept The FHIR CodeableConcept value for the measure population.
  * @returns null if not a proper population type. The PopulationType if it is.
  */
-export function codeableConceptToPopulationType(concept: R4.ICodeableConcept): PopulationType | null {
-  const populationTypeCoding = concept.coding?.find(coding => {
+export function codeableConceptToPopulationType(concept: R4.ICodeableConcept | undefined): PopulationType | null {
+  const populationTypeCoding = concept?.coding?.find(coding => {
     return coding.system == POPULATION_TYPE_CODESYSTEM;
   });
 
