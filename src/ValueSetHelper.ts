@@ -1,4 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { ValueSetMap } from 'cql-execution';
+import moment from 'moment';
 
 /**
  * Create the code service valueset database that the cql-execution engine needs.
@@ -10,8 +12,8 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
  * @param valueSetResources FHIR ValueSets.
  * @returns The value set DB structure needed for the cql-execution CodeService.
  */
-export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): any {
-  const valueSets: any = {};
+export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): ValueSetMap {
+  const valueSets: ValueSetMap = {};
   valueSetResources.forEach(valueSet => {
     if (valueSet.compose && valueSet.url) {
       // Grab id for this valueset (should match FHIR ValueSet url)
@@ -35,12 +37,14 @@ export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): any 
       // Iterate over include components and add all concepts
       valueSet.compose.include.forEach(include => {
         include.concept?.forEach(concept => {
-          valueSets[valueSetId][version].push({
-            code: concept.code,
-            system: include.system,
-            version: include.version,
-            display: concept.display
-          });
+          if (concept.code && include.system) {
+            valueSets[valueSetId][version].push({
+              code: concept.code,
+              system: include.system,
+              version: include.version,
+              display: concept.display
+            });
+          }
         });
       });
     } else {
@@ -48,4 +52,14 @@ export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): any 
     }
   });
   return valueSets;
+}
+
+// Create Date from UTC string date and time using momentJS
+export function parseTimeStringAsUTC(timeValue: string): Date {
+  return moment.utc(timeValue, 'YYYYMDDHHmm').toDate();
+}
+
+// Create Date from UTC string date and time using momentJS, shifting to 11:59:59 of the given year
+export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Date {
+  return moment.utc(timeValue, 'YYYYMDDHHmm').add(1, 'years').subtract(1, 'seconds').toDate();
 }
