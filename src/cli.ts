@@ -1,8 +1,10 @@
+#!/usr/bin/env ts-node --files
+
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import { calculate } from './Calculator';
+import { calculateRaw } from './Calculator';
 
 program
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
@@ -17,5 +19,5 @@ function parseBundle(filePath: string): R4.IBundle {
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 const patientBundle = parseBundle(path.resolve(program.patientBundle));
 
-const result = calculate(measureBundle, [patientBundle], {});
+const result = calculateRaw(measureBundle, [patientBundle], {});
 console.log(JSON.stringify(result, null, 2));
