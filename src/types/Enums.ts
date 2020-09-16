@@ -5,7 +5,7 @@ export enum PopulationType {
   IPP = 'initial-population',
   DENOM = 'denominator',
   DENEX = 'denominator-exclusion',
-  DENEXCP = 'denominator-exception',
+  DENEXCEP = 'denominator-exception',
   NUMER = 'numerator',
   NUMEX = 'numerator-exclusion',
   MSRPOPL = 'measure-population',
