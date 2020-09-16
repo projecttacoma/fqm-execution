@@ -12,9 +12,9 @@ export interface CalculationOptions {
   /** Include highlighting in MeasureReport narrative. Defaults to false. */
   includeHighlighting?: boolean;
   /** Start of measurement period. */
-  measurementPeriodStart?: Date;
+  measurementPeriodStart?: string;
   /** End of measurement period */
-  measurementPeriodEnd?: Date;
+  measurementPeriodEnd?: string;
   /** PatientSource to use. If provided, the patientBundles will not be required. */
   patientSource?: any;
 }
