@@ -102,4 +102,6 @@ export interface ELMValueSet {
   id: string;
   /** The access level of this valueset. Usually 'Public'. */
   accessLevel?: string;
+  /** Version of the valueset. Should not be used in eCQM land. */
+  version?: string;
 }
