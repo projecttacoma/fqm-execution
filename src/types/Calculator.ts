@@ -118,7 +118,7 @@ export interface PopulationResult {
   /** True if this patient or episode calculates with membership in this population. */
   result: boolean;
   /** Observations made for this population. */
-  observations?: any[];
+  observations?: any;
 }
 
 /**
