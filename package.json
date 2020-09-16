@@ -10,7 +10,8 @@
     "atob": "^2.1.2",
     "commander": "^6.1.0",
     "cql-exec-fhir": "^1.4.0",
-    "cql-execution": "^1.4.3"
+    "cql-execution": "^1.4.3",
+    "moment": "^2.28.0"
   },
   "devDependencies": {
     "@ahryman40k/ts-fhir-types": "^4.0.32",
