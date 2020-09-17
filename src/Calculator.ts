@@ -6,6 +6,7 @@ import { FinalResult, Relevance, PopulationType } from './types/Enums';
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
+import { dumpELMJSONs, dumpVSMap } from './DebugHelper';
 
 import { valueSetsForCodeService, parseTimeStringAsUTC } from './ValueSetHelper';
 
@@ -177,9 +178,8 @@ export function calculateRaw(
   const rep = new cql.Repository(elmJSONs);
   const lib = rep.resolve(rootLibIdentifer.id, rootLibIdentifer.version);
 
-  // console.log(elmJSONs.map(json => json.library.identifier));
-
-  // console.log(elmJSONs[0].library.includes);
+  dumpELMJSONs(elmJSONs);
+  dumpVSMap(vsMap);
 
   const executor = new cql.Executor(lib, codeService, parameters);
   const results = executor.exec(patientSource, executionDateTime);
