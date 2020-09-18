@@ -1,6 +1,7 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult } from './types/Calculator';
 import * as MeasureHelpers from '../src/MeasureHelpers';
+import { getResult, hasResult, setResult } from '../src/ResultsHelpers';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import moment from 'moment';
 import { PopulationType } from './types/Enums';
@@ -193,26 +194,6 @@ export function createPatientPopulationValues(
   //TODO: Support patient level observations.
 
   return populationResults;
-}
-
-export function hasResult(populationType: PopulationType, results: PopulationResult[]): boolean {
-  return results.find(result => result.populationType == populationType) != null;
-}
-
-// If the given population result is in the given result list, return the result
-export function getResult(populationType: PopulationType, results: PopulationResult[]): boolean {
-  if (results.find(result => result.populationType == populationType)?.result == true) {
-    return true;
-  }
-  return false;
-}
-
-// If the given value is in the given populationSet, set the result to the new result
-export function setResult(populationType: PopulationType, newResult: boolean, results: PopulationResult[]): void {
-  const popResult = results.find(result => result.populationType == populationType);
-  if (popResult) {
-    popResult.result = newResult;
-  }
 }
 
 /**
