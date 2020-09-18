@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 declare module 'cql-execution' {
   interface CQLCode {
-      system: string;
-      code: string;
-      display?: string;
-      version?: string;
+    system: string;
+    code: string;
+    display?: string;
+    version?: string;
   }
 
   export interface ValueSetMap {
@@ -31,11 +31,24 @@ declare module 'cql-execution' {
     constructor(valueSetsJson: ValueSetMap);
   }
 
-  export const DateTime = {
-    fromJSDate(date: Date, timezoneOffset: number): any
-  };
+  export class DateTime {
+    static fromJSDate(date: Date, timezoneOffset: number): any;
+    toString(): string;
+  }
 
   export class Interval {
     constructor(start: any, end: any);
+    low: any;
+    high: any;
+  }
+
+  export class Code {
+    system: string;
+    code: string;
+  }
+
+  export class Quantity {
+    value: number;
+    unit: string;
   }
 }
