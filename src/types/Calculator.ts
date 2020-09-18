@@ -98,13 +98,13 @@ export interface StatementResult {
   /** Name of statement */
   statementName: string;
   /** LocalId of the root CQL/ELM clause for this statement*/
-  localId: string;
+  localId?: string;
   /** Final, processed result of raw calculation */
   final: FinalResult;
   /** The relevance of this statement for the poulation group */
   relevance: Relevance;
   /** Raw result from the engine */
-  raw: any;
+  raw?: any;
   /** Pretty result for this statement. */
   pretty?: string;
 }
