@@ -55,8 +55,10 @@ export function calculate(
       detailedResults: []
     };
 
-    // Grab results for the patient
+    // Grab statement results for the patient
     const patientStatementResults = rawResults.patientResults[patient.id];
+    // Grab localId results for the patient
+    const patientLocalIdResults = rawResults.localIdPatientResultsMap[patient.id];
 
     // iterator to use for group ID if they are defined in the population groups
     let i = 1;
@@ -83,6 +85,16 @@ export function calculate(
         mainLibraryName,
         elmLibraries,
         group
+      );
+
+      // adds result information to the statement results and builds up clause results
+      detailedGroupResult.clauseResults = ResultsHelpers.buildStatementAndClauseResults(
+        measure,
+        elmLibraries,
+        patientLocalIdResults,
+        detailedGroupResult.statementResults,
+        true,
+        true
       );
 
       // add this group result to the patient results
