@@ -1,7 +1,7 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult } from './types/Calculator';
-import * as MeasureHelpers from '../src/MeasureHelpers';
-import { getResult, hasResult, setResult } from '../src/ResultsHelpers';
+import * as MeasureHelpers from './MeasureHelpers';
+import { getResult, hasResult, setResult } from './ResultsHelpers';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import moment from 'moment';
 import { PopulationType } from './types/Enums';
