@@ -105,3 +105,22 @@ export interface ELMValueSet {
   /** Version of the valueset. Should not be used in eCQM land. */
   version?: string;
 }
+
+export interface LibraryDependencyInfo {
+  /** The library id */
+  libraryId: string;
+  /** The library version */
+  libraryVersion: string;
+  /** List of all statements and what statements they reference. */
+  statementDependencies: StatementDependency[];
+}
+
+export interface StatementDependency {
+  statementName: string;
+  statementReferences: StatementReference[];
+}
+
+export interface StatementReference {
+  libraryId: string;
+  statementName: string;
+}
