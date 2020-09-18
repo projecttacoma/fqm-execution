@@ -72,11 +72,14 @@ export function calculate(
       }
 
       // get the relevance information for each population
-      const populationRelevance = ResultsHelpers.buildPopulationGroupRelevanceMap(group, detailedGroupResult);
+      detailedGroupResult.populationRelevance = ResultsHelpers.buildPopulationGroupRelevanceMap(
+        group,
+        detailedGroupResult
+      );
 
       // use relevance info to fill out statement relevance information and create initial statementResults structure
       detailedGroupResult.statementResults = ResultsHelpers.buildStatementRelevanceMap(
-        populationRelevance,
+        detailedGroupResult.populationRelevance,
         mainLibraryName,
         elmLibraries,
         group
