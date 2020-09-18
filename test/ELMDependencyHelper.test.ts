@@ -9,7 +9,7 @@ function getELMFixture(path: string): ELM {
 describe('ELMDependencyHelper', () => {
   describe('buildStatementDependencyMaps', () => {
     test('can create dependency map for statements', () => {
-      const elms = [getELMFixture('elm/EXM130/ExM130.json')];
+      const elms = [getELMFixture('elm/EXM130/EXM130.json')];
       const libInfos = ELMDependencyHelper.buildStatementDependencyMaps(elms);
 
       // check top level
@@ -30,11 +30,6 @@ describe('ELMDependencyHelper', () => {
           { libraryId: 'MATGlobalCommonFunctions', statementName: 'Normalize Interval' }
         ]);
       }
-
-      //FHIRHelpers ToString
-      //MGC NormalizeInterval
-
-      console.log(JSON.stringify(libInfos, null, 2));
     });
   });
 });
