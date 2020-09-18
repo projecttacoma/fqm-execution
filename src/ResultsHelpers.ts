@@ -1,11 +1,17 @@
-import * as MeasureHelpers from '../src/MeasureHelpers';
-import * as ELMDependencyHelper from '../src/ELMDependencyHelper';
+import * as MeasureHelpers from './MeasureHelpers';
+import * as ELMDependencyHelper from './ELMDependencyHelper';
 import { ELM, LibraryDependencyInfo } from './types/ELMTypes';
 import cql from 'cql-execution';
 import moment from 'moment';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { FinalResult, PopulationType, Relevance } from './types/Enums';
-import { ClauseResult, EpisodeResults, PopulationResult, StatementResult } from './types/Calculator';
+import {
+  ClauseResult,
+  DetailedPopulationGroupResult,
+  EpisodeResults,
+  PopulationResult,
+  StatementResult
+} from './types/Calculator';
 
 /**
  * Contains helpers that generate useful data for coverage and highlighing.
@@ -592,7 +598,7 @@ export function doesResultPass(result: any | null): boolean {
  * @param {episodeResults} result - Population_results for each episode
  * @returns {object} Map that tells if a population calculation was considered/relevant in any episode
  */
-export function populationRelevanceForAllEpisodes(
+export function buildPopulationRelevanceForAllEpisodes(
   populationGroup: R4.IMeasure_Group,
   episodeResultsSet: EpisodeResults[]
 ): PopulationResult[] {
@@ -776,6 +782,23 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
   }
 
   return relevantResults;
+}
+
+export function buildPopulationGroupRelevanceMap(
+  group: R4.IMeasure_Group,
+  results: DetailedPopulationGroupResult
+): PopulationResult[] {
+  // Episode of care measure
+  if (results.episodeResults) {
+    return buildPopulationRelevanceForAllEpisodes(group, results.episodeResults);
+
+    // Normal patient based measure
+  } else if (results.populationResults) {
+    return buildPopulationRelevanceMap(results.populationResults);
+  } else {
+    // this shouldn't happen
+    return [];
+  }
 }
 
 export function hasResult(populationType: PopulationType, results: PopulationResult[]): boolean {

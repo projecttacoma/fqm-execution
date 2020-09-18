@@ -26,7 +26,7 @@ export interface ExecutionResult {
   /** ID of the patient this calculation result belongs to. */
   patientId: string;
   /** FHIR MeasureReport of type 'individual' for this patient. */
-  measureReport: R4.IMeasureReport;
+  measureReport?: R4.IMeasureReport;
   /** Detailed results for each population group and stratification. */
   detailedResults?: DetailedPopulationGroupResult[];
 }
