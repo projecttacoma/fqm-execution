@@ -178,8 +178,8 @@ export function createPatientPopulationValues(
       let result;
       if (Array.isArray(value) && value.length > 0) {
         result = true;
-      } else if (typeof value === 'boolean' && value) {
-        result = false;
+      } else if (typeof value === 'boolean' && value === true) {
+        result = true;
       } else {
         result = false;
       }
