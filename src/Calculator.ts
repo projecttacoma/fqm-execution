@@ -9,6 +9,7 @@ import { dumpObject } from './DebugHelper';
 
 import * as CalculatorHelpers from './CalculatorHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
+import * as Execution from './Execution';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -27,12 +28,17 @@ export function calculate(
   const measure = measureEntry.resource as R4.IMeasure;
   const executionResults: ExecutionResult[] = [];
 
-  let rawResults = calculateRaw(measureBundle, patientBundles, options) as cql.Results;
-  if (typeof rawResults === 'string') {
-    throw new Error(rawResults as string);
-  } else {
-    rawResults = rawResults as cql.Results;
+  const results = Execution.execute(measureBundle, patientBundles, options);
+  if (!results.rawResults) {
+    throw new Error(results.errorMessage ?? 'something happened with no error message');
   }
+  const rawResults = results.rawResults;
+
+  if (!results.elmLibraries || !results.mainLibraryName) {
+    throw new Error('no libraries were found');
+  }
+  const elmLibraries = results.elmLibraries;
+  const mainLibraryName = results.mainLibraryName;
 
   // Iterate over patient bundles and make results for each of them.
   patientBundles.forEach(patientBundle => {
@@ -66,7 +72,13 @@ export function calculate(
       // get the relevance information for each population
       const populationRelevance = ResultsHelpers.buildPopulationGroupRelevanceMap(group, detailedGroupResult);
 
-      // use relevance info to fill out statement relevance information
+      // use relevance info to fill out statement relevance information and create initial statementResults structure
+      detailedGroupResult.statementResults = ResultsHelpers.buildStatementRelevanceMap(
+        populationRelevance,
+        mainLibraryName,
+        elmLibraries,
+        group
+      );
 
       // add this group result to the patient results
       patientExecutionResult.detailedResults?.push(detailedGroupResult);
