@@ -65,6 +65,8 @@ export interface DetailedPopulationGroupResult {
    * in the CQL logic will have a result.
    */
   statementResults: StatementResult[];
+  /** Population Relevance. Listing if each population was considered or not. */
+  populationRelevance?: PopulationResult[];
   /** Results for each population in this group. */
   populationResults?: PopulationResult[];
   /** If this is an episode of care measure. Each episode found in IPP will have results. */
