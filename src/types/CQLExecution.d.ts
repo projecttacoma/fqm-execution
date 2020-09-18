@@ -13,13 +13,33 @@ declare module 'cql-execution' {
     };
   }
 
+  export interface Results {
+    patientResults: {
+      [patientId: string]: StatementResults;
+    };
+    unfilteredResults: any;
+    localIdPatientResultsMap: {
+      [patientId: string]: LocalIdResults;
+    };
+  }
+
+  export interface StatementResults {
+    [statementName: string]: any;
+  }
+
+  export interface LocalIdResults {
+    [libraryName: string]: {
+      [localId: string]: any;
+    };
+  }
+
   export class Library {
     constructor(elm: any, repo?: Repository);
   }
 
   export class Executor {
     constructor(library: Library, codeService: CodeService, parameters: any);
-    exec(patientsource: PatientSource, executionDateTime: any): any;
+    exec(patientsource: PatientSource, executionDateTime: any): Results;
   }
 
   export class Repository {
