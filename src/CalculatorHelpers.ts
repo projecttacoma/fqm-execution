@@ -1,7 +1,7 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from './types/Calculator';
 import * as MeasureHelpers from './MeasureHelpers';
-import { getResult, hasResult, setResult } from './ResultsHelpers';
+import { getResult, hasResult, setResult, createOrSetResult } from './ResultsHelpers';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import moment from 'moment';
 import { PopulationType } from './types/Enums';
@@ -23,7 +23,7 @@ export function createPopulationValues(
   patientResults: any,
   observationDefs: any[]
 ): DetailedPopulationGroupResult {
-  let populationResults: PopulationResult[] | undefined;
+  let populationResults: PopulationResult[] = [];
   let stratifierResults: StratifierResult[] | undefined;
   let episodeResults: EpisodeResults[] | undefined;
 
@@ -37,6 +37,38 @@ export function createPopulationValues(
     // episode of care based measure
     // collect results per episode
     episodeResults = createEpisodePopulationValues(populationGroup, patientResults, observationDefs);
+
+    // if no episodes were found we need default populationResults/stratifier results. just use the patient
+    // level logic for this
+    if (episodeResults == undefined || episodeResults.length == 0) {
+      episodeResults = [];
+      const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
+      populationResults = popAndStratResults.populationResults;
+      stratifierResults = popAndStratResults.stratifierResults;
+    } else {
+      populationResults = [];
+      stratifierResults = [];
+      // create patient level population and stratifier results based on episodes
+      episodeResults.forEach(episodeResult => {
+        episodeResult.populationResults.forEach(popResult => {
+          createOrSetResult(popResult.populationType, popResult.result, populationResults);
+        });
+
+        episodeResult.stratifierResults?.forEach(strat => {
+          const stratRes = stratifierResults?.find(stratRes => stratRes.strataCode === strat.strataCode);
+          if (stratRes) {
+            if (strat.result === true) {
+              stratRes.result = true;
+            }
+          } else {
+            stratifierResults?.push({
+              result: strat.result,
+              strataCode: strat.strataCode
+            });
+          }
+        });
+      });
+    }
 
     /*
     // initialize population counts
@@ -250,41 +282,19 @@ export function createEpisodePopulationValues(
     // If this is a valid population type and there is a defined cql population pull out the values
     if (populationType != null && cqlPopulation != null) {
       const rawEpisodeResults = patientResults[cqlPopulation];
-
-      // Make sure the results are an array.
-      if (Array.isArray(rawEpisodeResults)) {
-        // Iterate over all episodes
-        rawEpisodeResults.forEach((episodeResource: R4.IResource) => {
-          if (episodeResource.id != null) {
-            // if an episode has already been created set the result for the population to true
-            const episodeResults = episodeResultsSet.find(
-              episodeResults => episodeResults.episodeId == episodeResource.id
-            );
-            if (episodeResults) {
-              setResult(populationType, true, episodeResults.populationResults);
-
-              // else create a new episode using the list of all popcodes for the population
-            } else {
-              const newEpisodeResults: EpisodeResults = {
-                episodeId: episodeResource.id,
-                populationResults: []
-              };
-              populationGroup.population?.forEach(population => {
-                newEpisodeResults.populationResults.push({
-                  populationType: <PopulationType>MeasureHelpers.codeableConceptToPopulationType(population.code),
-                  result: false
-                });
-              });
-
-              // Set the result for the current episode to true
-              setResult(populationType, true, newEpisodeResults.populationResults);
-              episodeResultsSet.push(newEpisodeResults);
-            }
-          }
-        });
-      }
+      createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, populationType);
     } else {
       // TODO: Handle this situation of a malformed population
+    }
+  });
+
+  // loop over stratifications and collect episode results for the strata
+  let strataIndex = 1;
+  populationGroup.stratifier?.forEach(strata => {
+    const strataCode = strata.code?.text ?? `strata-${strataIndex++}`;
+    if (strata.criteria?.expression) {
+      const rawEpisodeResults = patientResults[strata.criteria?.expression];
+      createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, undefined, strataCode);
     }
   });
 
@@ -338,7 +348,79 @@ export function createEpisodePopulationValues(
     episodeResults.populationResults = handlePopulationValues(episodeResults.populationResults);
   });
 
+  // TODO: Remove any episode that dont fall in any populations or stratifications after the above code
+
   return episodeResultsSet;
+}
+
+function createOrSetValueOfEpisodes(
+  rawEpisodeResults: any,
+  episodeResultsSet: EpisodeResults[],
+  populationGroup: R4.IMeasure_Group,
+  populationType?: PopulationType,
+  strataCode?: string
+): void {
+  // Make sure the results are an array.
+  if (Array.isArray(rawEpisodeResults)) {
+    // Iterate over all episodes
+    rawEpisodeResults.forEach((episodeResource: any) => {
+      if (episodeResource.id.value != null) {
+        // if an episode has already been created set the result for the population to true
+        const episodeResults = episodeResultsSet.find(
+          episodeResults => episodeResults.episodeId == episodeResource.id.value
+        );
+        if (episodeResults) {
+          // set population value
+          if (populationType) {
+            setResult(populationType, true, episodeResults.populationResults);
+
+            // set strata value
+          } else if (strataCode) {
+            if (episodeResults.stratifierResults) {
+              const strataResult = episodeResults.stratifierResults.find(strataResult => {
+                return strataResult.strataCode == strataCode;
+              });
+              if (strataResult) {
+                strataResult.result = true;
+              }
+            }
+          }
+
+          // else create a new episode using the list of all popcodes for the population
+        } else {
+          const newEpisodeResults: EpisodeResults = {
+            episodeId: episodeResource.id.value,
+            populationResults: []
+          };
+          populationGroup.population?.forEach(population => {
+            newEpisodeResults.populationResults.push({
+              populationType: <PopulationType>MeasureHelpers.codeableConceptToPopulationType(population.code),
+              result: false
+            });
+          });
+
+          if (populationGroup.stratifier) {
+            newEpisodeResults.stratifierResults = [];
+            let strataIndex = 1;
+            populationGroup.stratifier?.forEach(strata => {
+              const newStrataCode = strata.code?.text ?? `strata-${strataIndex++}`;
+              newEpisodeResults.stratifierResults?.push({
+                strataCode: newStrataCode,
+                result: newStrataCode == strataCode ? true : false
+              });
+            });
+          }
+
+          // Set the result for the current episode to true
+          if (populationType) {
+            setResult(populationType, true, newEpisodeResults.populationResults);
+          }
+
+          episodeResultsSet.push(newEpisodeResults);
+        }
+      }
+    });
+  }
 }
 
 /**
