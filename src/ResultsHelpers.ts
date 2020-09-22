@@ -89,21 +89,6 @@ export function buildStatementRelevanceMap(
     });
   });
 
-  /* TODO: Deal with SDEs
-  if (measure.calculate_sdes && populationSet.supplemental_data_elements) {
-    for (const statement of Array.from(populationSet.supplemental_data_elements)) {
-      // Mark all Supplemental Data Elements as relevant
-      this.markStatementRelevant(
-        measure.cql_libraries,
-        statementRelevance,
-        measure.main_cql_library,
-        statement.statement_name,
-        'TRUE'
-      );
-    }
-  }
-  */
-
   // build statement dependency maps to use for marking relevant statements
   const statementDependencies = ELMDependencyHelper.buildStatementDependencyMaps(elmLibraries);
 
@@ -122,6 +107,20 @@ export function buildStatementRelevanceMap(
       }
     });
   }
+
+  // if we have stratifications, mark all strata statements relevant
+  populationGroup.stratifier?.forEach(strata => {
+    if (strata.criteria?.expression) {
+      markStatementRelevant(
+        elmLibraries,
+        statementDependencies,
+        statementResults,
+        mainLibraryId,
+        strata.criteria.expression,
+        true
+      );
+    }
+  });
 
   populationGroup.population?.forEach(population => {
     const popType = MeasureHelpers.codeableConceptToPopulationType(population.code);
