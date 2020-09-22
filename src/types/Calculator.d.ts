@@ -29,7 +29,7 @@ export interface ExecutionResult {
   patientId: string;
   /** FHIR MeasureReport of type 'individual' for this patient. */
   measureReport?: R4.IMeasureReport;
-  /** Detailed results for each population group and stratification. */
+  /** Detailed results for each population group and stratifier. */
   detailedResults?: DetailedPopulationGroupResult[];
   /** SDE values, if specified for calculation */
   supplementalData?: SDEResult[];
@@ -43,6 +43,8 @@ interface SDEResult {
   name: string;
   /** Raw result of SDE clause */
   rawResult?: any;
+  /** Pretty result for this SDE. */
+  pretty?: string;
 }
 
 /**
@@ -51,8 +53,12 @@ interface SDEResult {
 interface DetailedPopulationGroupResult {
   /** Index of this population group id. */
   groupId: string;
-  /** Index of this stratifier if it is a stratified result. */
-  strataId?: string;
+  /**
+   * Results for each stratifier in this population group. If this is an episode of care
+   * measure these results will the overall results for each episode. i.e. if there is at
+   * least one episode in a strata then its result will be true.
+   */
+  stratifierResults?: StratifierResult[];
   /**
    * Clause results for every CQL/ELM logic clause.
    * Each piece of logic (ex. `and`, `retrieve`, `before`, etc.) will have a result.
@@ -110,6 +116,20 @@ interface StatementResult {
 }
 
 /**
+ * Result for a particular stratifer for a patient or episode.
+ */
+interface StratifierResult {
+  /**
+   * The 'text' part from the stratifier.code.
+   */
+  strataCode: string;
+  /**
+   * True if patient or episode is in stratifier. False if not.
+   */
+  result: boolean;
+}
+
+/**
  * Result for a patient or episode for a population
  */
 interface PopulationResult {
@@ -129,4 +149,6 @@ interface EpisodeResults {
   episodeId: string;
   /** Results for each population. */
   populationResults: PopulationResult[];
+  /** Stratifier results for this episode. */
+  stratifierResults?: StratifierResult[];
 }

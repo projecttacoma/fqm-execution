@@ -841,18 +841,18 @@ export function setResult(populationType: PopulationType, newResult: boolean, re
 }
 
 // Get raw results of matching SDE expressions for each SDE in the Measure
-export function getSDEValues(measure: R4.IMeasure, statementResults: StatementResult[]): SDEResult[] {
+export function getSDEValues(measure: R4.IMeasure, statementResults: cql.StatementResults): SDEResult[] {
   const results: SDEResult[] = [];
   if (measure.supplementalData) {
     measure.supplementalData.forEach(sde => {
       if (sde.criteria?.expression) {
-        const matchingExpression = statementResults.find(res => res.statementName === sde.criteria.expression);
-        if (matchingExpression) {
-          results.push({
-            name: matchingExpression.statementName,
-            rawResult: matchingExpression.raw
-          });
-        }
+        const expression = sde.criteria.expression;
+        const result = statementResults[expression];
+        results.push({
+          name: expression,
+          rawResult: result,
+          pretty: prettyResult(result)
+        });
       }
     });
   }

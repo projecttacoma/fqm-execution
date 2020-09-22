@@ -101,15 +101,13 @@ export function calculate(
 
       // add this group result to the patient results
       patientExecutionResult.detailedResults?.push(detailedGroupResult);
-
-      // put raw SDE values onto execution result
-      if (options.calculateSDEs) {
-        patientExecutionResult.supplementalData = ResultsHelpers.getSDEValues(
-          measure,
-          detailedGroupResult.statementResults
-        );
-      }
     });
+
+    // put raw SDE values onto execution result
+    if (options.calculateSDEs) {
+      patientExecutionResult.supplementalData = ResultsHelpers.getSDEValues(measure, patientStatementResults);
+    }
+
     executionResults.push(patientExecutionResult);
   });
   dumpObject(executionResults, 'detailedResults.json');

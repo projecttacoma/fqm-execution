@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult } from './types/Calculator';
+import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from './types/Calculator';
 import * as MeasureHelpers from './MeasureHelpers';
 import { getResult, hasResult, setResult } from './ResultsHelpers';
 import { ELM, ELMStatement } from './types/ELMTypes';
@@ -24,12 +24,14 @@ export function createPopulationValues(
   observationDefs: any[]
 ): DetailedPopulationGroupResult {
   let populationResults: PopulationResult[] | undefined;
+  let stratifierResults: StratifierResult[] | undefined;
   let episodeResults: EpisodeResults[] | undefined;
 
   // patient based measure
   if (!MeasureHelpers.isEpisodeOfCareMeasure(measure)) {
-    populationResults = [];
-    populationResults = createPatientPopulationValues(populationGroup, patientResults);
+    const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
+    populationResults = popAndStratResults.populationResults;
+    stratifierResults = popAndStratResults.stratifierResults;
     populationResults = handlePopulationValues(populationResults);
   } else {
     // episode of care based measure
@@ -65,7 +67,8 @@ export function createPopulationValues(
     groupId: populationGroup.id || 'unknown',
     statementResults: [],
     populationResults: populationResults,
-    episodeResults: episodeResults
+    episodeResults: episodeResults,
+    stratifierResults: stratifierResults
   };
   return detailedResult;
 }
@@ -161,7 +164,10 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
 export function createPatientPopulationValues(
   populationGroup: R4.IMeasure_Group,
   patientResults: any
-): PopulationResult[] {
+): {
+  populationResults: PopulationResult[];
+  stratifierResults?: StratifierResult[];
+} {
   const populationResults: PopulationResult[] = [];
 
   // Loop over all populations ("IPP", "DENOM", etc.)
@@ -175,14 +181,7 @@ export function createPatientPopulationValues(
     // If this is a valid population type and there is a defined cql population pull out the values
     if (populationType != null && cqlPopulation != null) {
       const value = patientResults[cqlPopulation];
-      let result;
-      if (Array.isArray(value) && value.length > 0) {
-        result = true;
-      } else if (typeof value === 'boolean' && value === true) {
-        result = true;
-      } else {
-        result = false;
-      }
+      const result = isStatementValueTruthy(value);
       const newPopulationResult: PopulationResult = {
         populationType: populationType,
         result: result
@@ -191,9 +190,40 @@ export function createPatientPopulationValues(
     }
   });
 
+  // Loop over all stratifiers if there are any an collect results
+  let stratifierResults: StratifierResult[] | undefined;
+  if (populationGroup.stratifier) {
+    stratifierResults = [];
+    // index used incase the text for the stratifier could not be found
+    let strataIndex = 1;
+    populationGroup.stratifier.forEach(strata => {
+      if (strata.criteria?.expression) {
+        const value = patientResults[strata.criteria?.expression];
+        const result = isStatementValueTruthy(value);
+        stratifierResults?.push({
+          strataCode: strata.code?.text ?? `strata-${strataIndex++}`,
+          result
+        });
+      }
+    });
+  }
+
   //TODO: Support patient level observations.
 
-  return populationResults;
+  return {
+    populationResults,
+    stratifierResults
+  };
+}
+
+function isStatementValueTruthy(value: any): boolean {
+  if (Array.isArray(value) && value.length > 0) {
+    return true;
+  } else if (typeof value === 'boolean' && value === true) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /**
