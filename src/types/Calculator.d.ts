@@ -17,6 +17,8 @@ export interface CalculationOptions {
   measurementPeriodEnd?: string;
   /** PatientSource to use. If provided, the patientBundles will not be required. */
   patientSource?: any;
+  /** Include SDEs in calculation */
+  calculateSDEs?: boolean;
 }
 
 /**
@@ -29,6 +31,18 @@ export interface ExecutionResult {
   measureReport?: R4.IMeasureReport;
   /** Detailed results for each population group and stratification. */
   detailedResults?: DetailedPopulationGroupResult[];
+  /** SDE values, if specified for calculation */
+  supplementalData?: SDEResult[];
+}
+
+/**
+ * SDE Values
+ */
+interface SDEResult {
+  /** Name of the SDE */
+  name: string;
+  /** Raw result of SDE clause */
+  rawResult?: any;
 }
 
 /**

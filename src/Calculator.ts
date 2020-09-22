@@ -81,10 +81,12 @@ export function calculate(
 
       // use relevance info to fill out statement relevance information and create initial statementResults structure
       detailedGroupResult.statementResults = ResultsHelpers.buildStatementRelevanceMap(
+        measure,
         detailedGroupResult.populationRelevance,
         mainLibraryName,
         elmLibraries,
-        group
+        group,
+        options.calculateSDEs ?? false
       );
 
       // adds result information to the statement results and builds up clause results
@@ -99,6 +101,14 @@ export function calculate(
 
       // add this group result to the patient results
       patientExecutionResult.detailedResults?.push(detailedGroupResult);
+
+      // put raw SDE values onto execution result
+      if (options.calculateSDEs) {
+        patientExecutionResult.supplementalData = ResultsHelpers.getSDEValues(
+          measure,
+          detailedGroupResult.statementResults
+        );
+      }
     });
     executionResults.push(patientExecutionResult);
   });
