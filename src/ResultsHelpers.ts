@@ -10,6 +10,7 @@ import {
   DetailedPopulationGroupResult,
   EpisodeResults,
   PopulationResult,
+  SDEResult,
   StatementResult
 } from './types/Calculator';
 
@@ -66,10 +67,12 @@ import {
  *   This structure is put in the Result object's attributes.
  */
 export function buildStatementRelevanceMap(
+  measure: R4.IMeasure,
   populationRelevanceSet: PopulationResult[],
   mainLibraryId: string,
   elmLibraries: ELM[],
-  populationGroup: R4.IMeasure_Group
+  populationGroup: R4.IMeasure_Group,
+  calculateSDEs: boolean
 ): StatementResult[] {
   // build statement results defaulting to not applicable (NA)
   const statementResults: StatementResult[] = [];
@@ -103,6 +106,22 @@ export function buildStatementRelevanceMap(
 
   // build statement dependency maps to use for marking relevant statements
   const statementDependencies = ELMDependencyHelper.buildStatementDependencyMaps(elmLibraries);
+
+  // Calculate SDEs if specified
+  if (calculateSDEs && measure.supplementalData) {
+    measure.supplementalData.forEach(sde => {
+      if (sde.criteria?.expression) {
+        markStatementRelevant(
+          elmLibraries,
+          statementDependencies,
+          statementResults,
+          mainLibraryId,
+          sde.criteria.expression,
+          true
+        );
+      }
+    });
+  }
 
   populationGroup.population?.forEach(population => {
     const popType = MeasureHelpers.codeableConceptToPopulationType(population.code);
@@ -819,4 +838,23 @@ export function setResult(populationType: PopulationType, newResult: boolean, re
   if (popResult) {
     popResult.result = newResult;
   }
+}
+
+// Get raw results of matching SDE expressions for each SDE in the Measure
+export function getSDEValues(measure: R4.IMeasure, statementResults: StatementResult[]): SDEResult[] {
+  const results: SDEResult[] = [];
+  if (measure.supplementalData) {
+    measure.supplementalData.forEach(sde => {
+      if (sde.criteria?.expression) {
+        const matchingExpression = statementResults.find(res => res.statementName === sde.criteria.expression);
+        if (matchingExpression) {
+          results.push({
+            name: matchingExpression.statementName,
+            rawResult: matchingExpression.raw
+          });
+        }
+      }
+    });
+  }
+  return results;
 }
