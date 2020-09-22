@@ -820,7 +820,7 @@ export function buildPopulationGroupRelevanceMap(
 }
 
 export function hasResult(populationType: PopulationType, results: PopulationResult[]): boolean {
-  return results.find(result => result.populationType == populationType) != null;
+  return results.find(result => result.populationType == populationType) !== undefined;
 }
 
 // If the given population result is in the given result list, return the result
@@ -836,6 +836,21 @@ export function setResult(populationType: PopulationType, newResult: boolean, re
   const popResult = results.find(result => result.populationType == populationType);
   if (popResult) {
     popResult.result = newResult;
+  }
+}
+
+// create a result for the given population type and result or update the existing value to true if newResult is true
+export function createOrSetResult(populationType: PopulationType, newResult: boolean, results: PopulationResult[]) {
+  const popResult = results.find(result => result.populationType == populationType);
+  if (popResult) {
+    if (newResult === true) {
+      popResult.result = true;
+    }
+  } else {
+    results.push({
+      populationType,
+      result: newResult
+    });
   }
 }
 
