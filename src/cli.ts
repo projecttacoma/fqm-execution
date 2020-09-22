@@ -24,7 +24,7 @@ let result;
 if (program.outputType == 'raw') {
   result = calculateRaw(measureBundle, [patientBundle], {});
 } else if (program.outputType == 'detailed') {
-  result = calculate(measureBundle, [patientBundle], {});
+  result = calculate(measureBundle, [patientBundle], { calculateSDEs: true });
 } else if (program.outputType == 'reports') {
   result = calculateMeasureReports(measureBundle, [patientBundle], {});
 }
