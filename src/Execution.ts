@@ -7,6 +7,10 @@ import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
 import { dumpELMJSONs, dumpObject, dumpVSMap } from './DebugHelper';
 import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
+import { group } from 'console';
+import { codeableConceptToPopulationType } from './MeasureHelpers';
+import { PopulationType } from './types/Enums';
+import { generateELMJSONFunction } from './CalculatorHelpers';
 
 export function execute(
   measureBundle: R4.IBundle,
@@ -92,6 +96,25 @@ export function execute(
 
   const patientSource = new PatientSource.FHIRv401();
   patientSource.loadBundles(patientBundles);
+
+  // add expressions for collecting for all measure observations
+  measure.group?.forEach(group => {
+    group.population
+      ?.filter(population => codeableConceptToPopulationType(population.code) === PopulationType.OBSERV)
+      ?.forEach(obsrvPop => {
+        const msrPop = group.population?.find(
+          population => codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
+        );
+        if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
+          const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifer.id);
+          if (mainLib) {
+            mainLib.library.statements.def.push(
+              generateELMJSONFunction(obsrvPop.criteria.expression, msrPop.criteria.expression)
+            );
+          }
+        }
+      });
+  });
 
   const codeService = new cql.CodeService(vsMap);
   const parameters = { 'Measurement Period': new cql.Interval(startCql, endCql) };

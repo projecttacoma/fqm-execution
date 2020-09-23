@@ -12,7 +12,6 @@ import { PopulationType } from './types/Enums';
  * @param {R4.IMeasure} measure - The measure we are getting the values for.
  * @param {R4.IMeasure_Group} populationGroup - The population group that we are mapping results to.
  * @param {any} patientResults - The raw results object from the calculation engine for a patient.
- * @param {any[]} observationDefs - List of observation defines we add to the elm for calculation OBSERVs.
  * @returns {DetailedPopulationGroupResult} The population results. Map of "POPNAME" to Integer result. Except for OBSERVs,
  *   their key is 'value' and value is an array of results. Second result is the the episode results keyed by
  *   episode id and with the value being a set just like the patient results.
@@ -20,8 +19,7 @@ import { PopulationType } from './types/Enums';
 export function createPopulationValues(
   measure: R4.IMeasure,
   populationGroup: R4.IMeasure_Group,
-  patientResults: any,
-  observationDefs: any[]
+  patientResults: any
 ): DetailedPopulationGroupResult {
   let populationResults: PopulationResult[] = [];
   let stratifierResults: StratifierResult[] | undefined;
@@ -36,7 +34,7 @@ export function createPopulationValues(
   } else {
     // episode of care based measure
     // collect results per episode
-    episodeResults = createEpisodePopulationValues(populationGroup, patientResults, observationDefs);
+    episodeResults = createEpisodePopulationValues(populationGroup, patientResults);
 
     // if no episodes were found we need default populationResults/stratifier results. just use the patient
     // level logic for this
@@ -69,31 +67,6 @@ export function createPopulationValues(
         });
       });
     }
-
-    /*
-    // initialize population counts
-    Object.keys(populationGroup.populations.toObject()).forEach(popCode => {
-      populationResults[popCode] = 0;
-      if (populationGroup.observations.length > 0) {
-        populationResults.observation_values = [];
-      }
-    });
-
-    // count up all population results for a patient level count
-    Object.keys(episodeResults).forEach(e => {
-      const episodeResult = episodeResults[e];
-      Object.keys(episodeResult).forEach(popCode => {
-        const popResult = episodeResult[popCode];
-        if (popCode === 'observation_values') {
-          popResult.forEach(value => {
-            populationResults.observation_values.push(value);
-          });
-        } else {
-          populationResults[popCode] += popResult;
-        }
-      });
-    });
-    */
   }
   const detailedResult: DetailedPopulationGroupResult = {
     groupId: populationGroup.id || 'unknown',
@@ -124,22 +97,11 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
    * Measure Poplation Exclusions (MSRPOPLEX): Identify that subset of the MSRPOPL that meet the MSRPOPLEX criteria.
    */
   const populationResultsHandled = populationResults;
-  /* HOSSTODO: Stratifiers may be handled differently.
-  if (populationResultsHandled.STRAT != null && !getResult('STRAT', populationResults)) {
-    // Set all values to 0
-    Object.keys(populationResults).forEach(key => {
-      if (key === 'observation_values') {
-        populationResultsHandled.observation_values = [];
-      } else {
-        populationResultsHandled[key] = 0;
-      }
-    });
-  } else*/
   // Cannot be in all populations if not in IPP.
   if (!getResult(PopulationType.IPP, populationResults)) {
     populationResults.forEach(result => {
       if (result.populationType == PopulationType.OBSERV) {
-        result.observations = [];
+        result.observations = null;
       }
       result.result = false;
     });
@@ -263,14 +225,12 @@ function isStatementValueTruthy(value: any): boolean {
  * used only for the episode of care measures
  * @param {Population} populationSet - The populationSet we are getting the values for.
  * @param {Object} patientResults - The raw results object for the patient from the calculation engine.
- * @param {Array} observationDefs - List of observation defines we add to the elm for calculation OBSERVs.
  * @returns {Object} The episode results. Map of episode id to population results which is a map of "POPNAME"
  * to Integer result. Except for OBSERVs, their key is 'value' and value is an array of results.
  */
 export function createEpisodePopulationValues(
   populationGroup: R4.IMeasure_Group,
-  patientResults: any,
-  observationDefs: any
+  patientResults: any
 ): EpisodeResults[] {
   const episodeResultsSet: EpisodeResults[] = [];
 
@@ -281,8 +241,53 @@ export function createEpisodePopulationValues(
 
     // If this is a valid population type and there is a defined cql population pull out the values
     if (populationType != null && cqlPopulation != null) {
-      const rawEpisodeResults = patientResults[cqlPopulation];
-      createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, populationType);
+      // handle observation population
+      if (populationType === PopulationType.OBSERV) {
+        // find the MSRPOPL for this population because we need to know its name
+        const msrPopl = populationGroup.population?.find(
+          pop => MeasureHelpers.codeableConceptToPopulationType(pop.code) === PopulationType.MSRPOPL
+        );
+        if (msrPopl?.criteria.expression) {
+          const episodesRawResults = patientResults[`obs_func_${cqlPopulation}_${msrPopl?.criteria.expression}`];
+          // loop through observation results and create observations
+          if (Array.isArray(episodesRawResults)) {
+            episodesRawResults.forEach(rawEpisodeResult => {
+              const episodeId: string = rawEpisodeResult.episode.id.value;
+              const observation = rawEpisodeResult.observation;
+              // find existing episode result if any
+              let episodeResult = episodeResultsSet.find(episodeResult => episodeResult.episodeId === episodeId);
+              if (!episodeResult) {
+                episodeResult = {
+                  episodeId,
+                  populationResults: []
+                };
+                episodeResultsSet.push(episodeResult);
+              }
+              // if there already is a result for observation, add to the list
+              if (hasResult(PopulationType.OBSERV, episodeResult.populationResults)) {
+                const observResult = <PopulationResult>(
+                  episodeResult.populationResults.find(popResult => popResult.populationType === PopulationType.OBSERV)
+                );
+                if (!observResult.observations) {
+                  observResult.observations = [];
+                }
+                observResult.observations.push(observation);
+                observResult.result = true;
+              } else {
+                episodeResult.populationResults.push({
+                  populationType: PopulationType.OBSERV,
+                  result: true,
+                  observations: [observation]
+                });
+              }
+            });
+          }
+        }
+      } else {
+        // Handle non observation results.
+        const rawEpisodeResults = patientResults[cqlPopulation];
+        createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, populationType);
+      }
     } else {
       // TODO: Handle this situation of a malformed population
     }
@@ -297,51 +302,6 @@ export function createEpisodePopulationValues(
       createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, undefined, strataCode);
     }
   });
-
-  // HOSSTODO: Get observations sorted out
-  /*
-  if ((observationDefs != null ? observationDefs.length : undefined) > 0) {
-    // Handle observations using the names of the define statements that
-    // were added to the ELM to call the observation functions.
-    observationDefs.forEach(obDef => {
-      // Observations only have one result, based on how the HQMF is
-      // structured (note the single 'value' section in the
-      // measureObservationDefinition clause).
-      const obsResults = patientResults != null ? patientResults[obDef] : undefined;
-
-      obsResults.forEach(obsResult => {
-        let resultValue = null;
-        const episodeId = obsResult.episode.id;
-        // Add the single result value to the values array on the results of
-        // this calculation (allowing for more than one possible observation).
-        if (obsResult != null ? Object.prototype.hasOwnProperty.call(obsResult, 'value') : undefined) {
-          // If result is a Cql.Quantity type, add its value
-          resultValue = obsResult.observation.value;
-        } else {
-          // In all other cases, add result
-          resultValue = obsResult.observation;
-        }
-
-        // if the episodeResult object already exist create or add to to the values structure
-        if (episodeResults[episodeId] != null) {
-          if (episodeResults[episodeId].observation_values != null) {
-            episodeResults[episodeId].observation_values.push(resultValue);
-          } else {
-            episodeResults[episodeId].observation_values = [resultValue];
-          }
-          // else create a new episodeResult structure
-        } else {
-          const newEpisode = {};
-          for (const pc in populationSet.populations.toObject()) {
-            newEpisode[pc] = 0;
-          }
-          newEpisode.observation_values = [resultValue];
-          episodeResults[episodeId] = newEpisode;
-        }
-      });
-    });
-  }
-  */
 
   // Correct any inconsistencies. ex. In DENEX but also in NUMER using same function used for patients.
   episodeResultsSet.forEach(episodeResults => {
@@ -540,7 +500,7 @@ export function getStratificationsAsPopulationSets(measure) {
 // This ELM template was generated by the CQL-to-ELM Translation Service.
 export function generateELMJSONFunction(functionName: string, parameter: string): ELMStatement {
   const elmFunction: ELMStatement = {
-    name: `obs_func_${functionName}`,
+    name: `obs_func_${functionName}_${parameter}`,
     context: 'Patient',
     accessLevel: 'Public',
     expression: {

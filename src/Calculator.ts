@@ -66,7 +66,7 @@ export function calculate(
     // Iterate over measure population groups
     measure.group?.forEach(group => {
       // build initial results set with population values
-      const detailedGroupResult = CalculatorHelpers.createPopulationValues(measure, group, patientStatementResults, []);
+      const detailedGroupResult = CalculatorHelpers.createPopulationValues(measure, group, patientStatementResults);
 
       // fix groupId to an auto incremented if it was not found.
       if (detailedGroupResult.groupId === 'unknown') {
