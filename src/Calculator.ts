@@ -4,11 +4,6 @@ import { FinalResult, Relevance, PopulationType } from './types/Enums';
 
 // import { PatientSource } from 'cql-exec-fhir';
 import cql from 'cql-execution';
-import { PatientSource } from 'cql-exec-fhir';
-import { ELM, ELMIdentifier } from './types/ELMTypes';
-import { dumpELMJSONs, dumpVSMap } from './DebugHelper';
-
-import { valueSetsForCodeService, parseTimeStringAsUTC } from './ValueSetHelper';
 import * as Execution from './Execution';
 
 /**
