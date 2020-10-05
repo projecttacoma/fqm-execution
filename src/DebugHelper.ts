@@ -1,6 +1,6 @@
 import { ELM } from './types/ELMTypes';
 import { ValueSetMap } from 'cql-execution';
-import fs = require('fs');
+import fs from 'fs';
 
 export function dumpELMJSONs(elmJSONs: ELM[]): void {
   // create folder if it doesn't exist
