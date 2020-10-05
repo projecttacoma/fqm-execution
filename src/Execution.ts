@@ -18,8 +18,6 @@ export function execute(
   elmLibraries?: ELM[];
   mainLibraryName?: string;
 } {
-  // TODO: return type^
-
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure') as R4.IBundle_Entry;
   const measure = measureEntry.resource as R4.IMeasure;
@@ -48,7 +46,6 @@ export function execute(
           if (library.id === rootLibId) {
             rootLibIdentifer = elm.library.identifier;
           }
-          // This line is a hack to
           if (elm.library?.includes?.def) {
             elm.library.includes.def = elm.library.includes.def.map(def => {
               def.path = def.path.substring(def.path.lastIndexOf('/') + 1);
