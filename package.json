@@ -9,8 +9,9 @@
   "dependencies": {
     "atob": "^2.1.2",
     "commander": "^6.1.0",
-    "cql-exec-fhir": "cqframework/cql-exec-fhir#is_operator",
-    "cql-execution": "cqframework/cql-execution#cmm_overloading_and_is"
+    "cql-exec-fhir": "file:../cql-exec-fhir",
+    "cql-execution": "file:../cql-execution",
+    "moment": "^2.29.0"
   },
   "devDependencies": {
     "@ahryman40k/ts-fhir-types": "^4.0.32",
