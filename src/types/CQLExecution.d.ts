@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 declare module 'cql-execution' {
   interface CQLCode {
-      system: string;
-      code: string;
-      display?: string;
-      version?: string;
+    system: string;
+    code: string;
+    display?: string;
+    version?: string;
   }
 
   export interface ValueSetMap {
@@ -52,7 +52,7 @@ declare module 'cql-execution' {
   }
 
   export const DateTime = {
-    fromJSDate(date: Date, timezoneOffset: number): any
+    fromJSDate(date: Date, timezoneOffset: number): any;
   };
 
   export class Interval {

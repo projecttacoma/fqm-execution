@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { CalculationOptions } from './types/Calculator';
+import { CalculationOptions, RawExecutionData } from './types/Calculator';
 
 // import { PatientSource } from 'cql-exec-fhir';
 import cql from 'cql-execution';
@@ -12,12 +12,7 @@ export function execute(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): {
-  rawResults?: cql.Results;
-  errorMessage?: string;
-  elmLibraries?: ELM[];
-  mainLibraryName?: string;
-} {
+): RawExecutionData {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure') as R4.IBundle_Entry;
   const measure = measureEntry.resource as R4.IMeasure;
