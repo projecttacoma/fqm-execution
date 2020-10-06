@@ -2,6 +2,10 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { ExecutionResult, CalculationOptions } from './types/Calculator';
 import { FinalResult, Relevance, PopulationType } from './types/Enums';
 
+// import { PatientSource } from 'cql-exec-fhir';
+import cql from 'cql-execution';
+import * as Execution from './Execution';
+
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
  *
@@ -82,4 +86,17 @@ export function calculateMeasureReports(
       period: {}
     }
   ];
+}
+
+export function calculateRaw(
+  measureBundle: R4.IBundle,
+  patientBundles: R4.IBundle[],
+  options: CalculationOptions
+): cql.Results | string {
+  const results = Execution.execute(measureBundle, patientBundles, options);
+  if (results.rawResults) {
+    return results.rawResults;
+  } else {
+    return results.errorMessage ?? 'something happened with no error message';
+  }
 }

@@ -102,4 +102,20 @@ export interface ELMValueSet {
   id: string;
   /** The access level of this valueset. Usually 'Public'. */
   accessLevel?: string;
+  /** Used when the value set is "expanded" */
+  expansion: IELMValueSetExpansion;
+}
+
+export interface IELMValueSetExpansion {
+  /** Codes in the value set */
+  contains: IELMValueSetContains[];
+}
+
+export interface IELMValueSetContains {
+  /** Code - if blank, this is not a selectable code */
+  code: string;
+  /** System value for the code */
+  system: string;
+  /** Version in which this code/display is defined */
+  version: string;
 }

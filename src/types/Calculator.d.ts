@@ -1,5 +1,7 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType, FinalResult, Relevance } from './Enums';
+import cql from 'cql-execution';
+import { ELM } from './types/ELMTypes';
 
 /**
  * Options for calculation.
@@ -12,11 +14,25 @@ export interface CalculationOptions {
   /** Include highlighting in MeasureReport narrative. Defaults to false. */
   includeHighlighting?: boolean;
   /** Start of measurement period. */
-  measurementPeriodStart?: Date;
+  measurementPeriodStart?: string;
   /** End of measurement period */
-  measurementPeriodEnd?: Date;
+  measurementPeriodEnd?: string;
   /** PatientSource to use. If provided, the patientBundles will not be required. */
   patientSource?: any;
+}
+
+/**
+ * Results object returned from the Execute function.
+ */
+export interface RawExecutionData {
+  /** The cql clause-level results that come out of cql-execution */
+  rawResults?: cql.Results;
+  /** An error message; if not present, no error was caught in execution */
+  errorMessage?: string;
+  /** an array of the decoded ELM libraries used in execution. Useful for debugging and detailed result processing. */
+  elmLibraries?: ELM[];
+  /** the name of the "main" library used for execution. */
+  mainLibraryName?: string;
 }
 
 /**
