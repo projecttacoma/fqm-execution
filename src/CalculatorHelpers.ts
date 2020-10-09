@@ -75,6 +75,7 @@ export function createPopulationValues(
     episodeResults: episodeResults,
     stratifierResults: stratifierResults
   };
+  debugger;
   return detailedResult;
 }
 
@@ -534,11 +535,8 @@ export function generateELMJSONFunction(functionName: string, parameter: string)
                 type: 'FunctionRef',
                 operand: [
                   {
-                    type: 'As',
-                    operand: {
-                      name: 'MP',
-                      type: 'AliasRef'
-                    }
+                    name: 'MP',
+                    type: 'AliasRef'
                   }
                 ]
               }
