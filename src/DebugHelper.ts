@@ -24,6 +24,25 @@ export function dumpELMJSONs(elmJSONs: ELM[]): void {
   });
 }
 
+export function dumpCQLs(cqls: { name: string; cql: string }[]): void {
+  // create folder if it doesn't exist
+  if (!fs.existsSync('debug/cql')) {
+    fs.mkdirSync('debug/cql', { recursive: true });
+  }
+
+  // wipe out anything from previous run
+  const files = fs.readdirSync('debug/cql');
+  if (files) {
+    files.forEach(file => {
+      fs.unlinkSync(`debug/cql/${file}`);
+    });
+  }
+
+  cqls.forEach(cql => {
+    fs.writeFileSync(`debug/cql/${cql.name}.cql`, cql.cql);
+  });
+}
+
 export function dumpVSMap(VSMap: ValueSetMap): void {
   // create folder if it doesn't exist
   if (!fs.existsSync('debug/vs')) {
