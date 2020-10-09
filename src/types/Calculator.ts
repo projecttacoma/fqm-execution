@@ -1,7 +1,7 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType, FinalResult, Relevance } from './Enums';
 import cql from 'cql-execution';
-import { ELM } from './types/ELMTypes';
+import { ELM } from './ELMTypes';
 
 /**
  * Options for calculation.
@@ -50,7 +50,7 @@ export interface ExecutionResult {
 /**
  * Detailed results for a single population group for a single patient.
  */
-interface DetailedPopulationGroupResult {
+export interface DetailedPopulationGroupResult {
   /** Index of this population group id. */
   groupId: string;
   /** Index of this stratifier if it is a stratified result. */
@@ -75,7 +75,7 @@ interface DetailedPopulationGroupResult {
  * Detailed results for an individual CQL/ELM clause. A clause is an individual piece of logic.
  * For example: `and`, `before`, `or`.
  */
-interface ClauseResult {
+export interface ClauseResult {
   /** Name of library this clause resides in */
   libraryName: string;
   /** Name of statement this clause resides in */
@@ -92,7 +92,7 @@ interface ClauseResult {
  * Detailed result for a CQL define statement. This is any `define "StatementName":` in the
  * calculated CQL.
  */
-interface StatementResult {
+export interface StatementResult {
   /** Name of library this statement resides in */
   libraryName: string;
   /** Name of statement */
@@ -112,7 +112,7 @@ interface StatementResult {
 /**
  * Result for a patient or episode for a population
  */
-interface PopulationResult {
+export interface PopulationResult {
   /** Type of population matching http://hl7.org/fhir/ValueSet/measure-population */
   populationType: PopulationType;
   /** True if this patient or episode calculates with membership in this population. */
@@ -124,7 +124,7 @@ interface PopulationResult {
 /**
  * Result set for an episode for a single population group.
  */
-interface EpisodeResults {
+export interface EpisodeResults {
   /** ID of episode. */
   episodeId: string;
   /** Results for each population. */

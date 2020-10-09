@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "FHIR Quality Measure Execution",
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build/*"
   ],
@@ -27,8 +28,8 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc -w",
+    "build": "rm -rf ./build && tsc",
+    "build:watch": "rm -rf ./build && tsc -w",
     "lint": "tsc && eslint \"**/*.{js,ts}\"",
     "lint:fix": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "prettier": "prettier --check \"**/*.{js,ts}\"",
