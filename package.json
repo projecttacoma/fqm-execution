@@ -35,7 +35,8 @@
     "prettier": "prettier --check \"**/*.{js,ts}\"",
     "prettier:fix": "prettier --write \"**/*.{js,ts}\"",
     "test": "jest",
-    "check": "npm run test && npm run lint && npm run prettier"
+    "check": "npm run test && npm run lint && npm run prettier",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
