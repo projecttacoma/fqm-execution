@@ -5,7 +5,7 @@ import { CalculationOptions, RawExecutionData } from './types/Calculator';
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
-import { dumpELMJSONs, dumpObject, dumpVSMap } from './DebugHelper';
+import { dumpELMJSONs, dumpCQLs, dumpObject, dumpVSMap } from './DebugHelper';
 import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
 import { group } from 'console';
 import { codeableConceptToPopulationType } from './MeasureHelpers';
@@ -29,6 +29,7 @@ export function execute(
 
   const libraries: R4.ILibrary[] = [];
   const elmJSONs: ELM[] = [];
+  const cqls: { name: string; cql: string }[] = [];
   let rootLibIdentifer: ELMIdentifier = {
     id: '',
     version: ''
@@ -52,6 +53,18 @@ export function execute(
             });
           }
           elmJSONs.push(elm);
+        }
+      });
+
+      const cqlsEncoded = library.content?.filter(a => a.contentType === 'text/cql');
+      cqlsEncoded?.forEach(elmEncoded => {
+        if (elmEncoded.data) {
+          const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
+          const cql = {
+            name: library.name || library.id || 'unknown library',
+            cql: decoded
+          };
+          cqls.push(cql);
         }
       });
     }
@@ -115,6 +128,7 @@ export function execute(
   const lib = rep.resolve(rootLibIdentifer.id, rootLibIdentifer.version);
 
   dumpELMJSONs(elmJSONs);
+  dumpCQLs(cqls);
   dumpVSMap(vsMap);
 
   const executor = new cql.Executor(lib, codeService, parameters);
