@@ -26,7 +26,10 @@ if (program.outputType == 'raw') {
 } else if (program.outputType == 'detailed') {
   result = calculate(measureBundle, [patientBundle], { calculateSDEs: true });
 } else if (program.outputType == 'reports') {
-  result = calculateMeasureReports(measureBundle, [patientBundle], {});
+  result = calculateMeasureReports(measureBundle, [patientBundle], {
+    measurementPeriodStart: '2019-01-01',
+    measurementPeriodEnd: '2019-12-31'
+  });
 }
 
 console.log(JSON.stringify(result, null, 2));
