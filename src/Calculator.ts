@@ -1,6 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ExecutionResult, CalculationOptions, DetailedPopulationGroupResult } from './types/Calculator';
-import { FinalResult, Relevance, PopulationType } from './types/Enums';
+import { ExecutionResult, CalculationOptions } from './types/Calculator';
 
 import cql from 'cql-execution';
 import { dumpObject } from './DebugHelper';
