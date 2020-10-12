@@ -9,7 +9,6 @@ import { dumpObject } from './DebugHelper';
 
 import * as CalculatorHelpers from './CalculatorHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
-import * as Execution from './Execution';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
