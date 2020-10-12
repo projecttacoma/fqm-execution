@@ -75,7 +75,6 @@ export function createPopulationValues(
     episodeResults: episodeResults,
     stratifierResults: stratifierResults
   };
-  debugger;
   return detailedResult;
 }
 
