@@ -2,9 +2,7 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { ExecutionResult, CalculationOptions, DetailedPopulationGroupResult } from './types/Calculator';
 import { FinalResult, Relevance, PopulationType } from './types/Enums';
 
-// import { PatientSource } from 'cql-exec-fhir';
 import cql from 'cql-execution';
-import * as Execution from './Execution';
 import { dumpObject } from './DebugHelper';
 
 import * as CalculatorHelpers from './CalculatorHelpers';
