@@ -1,5 +1,4 @@
-export * from './Calculator';
-export * from './ELMTypes';
-export * from './Enums';
-export * from './ExecutionValueSet';
+export * as CalculatorTypes from './Calculator';
 export * as CQLTypes from './CQLTypes';
+export * as ELMTypes from './ELMTypes';
+export * as Enums from './Enums';
