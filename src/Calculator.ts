@@ -3,7 +3,7 @@ import { ExecutionResult, CalculationOptions } from './types/Calculator';
 import { FinalResult, Relevance, PopulationType } from './types/Enums';
 
 // import { PatientSource } from 'cql-exec-fhir';
-import cql from 'cql-execution';
+import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
 
 /**

@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ValueSetMap } from 'cql-execution';
+import { ValueSetMap } from './types/CQLTypes';
 import moment from 'moment';
 
 /**

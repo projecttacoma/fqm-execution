@@ -1,5 +1,5 @@
 import { ELM } from './types/ELMTypes';
-import { ValueSetMap } from 'cql-execution';
+import { ValueSetMap } from './types/CQLTypes';
 import fs from 'fs';
 
 export function dumpELMJSONs(elmJSONs: ELM[]): void {
