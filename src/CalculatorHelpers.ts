@@ -8,14 +8,15 @@ import { PopulationType } from './types/Enums';
 import cql from 'cql-execution';
 
 /**
- * Create population values (aka results) for all populations in the population set using the results from the
- * calculator.
+ * Create population values (aka results) for all populations in the population group using the results from the
+ * calculator. This creates the DetailedPopulationGroupResult for the patient that will be filed my most of the
+ * results processing functions.
+ *
  * @param {R4.IMeasure} measure - The measure we are getting the values for.
- * @param {R4.IMeasure_Group} populationGroup - The population group that we are mapping results to.
+ * @param {R4.IMeasure_Group} populationGroup - The population group that we are creating results to.
  * @param {cql.StatementResults} patientResults - The raw results object from the calculation engine for a patient.
- * @returns {DetailedPopulationGroupResult} The population results. Map of "POPNAME" to Integer result. Except for OBSERVs,
- *   their key is 'value' and value is an array of results. Second result is the the episode results keyed by
- *   episode id and with the value being a set just like the patient results.
+ * @returns {DetailedPopulationGroupResult} The population group results object with the populationResults, stratifierResults,
+ *   and episodeResults (if episode of care measure) populated.
  */
 export function createPopulationValues(
   measure: R4.IMeasure,
@@ -80,10 +81,10 @@ export function createPopulationValues(
 }
 
 /**
- * Takes in the initial values from result object and checks to see if some values should not be calculated. These
- * values that should not be considered calculated are zeroed out. ex. results 1 in NUMER but IPP is 0.
+ * Takes in the initial values from the population and checks to see if some values should not be calculated. These
+ * values that should not be considered calculated are zeroed out. ex. results NUMER is true but IPP is false.
  * @param {PopulationResult[]} populationResults - The list of population results.
- * @returns {PopulationResult[]} Population results in the same structure as passed in, but the appropiate values are zeroed out.
+ * @returns {PopulationResult[]} Population results in the list as passed in, but the appropiate values are zeroed out.
  */
 export function handlePopulationValues(populationResults: PopulationResult[]): PopulationResult[] {
   /* Setting values of populations if the correct populations are not set based on the following logic guidelines
@@ -153,8 +154,7 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
  * calculator.
  * @param {R4.IMeasure_Group} populationGroup - The population group we are getting the values for.
  * @param {cql.StatementResults} patientResults - The raw results object for a patient from the calculation engine.
- * @returns {PopulationResult[]} The population results. Map of "POPNAME" to Integer result. Except for OBSERVs,
- *   their key is 'value' and value is an array of results.
+ * @returns {PopulationResult[]} The population results list.
  */
 export function createPatientPopulationValues(
   populationGroup: R4.IMeasure_Group,
@@ -222,12 +222,12 @@ function isStatementValueTruthy(value: any): boolean {
 }
 
 /**
- * Create population values (aka results) for all episodes using the results from the calculator. This is
- * used only for the episode of care measures
- * @param {Population} populationSet - The populationSet we are getting the values for.
+ * Create population results for all episodes using the results from the calculator. This is
+ * used only for the episode of care measures.
+ * @param {R4.IMeasure_Group} populationGroup - The population group we are getting the values for.
  * @param {cql.StatementResults} patientResults - The raw results object for the patient from the calculation engine.
- * @returns {Object} The episode results. Map of episode id to population results which is a map of "POPNAME"
- * to Integer result. Except for OBSERVs, their key is 'value' and value is an array of results.
+ * @returns {EpisodeResults[]} The episode results list. Structure with episode id population results for each episode.
+ *   If this is a continuous variable measure the observations are included.
  */
 export function createEpisodePopulationValues(
   populationGroup: R4.IMeasure_Group,
@@ -313,6 +313,16 @@ export function createEpisodePopulationValues(
   return episodeResultsSet;
 }
 
+/**
+ * Process the raw results from an episode of care population defining statement and fill or create the appropiate
+ * entry in the episodeResultsSet
+ *
+ * @param {any} rawEpisodeResults - Raw population defining statement result. This result should be a list.
+ * @param {EpisodeResults[]} episodeResultsSet - EpisodeResults set to populate.
+ * @param {R4.IMeasure_Group} populationGroup - The population group. Used to populate default values for a new encounter.
+ * @param {PopulationType} populationType - If this is a regular population the type must be provided.
+ * @param {string} strataCode - If this is a stratifier result, the code of the strata must be provided.
+ */
 function createOrSetValueOfEpisodes(
   rawEpisodeResults: any,
   episodeResultsSet: EpisodeResults[],
@@ -463,41 +473,15 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
   return moment.utc(timeValue, 'YYYYMDDHHmm').add(1, 'years').subtract(1, 'seconds').toDate();
 }
 
-/* These might not be needed as they copied population sets to make them stratified. This could be done
- in a better way.
-export function deepCopyPopulationSet(original) {
-  const copy = {};
-  copy.title = original.title;
-  copy.observations = original.observations;
-  copy.populations = {};
-  for (const popCode in original.populations.toObject()) {
-    // skip codes starting with _ since they are mongoose metadata
-    const copyPop = {};
-    copyPop.library_name = original.populations[popCode].library_name;
-    copyPop.statement_name = original.populations[popCode].statement_name;
-    copy.populations[popCode] = copyPop;
-  }
-  return new CqmModels.PopulationSet(copy);
-}
-
-export function getStratificationsAsPopulationSets(measure) {
-  const stratificationsAsPopulationSets = [];
-  measure.population_sets.forEach(populationSet => {
-    if (populationSet.stratifications) {
-      populationSet.stratifications.forEach(stratification => {
-        const clonedSet = this.deepCopyPopulationSet(populationSet);
-        clonedSet.population_set_id = stratification.stratification_id;
-        clonedSet.populations.STRAT = stratification.statement;
-        stratificationsAsPopulationSets.push(clonedSet);
-      });
-    }
-  });
-  return stratificationsAsPopulationSets;
-}
-*/
-
-// Returns a JSON function to add to the ELM before ELM JSON is used to calculate results
-// This ELM template was generated by the CQL-to-ELM Translation Service.
+/**
+ * Returns an ELM function to add to the ELM before it is used for calculation. This function is genereated
+ * for each observation on the measure. It returns a list of tuples, with each episode being observed and the
+ * observation for the episode.
+ *
+ * @param {string} functionName - Name of the observation function. Usually "Measure Observation".
+ * @param {string} parameter - Name of the define statement to use as the parameter list. Usually "Measure Population".
+ * @returns {ELMStatement} The ELM function to inject into the ELM library before executing.
+ */
 export function generateELMJSONFunction(functionName: string, parameter: string): ELMStatement {
   const elmFunction: ELMStatement = {
     name: `obs_func_${functionName}_${parameter}`,
