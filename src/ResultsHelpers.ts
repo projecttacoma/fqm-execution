@@ -265,7 +265,7 @@ export function getStatementResult(
 export function buildStatementAndClauseResults(
   measure: R4.IMeasure,
   elmLibraries: ELM[],
-  rawClauseResults: any,
+  rawClauseResults: cql.LocalIdResults,
   statementResults: StatementResult[],
   doPretty: boolean,
   includeClauseResults: boolean
@@ -558,10 +558,14 @@ export function setFinalResults(params: {
  * @private
  * @param {ELM} library - The library
  * @param {string} statement - The statement
- * @param {object} rawClauseResults - The raw clause results from the engine.
+ * @param {cql.LocalIdResults} rawClauseResults - The raw clause results from the engine.
  * @returns {(Array|object|Interval|??)} The raw result from the calculation engine for the given statement.
  */
-export function findResultForStatementClause(elm: ELM, statementName: string, rawClauseResults: any): any {
+export function findResultForStatementClause(
+  elm: ELM,
+  statementName: string,
+  rawClauseResults: cql.LocalIdResults
+): any {
   const elmStatement = elm.library.statements.def.find(def => def.name === statementName);
   const libraryName = elm.library.identifier.id;
   const localId = elmStatement?.localId;
@@ -840,7 +844,11 @@ export function setResult(populationType: PopulationType, newResult: boolean, re
 }
 
 // create a result for the given population type and result or update the existing value to true if newResult is true
-export function createOrSetResult(populationType: PopulationType, newResult: boolean, results: PopulationResult[]) {
+export function createOrSetResult(
+  populationType: PopulationType,
+  newResult: boolean,
+  results: PopulationResult[]
+): void {
   const popResult = results.find(result => result.populationType == populationType);
   if (popResult) {
     if (newResult === true) {

@@ -7,7 +7,6 @@ import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
 import { dumpELMJSONs, dumpCQLs, dumpObject, dumpVSMap } from './DebugHelper';
 import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
-import { group } from 'console';
 import { codeableConceptToPopulationType } from './MeasureHelpers';
 import { PopulationType } from './types/Enums';
 import { generateELMJSONFunction } from './CalculatorHelpers';

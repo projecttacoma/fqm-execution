@@ -5,13 +5,14 @@ import { getResult, hasResult, setResult, createOrSetResult } from './ResultsHel
 import { ELM, ELMStatement } from './types/ELMTypes';
 import moment from 'moment';
 import { PopulationType } from './types/Enums';
+import cql from 'cql-execution';
 
 /**
  * Create population values (aka results) for all populations in the population set using the results from the
  * calculator.
  * @param {R4.IMeasure} measure - The measure we are getting the values for.
  * @param {R4.IMeasure_Group} populationGroup - The population group that we are mapping results to.
- * @param {any} patientResults - The raw results object from the calculation engine for a patient.
+ * @param {cql.StatementResults} patientResults - The raw results object from the calculation engine for a patient.
  * @returns {DetailedPopulationGroupResult} The population results. Map of "POPNAME" to Integer result. Except for OBSERVs,
  *   their key is 'value' and value is an array of results. Second result is the the episode results keyed by
  *   episode id and with the value being a set just like the patient results.
@@ -19,7 +20,7 @@ import { PopulationType } from './types/Enums';
 export function createPopulationValues(
   measure: R4.IMeasure,
   populationGroup: R4.IMeasure_Group,
-  patientResults: any
+  patientResults: cql.StatementResults
 ): DetailedPopulationGroupResult {
   let populationResults: PopulationResult[] = [];
   let stratifierResults: StratifierResult[] | undefined;
@@ -151,13 +152,13 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
  * Create patient population values (aka results) for all populations in the population group using the results from the
  * calculator.
  * @param {R4.IMeasure_Group} populationGroup - The population group we are getting the values for.
- * @param {any} patientResults - The raw results object for a patient from the calculation engine.
+ * @param {cql.StatementResults} patientResults - The raw results object for a patient from the calculation engine.
  * @returns {PopulationResult[]} The population results. Map of "POPNAME" to Integer result. Except for OBSERVs,
  *   their key is 'value' and value is an array of results.
  */
 export function createPatientPopulationValues(
   populationGroup: R4.IMeasure_Group,
-  patientResults: any
+  patientResults: cql.StatementResults
 ): {
   populationResults: PopulationResult[];
   stratifierResults?: StratifierResult[];
@@ -224,18 +225,17 @@ function isStatementValueTruthy(value: any): boolean {
  * Create population values (aka results) for all episodes using the results from the calculator. This is
  * used only for the episode of care measures
  * @param {Population} populationSet - The populationSet we are getting the values for.
- * @param {Object} patientResults - The raw results object for the patient from the calculation engine.
+ * @param {cql.StatementResults} patientResults - The raw results object for the patient from the calculation engine.
  * @returns {Object} The episode results. Map of episode id to population results which is a map of "POPNAME"
  * to Integer result. Except for OBSERVs, their key is 'value' and value is an array of results.
  */
 export function createEpisodePopulationValues(
   populationGroup: R4.IMeasure_Group,
-  patientResults: any
+  patientResults: cql.StatementResults
 ): EpisodeResults[] {
   const episodeResultsSet: EpisodeResults[] = [];
 
   populationGroup.population?.forEach(population => {
-    let newEpisode;
     const cqlPopulation = population.criteria.expression;
     const populationType = MeasureHelpers.codeableConceptToPopulationType(population.code);
 
