@@ -1,6 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType, FinalResult, Relevance } from './Enums';
-import cql from 'cql-execution';
+import * as cql from './CQLTypes';
 import { ELM } from './ELMTypes';
 
 /**
