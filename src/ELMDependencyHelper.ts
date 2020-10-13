@@ -1,5 +1,12 @@
 import { ELM, LibraryDependencyInfo, StatementDependency, StatementReference } from './types/ELMTypes';
 
+/**
+ * Build the dependency maps for all libraries. This creates a listing of which statements and functions
+ * are referenced by each statement in each library.
+ *
+ * @param {ELM[]} elmLibraries - List of ELM Libraries to process.
+ * @returns {LibraryDependencyInfo[]} Library dependency info for each library that was passed in
+ */
 export function buildStatementDependencyMaps(elmLibraries: ELM[]): LibraryDependencyInfo[] {
   return elmLibraries.map(elmLibrary => {
     return {
@@ -10,10 +17,19 @@ export function buildStatementDependencyMaps(elmLibraries: ELM[]): LibraryDepend
   });
 }
 
+/**
+ * Map of aliases found in a library to help with processing.
+ */
 interface AliasMap {
   [alias: string]: string;
 }
 
+/**
+ * Create the map of aliases to full library identifiers for each referenced library.
+ *
+ * @param {ELM} elm - ELM library.
+ * @returns {AliasMap} Map of aliases to full identifiers.
+ */
 function makeLibraryAliasToPathHash(elm: ELM): AliasMap {
   const aliasMap: AliasMap = {};
   elm.library.includes?.def.forEach(includeDef => {
@@ -22,6 +38,13 @@ function makeLibraryAliasToPathHash(elm: ELM): AliasMap {
   return aliasMap;
 }
 
+/**
+ * Iterate over each statement in the given library and find each statement or function
+ * referenced by the statement and create a list of all these references (aka. dependencies of the statement)
+ *
+ * @param {ELM} elm - The library to create statement dependencies for.
+ * @returns {StatementDependency[]} The list of statement dependencies for each statement in the library.
+ */
 function makeStatementDependenciesForELM(elm: ELM): StatementDependency[] {
   const statementDependencies: StatementDependency[] = [];
   const libAliasMap = makeLibraryAliasToPathHash(elm);
@@ -45,6 +68,15 @@ function makeStatementDependenciesForELM(elm: ELM): StatementDependency[] {
   return statementDependencies;
 }
 
+/**
+ * Recursive function for finding all statement or function references in a statement.
+ *
+ * @param {any} obj - Any component of the ELM expression tree for a statement.
+ * @param {AliasMap} libAliasMap - Map of aliases to library identifiers used in this library.
+ * @param {string} thisLibraryId - The identifier of this library being parsed.
+ * @param {StatementReference[]} references - The list of references add found references too.
+ * @returns {StatementReference[]} The list of references that was passed in, but now filled with references found.
+ */
 function findStatementReferencesForExpression(
   obj: any,
   libAliasMap: AliasMap,
