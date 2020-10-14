@@ -124,10 +124,10 @@ export function calculateMeasureReports(
   options: CalculationOptions
 ): R4.IMeasureReport[] {
   // options should be updated by this call if measurementPeriod wasn't initially passed in
-  const results: ExecutionResult[] = calculate(measureBundle, patientBundles, options);
+  const results = calculate(measureBundle, patientBundles, options);
   const reports: R4.IMeasureReport[] = [];
   results.forEach(function (result) {
-    const report: R4.IMeasureReport = <any>{};
+    const report = <R4.IMeasureReport>{};
 
     // simple fields
     report.resourceType = 'MeasureReport';
@@ -139,8 +139,8 @@ export function calculateMeasureReports(
     report.type = R4.MeasureReportTypeKind._individual; // are there cases where this should be _subjectList or _summary or _dataCollection
 
     // measure url from measure bundle
-    const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure') as R4.IBundle_Entry;
-    const measure = measureEntry.resource as R4.IMeasure;
+    const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
+    const measure = measureEntry?.resource as R4.IMeasure;
     report.measure = measure.url || 'UnknownMeasure'; // or some other default?
 
     // create group population counts from result's detailedResults (yes/no->1/0)
@@ -148,7 +148,7 @@ export function calculateMeasureReports(
     result?.detailedResults?.forEach(function (dr) {
       // TODO: check the measure definition for stratification to determine whether to add group.stratiier
       // if yes, add stratifier with population copied into. Set counts to 0 if the result for the stratifier is false
-      const group: R4.IMeasureReport_Group = <any>{};
+      const group = <R4.IMeasureReport_Group>{};
       const detail: DetailedPopulationGroupResult = dr;
       group.id = detail.groupId;
       group.population = [];
@@ -157,21 +157,21 @@ export function calculateMeasureReports(
       // TODO: handle EXM111 (doesn't identify itself as a episode of care measure). if it's an episode of care, you need to iterate over
       // stratifications : may need to clone results for one population group and adjust (in this case, just a straight clone)
       detail?.populationResults?.forEach(function (pr) {
-        const pop: IMeasureReport_Population = <any>{};
+        const pop = <R4.IMeasureReport_Population>{};
 
         pop.code = {
           coding: [
             {
               system: 'http://terminology.hl7.org/CodeSystem/measure-population',
               code: pr.populationType,
-              display: populationDisplay(pr.populationType)
+              display: POPULATION_DISPLAY_MAP[pr.populationType]
             }
           ]
         };
         pop.count = pr.result ? 1 : 0;
         if (pr.populationType == PopulationType.NUMER) numeratorCount += pop.count;
         if (pr.populationType == PopulationType.DENOM) denominatorCount += pop.count;
-        group.population?.push?.(pop);
+        group.population?.push(pop);
       });
       // TODO: handle ratio or continuous variable or cohort
       // currently assumes patient-based proportion measure http://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#proportion-measures
@@ -190,9 +190,9 @@ export function calculateMeasureReports(
       type: R4.BundleTypeKind._collection,
       entry: []
     };
-    const patient = patientBundles[0].entry?.filter(function (e) {
-      return e.resource?.resourceType == 'Patient';
-    })[0].resource;
+    const patient = patientBundles[0].entry?.find(e => {
+      return e.resource?.resourceType === 'Patient';
+    })?.resource;
     // TODO: (related to above) do we need other entries... List, Encounter, Procedure?
     const patId = `Patient/${patient?.id}`;
     contained.entry?.push({
@@ -202,7 +202,7 @@ export function calculateMeasureReports(
     report.contained = [contained];
 
     // create reference to contained evaluated resource and match ID
-    const evalResourceReference: IReference = {
+    const evalResourceReference: R4.IReference = {
       reference: evalId
     };
     report.evaluatedResource = [evalResourceReference];
@@ -234,9 +234,15 @@ export function calculateRaw(
   }
 }
 
-function populationDisplay(type: PopulationType): string {
-  // Code->Display https://terminology.hl7.org/1.0.0/CodeSystem-measure-population.html
-  // Always same pattern, example: 'initial-population' -> 'Initial Population'
-  const words: string[] = type.split('-');
-  return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-}
+// // Code->Display https://terminology.hl7.org/1.0.0/CodeSystem-measure-population.html
+const POPULATION_DISPLAY_MAP = {
+  [PopulationType.IPP]: 'Initial Population',
+  [PopulationType.DENOM]: 'Denominator',
+  [PopulationType.DENEX]: 'Denominator Exclusion',
+  [PopulationType.DENEXCEP]: 'Denominator Exception',
+  [PopulationType.NUMER]: 'Numerator',
+  [PopulationType.NUMEX]: 'Numerator Exclusion',
+  [PopulationType.MSRPOPL]: 'Measure Population',
+  [PopulationType.MSRPOPLEX]: '	Measure Population Exclusion',
+  [PopulationType.OBSERV]: 'Measure Observation'
+};
