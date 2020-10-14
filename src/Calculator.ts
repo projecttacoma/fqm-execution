@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ExecutionResult, CalculationOptions, DetailedPopulationGroupResult } from './types/Calculator';
+import { ExecutionResult, CalculationOptions } from './types/Calculator';
 import { PopulationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -127,7 +127,7 @@ export function calculateMeasureReports(
   // options should be updated by this call if measurementPeriod wasn't initially passed in
   const results = calculate(measureBundle, patientBundles, options);
   const reports: R4.IMeasureReport[] = [];
-  results.forEach(function (result) {
+  results.forEach(result => {
     const report = <R4.IMeasureReport>{};
 
     // simple fields
@@ -146,18 +146,18 @@ export function calculateMeasureReports(
 
     // create group population counts from result's detailedResults (yes/no->1/0)
     report.group = [];
-    result?.detailedResults?.forEach(function (dr) {
+    result?.detailedResults?.forEach(dr => {
       // TODO: check the measure definition for stratification to determine whether to add group.stratiier
       // if yes, add stratifier with population copied into. Set counts to 0 if the result for the stratifier is false
       const group = <R4.IMeasureReport_Group>{};
-      const detail: DetailedPopulationGroupResult = dr;
+      const detail = dr;
       group.id = detail.groupId;
       group.population = [];
       let numeratorCount = 0.0;
       let denominatorCount = 0.0;
       // TODO: handle EXM111 (doesn't identify itself as a episode of care measure). if it's an episode of care, you need to iterate over
       // stratifications : may need to clone results for one population group and adjust (in this case, just a straight clone)
-      detail?.populationResults?.forEach(function (pr) {
+      detail?.populationResults?.forEach(pr => {
         const pop = <R4.IMeasureReport_Population>{};
 
         pop.code = {
@@ -244,6 +244,6 @@ const POPULATION_DISPLAY_MAP = {
   [PopulationType.NUMER]: 'Numerator',
   [PopulationType.NUMEX]: 'Numerator Exclusion',
   [PopulationType.MSRPOPL]: 'Measure Population',
-  [PopulationType.MSRPOPLEX]: '	Measure Population Exclusion',
+  [PopulationType.MSRPOPLEX]: 'Measure Population Exclusion',
   [PopulationType.OBSERV]: 'Measure Observation'
 };
