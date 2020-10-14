@@ -1,5 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ExecutionResult, CalculationOptions } from './types/Calculator';
+import { ExecutionResult, CalculationOptions, DetailedPopulationGroupResult } from './types/Calculator';
+import { PopulationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 
 import cql from 'cql-execution';
