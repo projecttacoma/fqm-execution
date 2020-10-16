@@ -333,14 +333,18 @@ export function isSupplementalDataElementStatement(
   return false;
 }
 
+/**
+ * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
+ * patient based measure.
+ */
 const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
 
 /**
  * Check if a measure is an episode of care measure or not. Look for the cqfm-populationBasis extension.
  * If it is found return true if valueCode is not 'boolean' otherwise return false.
  *
- * @param measure FHIR Measure resource.
- * @returns true if this is an episode of care, false if it is a patient measure.
+ * @param {R4.IMeasure} measure FHIR Measure resource.
+ * @returns {boolean} true if this is an episode of care, false if it is a patient measure.
  */
 export function isEpisodeOfCareMeasure(measure: R4.IMeasure): boolean {
   const popBasisExt = measure.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
@@ -351,13 +355,16 @@ export function isEpisodeOfCareMeasure(measure: R4.IMeasure): boolean {
   }
 }
 
+/**
+ * Population Type Code system.
+ */
 const POPULATION_TYPE_CODESYSTEM = 'http://terminology.hl7.org/CodeSystem/measure-population';
 
 /**
  * Converts FHIR CodeableConcept value for the measure population type to a PopulationType enum value.
  *
- * @param concept The FHIR CodeableConcept value for the measure population.
- * @returns null if not a proper population type. The PopulationType if it is.
+ * @param {R4.ICodeableConcept|undefined} concept The FHIR CodeableConcept value for the measure population.
+ * @returns {PopulationType|null} null if not a proper population type. The PopulationType if it is.
  */
 export function codeableConceptToPopulationType(concept: R4.ICodeableConcept | undefined): PopulationType | null {
   const populationTypeCoding = concept?.coding?.find(coding => {

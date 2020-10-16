@@ -19,14 +19,13 @@ import {
  */
 
 /**
- * Builds the `statement_relevance` map. This map gets added to the Result attributes that the calculator returns.
+ * Builds the initial list of StatementResult objects. This initializes the objects with ith statement relevance info.
+ * This list gets added to the DetailedPopulationGroupResult for the given population group.
  *
- * The statement_relevance map indicates which define statements were actually relevant to a population inclusion
- * consideration. This makes use of the 'population_relevance' map. This is actually a two level map. The top level is
- * a map of the CQL libraries, keyed by library name. The second level is a map for statement relevance in that library,
- * which maps each statement to its relevance status. The values in this map differ from the `population_relevance`
- * because we also need to track statements that are not used for any population calculation. Therefore the values are
- * a string that is one of the following: 'NA', 'TRUE', 'FALSE'. Here is what they mean:
+ * The statement relevance indicates which define statements were actually relevant to a population inclusion
+ * consideration. This makes use of the 'population relevance' info. The values for statement relevance differ from the
+ * `population relevance` because we also need to track statements that are not used for any population calculation.
+ * Therefore the values are a string/enum that is one of the following: 'NA', 'TRUE', 'FALSE'. Here is what they mean:
  *
  * 'NA' - Not applicable. This statement is not relevant to any population calculation in this population_set. Common
  *   for unused library statements or statements only used for other population sets.
@@ -35,36 +34,18 @@ import {
  *
  * 'TRUE' - This statement is relevant for one or more of the population inclusion calculations.
  *
- * Here is an example structure this function returns. (the `statement_relevance` map)
- * {
- *   "Test158": {
- *     "Patient": "NA",
- *     "SDE Ethnicity": "NA",
- *     "SDE Payer": "NA",
- *     "SDE Race": "NA",
- *     "SDE Sex": "NA",
- *     "Most Recent Delivery": "TRUE",
- *     "Most Recent Delivery Overlaps Diagnosis": "TRUE",
- *     "Initial Population": "TRUE",
- *     "Numerator": "TRUE",
- *     "Denominator Exceptions": "FALSE"
- *   },
- *   "TestLibrary": {
- *     "Numer Helper": "TRUE",
- *     "Denom Excp Helper": "FALSE",
- *     "Unused statement": "NA"
- *   }
- * }
+ * This function relies heavily on the statement dependency map built in ELMDependencyHelper to recursively determine
+ * which statements are used in the relevant population statements. It also uses the 'population_relevance' map to
+ * determine the relevance of the population defining statement and its dependent statements.
  *
- * This function relies heavily on the cql_statement_dependencies map on the Measure to recursively determine which
- * statements are used in the relevant population statements. It also uses the 'population_relevance' map to determine
- * the relevance of the population defining statement and its dependent statements.
  * @public
- * @param {PopulationResult[]} populationRelevance - The population relevance results, used at the starting point.
- * @param {Measure} measure - The measure.
- * @param {population} populationSet - The population set being calculated.
- * @returns {object} The `statement_relevance` map that maps each statement to its relevance status for a calculation.
- *   This structure is put in the Result object's attributes.
+ * @param {R4.IMeasure} measure - The measure.
+ * @param {PopulationResult[]} populationRelevanceSet - The population relevance results, used at the starting point.
+ * @param {string} mainLibraryId - The identifier of the main library.
+ * @param {ELM[]} elmLibraries - All ELM libraries for the measure.
+ * @param {R4.IMeasure_Group} populationGroup - The population group being calculated.
+ * @param {boolean} calculateSDEs - Wether or not to treat SDEs as calculed/relevant or not.
+ * @returns {StatementResult[]} The StatementResults list for each statement with it its relevance status populated.
  */
 export function buildStatementRelevanceMap(
   measure: R4.IMeasure,
@@ -90,6 +71,7 @@ export function buildStatementRelevanceMap(
   });
 
   // build statement dependency maps to use for marking relevant statements
+  // TODO: Move this out to only happen once per measure to improve performance.
   const statementDependencies = ELMDependencyHelper.buildStatementDependencyMaps(elmLibraries);
 
   // Calculate SDEs if specified
@@ -122,6 +104,7 @@ export function buildStatementRelevanceMap(
     }
   });
 
+  // Iterate over all populations in this group and mark their statements relevant.
   populationGroup.population?.forEach(population => {
     const popType = MeasureHelpers.codeableConceptToPopulationType(population.code);
     if (popType) {
@@ -145,14 +128,16 @@ export function buildStatementRelevanceMap(
 }
 
 /**
- * Recursive helper function for the _buildStatementRelevanceMap function. This marks a statement as relevant (or not
- * relevant but applicable) in the `statement_relevance` map. It recurses and marks dependent statements also relevant
+ * Recursive helper function for the buildStatementRelevanceMap function. This marks a statement as relevant (or not
+ * relevant but applicable) in the StatementResults list. It recurses and marks dependent statements also relevant
  * unless they have already been marked as 'TRUE' for their relevance statue. This function will never be called on
  * statements that are 'NA'.
+ *
  * @private
- * @param {Array<CQLLibraries>} cqlLibraries - Dependency map from the measure object. The thing we recurse over
- *   even though it is flat, it represents a tree.
- * @param {object} statementRelevance - The `statement_relevance` map to mark.
+ * @param {ELM[]} elmLibraries
+ * @param {LibraryDependencyInfo[]} statementDependencies - dependency map from the measure object. The thing we recurse
+ *   over to find dependent statements even though it is flat, it represents a tree.
+ * @param {StatementResult[]} statementResults - The list of StatementResults to mark relevance in.
  * @param {string} libraryName - The library name of the statement we are marking.
  * @param {string} statementName - The name of the statement we are marking.
  * @param {boolean} relevant - true if the statement should be marked 'TRUE', false if it should be marked 'FALSE'.
@@ -188,6 +173,14 @@ export function markStatementRelevant(
   }
 }
 
+/**
+ * Helper function to find the StatementResult object for a given statement.
+ *
+ * @param {string} libraryName - Name of libary.
+ * @param {string} statementName - Name of statement.
+ * @param {StatementResult[]} statementResults - List of statement results to find the result in.
+ * @returns {StatementResult|undefined} The statement results if found.
+ */
 export function getStatementResult(
   libraryName: string,
   statementName: string,
@@ -199,17 +192,13 @@ export function getStatementResult(
 }
 
 /**
- * Builds the result structures for the statements and the clauses. These are named `statement_results` and
- * `clause_results` respectively when added Result object's attributes.
+ * Fills out the results attributes for the statements and builds clause results.
  *
- * The `statement_results` structure indicates the result for each statement taking into account the statement
- * relevance in determining the result. This is a two level map just like `statement_relevance`. The first level key is
- * the library name and the second key level is the statement name. The value is an object that has three properties,
- * 'raw', 'final' and 'pretty'. 'raw' is the raw result from the execution engine for that statement. 'final' is the final
- * result that takes into account the relevance in this calculation. 'pretty' is a human readable description of the result
- * that is only generated if doPretty is true.
- * The value of 'final' will be one of the following strings:
- * 'NA', 'UNHIT', 'TRUE', 'FALSE'.
+ * The StatementResult `final` field indicates the result for the statement taking into account the statement
+ * relevance in determining the result. The StatementResult also has the properties, 'raw', 'final' and 'pretty'. 'raw'
+ * is the raw result from the execution engine for that statement. 'final' is the final result that takes into account
+ * the relevance in this calculation. 'pretty' is a human readable description of the result that is only generated if
+ * doPretty is true. The value of 'final' will be one of the following strings/enums: 'NA', 'UNHIT', 'TRUE', 'FALSE'.
  *
  * Here's what they mean:
  *
@@ -225,35 +214,11 @@ export function getStatementResult(
  *
  * 'FALSE' - This statement is relevant and has a falsey result.
  *
- * Here is an example of the `statement_results` structure: (raw results have been turned into "???" for this example)
- * {
- *   "Test158": {
- *     "Patient": { "raw": "???", "final": "NA", "pretty": "NA" },
- *     "SDE Ethnicity": { "raw": "???", "final": "NA", "pretty": "NA" },
- *     "SDE Payer": { "raw": "???", "final": "NA", "pretty": "NA" },
- *     "SDE Race": { "raw": "???", "final": "NA", "pretty": "NA" },
- *     "SDE Sex": { "raw": "???", "final": "NA", "pretty": "NA" },
- *     "Most Recent Delivery": { "raw": "???", "final": "TRUE", "pretty": "???" },
- *     "Most Recent Delivery Overlaps Diagnosis": { "raw": "???", "final": "TRUE", "pretty": "???" },
- *     "Initial Population": { "raw": "???", "final": "TRUE", "pretty": "???" },
- *     "Numerator": { "raw": "???", "final": "TRUE", "pretty": "???" },
- *     "Denominator Exceptions": { "raw": "???", "final": "UNHIT", "pretty": "UNHIT" },
- *   },
- *  "TestLibrary": {
- *     "Numer Helper": { "raw": "???", "final": "TRUE", "pretty": "???" },
- *     "Denom Excp Helper": { "raw": "???", "final": "UNHIT", "pretty": "UNHIT" },
- *     "Unused statement": { "raw": "???", "final": "NA", "pretty": "???" },
- *     "false statement": { "raw": "???", "final": "FALSE", "pretty": "FALSE: []" },
- *   }
- * }
+ * The ClauseResult list is similar to the StatementResult list but it indicates the results for each clause.
+ * The same 'raw' and 'final' fields are set, but for the the clause itself.
  *
+ * This function relies very heavily on the StatementResult `relevance` field to determine the final results.
  *
- * The `clause_results` structure is the same as the `statement_results` but it indicates the result for each clause.
- * The second level key is the localId for the clause. The result object is the same with the same  'raw' and 'final'
- * properties but it also includes the name of the statement it resides in as 'statementName'.
- *
- * This function relies very heavily on the `statement_relevance` map to determine the final results. This function
- * returns the two structures together in an object ready to be added directly to the Result attributes.
  * @public
  * @param {R4.IMeasure} measure - The measure.
  * @param {ELM[]} elmLibraries - List of all ELM Library JSONs.
@@ -612,13 +577,13 @@ export function doesResultPass(result: any | null): boolean {
   return true;
 }
 
-/*
- * Iterate over episode results, call _buildPopulationRelevanceMap for each result
- * OR population relevances together so that populations are marked as relevant
- * based on all episodes instead of just one
+/**
+ * Iterate over episode results, call _buildPopulationRelevanceMap for each result then OR population relevances
+ * together so that a patient level population relevance set can be made.
+ *
  * @private
- * @param {episodeResults} result - Population_results for each episode
- * @returns {object} Map that tells if a population calculation was considered/relevant in any episode
+ * @param {EpisodeResults[]} episodeResultsSet - Results for each episode
+ * @returns {PopulationResult[]} List denoting if population calculation was considered/relevant in any episode
  */
 export function buildPopulationRelevanceForAllEpisodes(
   populationGroup: R4.IMeasure_Group,
@@ -647,29 +612,20 @@ export function buildPopulationRelevanceForAllEpisodes(
 }
 
 /**
- * Builds the `population_relevance` map. This map gets added to the Result attributes that the calculator returns.
+ * Builds the relevance results for each population. This creates the `populationRelevance` list that is put on
+ * DetailedPopulationGroupResult
  *
- * The population_relevance map indicates which populations the patient was actually considered for inclusion in. It
- * is a simple map of "POPNAME" to true or false. true if the population was relevant/considered, false if
+ * For each population in the group it is set to true if the population was relevant/considered, false if
  * NOT relevant/considered. This is used later to determine which define statements are relevant in the calculation.
  *
  * For example: If they aren't in the IPP then they are not going to be considered for any other population and all other
  * populations will be marked NOT relevant.
  *
- * Below is an example result of this function (the 'population_relevance' map). DENEXCEP is not relevant because in
- * the population_results the NUMER was greater than zero:
- * {
- *   "IPP": true,
- *   "DENOM": true,
- *   "NUMER": true,
- *   "DENEXCEP": false
- * }
- *
  * This function is extremely verbose because this is an important and confusing calculation to make. The verbosity
  * was kept to make it more maintainable.
  *
- * @param {PopulationResult[]} result - The population results list from
- * @returns {PopulationResult[]} Population results list that is the 'results' of which
+ * @param {PopulationResult[]} result - The population results list for the population results.
+ * @returns {PopulationResult[]} The population relevance set.
  */
 export function buildPopulationRelevanceMap(results: PopulationResult[]): PopulationResult[] {
   // Create initial results starting with all true to create the basis for relevance.
