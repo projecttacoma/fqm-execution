@@ -5,7 +5,7 @@ import { getResult, hasResult, setResult, createOrSetResult } from './ResultsHel
 import { ELM, ELMStatement } from './types/ELMTypes';
 import moment from 'moment';
 import { PopulationType } from './types/Enums';
-import cql from 'cql-execution';
+import * as cql from './types/CQLTypes';
 
 /**
  * Create population values (aka results) for all populations in the population group using the results from the

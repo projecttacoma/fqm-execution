@@ -1,7 +1,8 @@
 import * as MeasureHelpers from './MeasureHelpers';
 import * as ELMDependencyHelper from './ELMDependencyHelper';
 import { ELM, LibraryDependencyInfo } from './types/ELMTypes';
-import cql from 'cql-execution';
+import * as cql from './types/CQLTypes';
+import * as cqlSystemTypes from 'cql-execution';
 import moment from 'moment';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { FinalResult, PopulationType, Relevance } from './types/Enums';
@@ -388,14 +389,14 @@ export function prettyResult(result: any | null, indentLevel?: number, keyIndent
   }
   const keyIndentation = Array(keyIndent).join(' ');
   const currentIndentation = Array(indentLevel).join(' ');
-  if (result instanceof cql.DateTime) {
+  if (result instanceof cqlSystemTypes.DateTime) {
     return moment.utc(result.toString()).format('MM/DD/YYYY h:mm A');
-  } else if (result instanceof cql.Interval) {
+  } else if (result instanceof cqlSystemTypes.Interval) {
     return `INTERVAL: ${prettyResult(result.low)} - ${prettyResult(result.high)}`;
-  } else if (result instanceof cql.Code) {
+  } else if (result instanceof cqlSystemTypes.Code) {
     // TODO: Sort out a better way to have a friendly system display for FHIR codes
     return `CODE: ${result.system} ${result.code}`;
-  } else if (result instanceof cql.Quantity) {
+  } else if (result instanceof cqlSystemTypes.Quantity) {
     let quantityResult = `QUANTITY: ${result.value}`;
     if (result.unit) {
       quantityResult += ` ${result.unit}`;
@@ -564,11 +565,11 @@ export function doesResultPass(result: any | null): boolean {
       return false;
     }
     return true;
-  } else if (result instanceof cql.Interval) {
+  } else if (result instanceof cqlSystemTypes.Interval) {
     // make it green if and Interval is returned
     return true;
-    // Return false if an empty cql.Code is the result
-  } else if (result instanceof cql.Code && result.code == null) {
+    // Return false if an empty cqlSystemTypes.Code is the result
+  } else if (result instanceof cqlSystemTypes.Code && result.code == null) {
     return false;
   } else if (result === null || result === undefined) {
     // Specifically no result

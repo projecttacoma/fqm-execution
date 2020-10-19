@@ -54,7 +54,7 @@ export interface ExecutionResult {
 /**
  * SDE Values
  */
-interface SDEResult {
+export interface SDEResult {
   /** Name of the SDE */
   name: string;
   /** Raw result of SDE clause */
@@ -134,7 +134,7 @@ export interface StatementResult {
 /**
  * Result for a particular stratifer for a patient or episode.
  */
-interface StratifierResult {
+export interface StratifierResult {
   /**
    * The 'text' part from the stratifier.code.
    */
