@@ -155,6 +155,7 @@ export function calculateMeasureReports(
       // add narrative for relevant clauses
       if (dr.html) {
         report.text = {
+          status: R4.NarrativeStatusKind._generated,
           div: dr.html
         };
       }
