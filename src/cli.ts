@@ -30,7 +30,8 @@ if (program.outputType == 'raw') {
   result = calculateMeasureReports(measureBundle, patientBundles, {
     measurementPeriodStart: '2019-01-01',
     measurementPeriodEnd: '2019-12-31',
-    calculateSDEs: true
+    calculateSDEs: true,
+    calculateHTML: true
   });
 }
 console.log(JSON.stringify(result, null, 2));

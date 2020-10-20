@@ -1,0 +1,10 @@
+<span{{#if r}} data-ref-id="{{r}}"{{/if}}>
+{{~#if value ~}}
+{{ concat value }}
+{{~/if ~}}
+{{~#if s~}}
+{{~#each s~}}
+{{> clause ~}}
+{{~/each ~}}
+{{~/if~}}
+</span>

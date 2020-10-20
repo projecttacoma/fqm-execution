@@ -1,12 +1,8 @@
 import * as MeasureHelpers from '../src/MeasureHelpers';
-import { readFileSync } from 'fs';
 import { ELM } from '../src/types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType } from '../src/types/Enums';
-
-function getJSONFixture(path: string): any {
-  return JSON.parse(readFileSync(`test/fixtures/${path}`).toString());
-}
+import { getJSONFixture } from './helpers/testHelpers';
 
 describe('MeasureHelpers', () => {
   describe('findAllLocalIdsInStatementByName', () => {
