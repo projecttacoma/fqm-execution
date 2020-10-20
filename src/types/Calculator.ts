@@ -21,6 +21,8 @@ export interface CalculationOptions {
   patientSource?: any;
   /** Include SDEs in calculation */
   calculateSDEs?: boolean;
+  /** Include HTML structure for highlighting */
+  calculateHTML?: boolean;
 }
 
 /**
@@ -91,6 +93,8 @@ export interface DetailedPopulationGroupResult {
   populationResults?: PopulationResult[];
   /** If this is an episode of care measure. Each episode found in IPP will have results. */
   episodeResults?: EpisodeResults[];
+  /** HTML markup of the clauses */
+  html?: string;
 }
 
 /**

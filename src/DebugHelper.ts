@@ -2,6 +2,20 @@ import { ELM } from './types/ELMTypes';
 import { ValueSetMap } from './types/CQLTypes';
 import fs from 'fs';
 
+export function dumpHTML(htmlString: string, nameInDebugFolder: string): void {
+  // create debug folder if it doesnt exist
+  if (!fs.existsSync('debug')) {
+    fs.mkdirSync('debug', { recursive: true });
+  }
+
+  // delete old copy
+  if (fs.existsSync(`debug/${nameInDebugFolder}`)) {
+    fs.unlinkSync(`debug/${nameInDebugFolder}`);
+  }
+
+  fs.writeFileSync(`debug/${nameInDebugFolder}`, htmlString);
+}
+
 export function dumpELMJSONs(elmJSONs: ELM[]): void {
   // create folder if it doesn't exist
   if (!fs.existsSync('debug/elm')) {

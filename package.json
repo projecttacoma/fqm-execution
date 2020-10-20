@@ -12,16 +12,19 @@
     "commander": "^6.1.0",
     "cql-exec-fhir": "1.5.0-beta.1",
     "cql-execution": "2.0.0-beta.1",
+    "handlebars": "^4.7.6",
     "moment": "^2.29.0",
     "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@ahryman40k/ts-fhir-types": "^4.0.32",
+    "@types/handlebars": "^4.1.0",
     "@types/jest": "^26.0.5",
     "@types/node": "^14.0.23",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^3.2.0",
     "@typescript-eslint/parser": "^3.2.0",
+    "copyfiles": "^2.4.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "jest": "^26.1.0",
@@ -30,15 +33,17 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "build": "rm -rf ./build && tsc",
+    "build": "rm -rf ./build && tsc && npm run copy-templates",
     "build:watch": "rm -rf ./build && tsc -w",
     "lint": "tsc && eslint \"**/*.{js,ts}\"",
     "lint:fix": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "prettier": "prettier --check \"**/*.{js,ts}\"",
     "prettier:fix": "prettier --write \"**/*.{js,ts}\"",
     "test": "jest",
+    "test:watch": "jest --watchAll",
     "check": "npm run test && npm run lint && npm run prettier",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "copy-templates": "copyfiles -u 1 ./src/templates/*.hbs ./build/"
   },
   "repository": {
     "type": "git",
