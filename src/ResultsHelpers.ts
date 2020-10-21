@@ -796,7 +796,7 @@ export function getSDEValues(measure: R4.IMeasure, statementResults: cql.Stateme
         const expression = sde.criteria.expression;
         const result = statementResults[expression];
         results.push({
-          name: expression,
+          name: sde.code?.text || expression,
           rawResult: result,
           pretty: prettyResult(result)
         });

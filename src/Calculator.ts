@@ -154,11 +154,10 @@ export function calculateMeasureReports(
 
     // create group population counts from result's detailedResults (yes/no->1/0)
     report.group = [];
-    result?.detailedResults?.forEach(dr => {
+    result?.detailedResults?.forEach(detail => {
       // TODO: check the measure definition for stratification to determine whether to add group.stratiier
       // if yes, add stratifier with population copied into. Set counts to 0 if the result for the stratifier is false
       const group = <R4.IMeasureReport_Group>{};
-      const detail = dr;
       group.id = detail.groupId;
       group.population = [];
       let numeratorCount = 0.0;
@@ -240,6 +239,9 @@ export function calculateMeasureReports(
       report.subject = subjectReference;
     }
 
+    // add supplemental data elements to contained and as evaluatedResource references
+    addSDE(report, report.measure, result);
+
     reports.push(report);
   });
 
@@ -273,3 +275,56 @@ const POPULATION_DISPLAY_MAP = {
   [PopulationType.MSRPOPLEX]: 'Measure Population Exclusion',
   [PopulationType.OBSERV]: 'Measure Observation'
 };
+
+function addSDE(report: R4.IMeasureReport, measureURL: string, result: ExecutionResult) {
+  // 	Note that supplemental data are reported as observations for each patient and included in the evaluatedResources bundle. See the MeasureReport resource or the Quality Reporting topic for more information.
+  result.supplementalData?.forEach(sd => {
+    const observation = <R4.IObservation>{};
+    observation.resourceType = 'Observation';
+    observation.code = { text: sd.name };
+    observation.id = uuidv4();
+    observation.status = R4.ObservationStatusKind._final;
+    observation.extension = [
+      {
+        url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
+        extension: [
+          {
+            url: 'measure',
+            valueCanonical: measureURL
+          },
+          {
+            url: 'populationId',
+            valueString: sd.name
+          }
+        ]
+      }
+    ];
+
+    // add coding to valueCodeableConcept
+    if ('forEach' in sd.rawResult) {
+      observation.valueCodeableConcept = { coding: [] };
+      sd.rawResult?.forEach((rr: any) => {
+        if (rr.code?.value && rr.system?.value && rr.display?.value) {
+          // create supplemental data elements
+          observation.valueCodeableConcept?.coding?.push({
+            system: rr.system.value,
+            code: rr.code.value,
+            display: rr.display.value
+          });
+        }
+      });
+    } else if (sd.rawResult.isCode) {
+      observation.valueCodeableConcept = { coding: [] };
+      observation.valueCodeableConcept?.coding?.push({
+        system: sd.rawResult.system,
+        code: sd.rawResult.code,
+        display: sd.rawResult.display
+      });
+    }
+    // add as evaluated resource reference
+    report.contained?.push(observation);
+    report.evaluatedResource?.push({
+      reference: observation.id
+    });
+  });
+}
