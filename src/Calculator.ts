@@ -24,7 +24,10 @@ export function calculate(
   patientBundles: R4.IBundle[],
   options: CalculationOptions
 ): ExecutionResult[] {
-  const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure') as R4.IBundle_Entry;
+  const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
+  if (!measureEntry || !measureEntry.resource) {
+    throw new Error('Measure resource was not found in provided measure bundle');
+  }
   const measure = measureEntry.resource as R4.IMeasure;
   const executionResults: ExecutionResult[] = [];
 
