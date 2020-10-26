@@ -637,39 +637,6 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
     };
   });
 
-  /** TODO: Determine how Straifiers play here
-  // If STRAT is 0 then everything else is not calculated
-  if (hasResult(PopulationType.STRAT, results) && result.STRAT === 0) {
-    if (hasResult(PopulationType.IPP, relevantResults)) {
-      setResult(PopulationType.IPP, false, relevantResults);
-    }
-    if (hasResult(PopulationType.NUMER, relevantResults)) {
-      setResult(PopulationType.NUMER, false, relevantResults);
-    }
-    if (hasResult(PopulationType.NUMEX, relevantResults)) {
-      setResult(PopulationType.NUMEX, false, relevantResults);
-    }
-    if (hasResult(PopulationType.DENOM, relevantResults)) {
-      setResult(PopulationType.DENOM, false, relevantResults);
-    }
-    if (hasResult(PopulationType.DENEX, relevantResults)) {
-      setResult(PopulationType.DENEX, false, relevantResults);
-    }
-    if (hasResult(PopulationType.DENEXCEP, relevantResults)) {
-      setResult(PopulationType.DENEXCEP, false, relevantResults);
-    }
-    if (hasResult(PopulationType.MSRPOPL, relevantResults)) {
-      setResult(PopulationType.MSRPOPL, false, relevantResults);
-    }
-    if (hasResult(PopulationType.MSRPOPLEX, relevantResults)) {
-      setResult(PopulationType.MSRPOPLEX, false, relevantResults);
-    }
-    if (relevantResults.observation_values != null) {
-      relevantResults.observation_values = false;
-    }
-  }
-  */
-
   // If IPP is false then everything else is not calculated
   if (getResult(PopulationType.IPP, results) === false) {
     if (hasResult(PopulationType.NUMER, relevantResults)) {
