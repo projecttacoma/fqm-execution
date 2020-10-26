@@ -45,7 +45,11 @@ export function calculate(
 
   // Iterate over patient bundles and make results for each of them.
   patientBundles.forEach(patientBundle => {
-    const patientEntry = patientBundle.entry?.find(e => e.resource?.resourceType === 'Patient') as R4.IBundle_Entry;
+    const patientEntry = patientBundle.entry?.find(e => e.resource?.resourceType === 'Patient');
+    if (!patientEntry || !patientEntry.resource) {
+      // Skip this bundle if no patient was found.
+      return;
+    }
     const patient = patientEntry.resource as R4.IPatient;
     if (!patient.id) {
       // Patient has no ID
