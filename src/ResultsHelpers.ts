@@ -457,6 +457,7 @@ export function prettyResult(result: any | null, indentLevel?: number, keyIndent
     }
     prettyResultReturn = '{\n';
     const baseIndentation = Array(3).join(' ');
+    // TODO: Update the this function to better handle FHIR objects instead of QDM objects.
     const sortedKeys = Object.keys(result)
       .sort()
       .filter(key => key !== '_type' && key !== 'qdmVersion');
