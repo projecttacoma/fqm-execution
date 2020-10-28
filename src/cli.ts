@@ -9,7 +9,7 @@ import { calculate, calculateMeasureReports, calculateRaw } from './Calculator';
 program
   .option('-o, --output-type <type>', 'type of output, "raw", "detailed", "reports"', 'detailed')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
-  .requiredOption('-p, --patient-bundle <patient-bundle>', 'path to  patient bundle')
+  .requiredOption('-p, --patient-bundles <patient-bundles...>', 'paths to patient bundle')
   .parse(process.argv);
 
 function parseBundle(filePath: string): R4.IBundle {
@@ -18,15 +18,16 @@ function parseBundle(filePath: string): R4.IBundle {
 }
 
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
-const patientBundle = parseBundle(path.resolve(program.patientBundle));
+
+const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
 let result;
 if (program.outputType == 'raw') {
-  result = calculateRaw(measureBundle, [patientBundle], {});
+  result = calculateRaw(measureBundle, patientBundles, {});
 } else if (program.outputType == 'detailed') {
-  result = calculate(measureBundle, [patientBundle], { calculateSDEs: true });
+  result = calculate(measureBundle, patientBundles, { calculateSDEs: true });
 } else if (program.outputType == 'reports') {
-  result = calculateMeasureReports(measureBundle, [patientBundle], {
+  result = calculateMeasureReports(measureBundle, patientBundles, {
     measurementPeriodStart: '2019-01-01',
     measurementPeriodEnd: '2019-12-31'
   });

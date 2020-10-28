@@ -199,28 +199,46 @@ export function calculateMeasureReports(
       type: R4.BundleTypeKind._collection,
       entry: []
     };
-    const patient = patientBundles[0].entry?.find(e => {
-      return e.resource?.resourceType === 'Patient';
-    })?.resource;
-    // TODO: (related to above) do we need other entries... List, Encounter, Procedure?
-    const patId = `Patient/${patient?.id}`;
-    contained.entry?.push({
-      fullUrl: patId,
-      resource: patient
+
+    // find this patient's bundle
+    const patientBundle = patientBundles.find(patientBundle => {
+      const patientEntry = patientBundle.entry?.find(bundleEntry => {
+        return bundleEntry.resource?.resourceType === 'Patient';
+      });
+      if (patientEntry && patientEntry.resource) {
+        return patientEntry.resource.id === result.patientId;
+      } else {
+        return false;
+      }
     });
-    report.contained = [contained];
 
-    // create reference to contained evaluated resource and match ID
-    const evalResourceReference: R4.IReference = {
-      reference: evalId
-    };
-    report.evaluatedResource = [evalResourceReference];
+    // if the patient bundle was found add their information to the evaluated resources
+    if (patientBundle) {
+      // grab the measure resource
+      const patient = patientBundle.entry?.find(bundleEntry => {
+        return bundleEntry.resource?.resourceType === 'Patient';
+      })?.resource as R4.IPatient;
 
-    // create reference to contained patient/subject and match ID
-    const subjectReference: R4.IReference = {
-      reference: patId
-    };
-    report.subject = subjectReference;
+      // TODO: (related to above) do we need other entries... List, Encounter, Procedure?
+      const patId = `Patient/${patient?.id}`;
+      contained.entry?.push({
+        fullUrl: patId,
+        resource: patient
+      });
+      report.contained = [contained];
+
+      // create reference to contained evaluated resource and match ID
+      const evalResourceReference: R4.IReference = {
+        reference: evalId
+      };
+      report.evaluatedResource = [evalResourceReference];
+
+      // create reference to contained patient/subject and match ID
+      const subjectReference: R4.IReference = {
+        reference: patId
+      };
+      report.subject = subjectReference;
+    }
 
     reports.push(report);
   });
