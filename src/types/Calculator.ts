@@ -19,6 +19,8 @@ export interface CalculationOptions {
   measurementPeriodEnd?: string;
   /** PatientSource to use. If provided, the patientBundles will not be required. */
   patientSource?: any;
+  /** Include SDEs in calculation */
+  calculateSDEs?: boolean;
 }
 
 /**
@@ -42,9 +44,23 @@ export interface ExecutionResult {
   /** ID of the patient this calculation result belongs to. */
   patientId: string;
   /** FHIR MeasureReport of type 'individual' for this patient. */
-  measureReport: R4.IMeasureReport;
-  /** Detailed results for each population group and stratification. */
+  measureReport?: R4.IMeasureReport;
+  /** Detailed results for each population group and stratifier. */
   detailedResults?: DetailedPopulationGroupResult[];
+  /** SDE values, if specified for calculation */
+  supplementalData?: SDEResult[];
+}
+
+/**
+ * SDE Values
+ */
+export interface SDEResult {
+  /** Name of the SDE */
+  name: string;
+  /** Raw result of SDE clause */
+  rawResult?: any;
+  /** Pretty result for this SDE. */
+  pretty?: string;
 }
 
 /**
@@ -53,8 +69,12 @@ export interface ExecutionResult {
 export interface DetailedPopulationGroupResult {
   /** Index of this population group id. */
   groupId: string;
-  /** Index of this stratifier if it is a stratified result. */
-  strataId?: string;
+  /**
+   * Results for each stratifier in this population group. If this is an episode of care
+   * measure these results will the overall results for each episode. i.e. if there is at
+   * least one episode in a strata then its result will be true.
+   */
+  stratifierResults?: StratifierResult[];
   /**
    * Clause results for every CQL/ELM logic clause.
    * Each piece of logic (ex. `and`, `retrieve`, `before`, etc.) will have a result.
@@ -65,6 +85,8 @@ export interface DetailedPopulationGroupResult {
    * in the CQL logic will have a result.
    */
   statementResults: StatementResult[];
+  /** Population Relevance. Listing if each population was considered or not. */
+  populationRelevance?: PopulationResult[];
   /** Results for each population in this group. */
   populationResults?: PopulationResult[];
   /** If this is an episode of care measure. Each episode found in IPP will have results. */
@@ -98,15 +120,29 @@ export interface StatementResult {
   /** Name of statement */
   statementName: string;
   /** LocalId of the root CQL/ELM clause for this statement*/
-  localId: string;
+  localId?: string;
   /** Final, processed result of raw calculation */
   final: FinalResult;
   /** The relevance of this statement for the poulation group */
   relevance: Relevance;
   /** Raw result from the engine */
-  raw: any;
+  raw?: any;
   /** Pretty result for this statement. */
   pretty?: string;
+}
+
+/**
+ * Result for a particular stratifer for a patient or episode.
+ */
+export interface StratifierResult {
+  /**
+   * The 'text' part from the stratifier.code.
+   */
+  strataCode: string;
+  /**
+   * True if patient or episode is in stratifier. False if not.
+   */
+  result: boolean;
 }
 
 /**
@@ -118,7 +154,7 @@ export interface PopulationResult {
   /** True if this patient or episode calculates with membership in this population. */
   result: boolean;
   /** Observations made for this population. */
-  observations?: any[];
+  observations?: any;
 }
 
 /**
@@ -129,4 +165,6 @@ export interface EpisodeResults {
   episodeId: string;
   /** Results for each population. */
   populationResults: PopulationResult[];
+  /** Stratifier results for this episode. */
+  stratifierResults?: StratifierResult[];
 }

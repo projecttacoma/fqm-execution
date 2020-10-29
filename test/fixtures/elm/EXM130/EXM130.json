@@ -1,0 +1,1192 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorOptions": "",
+        "type": "CqlToElmInfo"
+      }
+    ],
+    "identifier": {
+      "id": "EXM130",
+      "version": "8.0.000"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1"
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1"
+        },
+        {
+          "localIdentifier": "Hospice",
+          "path": "Hospice",
+          "version": "2.0.000"
+        },
+        {
+          "localIdentifier": "AdultOutpatientEncounters",
+          "path": "AdultOutpatientEncounters",
+          "version": "2.0.000"
+        },
+        {
+          "localIdentifier": "Global",
+          "path": "MATGlobalCommonFunctions",
+          "version": "5.0.000"
+        },
+        {
+          "localIdentifier": "SDE",
+          "path": "SupplementalDataElements",
+          "version": "2.0.0"
+        }
+      ]
+    },
+    "parameters": {
+      "def": [
+        {
+          "name": "Measurement Period",
+          "accessLevel": "Public",
+          "default": {
+            "lowClosed": true,
+            "highClosed": false,
+            "type": "Interval",
+            "low": {
+              "type": "DateTime",
+              "year": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "2019",
+                "type": "Literal"
+              },
+              "month": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "day": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "hour": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "minute": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "second": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "millisecond": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              }
+            },
+            "high": {
+              "type": "DateTime",
+              "year": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "2020",
+                "type": "Literal"
+              },
+              "month": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "day": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "hour": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "minute": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "second": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "millisecond": {
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              }
+            }
+          },
+          "parameterTypeSpecifier": {
+            "type": "IntervalTypeSpecifier",
+            "pointType": {
+              "name": "{urn:hl7-org:elm-types:r1}DateTime",
+              "type": "NamedTypeSpecifier"
+            }
+          }
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "name": "ONC Administrative Sex",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Race",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.836",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Ethnicity",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.837",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Payer",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Colonoscopy",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1020",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Fecal Occult Blood Test (FOBT)",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1011",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Flexible Sigmoidoscopy",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1010",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Malignant Neoplasm of Colon",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1001",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "Total Colectomy",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1019",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "FIT DNA",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1039",
+          "accessLevel": "Public"
+        },
+        {
+          "name": "CT Colonography",
+          "id": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1038",
+          "accessLevel": "Public"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "name": "SDE Ethnicity",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "name": "SDE Ethnicity",
+            "libraryName": "SDE",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "name": "SDE Payer",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "name": "SDE Payer",
+            "libraryName": "SDE",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "name": "SDE Race",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "name": "SDE Race",
+            "libraryName": "SDE",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "name": "SDE Sex",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "name": "SDE Sex",
+            "libraryName": "SDE",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "name": "Denominator",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
+            "value": "true",
+            "type": "Literal"
+          }
+        },
+        {
+          "name": "Flexible Sigmoidoscopy Performed",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "FlexibleSigmoidoscopy",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Flexible Sigmoidoscopy",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "type": "And",
+              "operand": [
+                {
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "name": "ToString",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "path": "status",
+                          "scope": "FlexibleSigmoidoscopy",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "valueType": "{urn:hl7-org:elm-types:r1}String",
+                      "value": "completed",
+                      "type": "Literal"
+                    }
+                  ]
+                },
+                {
+                  "type": "And",
+                  "operand": [
+                    {
+                      "type": "In",
+                      "operand": [
+                        {
+                          "type": "End",
+                          "operand": {
+                            "name": "Normalize Interval",
+                            "libraryName": "Global",
+                            "type": "FunctionRef",
+                            "operand": [
+                              {
+                                "path": "performed",
+                                "scope": "FlexibleSigmoidoscopy",
+                                "type": "Property"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "lowClosed": true,
+                          "highClosed": true,
+                          "type": "Interval",
+                          "low": {
+                            "type": "Subtract",
+                            "operand": [
+                              {
+                                "type": "End",
+                                "operand": {
+                                  "name": "Measurement Period",
+                                  "type": "ParameterRef"
+                                }
+                              },
+                              {
+                                "value": 5,
+                                "unit": "years",
+                                "type": "Quantity"
+                              }
+                            ]
+                          },
+                          "high": {
+                            "type": "End",
+                            "operand": {
+                              "name": "Measurement Period",
+                              "type": "ParameterRef"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Not",
+                      "operand": {
+                        "type": "IsNull",
+                        "operand": {
+                          "type": "End",
+                          "operand": {
+                            "name": "Measurement Period",
+                            "type": "ParameterRef"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "CT Colonography Performed",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "Colonography",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "CT Colonography",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "type": "And",
+              "operand": [
+                {
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "name": "ToString",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "path": "status",
+                          "scope": "Colonography",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "valueType": "{urn:hl7-org:elm-types:r1}String",
+                      "value": "completed",
+                      "type": "Literal"
+                    }
+                  ]
+                },
+                {
+                  "type": "And",
+                  "operand": [
+                    {
+                      "type": "In",
+                      "operand": [
+                        {
+                          "type": "End",
+                          "operand": {
+                            "name": "Normalize Interval",
+                            "libraryName": "Global",
+                            "type": "FunctionRef",
+                            "operand": [
+                              {
+                                "path": "performed",
+                                "scope": "Colonography",
+                                "type": "Property"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "lowClosed": true,
+                          "highClosed": true,
+                          "type": "Interval",
+                          "low": {
+                            "type": "Subtract",
+                            "operand": [
+                              {
+                                "type": "End",
+                                "operand": {
+                                  "name": "Measurement Period",
+                                  "type": "ParameterRef"
+                                }
+                              },
+                              {
+                                "value": 5,
+                                "unit": "years",
+                                "type": "Quantity"
+                              }
+                            ]
+                          },
+                          "high": {
+                            "type": "End",
+                            "operand": {
+                              "name": "Measurement Period",
+                              "type": "ParameterRef"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Not",
+                      "operand": {
+                        "type": "IsNull",
+                        "operand": {
+                          "type": "End",
+                          "operand": {
+                            "name": "Measurement Period",
+                            "type": "ParameterRef"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Total Colectomy Performed",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "Colectomy",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Total Colectomy",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "type": "And",
+              "operand": [
+                {
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "name": "ToString",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "path": "status",
+                          "scope": "Colectomy",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "valueType": "{urn:hl7-org:elm-types:r1}String",
+                      "value": "completed",
+                      "type": "Literal"
+                    }
+                  ]
+                },
+                {
+                  "type": "SameOrBefore",
+                  "operand": [
+                    {
+                      "type": "Start",
+                      "operand": {
+                        "name": "Normalize Interval",
+                        "libraryName": "Global",
+                        "type": "FunctionRef",
+                        "operand": [
+                          {
+                            "path": "performed",
+                            "scope": "Colectomy",
+                            "type": "Property"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "End",
+                      "operand": {
+                        "name": "Measurement Period",
+                        "type": "ParameterRef"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Malignant Neoplasm Ever",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "ColorectalCancer",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Malignant Neoplasm of Colon",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "type": "SameOrBefore",
+              "operand": [
+                {
+                  "type": "Start",
+                  "operand": {
+                    "name": "Normalize Interval",
+                    "libraryName": "Global",
+                    "type": "FunctionRef",
+                    "operand": [
+                      {
+                        "path": "onset",
+                        "scope": "ColorectalCancer",
+                        "type": "Property"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "End",
+                  "operand": {
+                    "name": "Measurement Period",
+                    "type": "ParameterRef"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fecal Occult Blood Test Performed",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "FecalOccultResult",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Fecal Occult Blood Test (FOBT)",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "type": "And",
+              "operand": [
+                {
+                  "type": "And",
+                  "operand": [
+                    {
+                      "type": "In",
+                      "operand": [
+                        {
+                          "name": "ToString",
+                          "libraryName": "FHIRHelpers",
+                          "type": "FunctionRef",
+                          "operand": [
+                            {
+                              "path": "status",
+                              "scope": "FecalOccultResult",
+                              "type": "Property"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "List",
+                          "element": [
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "final",
+                              "type": "Literal"
+                            },
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "amended",
+                              "type": "Literal"
+                            },
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "corrected",
+                              "type": "Literal"
+                            },
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "preliminary",
+                              "type": "Literal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Not",
+                      "operand": {
+                        "type": "IsNull",
+                        "operand": {
+                          "path": "value",
+                          "scope": "FecalOccultResult",
+                          "type": "Property"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "precision": "Day",
+                  "type": "IncludedIn",
+                  "operand": [
+                    {
+                      "name": "Normalize Interval",
+                      "libraryName": "Global",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "path": "effective",
+                          "scope": "FecalOccultResult",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Measurement Period",
+                      "type": "ParameterRef"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fecal Immunochemical Test DNA",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "FitDNA",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "FIT DNA",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "type": "And",
+              "operand": [
+                {
+                  "type": "And",
+                  "operand": [
+                    {
+                      "type": "In",
+                      "operand": [
+                        {
+                          "name": "ToString",
+                          "libraryName": "FHIRHelpers",
+                          "type": "FunctionRef",
+                          "operand": [
+                            {
+                              "path": "status",
+                              "scope": "FitDNA",
+                              "type": "Property"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "List",
+                          "element": [
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "final",
+                              "type": "Literal"
+                            },
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "amended",
+                              "type": "Literal"
+                            },
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "corrected",
+                              "type": "Literal"
+                            },
+                            {
+                              "valueType": "{urn:hl7-org:elm-types:r1}String",
+                              "value": "preliminary",
+                              "type": "Literal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Not",
+                      "operand": {
+                        "type": "IsNull",
+                        "operand": {
+                          "path": "value",
+                          "scope": "FitDNA",
+                          "type": "Property"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "And",
+                  "operand": [
+                    {
+                      "precision": "Day",
+                      "type": "In",
+                      "operand": [
+                        {
+                          "type": "End",
+                          "operand": {
+                            "name": "Normalize Interval",
+                            "libraryName": "Global",
+                            "type": "FunctionRef",
+                            "operand": [
+                              {
+                                "path": "effective",
+                                "scope": "FitDNA",
+                                "type": "Property"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "lowClosed": true,
+                          "highClosed": true,
+                          "type": "Interval",
+                          "low": {
+                            "type": "Subtract",
+                            "operand": [
+                              {
+                                "type": "End",
+                                "operand": {
+                                  "name": "Measurement Period",
+                                  "type": "ParameterRef"
+                                }
+                              },
+                              {
+                                "value": 3,
+                                "unit": "years",
+                                "type": "Quantity"
+                              }
+                            ]
+                          },
+                          "high": {
+                            "type": "End",
+                            "operand": {
+                              "name": "Measurement Period",
+                              "type": "ParameterRef"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Not",
+                      "operand": {
+                        "type": "IsNull",
+                        "operand": {
+                          "type": "End",
+                          "operand": {
+                            "name": "Measurement Period",
+                            "type": "ParameterRef"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Colonoscopy Performed",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "Colonoscopy",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "Colonoscopy",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "type": "And",
+              "operand": [
+                {
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "name": "ToString",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "path": "status",
+                          "scope": "Colonoscopy",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "valueType": "{urn:hl7-org:elm-types:r1}String",
+                      "value": "completed",
+                      "type": "Literal"
+                    }
+                  ]
+                },
+                {
+                  "type": "And",
+                  "operand": [
+                    {
+                      "type": "In",
+                      "operand": [
+                        {
+                          "type": "End",
+                          "operand": {
+                            "name": "Normalize Interval",
+                            "libraryName": "Global",
+                            "type": "FunctionRef",
+                            "operand": [
+                              {
+                                "path": "performed",
+                                "scope": "Colonoscopy",
+                                "type": "Property"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "lowClosed": true,
+                          "highClosed": true,
+                          "type": "Interval",
+                          "low": {
+                            "type": "Subtract",
+                            "operand": [
+                              {
+                                "type": "End",
+                                "operand": {
+                                  "name": "Measurement Period",
+                                  "type": "ParameterRef"
+                                }
+                              },
+                              {
+                                "value": 10,
+                                "unit": "years",
+                                "type": "Quantity"
+                              }
+                            ]
+                          },
+                          "high": {
+                            "type": "End",
+                            "operand": {
+                              "name": "Measurement Period",
+                              "type": "ParameterRef"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Not",
+                      "operand": {
+                        "type": "IsNull",
+                        "operand": {
+                          "type": "End",
+                          "operand": {
+                            "name": "Measurement Period",
+                            "type": "ParameterRef"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Numerator",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Or",
+            "operand": [
+              {
+                "type": "Or",
+                "operand": [
+                  {
+                    "type": "Or",
+                    "operand": [
+                      {
+                        "type": "Or",
+                        "operand": [
+                          {
+                            "type": "Exists",
+                            "operand": {
+                              "name": "Colonoscopy Performed",
+                              "type": "ExpressionRef"
+                            }
+                          },
+                          {
+                            "type": "Exists",
+                            "operand": {
+                              "name": "Fecal Occult Blood Test Performed",
+                              "type": "ExpressionRef"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Exists",
+                        "operand": {
+                          "name": "Flexible Sigmoidoscopy Performed",
+                          "type": "ExpressionRef"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Exists",
+                    "operand": {
+                      "name": "Fecal Immunochemical Test DNA",
+                      "type": "ExpressionRef"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "Exists",
+                "operand": {
+                  "name": "CT Colonography Performed",
+                  "type": "ExpressionRef"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Denominator Exclusion",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Or",
+            "operand": [
+              {
+                "type": "Or",
+                "operand": [
+                  {
+                    "name": "Has Hospice",
+                    "libraryName": "Hospice",
+                    "type": "ExpressionRef"
+                  },
+                  {
+                    "type": "Exists",
+                    "operand": {
+                      "name": "Malignant Neoplasm Ever",
+                      "type": "ExpressionRef"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "Exists",
+                "operand": {
+                  "name": "Total Colectomy Performed",
+                  "type": "ExpressionRef"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Initial Population",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "And",
+            "operand": [
+              {
+                "type": "In",
+                "operand": [
+                  {
+                    "name": "CalendarAgeInYearsAt",
+                    "libraryName": "Global",
+                    "type": "FunctionRef",
+                    "operand": [
+                      {
+                        "type": "ToDateTime",
+                        "operand": {
+                          "name": "ToDate",
+                          "libraryName": "FHIRHelpers",
+                          "type": "FunctionRef",
+                          "operand": [
+                            {
+                              "path": "birthDate",
+                              "type": "Property",
+                              "source": {
+                                "name": "Patient",
+                                "type": "ExpressionRef"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "Start",
+                        "operand": {
+                          "name": "Measurement Period",
+                          "type": "ParameterRef"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "lowClosed": true,
+                    "highClosed": true,
+                    "type": "Interval",
+                    "low": {
+                      "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                      "value": "50",
+                      "type": "Literal"
+                    },
+                    "high": {
+                      "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                      "value": "75",
+                      "type": "Literal"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "Exists",
+                "operand": {
+                  "name": "Qualifying Encounters",
+                  "libraryName": "AdultOutpatientEncounters",
+                  "type": "ExpressionRef"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

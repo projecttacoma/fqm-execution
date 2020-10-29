@@ -5,8 +5,11 @@ import { CalculationOptions, RawExecutionData } from './types/Calculator';
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
-import { dumpELMJSONs, dumpObject, dumpVSMap } from './DebugHelper';
+import { dumpELMJSONs, dumpCQLs, dumpObject, dumpVSMap } from './DebugHelper';
 import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
+import { codeableConceptToPopulationType } from './MeasureHelpers';
+import { PopulationType } from './types/Enums';
+import { generateELMJSONFunction } from './CalculatorHelpers';
 
 export function execute(
   measureBundle: R4.IBundle,
@@ -25,6 +28,7 @@ export function execute(
 
   const libraries: R4.ILibrary[] = [];
   const elmJSONs: ELM[] = [];
+  const cqls: { name: string; cql: string }[] = [];
   let rootLibIdentifer: ELMIdentifier = {
     id: '',
     version: ''
@@ -48,6 +52,18 @@ export function execute(
             });
           }
           elmJSONs.push(elm);
+        }
+      });
+
+      const cqlsEncoded = library.content?.filter(a => a.contentType === 'text/cql');
+      cqlsEncoded?.forEach(elmEncoded => {
+        if (elmEncoded.data) {
+          const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
+          const cql = {
+            name: library.name || library.id || 'unknown library',
+            cql: decoded
+          };
+          cqls.push(cql);
         }
       });
     }
@@ -85,6 +101,25 @@ export function execute(
   const patientSource = new PatientSource.FHIRv401();
   patientSource.loadBundles(patientBundles);
 
+  // add expressions for collecting for all measure observations
+  measure.group?.forEach(group => {
+    group.population
+      ?.filter(population => codeableConceptToPopulationType(population.code) === PopulationType.OBSERV)
+      ?.forEach(obsrvPop => {
+        const msrPop = group.population?.find(
+          population => codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
+        );
+        if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
+          const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifer.id);
+          if (mainLib) {
+            mainLib.library.statements.def.push(
+              generateELMJSONFunction(obsrvPop.criteria.expression, msrPop.criteria.expression)
+            );
+          }
+        }
+      });
+  });
+
   const codeService = new cql.CodeService(vsMap);
   const parameters = { 'Measurement Period': new cql.Interval(startCql, endCql) };
   const executionDateTime = cql.DateTime.fromJSDate(new Date(), 0);
@@ -92,6 +127,7 @@ export function execute(
   const lib = rep.resolve(rootLibIdentifer.id, rootLibIdentifer.version);
 
   dumpELMJSONs(elmJSONs);
+  dumpCQLs(cqls);
   dumpVSMap(vsMap);
 
   const executor = new cql.Executor(lib, codeService, parameters);
