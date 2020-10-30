@@ -25,7 +25,7 @@ export function generateHTML(elmLibraries: ELM[], statementResults: StatementRes
   const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
 
   // assemble array of annotations to be templated to HTML
-  let annotations: Annotation[] = [];
+  const annotations: Annotation[] = [];
   relevantStatements.forEach(s => {
     const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
     if (!matchingLibrary) {
@@ -38,7 +38,7 @@ export function generateHTML(elmLibraries: ELM[], statementResults: StatementRes
     }
 
     if (matchingExpression.annotation) {
-      annotations = annotations.concat(matchingExpression.annotation);
+      annotations.push(...matchingExpression.annotation);
     }
   });
 
