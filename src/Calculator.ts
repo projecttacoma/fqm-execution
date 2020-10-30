@@ -156,15 +156,20 @@ export function calculateMeasureReports(
     const measure = measureEntry?.resource as R4.IMeasure;
     report.measure = measure.url || 'UnknownMeasure'; // or some other default?
 
+    // add narrative if specified
+    if (options.calculateHTML) {
+      report.text = {
+        status: R4.NarrativeStatusKind._generated,
+        div: ''
+      };
+    }
+
     // create group population counts from result's detailedResults (yes/no->1/0)
     report.group = [];
     result?.detailedResults?.forEach(detail => {
       // add narrative for relevant clauses
-      if (detail.html) {
-        report.text = {
-          status: R4.NarrativeStatusKind._generated,
-          div: detail.html
-        };
+      if (report.text && detail.html) {
+        report.text.div += detail.html;
       }
 
       // TODO: check the measure definition for stratification to determine whether to add group.stratiier
