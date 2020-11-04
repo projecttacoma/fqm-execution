@@ -240,7 +240,7 @@ export function calculateMeasureReports(
     }
 
     // add supplemental data elements to contained and as evaluatedResource references
-    addSDE(report, report.measure, result);
+    if (options.calculateSDEs) addSDE(report, report.measure, result);
 
     reports.push(report);
   });
