@@ -2,14 +2,12 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { ExecutionResult, CalculationOptions } from './types/Calculator';
 import { PopulationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
-
-// import { PatientSource } from 'cql-exec-fhir';
 import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
-import { dumpObject } from './DebugHelper';
-
+import { dumpHTML, dumpObject } from './DebugHelper';
 import * as CalculatorHelpers from './CalculatorHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
+import { generateHTML } from './HTMLGenerator';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -104,6 +102,12 @@ export function calculate(
         true
       );
 
+      if (options.calculateHTML) {
+        const html = generateHTML(elmLibraries, detailedGroupResult.statementResults, detailedGroupResult.groupId);
+        detailedGroupResult.html = html;
+        dumpHTML(html, `clauses-${detailedGroupResult.groupId}.html`);
+      }
+
       // add this group result to the patient results
       patientExecutionResult.detailedResults?.push(detailedGroupResult);
     });
@@ -152,9 +156,22 @@ export function calculateMeasureReports(
     const measure = measureEntry?.resource as R4.IMeasure;
     report.measure = measure.url || 'UnknownMeasure'; // or some other default?
 
+    // add narrative if specified
+    if (options.calculateHTML) {
+      report.text = {
+        status: R4.NarrativeStatusKind._generated,
+        div: ''
+      };
+    }
+
     // create group population counts from result's detailedResults (yes/no->1/0)
     report.group = [];
     result?.detailedResults?.forEach(detail => {
+      // add narrative for relevant clauses
+      if (report.text && detail.html) {
+        report.text.div += detail.html;
+      }
+
       // TODO: check the measure definition for stratification to determine whether to add group.stratiier
       // if yes, add stratifier with population copied into. Set counts to 0 if the result for the stratifier is false
       const group = <R4.IMeasureReport_Group>{};
@@ -263,7 +280,7 @@ export function calculateRaw(
   }
 }
 
-// // Code->Display https://terminology.hl7.org/1.0.0/CodeSystem-measure-population.html
+// Code->Display https://terminology.hl7.org/1.0.0/CodeSystem-measure-population.html
 const POPULATION_DISPLAY_MAP = {
   [PopulationType.IPP]: 'Initial Population',
   [PopulationType.DENOM]: 'Denominator',

@@ -9,6 +9,7 @@ export interface ELM {
  * this level of the ELM tree.
  */
 export interface ELMLibrary {
+  annotation?: any;
   /** Identifier for this library. */
   identifier: ELMIdentifier;
   /** Identifier for the version of ELM. */
@@ -42,6 +43,7 @@ export interface ELMLibrary {
 export interface ELMIdentifier {
   id: string;
   version: string;
+  system?: string;
 }
 
 /**
@@ -79,7 +81,7 @@ export interface ELMStatement {
    * Annotation structure for this statement. Can be used to build the CQL file with
    * reference indicators to the corresponding logic for each clause.
    */
-  annotation?: any[];
+  annotation?: Annotation[];
   /** The executable expression for this statement. */
   expression?: any;
   /** Type of this statement. Will be 'FunctionDef' if it is a function. */
@@ -123,4 +125,21 @@ export interface StatementDependency {
 export interface StatementReference {
   libraryId: string;
   statementName: string;
+}
+
+/**
+ * Annotation on an ELM expression
+ */
+export interface Annotation {
+  type: string;
+  s: AnnotationStatement;
+}
+
+/**
+ * Recursive statement object for an ELM Annotation
+ */
+export interface AnnotationStatement {
+  r?: string;
+  s?: AnnotationStatement[];
+  value?: string[];
 }

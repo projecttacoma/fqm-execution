@@ -1,10 +1,5 @@
 import * as ELMDependencyHelper from '../src/ELMDependencyHelper';
-import { readFileSync } from 'fs';
-import { ELM } from '../src/types/ELMTypes';
-
-function getELMFixture(path: string): ELM {
-  return JSON.parse(readFileSync(`test/fixtures/${path}`).toString());
-}
+import { getELMFixture } from './helpers/testHelpers';
 
 describe('ELMDependencyHelper', () => {
   describe('buildStatementDependencyMaps', () => {
