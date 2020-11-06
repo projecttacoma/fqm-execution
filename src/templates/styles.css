@@ -1,0 +1,16 @@
+.cql-logic span {
+  border-bottom-width: 4px;
+  line-height: 1.4;
+}
+.cql-logic span.clause-true {
+  background-color: #ccebe0;
+  color: #20744c;
+  border-bottom-color: #20744c;
+  border-bottom-style: solid;
+}
+.cql-logic span.clause-false {
+  background-color: #edd8d0;
+  color: #a63b12;
+  border-bottom-color: #a63b12;
+  border-bottom-style: double;
+}
