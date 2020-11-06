@@ -108,7 +108,12 @@ export function calculate(
       );
 
       if (options.calculateHTML) {
-        const html = generateHTML(elmLibraries, detailedGroupResult.statementResults, detailedGroupResult.groupId);
+        const html = generateHTML(
+          elmLibraries,
+          detailedGroupResult.statementResults,
+          detailedGroupResult.clauseResults,
+          detailedGroupResult.groupId
+        );
         detailedGroupResult.html = html;
         dumpHTML(html, `clauses-${detailedGroupResult.groupId}.html`);
       }

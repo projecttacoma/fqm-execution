@@ -33,7 +33,7 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "build": "rm -rf ./build && tsc && npm run copy-templates",
+    "build": "rm -rf ./build && tsc && npm run copy-templates && npm run copy-styles",
     "build:watch": "rm -rf ./build && tsc -w",
     "lint": "tsc && eslint \"**/*.{js,ts}\"",
     "lint:fix": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
@@ -43,7 +43,8 @@
     "test:watch": "jest --watchAll",
     "check": "npm run test && npm run lint && npm run prettier",
     "prepare": "npm run build",
-    "copy-templates": "copyfiles -u 1 ./src/templates/*.hbs ./build/"
+    "copy-templates": "copyfiles -u 1 ./src/templates/*.hbs ./build/",
+    "copy-styles": "copyfiles -u 1 ./src/templates/*.css ./build/"
   },
   "repository": {
     "type": "git",
