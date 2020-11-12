@@ -1,4 +1,26 @@
 /**
+ * Enum for measure score types. Matching http://terminology.hl7.org/CodeSystem/measure-scoring
+ */
+export enum MeasureScoreType {
+  PROP = 'proportion',
+  RATIO = 'ratio',
+  CV = 'continuous-variable',
+  COHORT = 'cohort'
+}
+
+/**
+ * Enum for measure aggregation types. Matching // http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-aggregate-method.html
+ */
+export enum AggregationType {
+  SUM = 'sum',
+  AVERAGE = 'average',
+  MEDIAN = 'median',
+  MIN = 'minimum',
+  MAX = 'maximum',
+  COUNT = 'count'
+}
+
+/**
  * Enum for population types. Matching http://hl7.org/fhir/valueset-measure-population.html
  */
 export enum PopulationType {
