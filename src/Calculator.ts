@@ -188,7 +188,7 @@ export function calculateMeasureReports(
       // TODO: handle EXM111 (doesn't identify itself as a episode of care measure). if it's an episode of care, you need to iterate over
       // stratifications : may need to clone results for one population group and adjust (in this case, just a straight clone)
       if (detail.episodeResults) {
-        detail?.episodeResults?.forEach(er => {
+        detail?.episodeResults.forEach(er => {
           er.populationResults?.forEach(pr => {
             const pop = group.population?.find(
               pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType
@@ -248,13 +248,13 @@ export function calculateMeasureReports(
         fullUrl: patId,
         resource: patient
       });
-      report.contained?.push(contained);
+      report.contained.push(contained);
 
       // create reference to contained evaluated resource and match ID
       const evalResourceReference: R4.IReference = {
         reference: evalId
       };
-      report.evaluatedResource?.push(evalResourceReference);
+      report.evaluatedResource.push(evalResourceReference);
 
       // create reference to contained patient/subject and match ID
       const subjectReference: R4.IReference = {
