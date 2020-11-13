@@ -391,8 +391,7 @@ function aggregate(aggregation: string, observations: number[]) {
       // count	Count	The measure score is determined as the number of observations derived from the measure population.
       return observations.length;
     default:
-      // should not default, TODO: add error?
-      return observations.length;
+      throw new Error(`Measure score aggregation type \"${aggregation}\" not supported`);
   }
 }
 
@@ -530,5 +529,7 @@ function createMeasureScore(
         value: denominatorCount2 === 0 ? 0 : (numeratorCount2 / denominatorCount2) * 1.0
       };
       break;
+    default:
+      throw new Error(`Measure score type \"${scoringCode}\" not supported`);
   }
 }
