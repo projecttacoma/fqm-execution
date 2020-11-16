@@ -8,23 +8,43 @@ import { FinalResult, Relevance } from './types/Enums';
 const mainTemplate = fs.readFileSync(path.join(__dirname, './templates/main.hbs'), 'utf8');
 const clauseTemplate = fs.readFileSync(path.join(__dirname, './templates/clause.hbs'), 'utf8');
 
+const cqlLogicClauseTrueStyle = {
+  'background-color': '#ccebe0',
+  color: '#20744c',
+  'border-bottom-color': '#20744c',
+  'border-bottom-style': 'solid'
+};
+
+const cqlLogicClauseFalsestyle = {
+  'background-color': '#edd8d0',
+  color: '#a63b12',
+  'border-bottom-color': '#a63b12',
+  'border-bottom-style': 'double'
+};
+
+function objToCSS(obj: { [key: string]: string }): string {
+  return Object.entries(obj)
+    .map(([k, v]) => `${k}:${v}`)
+    .join(';');
+}
+
 const main = Handlebars.compile(mainTemplate);
 Handlebars.registerPartial('clause', clauseTemplate);
 
 // text values in annotations show up as an array of strings
 Handlebars.registerHelper('concat', s => s.join(''));
 
-Handlebars.registerHelper('highlightClass', (localId: string, context) => {
+// apply highlighting style based on clause result
+Handlebars.registerHelper('highlightClause', (localId, context) => {
   const libraryName: string = context.data.root.libraryName;
   const clauseResults: ClauseResult[] = context.data.root.clauseResults;
 
-  const clauseResult = clauseResults.find(result => result.libraryName === libraryName && result.localId == localId);
-
+  const clauseResult = clauseResults.find(result => result.libraryName === libraryName && result.localId === localId);
   if (clauseResult) {
     if (clauseResult.final === FinalResult.TRUE) {
-      return 'clause-true';
+      return objToCSS(cqlLogicClauseTrueStyle);
     } else if (clauseResult.final === FinalResult.FALSE) {
-      return 'clause-false';
+      return objToCSS(cqlLogicClauseFalsestyle);
     }
   }
   return '';
