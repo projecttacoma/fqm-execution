@@ -1,6 +1,11 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ExecutionResult, CalculationOptions } from './types/Calculator';
-import { PopulationType } from './types/Enums';
+import {
+  ExecutionResult,
+  CalculationOptions,
+  PopulationResult,
+  DetailedPopulationGroupResult
+} from './types/Calculator';
+import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
@@ -166,6 +171,8 @@ export function calculateMeasureReports(
 
     // create group population counts from result's detailedResults (yes/no->1/0)
     report.group = [];
+    report.contained = [];
+    report.evaluatedResource = [];
     result?.detailedResults?.forEach(detail => {
       // add narrative for relevant clauses
       if (report.text && detail.html) {
@@ -177,36 +184,36 @@ export function calculateMeasureReports(
       const group = <R4.IMeasureReport_Group>{};
       group.id = detail.groupId;
       group.population = [];
-      let numeratorCount = 0.0;
-      let denominatorCount = 0.0;
+
       // TODO: handle EXM111 (doesn't identify itself as a episode of care measure). if it's an episode of care, you need to iterate over
       // stratifications : may need to clone results for one population group and adjust (in this case, just a straight clone)
-      detail?.populationResults?.forEach(pr => {
-        const pop = <R4.IMeasureReport_Population>{};
-
-        pop.code = {
-          coding: [
-            {
-              system: 'http://terminology.hl7.org/CodeSystem/measure-population',
-              code: pr.populationType,
-              display: POPULATION_DISPLAY_MAP[pr.populationType]
+      if (detail.episodeResults) {
+        detail?.episodeResults.forEach(er => {
+          er.populationResults?.forEach(pr => {
+            const pop = group.population?.find(
+              pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType
+            );
+            if (pop) {
+              // add to pop if already exists
+              if (!pop.count) pop.count = 0;
+              pop.count += pr.result ? 1 : 0;
+            } else {
+              group.population?.push(popForResult(pr));
             }
-          ]
-        };
-        pop.count = pr.result ? 1 : 0;
-        if (pr.populationType == PopulationType.NUMER) numeratorCount += pop.count;
-        if (pr.populationType == PopulationType.DENOM) denominatorCount += pop.count;
-        group.population?.push(pop);
-      });
-      // TODO: handle ratio or continuous variable or cohort
-      // currently assumes patient-based proportion measure http://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#proportion-measures
-      group.measureScore = {
-        value: (numeratorCount / denominatorCount) * 1.0
-      };
+          });
+        });
+      } else {
+        detail?.populationResults?.forEach(pr => {
+          group.population?.push(popForResult(pr));
+        });
+      }
+
+      createMeasureScore(measure, group, detail, report);
+
       report.group?.push(group);
     });
 
-    // TODO: create contained evalatuated resource (contains patient... and population and entity information?)
+    // TODO: create contained evaluatuated resource (contains patient... and population and entity information?)
     // may eventually need the other bits (all pieces of information that were used in calculation), but we might be able to ignore for now
     const evalId = uuidv4();
     const contained: R4.IBundle = {
@@ -241,13 +248,13 @@ export function calculateMeasureReports(
         fullUrl: patId,
         resource: patient
       });
-      report.contained = [contained];
+      report.contained.push(contained);
 
       // create reference to contained evaluated resource and match ID
       const evalResourceReference: R4.IReference = {
         reference: evalId
       };
-      report.evaluatedResource = [evalResourceReference];
+      report.evaluatedResource.push(evalResourceReference);
 
       // create reference to contained patient/subject and match ID
       const subjectReference: R4.IReference = {
@@ -279,19 +286,6 @@ export function calculateRaw(
     return results.errorMessage ?? 'something happened with no error message';
   }
 }
-
-// Code->Display https://terminology.hl7.org/1.0.0/CodeSystem-measure-population.html
-const POPULATION_DISPLAY_MAP = {
-  [PopulationType.IPP]: 'Initial Population',
-  [PopulationType.DENOM]: 'Denominator',
-  [PopulationType.DENEX]: 'Denominator Exclusion',
-  [PopulationType.DENEXCEP]: 'Denominator Exception',
-  [PopulationType.NUMER]: 'Numerator',
-  [PopulationType.NUMEX]: 'Numerator Exclusion',
-  [PopulationType.MSRPOPL]: 'Measure Population',
-  [PopulationType.MSRPOPLEX]: 'Measure Population Exclusion',
-  [PopulationType.OBSERV]: 'Measure Observation'
-};
 
 function addSDE(report: R4.IMeasureReport, measureURL: string, result: ExecutionResult) {
   // 	Note that supplemental data are reported as observations for each patient and included in the evaluatedResources bundle. See the MeasureReport resource or the Quality Reporting topic for more information.
@@ -344,4 +338,198 @@ function addSDE(report: R4.IMeasureReport, measureURL: string, result: Execution
       reference: observation.id
     });
   });
+}
+
+function popForResult(pr: PopulationResult) {
+  const pop = <R4.IMeasureReport_Population>{};
+  pop.code = {
+    coding: [
+      {
+        system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+        code: pr.populationType,
+        display: POPULATION_DISPLAY_MAP[pr.populationType]
+      }
+    ]
+  };
+  pop.count = pr.result ? 1 : 0;
+  return pop;
+}
+
+// // Code->Display https://terminology.hl7.org/1.0.0/CodeSystem-measure-population.html
+const POPULATION_DISPLAY_MAP = {
+  [PopulationType.IPP]: 'Initial Population',
+  [PopulationType.DENOM]: 'Denominator',
+  [PopulationType.DENEX]: 'Denominator Exclusion',
+  [PopulationType.DENEXCEP]: 'Denominator Exception',
+  [PopulationType.NUMER]: 'Numerator',
+  [PopulationType.NUMEX]: 'Numerator Exclusion',
+  [PopulationType.MSRPOPL]: 'Measure Population',
+  [PopulationType.MSRPOPLEX]: 'Measure Population Exclusion',
+  [PopulationType.OBSERV]: 'Measure Observation'
+};
+
+// http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-aggregate-method.html
+function aggregate(aggregation: string, observations: number[]) {
+  // Note: add break for any non-returning case
+  switch (aggregation) {
+    case AggregationType.SUM:
+      // sum	Sum	The measure score is determined by adding together the observations derived from the measure population.
+      return observations.reduce((accumulator, currentValue) => accumulator + currentValue);
+    case AggregationType.AVERAGE:
+      // average	Average	The measure score is determined by taking the average of the observations derived from the measure population.
+      return observations.reduce((accumulator, currentValue) => accumulator + currentValue) / observations.length;
+    case AggregationType.MEDIAN:
+      // median	Median	The measure score is determined by taking the median of the observations derived from the measure population.
+      return median(observations);
+    case AggregationType.MIN:
+      // minimum	Minimum	The measure score is determined by taking the minimum of the observations derived from the measure population.
+      return Math.min(...observations);
+    case AggregationType.MAX:
+      // maximum	Maximum	The measure score is determined by taking the maximum of the observations derived from the measure population.
+      return Math.max(...observations);
+    case AggregationType.COUNT:
+      // count	Count	The measure score is determined as the number of observations derived from the measure population.
+      return observations.length;
+    default:
+      throw new Error(`Measure score aggregation type \"${aggregation}\" not supported`);
+  }
+}
+
+function median(observations: number[]) {
+  const sorted = observations.sort(function (a, b) {
+    return a - b;
+  });
+  if (sorted.length % 2 === 0) {
+    return 0.5 * (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]);
+  } else {
+    return sorted[sorted.length / 2];
+  }
+}
+
+function populationTotal(group: R4.IMeasureReport_Group, type: PopulationType) {
+  return (
+    group.population?.find(pop => {
+      return pop.code?.coding && pop.code.coding.length > 0 && pop.code?.coding[0].code === type;
+    })?.count || 0.0
+  );
+}
+
+function createMeasureScore(
+  measure: R4.IMeasure,
+  group: R4.IMeasureReport_Group,
+  detail: DetailedPopulationGroupResult,
+  report: R4.IMeasureReport
+) {
+  const scoringCode =
+    measure.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')?.code || '';
+  switch (scoringCode) {
+    case MeasureScoreType.PROP:
+      // (Numerator - Numerator Exclusions) / (Denominator - D Exclusions - D Exceptions).
+      const numeratorCount =
+        populationTotal(group, PopulationType.NUMER) - populationTotal(group, PopulationType.NUMEX);
+      const denominatorCount =
+        populationTotal(group, PopulationType.DENOM) -
+        populationTotal(group, PopulationType.DENEX) -
+        populationTotal(group, PopulationType.DENEXCEP);
+
+      group.measureScore = {
+        // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
+        value: denominatorCount === 0 ? 0 : (numeratorCount / denominatorCount) * 1.0
+      };
+      break;
+    case MeasureScoreType.CV:
+      let observations = [];
+      if (detail.episodeResults) {
+        // find all episode results with a true measure observation
+        const relevantEpisodes =
+          detail.episodeResults?.filter(
+            er => er.populationResults.find(pr => pr.populationType === PopulationType.OBSERV)?.result
+          ) || [];
+
+        // Note: only uses first of potentially multiple observations in each episode (since we can't tell which observation is which)
+        // if there are multiple oservations, then this may cause inconsistent behavior
+        observations = relevantEpisodes.map(
+          er => er.populationResults.find(pr => pr.populationType === PopulationType.OBSERV)?.observations[0]
+        );
+      } else {
+        // CV for patient-based results is untested
+        const obsResultPop = detail.populationResults?.find(pr => pr.populationType === PopulationType.OBSERV);
+        observations = obsResultPop?.result ? [obsResultPop.observations[0]] : [];
+      }
+
+      // find aggregation type
+      const measureGroup = measure.group?.find(g => g.id === group.id);
+      const observPop = measureGroup?.population?.find(p =>
+        p.code?.coding?.find(c => c.code === 'measure-observation')
+      );
+      const aggregation =
+        observPop?.extension?.find(
+          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
+        )?.valueCode || '';
+
+      // Note: unit not currently available in data, so not included in this quantity (should be inferable from measure to whoever's using the score)
+      // Score also captured in evaluated resource observation
+      group.measureScore = {
+        value: aggregate(aggregation, observations) //|| 0 TODO: set to alternative value if null (no relevant episodes)?
+      };
+
+      // create observation resource to reflect the score value and add as reference in evaluated resources
+      const observationResource: R4.IObservation = {
+        resourceType: 'Observation',
+        code: {
+          text: 'MeasureObservation'
+        },
+        id: uuidv4(),
+        status: R4.ObservationStatusKind._final,
+        valueQuantity: group.measureScore
+      };
+      // is this extension necessary?
+      observationResource.extension = [
+        {
+          url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
+          extension: [
+            {
+              url: 'measure',
+              valueCanonical: measure.url
+            },
+            {
+              url: 'populationId',
+              valueString: 'MeasureObservation'
+            }
+          ]
+        }
+      ];
+      report.contained?.push(observationResource);
+      report.evaluatedResource?.push({
+        reference: observationResource.id
+      });
+
+      break;
+    case MeasureScoreType.COHORT:
+      // Note: Untested measure score type
+      const ippCount =
+        group.population?.find(pop => {
+          return pop.code?.coding && pop.code.coding.length > 0 && pop.code?.coding[0].code === PopulationType.IPP;
+        })?.count || 0.0;
+
+      group.measureScore = {
+        value: ippCount * 1.0
+      };
+      break;
+    case MeasureScoreType.RATIO:
+      // Note: Untested measure score type
+      // (NUMER - NUMEX) / (DENOM - DENEX)`
+      const numeratorCount2 =
+        populationTotal(group, PopulationType.NUMER) - populationTotal(group, PopulationType.NUMEX);
+      const denominatorCount2 =
+        populationTotal(group, PopulationType.DENOM) - populationTotal(group, PopulationType.DENEX);
+
+      group.measureScore = {
+        // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
+        value: denominatorCount2 === 0 ? 0 : (numeratorCount2 / denominatorCount2) * 1.0
+      };
+      break;
+    default:
+      throw new Error(`Measure score type \"${scoringCode}\" not supported`);
+  }
 }
