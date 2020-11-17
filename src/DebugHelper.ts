@@ -1,7 +1,6 @@
 import { ELM } from './types/ELMTypes';
 import { ValueSetMap } from './types/CQLTypes';
 import fs from 'fs';
-import path from 'path';
 
 export function dumpHTML(htmlString: string, nameInDebugFolder: string): void {
   // create debug folder if it doesnt exist
@@ -13,12 +12,6 @@ export function dumpHTML(htmlString: string, nameInDebugFolder: string): void {
   if (fs.existsSync(`debug/${nameInDebugFolder}`)) {
     fs.unlinkSync(`debug/${nameInDebugFolder}`);
   }
-
-  // add style tag into html
-  htmlString = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n${fs.readFileSync(
-    path.join(__dirname, './templates/styles.css'),
-    'utf8'
-  )}\n</style>\n</head>\n<body>\n${htmlString}\n</body>\n</html>`;
 
   fs.writeFileSync(`debug/${nameInDebugFolder}`, htmlString);
 }

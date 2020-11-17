@@ -8,21 +8,26 @@ import { FinalResult, Relevance } from './types/Enums';
 const mainTemplate = fs.readFileSync(path.join(__dirname, './templates/main.hbs'), 'utf8');
 const clauseTemplate = fs.readFileSync(path.join(__dirname, './templates/clause.hbs'), 'utf8');
 
-const cqlLogicClauseTrueStyle = {
+export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
   color: '#20744c',
   'border-bottom-color': '#20744c',
   'border-bottom-style': 'solid'
 };
 
-const cqlLogicClauseFalsestyle = {
+export const cqlLogicClauseFalseStyle = {
   'background-color': '#edd8d0',
   color: '#a63b12',
   'border-bottom-color': '#a63b12',
   'border-bottom-style': 'double'
 };
 
-function objToCSS(obj: { [key: string]: string }): string {
+/**
+ * Conver JS object to CSS Style string
+ *
+ * @param obj JS object representing CSS styles
+ */
+export function objToCSS(obj: { [key: string]: string }): string {
   return Object.entries(obj)
     .map(([k, v]) => `${k}:${v}`)
     .join(';');
@@ -44,7 +49,7 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
     if (clauseResult.final === FinalResult.TRUE) {
       return objToCSS(cqlLogicClauseTrueStyle);
     } else if (clauseResult.final === FinalResult.FALSE) {
-      return objToCSS(cqlLogicClauseFalsestyle);
+      return objToCSS(cqlLogicClauseFalseStyle);
     }
   }
   return '';
@@ -90,7 +95,7 @@ export function generateHTML(
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
-    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, s: a.annotation[0] });
+    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s });
     result += res;
   });
 
