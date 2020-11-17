@@ -23,7 +23,7 @@ export const cqlLogicClauseFalseStyle = {
 };
 
 /**
- * Conver JS object to CSS Style string
+ * Convert JS object to CSS Style string
  *
  * @param obj JS object representing CSS styles
  */
