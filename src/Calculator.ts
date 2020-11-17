@@ -184,8 +184,6 @@ export function calculateMeasureReports(
         report.text.div += detail.html;
       }
 
-      // TODO: check the measure definition for stratification to determine whether to add group.stratiier
-      // if yes, add stratifier with population copied into. Set counts to 0 if the result for the stratifier is false
       const group = <R4.IMeasureReport_Group>{};
       group.id = detail.groupId;
       group.population = [];
@@ -213,7 +211,63 @@ export function calculateMeasureReports(
         });
       }
 
-      createMeasureScore(measure, group, detail, report);
+      // if the measure definition has stratification, add group.stratifier
+      const stratifier = measure.group?.find(g => g.id == detail.groupId)?.stratifier;
+      if (stratifier) {
+        group.stratifier = [];
+        stratifier.forEach(s => {
+          const reportStratifier = <R4.IMeasureReport_Stratifier>{};
+          reportStratifier.code = s.code ? [s.code] : [];
+          const strat = <R4.IMeasureReport_Stratum>{};
+          // use existing populations, but reduce count as appropriate
+          strat.population = JSON.parse(JSON.stringify(group.population));
+
+          if (detail.episodeResults) {
+            detail?.episodeResults?.forEach(er => {
+              const inStrat = er.stratifierResults?.find(sr => sr.strataCode == s.code?.text)?.result;
+              strat.population?.forEach(pop => {
+                const result = er.populationResults.find(pr => {
+                  return (
+                    pop.code?.coding && pop.code.coding.length > 0 && pop.code.coding[0].code === pr.populationType
+                  );
+                })?.result;
+                if (result && !inStrat && pop.count) {
+                  // reduce count if this episode is in this population but not the stratification
+                  pop.count = pop.count - 1;
+                }
+              });
+            });
+          } else {
+            const inStrat = detail.stratifierResults?.find(sr => sr.strataCode === s.code?.text)?.result;
+            // start with population count and change count to 0 if not in strattification
+            strat.population?.forEach(pop => {
+              if (!inStrat) pop.count = 0;
+            });
+          }
+
+          const scoringCode =
+            measure.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')?.code || '';
+          if (scoringCode === MeasureScoreType.CV) {
+            // TODO: should we add score observation for stratification?
+            strat.measureScore = calcMeasureScoreCV(measure, detail, group.id || '', s);
+          } else {
+            strat.measureScore = calcMeasureScore(scoringCode, JSON.parse(JSON.stringify(strat.population)));
+          }
+
+          reportStratifier.stratum = [strat];
+          group.stratifier?.push(reportStratifier);
+        });
+      }
+
+      const scoringCode =
+        measure.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')?.code || '';
+      // only add an evaluatedResource observation for CV type score and do special calculation
+      if (scoringCode === MeasureScoreType.CV) {
+        group.measureScore = calcMeasureScoreCV(measure, detail, group.id || '');
+        addScoreObservation(group.measureScore, measure, report);
+      } else {
+        group.measureScore = calcMeasureScore(scoringCode, group.population);
+      }
 
       report.group?.push(group);
     });
@@ -411,130 +465,128 @@ function median(observations: number[]) {
   }
 }
 
-function populationTotal(group: R4.IMeasureReport_Group, type: PopulationType) {
+function populationTotal(population: R4.IMeasureReport_Population[], type: PopulationType) {
   return (
-    group.population?.find(pop => {
+    population?.find(pop => {
       return pop.code?.coding && pop.code.coding.length > 0 && pop.code?.coding[0].code === type;
     })?.count || 0.0
   );
 }
 
-function createMeasureScore(
+// CV requires different input types than other scores
+function calcMeasureScoreCV(
   measure: R4.IMeasure,
-  group: R4.IMeasureReport_Group,
   detail: DetailedPopulationGroupResult,
-  report: R4.IMeasureReport
+  groupID: string,
+  strat?: R4.IMeasure_Stratifier
 ) {
-  const scoringCode =
-    measure.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')?.code || '';
+  let observations = [];
+  if (detail.episodeResults) {
+    // find all episode results with a true measure observation
+    const relevantEpisodes =
+      detail.episodeResults?.filter(er => {
+        // ignore stratification (by setting as true) if stratifier not passed in
+        const inStrat = strat ? er.stratifierResults?.find(sr => sr.strataCode == strat.code?.text)?.result : true;
+        return er.populationResults.find(pr => pr.populationType === PopulationType.OBSERV)?.result && inStrat;
+      }) || [];
+
+    // Note: only uses first of potentially multiple observations in each episode (since we can't tell which observation is which)
+    // if there are multiple oservations, then this may cause inconsistent behavior
+    observations = relevantEpisodes.map(
+      er => er.populationResults.find(pr => pr.populationType === PopulationType.OBSERV)?.observations[0]
+    );
+  } else {
+    // ignore stratification (by setting as true) if stratifier not passed in
+    const inStrat = strat ? detail.stratifierResults?.find(sr => sr.strataCode === strat.code?.text)?.result : true;
+
+    // CV for patient-based results is untested
+    const obsResultPop = detail.populationResults?.find(pr => pr.populationType === PopulationType.OBSERV);
+    observations = obsResultPop?.result && inStrat ? [obsResultPop.observations[0]] : [];
+  }
+
+  // find aggregation type
+  const measureGroup = measure.group?.find(g => g.id === groupID);
+  const observPop = measureGroup?.population?.find(p => p.code?.coding?.find(c => c.code === 'measure-observation'));
+  const aggregation =
+    observPop?.extension?.find(
+      e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
+    )?.valueCode || '';
+
+  // Note: unit not currently available in data, so not included in this quantity (should be inferable from measure to whoever's using the score)
+  // Score also captured in evaluated resource observation
+  return {
+    value: aggregate(aggregation, observations) //|| 0 TODO: set to alternative value if null (no relevant episodes)?
+  };
+}
+
+function calcMeasureScore(scoringCode: string, population: R4.IMeasureReport_Population[]) {
   switch (scoringCode) {
     case MeasureScoreType.PROP:
       // (Numerator - Numerator Exclusions) / (Denominator - D Exclusions - D Exceptions).
       const numeratorCount =
-        populationTotal(group, PopulationType.NUMER) - populationTotal(group, PopulationType.NUMEX);
+        populationTotal(population, PopulationType.NUMER) - populationTotal(population, PopulationType.NUMEX);
       const denominatorCount =
-        populationTotal(group, PopulationType.DENOM) -
-        populationTotal(group, PopulationType.DENEX) -
-        populationTotal(group, PopulationType.DENEXCEP);
+        populationTotal(population, PopulationType.DENOM) -
+        populationTotal(population, PopulationType.DENEX) -
+        populationTotal(population, PopulationType.DENEXCEP);
 
-      group.measureScore = {
+      return {
         // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
         value: denominatorCount === 0 ? 0 : (numeratorCount / denominatorCount) * 1.0
       };
-      break;
-    case MeasureScoreType.CV:
-      let observations = [];
-      if (detail.episodeResults) {
-        // find all episode results with a true measure observation
-        const relevantEpisodes =
-          detail.episodeResults?.filter(
-            er => er.populationResults.find(pr => pr.populationType === PopulationType.OBSERV)?.result
-          ) || [];
-
-        // Note: only uses first of potentially multiple observations in each episode (since we can't tell which observation is which)
-        // if there are multiple oservations, then this may cause inconsistent behavior
-        observations = relevantEpisodes.map(
-          er => er.populationResults.find(pr => pr.populationType === PopulationType.OBSERV)?.observations[0]
-        );
-      } else {
-        // CV for patient-based results is untested
-        const obsResultPop = detail.populationResults?.find(pr => pr.populationType === PopulationType.OBSERV);
-        observations = obsResultPop?.result ? [obsResultPop.observations[0]] : [];
-      }
-
-      // find aggregation type
-      const measureGroup = measure.group?.find(g => g.id === group.id);
-      const observPop = measureGroup?.population?.find(p =>
-        p.code?.coding?.find(c => c.code === 'measure-observation')
-      );
-      const aggregation =
-        observPop?.extension?.find(
-          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
-        )?.valueCode || '';
-
-      // Note: unit not currently available in data, so not included in this quantity (should be inferable from measure to whoever's using the score)
-      // Score also captured in evaluated resource observation
-      group.measureScore = {
-        value: aggregate(aggregation, observations) //|| 0 TODO: set to alternative value if null (no relevant episodes)?
-      };
-
-      // create observation resource to reflect the score value and add as reference in evaluated resources
-      const observationResource: R4.IObservation = {
-        resourceType: 'Observation',
-        code: {
-          text: 'MeasureObservation'
-        },
-        id: uuidv4(),
-        status: R4.ObservationStatusKind._final,
-        valueQuantity: group.measureScore
-      };
-      // is this extension necessary?
-      observationResource.extension = [
-        {
-          url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
-          extension: [
-            {
-              url: 'measure',
-              valueCanonical: measure.url
-            },
-            {
-              url: 'populationId',
-              valueString: 'MeasureObservation'
-            }
-          ]
-        }
-      ];
-      report.contained?.push(observationResource);
-      report.evaluatedResource?.push({
-        reference: observationResource.id
-      });
-
-      break;
     case MeasureScoreType.COHORT:
       // Note: Untested measure score type
-      const ippCount =
-        group.population?.find(pop => {
-          return pop.code?.coding && pop.code.coding.length > 0 && pop.code?.coding[0].code === PopulationType.IPP;
-        })?.count || 0.0;
-
-      group.measureScore = {
-        value: ippCount * 1.0
+      return {
+        value: populationTotal(population, PopulationType.IPP) * 1.0
       };
-      break;
+
     case MeasureScoreType.RATIO:
       // Note: Untested measure score type
       // (NUMER - NUMEX) / (DENOM - DENEX)`
       const numeratorCount2 =
-        populationTotal(group, PopulationType.NUMER) - populationTotal(group, PopulationType.NUMEX);
+        populationTotal(population, PopulationType.NUMER) - populationTotal(population, PopulationType.NUMEX);
       const denominatorCount2 =
-        populationTotal(group, PopulationType.DENOM) - populationTotal(group, PopulationType.DENEX);
+        populationTotal(population, PopulationType.DENOM) - populationTotal(population, PopulationType.DENEX);
 
-      group.measureScore = {
+      return {
         // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
         value: denominatorCount2 === 0 ? 0 : (numeratorCount2 / denominatorCount2) * 1.0
       };
-      break;
     default:
       throw new Error(`Measure score type \"${scoringCode}\" not supported`);
   }
+}
+
+// TODO: shouldn't this have a group reference or something since the score is specific to a group? (how would this score be re-associated with the right group?)
+function addScoreObservation(score: R4.IQuantity, measure: R4.IMeasure, report: R4.IMeasureReport) {
+  // create observation resource to reflect the score value and add as reference in evaluated resources
+  const observationResource: R4.IObservation = {
+    resourceType: 'Observation',
+    code: {
+      text: 'MeasureObservation'
+    },
+    id: uuidv4(),
+    status: R4.ObservationStatusKind._final,
+    valueQuantity: score
+  };
+  // is this extension necessary?
+  observationResource.extension = [
+    {
+      url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
+      extension: [
+        {
+          url: 'measure',
+          valueCanonical: measure.url
+        },
+        {
+          url: 'populationId',
+          valueString: 'MeasureObservation'
+        }
+      ]
+    }
+  ];
+  report.contained?.push(observationResource);
+  report.evaluatedResource?.push({
+    reference: observationResource.id
+  });
 }
