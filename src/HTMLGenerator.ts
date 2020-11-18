@@ -26,6 +26,7 @@ export const cqlLogicClauseFalseStyle = {
  * Convert JS object to CSS Style string
  *
  * @param obj JS object representing CSS styles
+ * @returns semi-colon separated string of CSS styles for style attribute
  */
 export function objToCSS(obj: { [key: string]: string }): string {
   return Object.entries(obj)
@@ -61,6 +62,7 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param statementResults StatementResult array from calculation
  * @param groupId ID of population group
+ * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
   elmLibraries: ELM[],
