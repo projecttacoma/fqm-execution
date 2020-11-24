@@ -190,8 +190,8 @@ export function calculateMeasureReports(
 
       // TODO: handle EXM111 (doesn't identify itself as a episode of care measure). if it's an episode of care, you need to iterate over
       // stratifications : may need to clone results for one population group and adjust (in this case, just a straight clone)
-      if (detail.episodeResults) {
-        detail?.episodeResults.forEach(er => {
+      if (detail?.episodeResults) {
+        detail.episodeResults.forEach(er => {
           er.populationResults?.forEach(pr => {
             const pop = group.population?.find(
               pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType
@@ -206,7 +206,7 @@ export function calculateMeasureReports(
           });
         });
       } else {
-        detail?.populationResults?.forEach(pr => {
+        detail.populationResults?.forEach(pr => {
           group.population?.push(popForResult(pr));
         });
       }
@@ -220,7 +220,8 @@ export function calculateMeasureReports(
           reportStratifier.code = s.code ? [s.code] : [];
           const strat = <R4.IMeasureReport_Stratum>{};
           // use existing populations, but reduce count as appropriate
-          strat.population = JSON.parse(JSON.stringify(group.population));
+          // Deep copy population with matching attributes but different interface
+          strat.population = <R4.IMeasureReport_Population1[]>JSON.parse(JSON.stringify(group.population));
 
           if (detail.episodeResults) {
             detail?.episodeResults?.forEach(er => {
@@ -251,7 +252,7 @@ export function calculateMeasureReports(
             // TODO: should we add score observation for stratification?
             strat.measureScore = calcMeasureScoreCV(measure, detail, group.id || '', s);
           } else {
-            strat.measureScore = calcMeasureScore(scoringCode, JSON.parse(JSON.stringify(strat.population)));
+            strat.measureScore = calcMeasureScore(scoringCode, strat.population);
           }
 
           reportStratifier.stratum = [strat];
@@ -519,7 +520,10 @@ function calcMeasureScoreCV(
   };
 }
 
-function calcMeasureScore(scoringCode: string, population: R4.IMeasureReport_Population[]) {
+function calcMeasureScore(
+  scoringCode: string,
+  population: R4.IMeasureReport_Population[] | R4.IMeasureReport_Population1[]
+) {
   switch (scoringCode) {
     case MeasureScoreType.PROP:
       // (Numerator - Numerator Exclusions) / (Denominator - D Exclusions - D Exceptions).
