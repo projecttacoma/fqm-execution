@@ -51,6 +51,8 @@ export interface ExecutionResult {
   detailedResults?: DetailedPopulationGroupResult[];
   /** SDE values, if specified for calculation */
   supplementalData?: SDEResult[];
+  /** Resources evaluated during execution */
+  evaluatedResources?: R4.IResourceList[];
 }
 
 /**
