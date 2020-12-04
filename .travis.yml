@@ -1,9 +1,0 @@
-language: node_js
-node_js:
- - lts/*
-cache:
- - npm
-script:
- - npm run check
- - unzip -P $VALUESET_KEY test/fixtures/EXM130-8.0.000/EXM130-8.0.000-bundle.zip
- - rm EXM130-8.0.000-bundle.json
