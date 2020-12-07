@@ -2,32 +2,34 @@
 
 Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
 
-* [Installation](#installation)
-* [Usage](#usage)
-  * [Module](#module)
-  * [Calculation Options](#calculation-options)
-  * [CLI](#cli)
-  * [TypeScript](#typescript)
-* [Local Development](#local-development)
-  * [Prerequisites](#prerequisites)
-  * [Local Installation/Usage](#local-installation%2Fusage)
-  * [Debugging in VS Code](#debugging-in-vs-code)
-  * [Testing](#testing)
-  * [Checks](#checks)
-* [License](#license)
+*   [Installation](#installation)
+*   [Usage](#usage)
+    *   [Module](#module)
+    *   [Calculation Options](#calculation-options)
+    *   [CLI](#cli)
+    *   [TypeScript](#typescript)
+
+*   [Local Development](#local-development)
+    *   [Prerequisites](#prerequisites)
+    *   [Local Installation/Usage](#local-installation%2Fusage)
+    *   [Debugging in VS Code](#debugging-in-vs-code)
+    *   [Testing](#testing)
+    *   [Checks](#checks)
+
+*   [License](#license)
 
 ## Installation
 
 `fqm-execution` can be installed into your project with npm:
 
-```
-$ npm install --save https://github.com/projecttacoma/fqm-execution.git
+``` bash
+npm install --save https://github.com/projecttacoma/fqm-execution.git
 ```
 
 To install the global command line interface (CLI), use npm global installation:
 
-```
-$ npm install -g https://github.com/projecttacoma/fqm-execution.git
+``` bash
+npm install -g https://github.com/projecttacoma/fqm-execution.git
 ```
 
 ## Usage
@@ -70,7 +72,7 @@ The options that we support for calculation are as follows:
 
 To run the globally installed CLI (see above), use the global `fqm-exeuction command`
 
-```
+``` bash
 Usage: fqm-execution [options]
 
 Options:
@@ -82,8 +84,8 @@ Options:
 
 E.g.
 
-```
-$ fqm-execution -o reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json > reports.json
+``` bash
+fqm-execution -o reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json > reports.json
 ```
 
 ### TypeScript
@@ -94,42 +96,41 @@ $ fqm-execution -o reports -m /path/to/measure/bundle.json -p /path/to/patient1/
 
 ### Prerequisites
 
-* [Node.js >=10.15.1](https://nodejs.org/en/)
-* [Git](https://git-scm.com/)
+*   [Node.js >=10.15.1](https://nodejs.org/en/)
+*   [Git](https://git-scm.com/)
 
 ### Local Installation/Usage
 
 Clone the source code:
 
-```
-$ git clone https://github.com/projecttacoma/fqm-execution.git
+``` bash
+git clone https://github.com/projecttacoma/fqm-execution.git
 ```
 
 Install dependencies:
 
-```
-$ npm install
+``` bash
+npm install
 ```
 
 Optionally, you can install the `ts-node` utility globally to execute the TypeScript files directly instead of running the build script:
 
-```
-$ npm install -g ts-node
+``` bash
+npm install -g ts-node
 ```
 
 Run the CLI with ts-node:
 
-```
-$ ts-node src/cli.ts [options]
+``` bash
+ts-node src/cli.ts [options]
 ```
 
 Or using the built JavaScript:
 
+``` bash
+npm run build
+node build/cli.js [options]
 ```
-$ npm run build
-$ node build/cli.js [options]
-```
-
 
 ### Debugging in VS Code
 
@@ -137,7 +138,7 @@ To attach a debugger to the TypeScript files for deeper inspection of the tool's
 
 Add the following contents to `.vscode/launch.json` in the root of the project directory:
 
-```JSON
+``` JavaScript
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -170,18 +171,17 @@ This will allow you to run the CLI from the `Run` tab in VS Code, and will halt 
 
 We use [Jest](https://jestjs.io/en/) for unit-testing `fqm-execution`. Tests can be running using the `test` script in package.json:
 
-```
-$ npm test
+``` bash
+npm test
 ```
 
 ### Checks
 
 When contributing new code, ensure that all tests, lint, and prettier checks pass with the following command:
 
+``` bash
+npm run check
 ```
-$ npm run check
-```
-
 
 ## License
 
