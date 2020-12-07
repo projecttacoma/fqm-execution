@@ -5,6 +5,7 @@ Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) wr
 * [Installation](#installation)
 * [Usage](#usage)
   * [Module](#module)
+  * [Calculation Options](#calculation-options)
   * [CLI](#cli)
   * [TypeScript](#typescript)
 * [Local Development](#local-development)
@@ -50,6 +51,20 @@ const rawResults = Calculator.calculateRaw(measureBundle, patientBundles, option
 const rawResults = Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
 const rawResults = Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
 ```
+
+#### Calculation Options
+
+The options that we support for calculation are as follows:
+| option                 |  type   | optional? | description                                                                 |
+| :--------------------- | :-----: | :-------: | :-------------------------------------------------------------------------- |
+| includeClauseResults   | boolean |    yes    |                        Option to include clause results. Defaults to false. |
+| includePrettyResults   | boolean |    yes    |   Option to include pretty results on statement results. Defaults to false. |
+| includeHighlighting    | boolean |    yes    |         Include highlighting in MeasureReport narrative. Defaults to false. |
+| measurementPeriodStart | string  |    yes    |                                                Start of measurement period. |
+| measurementPeriodEnd   | string  |    yes    |                                                  End of measurement period. |
+| patientSource          |   any   |    yes    | PatientSource to use. If provided, the patientBundles will not be required. |
+| calculateSDEs          | boolean |    yes    |                             Include SDEs in calculation. Defaults to false. |
+| calculateHTML          | boolean |    yes    |                 Include HTML structure for highlighting. Defaults to false. |
 
 ### CLI
 
