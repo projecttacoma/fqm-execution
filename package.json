@@ -4,6 +4,9 @@
   "description": "FHIR Quality Measure Execution",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "bin": {
+    "fqm-execution": "build/cli.js"
+  },
   "files": [
     "build/*"
   ],
