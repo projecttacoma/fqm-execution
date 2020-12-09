@@ -580,6 +580,6 @@ function addScoreObservation(score: R4.IQuantity, measure: R4.IMeasure, report: 
   ];
   report.contained?.push(observationResource);
   report.evaluatedResource?.push({
-    reference: observationResource.id
+    reference: `#${observationResource.id}`
   });
 }
