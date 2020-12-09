@@ -3,6 +3,7 @@
 Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
 
 *   [Installation](#installation)
+
 *   [Usage](#usage)
     *   [Module](#module)
     *   [Calculation Options](#calculation-options)
@@ -189,7 +190,7 @@ Copyright 2020 The MITRE Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-```
+``` bash
 http://www.apache.org/licenses/LICENSE-2.0
 ```
 
