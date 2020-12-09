@@ -122,7 +122,7 @@ npm install -g ts-node
 Run the CLI with ts-node:
 
 ``` bash
-ts-node src/cli.ts [options]
+ts-node --files src/cli.ts [options]
 ```
 
 Or using the built JavaScript:
