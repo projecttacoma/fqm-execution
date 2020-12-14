@@ -31,7 +31,9 @@ export interface ELMLibrary {
     def: ELMValueSet[];
   };
   /** Direct reference code statements. */
-  codes?: any;
+  codes?: {
+    def: ELMCode[];
+  };
   /** Standard define or define function statements. The actual logic is defined here. */
   statements: {
     /** List of statement definitions. */
@@ -87,7 +89,15 @@ export interface ELMStatement {
   /** Type of this statement. Will be 'FunctionDef' if it is a function. */
   type?: string;
   /** Definition function parameters if this is a function. */
-  operand?: any[];
+  operand?: any;
+  /** Used in query expressions */
+  source?: any[];
+  /** Used in expression refs */
+  libraryName?: string;
+  /** Used in retrieves */
+  dataType?: string;
+  /** Used in retrieves */
+  codes?: any;
 }
 
 /**
@@ -106,6 +116,18 @@ export interface ELMValueSet {
   accessLevel?: string;
   /** Version of the valueset. Should not be used in eCQM land. */
   version?: string;
+}
+
+/**
+ * ELM Code definition
+ */
+export interface ELMCode {
+  id: string;
+  name: string;
+  accessLevel: string;
+  codeSystem: {
+    name: string;
+  };
 }
 
 export interface LibraryDependencyInfo {

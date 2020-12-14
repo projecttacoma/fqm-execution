@@ -174,3 +174,15 @@ export interface EpisodeResults {
   /** Stratifier results for this episode. */
   stratifierResults?: StratifierResult[];
 }
+
+/**
+ * Data type and query used in ELM
+ */
+export interface DataTypeQuery {
+  dataType: string;
+  valueSet?: string;
+  code?: {
+    system: string;
+    code: string;
+  };
+}

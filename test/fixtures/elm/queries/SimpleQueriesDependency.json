@@ -1,0 +1,68 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorOptions": "",
+        "type": "CqlToElmInfo"
+      }
+    ],
+    "identifier": {
+      "id": "SimpleDep",
+      "version": "0.0.1"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1"
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1"
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "name": "test-vs-2",
+          "id": "http://example.com/test-vs-2",
+          "accessLevel": "Public"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "name": "SimpleRetrieve",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "dataType": "{http://hl7.org/fhir}Condition",
+            "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "test-vs-2",
+              "type": "ValueSetRef"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

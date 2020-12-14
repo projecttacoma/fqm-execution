@@ -3,7 +3,8 @@ import {
   ExecutionResult,
   CalculationOptions,
   PopulationResult,
-  DetailedPopulationGroupResult
+  DetailedPopulationGroupResult,
+  DataTypeQuery
 } from './types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
@@ -334,6 +335,63 @@ export function calculateRaw(
   } else {
     return results.errorMessage ?? 'something happened with no error message';
   }
+}
+
+export function calculateGapsInCare(
+  measureBundle: R4.IBundle,
+  patientBundles: R4.IBundle[],
+  options: CalculationOptions
+): DataTypeQuery[] {
+  // Detailed results for population, raw results for ELM content
+  const results = calculate(measureBundle, patientBundles, options);
+  const { elmLibraries, mainLibraryName } = Execution.execute(measureBundle, patientBundles, options);
+
+  let result: DataTypeQuery[] = [];
+
+  results.forEach(res => {
+    res.detailedResults?.forEach(dr => {
+      const denomResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result;
+      const numerResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
+
+      // Calculate gaps if patient is in denominator but not numerator
+      if (denomResult && !numerResult) {
+        const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
+        if (!measureEntry || !measureEntry.resource) {
+          throw new Error('Argument measureBundle must include a Measure resource');
+        }
+        const measureResource = measureEntry.resource as R4.IMeasure;
+        const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId);
+
+        if (!matchingGroup) {
+          throw new Error(`Could not find group with id ${dr.groupId} in measure resource`);
+        }
+
+        const numerCriteria = matchingGroup.population?.find(
+          pop => pop.code?.coding && pop.code.coding[0].code === PopulationType.NUMER
+        );
+
+        if (!numerCriteria) {
+          throw new Error(`Could not find numerator criteria expression in measure group ${dr.groupId}`);
+        }
+
+        const numerExpressionName = numerCriteria.criteria.expression;
+        const mainLibraryELM = elmLibraries?.find(lib => lib.library.identifier.id === mainLibraryName);
+
+        if (!mainLibraryELM || !elmLibraries) {
+          throw new Error(`Could not find ELM for ${mainLibraryName}`);
+        }
+
+        const numerELMExpression = mainLibraryELM.library.statements.def.find(e => e.name === numerExpressionName);
+        if (!numerELMExpression) {
+          throw new Error(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
+        }
+
+        result = CalculatorHelpers.findRetrieves(mainLibraryELM, elmLibraries, numerELMExpression.expression);
+      }
+    });
+  });
+  dumpObject(result, 'gaps.json');
+  return result;
 }
 
 function addSDE(report: R4.IMeasureReport, measureURL: string, result: ExecutionResult) {
