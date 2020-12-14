@@ -1,0 +1,178 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorOptions": "",
+        "type": "CqlToElmInfo"
+      }
+    ],
+    "identifier": {
+      "id": "simpleQueries",
+      "version": "0.0.1"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1"
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1"
+        },
+        {
+          "localIdentifier": "SimpleDep",
+          "path": "SimpleDep",
+          "version": "0.0.1"
+        }
+      ]
+    },
+    "codeSystems": {
+      "def": [
+        {
+          "name": "EXAMPLE",
+          "id": "http://example.com",
+          "accessLevel": "Public"
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "name": "test-vs",
+          "id": "http://example.com/test-vs",
+          "accessLevel": "Public"
+        }
+      ]
+    },
+    "codes": {
+      "def": [
+        {
+          "name": "test-code",
+          "id": "test",
+          "accessLevel": "Public",
+          "codeSystem": {
+            "name": "EXAMPLE"
+          }
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "name": "SimpleVSRetrieve",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "dataType": "{http://hl7.org/fhir}Condition",
+            "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "name": "test-vs",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "name": "SimpleCodeRetrieve",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "dataType": "{http://hl7.org/fhir}Procedure",
+            "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "type": "ToList",
+              "operand": {
+                "name": "test-code",
+                "type": "CodeRef"
+              }
+            }
+          }
+        },
+        {
+          "name": "SimpleQuery",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "type": "Query",
+            "source": [
+              {
+                "alias": "C",
+                "expression": {
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "type": "Retrieve",
+                  "codes": {
+                    "name": "test-vs",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+            ],
+            "where": {
+              "type": "Equal",
+              "operand": [
+                {
+                  "name": "ToString",
+                  "libraryName": "FHIRHelpers",
+                  "type": "FunctionRef",
+                  "operand": [
+                    {
+                      "path": "id",
+                      "scope": "C",
+                      "type": "Property"
+                    }
+                  ]
+                },
+                {
+                  "valueType": "{urn:hl7-org:elm-types:r1}String",
+                  "value": "test",
+                  "type": "Literal"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "SimpleExpressionRef",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "name": "SimpleVSRetrieve",
+            "type": "ExpressionRef"
+          }
+        },
+        {
+          "name": "DepExpressionRef",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "expression": {
+            "name": "SimpleRetrieve",
+            "libraryName": "SimpleDep",
+            "type": "ExpressionRef"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -4,10 +4,10 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import { calculate, calculateMeasureReports, calculateRaw } from './Calculator';
+import { calculate, calculateGapsInCare, calculateMeasureReports, calculateRaw } from './Calculator';
 
 program
-  .option('-o, --output-type <type>', 'type of output, "raw", "detailed", "reports"', 'detailed')
+  .option('-o, --output-type <type>', 'type of output, "raw", "detailed", "reports", "gaps"', 'detailed')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
   .requiredOption('-p, --patient-bundles <patient-bundles...>', 'paths to patient bundle')
   .parse(process.argv);
@@ -22,16 +22,18 @@ const measureBundle = parseBundle(path.resolve(program.measureBundle));
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
 let result;
-if (program.outputType == 'raw') {
+if (program.outputType === 'raw') {
   result = calculateRaw(measureBundle, patientBundles, {});
-} else if (program.outputType == 'detailed') {
+} else if (program.outputType === 'detailed') {
   result = calculate(measureBundle, patientBundles, { calculateSDEs: true });
-} else if (program.outputType == 'reports') {
+} else if (program.outputType === 'reports') {
   result = calculateMeasureReports(measureBundle, patientBundles, {
     measurementPeriodStart: '2019-01-01',
     measurementPeriodEnd: '2019-12-31',
     calculateSDEs: true,
     calculateHTML: true
   });
+} else if (program.outputType === 'gaps') {
+  result = calculateGapsInCare(measureBundle, patientBundles, {});
 }
 console.log(JSON.stringify(result, null, 2));
