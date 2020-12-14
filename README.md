@@ -42,8 +42,9 @@ npm install -g https://github.com/projecttacoma/fqm-execution.git
 import { Calculator } from 'fqm-execution';
 
 const rawResults = Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const rawResults = Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const rawResults = Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
+const detailedResults = Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
+const measureReports = Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
 ```
 
 #### Require
@@ -51,8 +52,9 @@ const rawResults = Calculator.calculateMeasureReports(measureBundle, patientBund
 const { Calculator } = require('fqm-execution');
 
 const rawResults = Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const rawResults = Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const rawResults = Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
+const detailedResults = Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
+const measureReports = Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
 ```
 
 #### Calculation Options
@@ -77,7 +79,7 @@ To run the globally installed CLI (see above), use the global `fqm-exeuction com
 Usage: fqm-execution [options]
 
 Options:
-  -o, --output-type <type>                    type of output, "raw", "detailed", "reports" (default: "detailed")
+  -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps" (default: "detailed")
   -m, --measure-bundle <measure-bundle>       path to measure bundle
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle
   -h, --help                                  display help for command
@@ -159,7 +161,7 @@ Add the following contents to `.vscode/launch.json` in the root of the project d
               "${workspaceFolder}/build/**/*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart",
-            "args": ["-m", "${workspaceFolder}/relative/path/to/measure/bundle.json", "-p", "${workspaceFolder}/relative/path/to/patient/bundle.json", "-o", "<reports | detailed | raw>"]
+            "args": ["-m", "${workspaceFolder}/relative/path/to/measure/bundle.json", "-p", "${workspaceFolder}/relative/path/to/patient/bundle.json", "-o", "<reports | detailed | raw | gaps>"]
           }
     ]
 }
