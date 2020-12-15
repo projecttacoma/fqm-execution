@@ -2,12 +2,25 @@
  * This will shell out either the cli or export the library functions to actually execute 
  * the tests against the measures
  */
-//think these are the imports I need but I'm not sure 
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { program } from 'commander';
+import fs from 'fs';
+import path from 'path';
+
 const process = require('process');
 const measureReportCompare = require('./measureReportCompare');
 const fhirInteractions = require('./fhirInteractions');
 const testDataHelpers = require('./testDataHelpers');
+
+function parseBundle(filePath: string): R4.IBundle {
+  const contents = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(contents) as R4.IBundle;
+}
+
+const measureBundle = parseBundle(path.resolve(program.measureBundle));
+const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+
+
 async function calculateMeasuresAndCompare() {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
   let onlyMeasureExmId;

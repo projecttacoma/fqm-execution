@@ -3,8 +3,10 @@ const http = require('http');
 //const process = require('process');
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
-import { ELM, ELMIdentifier } from '/src/types/ELMTypes';
 import { RTTI_Bundle } from '@ahryman40k/ts-fhir-types/lib/R4';
+import path from 'path';
+import { program } from 'commander';
+import { calculate, calculateMeasureReports, calculateRaw } from './src/Calculator.ts';
 
 const PERIOD_START = '2019-01-01';
 const PERIOD_END = '2019-12-31';
@@ -19,11 +21,6 @@ const calculate = require('./src/Calcuator.ts')
  * @property {String} exmId - The EXM ID of the measure. ex. EXM_104
  * @property {String} id - The Measure resource's id. ex. measure-EXM104-FHIR4-8.1.000
  */
-
-
-
-
-
 /**
  * The MeasureReport Resource that is a result of executing a measure.
  * 
@@ -36,16 +33,19 @@ const calculate = require('./src/Calcuator.ts')
  * @param {String} measureId The id of the measure to execute on fqm execution.
  * @returns {Promise<FHIR.MeasureReport>} The patient-list MeasureReport.
  */
-async function getMeasureReport(measureId) {
+async function getMeasureReport(measureId: string, measureBundle, patientBundle): Promise<FHIR.MeasureReport> {
   return new Promise((resolve, reject) => {
     let dotTimer;
+    let result;
     console.log(`Executing measure ${measureId}`);
-   
-   //this is where I need to call the measure calc, bc this is where cqf ruler would have had a post
-    //measureBundle, patientBundle, calcOptions
-    //loop through patients
-    execute(measureBundle,patientBundle,);
-    calculate();
+  
+    result = calculateRaw(measureBundle, patientBundle, {});
+    result = calculateMeasureReports(measureBundle, patientBundles, {
+      measurementPeriodStart: '2019-01-01',
+      measurementPeriodEnd: '2019-12-31',
+      calculateSDEs: true,
+      calculateHTML: true
+    });
 
     // Start a timer
     console.time(`Execute ${measureId}`);
@@ -55,5 +55,5 @@ async function getMeasureReport(measureId) {
 }
 
 
-module.exports.loadPatientBundle = loadPatientBundle;
+
 module.exports.getMeasureReport = getMeasureReport;
