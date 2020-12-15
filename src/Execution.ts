@@ -133,6 +133,9 @@ export function execute(
   const executor = new cql.Executor(lib, codeService, parameters);
   const results = executor.exec(patientSource, executionDateTime);
 
+  // Map evaluated resource from engine to the raw FHIR json
+  results.evaluatedRecords = results.evaluatedRecords.map((r: any) => r._json);
+
   dumpObject(results, 'rawResults.json');
   return { rawResults: results, elmLibraries: elmJSONs, mainLibraryName: rootLibIdentifer.id };
 }

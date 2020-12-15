@@ -60,7 +60,8 @@ export function calculate(
     }
     const patientExecutionResult: ExecutionResult = {
       patientId: patient.id,
-      detailedResults: []
+      detailedResults: [],
+      evaluatedResources: rawResults.evaluatedRecords
     };
 
     // Grab statement results for the patient
@@ -273,15 +274,16 @@ export function calculateMeasureReports(
       report.group?.push(group);
     });
 
-    // TODO: create contained evaluatuated resource (contains patient... and population and entity information?)
-    // may eventually need the other bits (all pieces of information that were used in calculation), but we might be able to ignore for now
-    const evalId = uuidv4();
-    const contained: R4.IBundle = {
-      resourceType: 'Bundle',
-      id: evalId,
-      type: R4.BundleTypeKind._collection,
-      entry: []
-    };
+    if (result.evaluatedResources) {
+      result.evaluatedResources.forEach(resource => {
+        const reference: R4.IReference = {
+          reference: `${resource.resourceType}/${resource.id}`
+        };
+        if (!report.evaluatedResource?.find(r => r.reference === reference.reference)) {
+          report.evaluatedResource?.push(reference);
+        }
+      });
+    }
 
     // find this patient's bundle
     const patientBundle = patientBundles.find(patientBundle => {
@@ -295,28 +297,15 @@ export function calculateMeasureReports(
       }
     });
 
-    // if the patient bundle was found add their information to the evaluated resources
+    // if the patient bundle was found add their information to the subject
     if (patientBundle) {
       // grab the measure resource
       const patient = patientBundle.entry?.find(bundleEntry => {
         return bundleEntry.resource?.resourceType === 'Patient';
       })?.resource as R4.IPatient;
 
-      // TODO: (related to above) do we need other entries... List, Encounter, Procedure?
-      const patId = `Patient/${patient?.id}`;
-      contained.entry?.push({
-        fullUrl: patId,
-        resource: patient
-      });
-      report.contained.push(contained);
-
-      // create reference to contained evaluated resource and match ID
-      const evalResourceReference: R4.IReference = {
-        reference: evalId
-      };
-      report.evaluatedResource.push(evalResourceReference);
-
       // create reference to contained patient/subject and match ID
+      const patId = `Patient/${patient?.id}`;
       const subjectReference: R4.IReference = {
         reference: patId
       };
@@ -395,7 +384,7 @@ function addSDE(report: R4.IMeasureReport, measureURL: string, result: Execution
     // add as evaluated resource reference
     report.contained?.push(observation);
     report.evaluatedResource?.push({
-      reference: observation.id
+      reference: `#${observation.id}`
     });
   });
 }
@@ -591,6 +580,6 @@ function addScoreObservation(score: R4.IQuantity, measure: R4.IMeasure, report: 
   ];
   report.contained?.push(observationResource);
   report.evaluatedResource?.push({
-    reference: observationResource.id
+    reference: `#${observationResource.id}`
   });
 }
