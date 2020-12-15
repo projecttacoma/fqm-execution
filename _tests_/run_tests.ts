@@ -1,5 +1,5 @@
 /**
- * This will shell out either the cli or export the library functions to actually execute 
+ * This will shell out either the cli or export the library functions to actually execute
  * the tests against the measures
  */
 import { R4 } from '@ahryman40k/ts-fhir-types';
@@ -9,7 +9,7 @@ import path from 'path';
 import  process  from 'process';
 import measureReportCompare  from './measureReportCompare';
 //import fhirInteractions  from  './fhirInteractions';
-//import  testDataHelpers from './testDataHelpers'; 
+//import  testDataHelpers from './testDataHelpers';
 
 function parseBundle(filePath: string): R4.IBundle {
   const contents = fs.readFileSync(filePath, 'utf8');
