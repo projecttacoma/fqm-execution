@@ -9,3 +9,4 @@ echo "> Fetching CQF-tooling JAR"
 echo "> Cloning fqm execution service..."
 git clone --single-branch --branch master https://github.com/projecttacoma/fqm-execution-service.git
 
+echo "> "
