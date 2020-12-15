@@ -2,12 +2,12 @@
   "library": {
     "annotation": [
       {
-        "translatorOptions": "",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
         "type": "CqlToElmInfo"
       }
     ],
     "identifier": {
-      "id": "simpleQueries",
+      "id": "SimpleQueries",
       "version": "0.0.1"
     },
     "schemaIdentifier": {
@@ -21,6 +21,8 @@
           "uri": "urn:hl7-org:elm-types:r1"
         },
         {
+          "localId": "1",
+          "locator": "3:1-3:26",
           "localIdentifier": "FHIR",
           "uri": "http://hl7.org/fhir",
           "version": "4.0.1"
@@ -30,11 +32,15 @@
     "includes": {
       "def": [
         {
+          "localId": "2",
+          "locator": "5:1-5:35",
           "localIdentifier": "FHIRHelpers",
           "path": "FHIRHelpers",
           "version": "4.0.1"
         },
         {
+          "localId": "3",
+          "locator": "6:1-6:33",
           "localIdentifier": "SimpleDep",
           "path": "SimpleDep",
           "version": "0.0.1"
@@ -44,8 +50,17 @@
     "codeSystems": {
       "def": [
         {
+          "localId": "4",
+          "locator": "8:1-8:42",
           "name": "EXAMPLE",
           "id": "http://example.com",
+          "accessLevel": "Public"
+        },
+        {
+          "localId": "5",
+          "locator": "9:1-9:46",
+          "name": "EXAMPLE-2",
+          "id": "http://example.com/2",
           "accessLevel": "Public"
         }
       ]
@@ -53,6 +68,8 @@
     "valueSets": {
       "def": [
         {
+          "localId": "6",
+          "locator": "11:1-11:48",
           "name": "test-vs",
           "id": "http://example.com/test-vs",
           "accessLevel": "Public"
@@ -62,37 +79,171 @@
     "codes": {
       "def": [
         {
+          "localId": "8",
+          "locator": "13:1-13:39",
           "name": "test-code",
           "id": "test",
           "accessLevel": "Public",
           "codeSystem": {
+            "localId": "7",
+            "locator": "13:31-13:39",
             "name": "EXAMPLE"
           }
+        },
+        {
+          "localId": "10",
+          "locator": "14:1-14:45",
+          "name": "test-code-2",
+          "id": "test-2",
+          "accessLevel": "Public",
+          "codeSystem": {
+            "localId": "9",
+            "locator": "14:35-14:45",
+            "name": "EXAMPLE-2"
+          }
+        }
+      ]
+    },
+    "concepts": {
+      "def": [
+        {
+          "localId": "13",
+          "locator": "16:1-16:77",
+          "name": "test-concept",
+          "display": "test-concept",
+          "accessLevel": "Public",
+          "code": [
+            {
+              "localId": "11",
+              "locator": "16:27-16:37",
+              "name": "test-code"
+            },
+            {
+              "localId": "12",
+              "locator": "16:40-16:52",
+              "name": "test-code-2"
+            }
+          ]
         }
       ]
     },
     "statements": {
       "def": [
         {
+          "localId": "15",
+          "locator": "18:1-19:24",
           "name": "SimpleVSRetrieve",
           "context": "Patient",
           "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "15",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SimpleVSRetrieve\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "14",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "Condition",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"test-vs\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
           "expression": {
+            "localId": "14",
+            "locator": "19:3-19:24",
             "dataType": "{http://hl7.org/fhir}Condition",
             "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
             "codeProperty": "code",
             "type": "Retrieve",
             "codes": {
+              "locator": "19:15-19:23",
               "name": "test-vs",
               "type": "ValueSetRef"
             }
           }
         },
         {
+          "localId": "17",
+          "locator": "21:1-22:26",
           "name": "SimpleCodeRetrieve",
           "context": "Patient",
           "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "17",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SimpleCodeRetrieve\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "16",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "Procedure",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"test-code\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
           "expression": {
+            "localId": "16",
+            "locator": "22:3-22:26",
             "dataType": "{http://hl7.org/fhir}Procedure",
             "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
             "codeProperty": "code",
@@ -100,6 +251,7 @@
             "codes": {
               "type": "ToList",
               "operand": {
+                "locator": "22:15-22:25",
                 "name": "test-code",
                 "type": "CodeRef"
               }
@@ -107,20 +259,164 @@
           }
         },
         {
+          "localId": "25",
+          "locator": "24:1-25:46",
           "name": "SimpleQuery",
           "context": "Patient",
           "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "25",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SimpleQuery\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "24",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "19",
+                            "s": [
+                              {
+                                "r": "18",
+                                "s": [
+                                  {
+                                    "r": "18",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Condition",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "C"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          " "
+                        ]
+                      },
+                      {
+                        "r": "23",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "23",
+                            "s": [
+                              {
+                                "r": "21",
+                                "s": [
+                                  {
+                                    "r": "20",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "C"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "21",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "id"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "22",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "'test'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
           "expression": {
+            "localId": "24",
+            "locator": "25:3-25:46",
             "type": "Query",
             "source": [
               {
+                "localId": "19",
+                "locator": "25:3-25:26",
                 "alias": "C",
                 "expression": {
+                  "localId": "18",
+                  "locator": "25:3-25:24",
                   "dataType": "{http://hl7.org/fhir}Condition",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
                   "codeProperty": "code",
                   "type": "Retrieve",
                   "codes": {
+                    "locator": "25:15-25:23",
                     "name": "test-vs",
                     "type": "ValueSetRef"
                   }
@@ -130,6 +426,8 @@
             "relationship": [
             ],
             "where": {
+              "localId": "23",
+              "locator": "25:28-25:46",
               "type": "Equal",
               "operand": [
                 {
@@ -138,6 +436,8 @@
                   "type": "FunctionRef",
                   "operand": [
                     {
+                      "localId": "21",
+                      "locator": "25:34-25:37",
                       "path": "id",
                       "scope": "C",
                       "type": "Property"
@@ -145,6 +445,8 @@
                   ]
                 },
                 {
+                  "localId": "22",
+                  "locator": "25:41-25:46",
                   "valueType": "{urn:hl7-org:elm-types:r1}String",
                   "value": "test",
                   "type": "Literal"
@@ -154,22 +456,171 @@
           }
         },
         {
+          "localId": "27",
+          "locator": "27:1-28:20",
           "name": "SimpleExpressionRef",
           "context": "Patient",
           "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "27",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SimpleExpressionRef\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "26",
+                    "s": [
+                      {
+                        "value": [
+                          "\"SimpleVSRetrieve\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
           "expression": {
+            "localId": "26",
+            "locator": "28:3-28:20",
             "name": "SimpleVSRetrieve",
             "type": "ExpressionRef"
           }
         },
         {
+          "localId": "30",
+          "locator": "30:1-31:30",
           "name": "DepExpressionRef",
           "context": "Patient",
           "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "30",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"DepExpressionRef\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "29",
+                    "s": [
+                      {
+                        "r": "28",
+                        "s": [
+                          {
+                            "value": [
+                              "\"SimpleDep\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "."
+                        ]
+                      },
+                      {
+                        "r": "29",
+                        "s": [
+                          {
+                            "value": [
+                              "\"SimpleRetrieve\""
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
           "expression": {
+            "localId": "29",
+            "locator": "31:3-31:30",
             "name": "SimpleRetrieve",
             "libraryName": "SimpleDep",
             "type": "ExpressionRef"
+          }
+        },
+        {
+          "localId": "32",
+          "locator": "33:1-34:29",
+          "name": "SimpleConceptRetrieve",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "32",
+                "s": [
+                  {
+                    "value": [
+                      "define ",
+                      "\"SimpleConceptRetrieve\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "31",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "Procedure",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"test-concept\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "31",
+            "locator": "34:3-34:29",
+            "dataType": "{http://hl7.org/fhir}Procedure",
+            "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+            "codeProperty": "code",
+            "type": "Retrieve",
+            "codes": {
+              "path": "codes",
+              "type": "Property",
+              "source": {
+                "locator": "34:15-34:28",
+                "name": "test-concept",
+                "type": "ConceptRef"
+              }
+            }
           }
         }
       ]
