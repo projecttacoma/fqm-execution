@@ -10,7 +10,7 @@ import * as MeasureHelpers from './MeasureHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ResultsHelpers';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import moment from 'moment';
-import { PopulationType } from './types/Enums';
+import { FinalResult, PopulationType } from './types/Enums';
 import * as cql from './types/CQLTypes';
 
 /**
@@ -494,16 +494,41 @@ export function generateELMJSONFunction(functionName: string, parameter: string)
  * @param elm main ELM library with expressions to traverse
  * @param deps list of any dependent ELM libraries included in the main ELM
  * @param expr expression to find queries under (usually numerator for gaps in care)
+ * @param detailedResult detailed results from execution
+ * @param queryLocalId keeps track of latest id of query statements for lookup later
  */
-export function findRetrieves(elm: ELM, deps: ELM[], expr: ELMStatement) {
+export function findRetrieves(
+  elm: ELM,
+  deps: ELM[],
+  expr: ELMStatement,
+  detailedResult: DetailedPopulationGroupResult,
+  queryLocalId?: string
+) {
   const results: DataTypeQuery[] = [];
 
   // Base case, get data type and code/valueset off the expression
   if (expr.type === 'Retrieve' && expr.dataType) {
+    // Determine satisfaction of parent query and leaf node retrieve
+    const parentQueryResult = detailedResult.clauseResults?.find(
+      cr => cr.libraryName === elm.library.identifier.id && cr.localId === queryLocalId
+    );
+    const retreiveResult = detailedResult.clauseResults?.find(
+      cr => cr.libraryName === elm.library.identifier.id && cr.localId === expr.localId
+    );
+    const parentQuerySatisfied = parentQueryResult?.final === FinalResult.TRUE;
+    const retreiveSatisfied = retreiveResult?.final === FinalResult.TRUE;
+
     if (expr.codes?.type === 'ValueSetRef') {
       const valueSet = elm.library.valueSets?.def.find(v => v.name === expr.codes.name);
       if (valueSet) {
-        results.push({ dataType: expr.dataType, valueSet: valueSet.id });
+        results.push({
+          dataType: expr.dataType,
+          valueSet: valueSet.id,
+          parentQuerySatisfied,
+          retreiveSatisfied,
+          queryLocalId,
+          retrieveLocalId: expr.localId
+        });
       }
     } else if (
       expr.codes.type === 'CodeRef' ||
@@ -518,14 +543,18 @@ export function findRetrieves(elm: ELM, deps: ELM[], expr: ELMStatement) {
           code: {
             system: code.codeSystem.name,
             code: code.id
-          }
+          },
+          parentQuerySatisfied,
+          retreiveSatisfied,
+          queryLocalId,
+          retrieveLocalId: expr.localId
         });
       }
     }
   } else if (expr.type === 'Query') {
     // Queries have the source array containing the expressions
     expr.source?.forEach(s => {
-      results.push(...findRetrieves(elm, deps, s.expression));
+      results.push(...findRetrieves(elm, deps, s.expression, detailedResult, expr.localId));
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
@@ -533,23 +562,23 @@ export function findRetrieves(elm: ELM, deps: ELM[], expr: ELMStatement) {
       const matchingLib = deps.find(d => d.library.identifier.id === expr.libraryName);
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === expr.name);
       if (matchingLib && exprRef) {
-        results.push(...findRetrieves(matchingLib, deps, exprRef.expression));
+        results.push(...findRetrieves(matchingLib, deps, exprRef.expression, detailedResult, queryLocalId));
       }
     } else {
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === expr.name);
       if (exprRef) {
-        results.push(...findRetrieves(elm, deps, exprRef.expression));
+        results.push(...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId));
       }
     }
   } else if (expr.operand) {
     // Operand can be array or object. Recurse on either
     if (Array.isArray(expr.operand)) {
       expr.operand.forEach(e => {
-        results.push(...findRetrieves(elm, deps, e));
+        results.push(...findRetrieves(elm, deps, e, detailedResult, queryLocalId));
       });
     } else {
-      results.push(...findRetrieves(elm, deps, expr.operand));
+      results.push(...findRetrieves(elm, deps, expr.operand, detailedResult, queryLocalId));
     }
   }
   return results;

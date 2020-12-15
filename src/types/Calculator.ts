@@ -185,4 +185,8 @@ export interface DataTypeQuery {
     system: string;
     code: string;
   };
+  retreiveSatisfied?: boolean;
+  parentQuerySatisfied?: boolean;
+  retrieveLocalId?: string;
+  queryLocalId?: string;
 }

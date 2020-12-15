@@ -386,7 +386,7 @@ export function calculateGapsInCare(
           throw new Error(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
         }
 
-        result = CalculatorHelpers.findRetrieves(mainLibraryELM, elmLibraries, numerELMExpression.expression);
+        result = CalculatorHelpers.findRetrieves(mainLibraryELM, elmLibraries, numerELMExpression.expression, dr);
       }
     });
   });
