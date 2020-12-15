@@ -1,7 +1,7 @@
 #!/bin/bash
 
-tooling_jar=./travis/tooling/tooling-1.1.0-SNAPSHOT-jar-with-dependencies.jar
-rebuild_log=./travis/tooling/rebuildRun.log
+tooling_jar=./integration_fixtures/tooling/tooling-1.1.0-SNAPSHOT-jar-with-dependencies.jar
+rebuild_log=./integration_fixtures/tooling/rebuildRun.log
 ig_resource_path=./fhir401/input/connectathon.xml
 
 # Remove EXM165 because it is unfinished
