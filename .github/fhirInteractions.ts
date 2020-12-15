@@ -1,11 +1,15 @@
 const fs = require('fs');
 const http = require('http');
-const process = require('process');
-
+//const process = require('process');
+import cql from 'cql-execution';
+import { PatientSource } from 'cql-exec-fhir';
+import { ELM, ELMIdentifier } from '/src/types/ELMTypes';
+import { RTTI_Bundle } from '@ahryman40k/ts-fhir-types/lib/R4';
 
 const PERIOD_START = '2019-01-01';
 const PERIOD_END = '2019-12-31';
 const execute = require('./src/Execute.ts');
+const calculate = require('./src/Calcuator.ts')
 
 
 /**
@@ -38,34 +42,10 @@ async function getMeasureReport(measureId) {
     console.log(`Executing measure ${measureId}`);
    
    //this is where I need to call the measure calc, bc this is where cqf ruler would have had a post
-    let req = http.request(`${FHIR_SERVER}/Measure/${measureId}/$evaluate-measure?reportType=patient-list&periodStart=${PERIOD_START}&periodEnd=${PERIOD_END}`,
-      {
-        method: 'GET',
-        timeout: 2400000 //40 minute timeout because this is slow for some measures.
-      }, (res) => {
-        // Handle result of execution.
-        clearInterval(dotTimer); // clear the timer for the dot printer
-        console.log();
-        console.timeEnd(`Execute ${measureId}`); // print out how long this took.
-        if (res.statusCode != 200) {
-          reject(`Status code ${res.statusCode} was unexpected when executing.`);
-          return;
-        } else {
-          res.setEncoding('utf8');
-          let rawData = '';
-          res.on('data', (chunk) => { rawData += chunk; });
-          res.on('end', () => {
-            resolve(JSON.parse(rawData));
-          });
-        }
-      }
-    );
-
-    req.on('error', (e) => {
-      console.error(e);
-      reject(e);
-    });
-    req.end();
+    //measureBundle, patientBundle, calcOptions
+    //loop through patients
+    execute(measureBundle,patientBundle,);
+    calculate();
 
     // Start a timer
     console.time(`Execute ${measureId}`);
