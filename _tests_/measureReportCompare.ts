@@ -7,7 +7,7 @@
  */
 function findCorrespondingGroup(referenceGroup, report) {
   return report.group.find((group) => {
-    return referenceGroup.id == group.id
+    return referenceGroup.id == group.id;
   });
 }
 
@@ -20,7 +20,7 @@ function findCorrespondingGroup(referenceGroup, report) {
  */
 function findCorrespondingPopulation(referencePopulation, group) {
   return group.population.find((population) => {
-    return referencePopulation.code.coding[0].code == population.code.coding[0].code
+    return referencePopulation.code.coding[0].code == population.code.coding[0].code;
   });
 }
 
@@ -33,7 +33,7 @@ function findCorrespondingPopulation(referencePopulation, group) {
  */
 function grabReferencedResource(reference, report) {
   let id = reference.replace('#', '');
-  return report.contained.find((resource) => { return resource.id == id });
+  return report.contained.find((resource) => { return resource.id == id; });
 }
 
 /**
@@ -72,21 +72,21 @@ function addBadPatientEntry(badPatientsList, patientName, issueMessage) {
  */
 function compareMeasureReports(referenceReport, report) {
   /** @type {BadPatient[]} */
-  let badPatientsList = []
+  let badPatientsList = [];
 
   console.log(`Comparing reports for ${referenceReport.measure}`);
 
   // iterate groups in referenceReport
   referenceReport.group.forEach(referenceGroup => {
 
-    console.log(`  Comparing group: ${referenceGroup.id}`)
+    console.log(`  Comparing group: ${referenceGroup.id}`);
     // find corresponding group in report
     let group = findCorrespondingGroup(referenceGroup, report);
 
     // iterate populations
     referenceGroup.population.forEach(referencePopulation => {
 
-      console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`)
+      console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
       // find corresponding population
       let population = findCorrespondingPopulation(referencePopulation, group);
 
@@ -107,20 +107,20 @@ function compareMeasureReports(referenceReport, report) {
       }
 
       // compare lists
-      let missingPatients = referencePatientNames.filter((patientName) => { return !patientNames.includes(patientName) });
-      let unexpectedPatients = patientNames.filter((patientName) => { return !referencePatientNames.includes(patientName) });
+      let missingPatients = referencePatientNames.filter((patientName) => { return !patientNames.includes(patientName); });
+      let unexpectedPatients = patientNames.filter((patientName) => { return !referencePatientNames.includes(patientName); });
 
       // log patients that are missing in the report
       console.log(`      Expected ${referencePatientNames.length} - Actual ${patientNames.length}`);
       missingPatients.forEach(patientName => {
         console.log(`        MISSING    ${patientName}`);
-        addBadPatientEntry(badPatientsList, patientName, `Missing from ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`)
+        addBadPatientEntry(badPatientsList, patientName, `Missing from ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`);
       });
 
       // log patients that were unexpected in the report
       unexpectedPatients.forEach(patientName => {
         console.log(`        UNEXPECTED ${patientName}`);
-        addBadPatientEntry(badPatientsList, patientName, `Unexpected in ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`)
+        addBadPatientEntry(badPatientsList, patientName, `Unexpected in ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`);
       });
     });
   });

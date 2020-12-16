@@ -1,17 +1,18 @@
 const fs = require('fs');
 const http = require('http');
-//const process = require('process');
+const execute = require('./src/Execute.ts');
+const calculate = require('./src/Calcuator.ts');
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { RTTI_Bundle } from '@ahryman40k/ts-fhir-types/lib/R4';
 import path from 'path';
 import { program } from 'commander';
-import { calculate, calculateMeasureReports, calculateRaw } from './src/Calculator.ts';
+import { calculate, calculateMeasureReports, calculateRaw } from './src/Calculator';
+
 
 const PERIOD_START = '2019-01-01';
 const PERIOD_END = '2019-12-31';
-const execute = require('./src/Execute.ts');
-const calculate = require('./src/Calcuator.ts')
+
 
 
 /**
@@ -50,7 +51,7 @@ async function getMeasureReport(measureId: string, measureBundle, patientBundle)
     // Start a timer
     console.time(`Execute ${measureId}`);
     // Dots are required to keep travis from giving up.
-    dotTimer = setInterval(() => { process.stdout.write('.') }, 10000);
+    dotTimer = setInterval(() => { process.stdout.write('.'); }, 10000);
   });
 }
 
