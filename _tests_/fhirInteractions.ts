@@ -41,7 +41,7 @@ async function getMeasureReport(measureId: string, measureBundle, patientBundle)
     console.log(`Executing measure ${measureId}`);
   
     result = calculateRaw(measureBundle, patientBundle, {});
-    result = calculateMeasureReports(measureBundle, patientBundles, {
+    result = calculateMeasureReports(measureBundle, patientBundle, {
       measurementPeriodStart: '2019-01-01',
       measurementPeriodEnd: '2019-12-31',
       calculateSDEs: true,
