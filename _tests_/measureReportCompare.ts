@@ -32,7 +32,7 @@ function findCorrespondingPopulation(referencePopulation, group) {
  * @param {FHIR.MeasureReport} report The report to find the contained reference.
  */
 function grabReferencedResource(reference, report) {
-  let id = reference.replace('#', '');
+  const id = reference.replace('#', '');
   return report.contained.find((resource) => { return resource.id == id; });
 }
 
@@ -72,7 +72,7 @@ function addBadPatientEntry(badPatientsList, patientName, issueMessage) {
  */
 function compareMeasureReports(referenceReport, report) {
   /** @type {BadPatient[]} */
-  let badPatientsList = [];
+  const badPatientsList = [];
 
   console.log(`Comparing reports for ${referenceReport.measure}`);
 
@@ -81,18 +81,18 @@ function compareMeasureReports(referenceReport, report) {
 
     console.log(`  Comparing group: ${referenceGroup.id}`);
     // find corresponding group in report
-    let group = findCorrespondingGroup(referenceGroup, report);
+    const group = findCorrespondingGroup(referenceGroup, report);
 
     // iterate populations
     referenceGroup.population.forEach(referencePopulation => {
 
       console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
       // find corresponding population
-      let population = findCorrespondingPopulation(referencePopulation, group);
+      const population = findCorrespondingPopulation(referencePopulation, group);
 
       // grab lists of patients
-      let referenceList = grabReferencedResource(referencePopulation.subjectResults.reference, referenceReport);
-      let list = grabReferencedResource(population.subjectResults.reference, report);
+      const referenceList = grabReferencedResource(referencePopulation.subjectResults.reference, referenceReport);
+      const list = grabReferencedResource(population.subjectResults.reference, report);
 
       // Turn into list of patient names from reference report, default to [] if list is empty/nonexistent
       let referencePatientNames = [];
@@ -107,8 +107,8 @@ function compareMeasureReports(referenceReport, report) {
       }
 
       // compare lists
-      let missingPatients = referencePatientNames.filter((patientName) => { return !patientNames.includes(patientName); });
-      let unexpectedPatients = patientNames.filter((patientName) => { return !referencePatientNames.includes(patientName); });
+      const missingPatients = referencePatientNames.filter((patientName) => { return !patientNames.includes(patientName); });
+      const unexpectedPatients = patientNames.filter((patientName) => { return !referencePatientNames.includes(patientName); });
 
       // log patients that are missing in the report
       console.log(`      Expected ${referencePatientNames.length} - Actual ${patientNames.length}`);
