@@ -7,7 +7,7 @@ import  fs from 'fs';
 import getMeasureReport from './fhirInteractions';
 /**
  * Information about the test data available for a measure.
- * 
+ *
  * @typedef {Object} TestMeasureInfo
  * @property {String} exmId - The EXM ID of the measure. ex. EXM_104
  * @property {String} path - Path to the folder of test data.
@@ -16,7 +16,7 @@ import getMeasureReport from './fhirInteractions';
 
 /**
  * Grabs the list of measures that fhir-patient-generator has test data for.
- * 
+ *
  * @returns {Promise<TestMeasureInfo[]>} List of information about each available test measure data.
  */
  export async function getTestMeasureList() {
@@ -46,7 +46,7 @@ import getMeasureReport from './fhirInteractions';
 /**
  * Load all patient bundle in the test data folder. This will navigate into each "population" folder and load each bundle. Returns information about
  * the paths of all resources put into fqm-ruler and their location so they may be removed later.
- * 
+ *
  * @param {String} testDataFolder Path to the folder of test data.
  * @returns {BundleLoadInfo[]} Information about each loaded bundle.
  */
@@ -79,7 +79,7 @@ export async function loadTestDataFolder(testDataFolder) {
 /**
  * Delete all Resources from the list of information about bundles. This is used to clean up after a measure test to clean fqm-ruler
  * for the next test. Each patient bundle is deleted individually, this is faster than trying to delete everything at one.
- * 
+ *
  * @param {BundleLoadInfo[]} bundleResourceInfos Information about the bundles that should be deleted.
  */
  export async function deleteBundleResources(bundleResourceInfos) {
@@ -93,7 +93,7 @@ export async function loadTestDataFolder(testDataFolder) {
 
 /**
  * Loads the MeasureReport from that test data that will be used as reference.
- * 
+ *
  * @param {String} measureReportPath Path to the reference measure report.
  * @returns {FHIR.MeasureReport} The MeasureReport resource that will be compared against.
  */
@@ -105,4 +105,3 @@ export async function loadReferenceMeasureReport(measureReportPath) {
     });
   });
 }
-
