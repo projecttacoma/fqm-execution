@@ -32,7 +32,7 @@ function findCorrespondingPopulation(referencePopulation, group) {
  * @param {FHIR.MeasureReport} report The report to find the contained reference.
  */
 function grabReferencedResource(reference, report) {
-  let id = reference.replace('#', '');
+  const id = reference.replace('#', '');
   return report.contained.find((resource) => { return resource.id == id; });
 }
 
