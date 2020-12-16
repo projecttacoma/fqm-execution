@@ -18,8 +18,8 @@ const fhirInteractions = require('./fhirInteractions');
  */
 async function getTestMeasureList() {
   // Find applicable measure test data directories in fhir-patient-generator
-  let fpgDir = fs.readdirSync('./fhir-patient-generator/')
-  let applicableMeasuresDirs = fpgDir.filter((dir) => { return dir.startsWith("EXM_") });
+  let fpgDir = fs.readdirSync('./fhir-patient-generator/');
+  let applicableMeasuresDirs = fpgDir.filter((dir) => { return dir.startsWith('EXM_'); });
 
   // Pull out applicable measure information on them
   /** @type {TestMeasureInfo[]} */
@@ -30,7 +30,7 @@ async function getTestMeasureList() {
       exmId: measureDir.includes('-') ? measureDir.split('-')[0] : measureDir,
       path: `./fhir-patient-generator/${measureDir}/patients-r4`
     };
-    let measureReportFile = fs.readdirSync(testDirInfo.path).find((filename) => { return filename.includes('measure-report.json')});
+    let measureReportFile = fs.readdirSync(testDirInfo.path).find((filename) => { return filename.includes('measure-report.json');});
     if (measureReportFile) {
       testDirInfo.measureReportPath = `${testDirInfo.path}/${measureReportFile}`;
     }
@@ -50,15 +50,15 @@ async function getTestMeasureList() {
 async function loadTestDataFolder(testDataFolder) {
   // use data in all subfolders except for measure-reports. ex. numerator, denominator, etc.
   let subfolders = fs.readdirSync(testDataFolder, { withFileTypes: true })
-    .filter((dir) => { return dir.isDirectory() && dir.name != 'measure-reports'})
-    .map((dir) => { return dir.name });
+    .filter((dir) => { return dir.isDirectory() && dir.name != 'measure-reports';})
+    .map((dir) => { return dir.name; });
 
   /** @type {BundleLoadInfo[]} */
   let bundleResourceInfos = [];
   // Iterate over sub folders
   for (let subfolder of subfolders) {
     let subfolderPath = testDataFolder + '/' + subfolder;
-    let patientBundles = fs.readdirSync(subfolderPath).filter((fileName) => { return fileName.endsWith(".json") });
+    let patientBundles = fs.readdirSync(subfolderPath).filter((fileName) => { return fileName.endsWith('.json'); });
 
     // Iterate over bundles in this folder and post them to fqm-ruler
     for (let patientBundleName of patientBundles) {
