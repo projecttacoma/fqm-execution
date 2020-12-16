@@ -18,19 +18,19 @@ const fhirInteractions = require('./fhirInteractions');
  */
 async function getTestMeasureList() {
   // Find applicable measure test data directories in fhir-patient-generator
-  let fpgDir = fs.readdirSync('./fhir-patient-generator/');
-  let applicableMeasuresDirs = fpgDir.filter((dir) => { return dir.startsWith('EXM_'); });
+  const fpgDir = fs.readdirSync('./fhir-patient-generator/');
+  const applicableMeasuresDirs = fpgDir.filter((dir) => { return dir.startsWith('EXM_'); });
 
   // Pull out applicable measure information on them
   /** @type {TestMeasureInfo[]} */
-  let measureDirInfo = applicableMeasuresDirs.map((measureDir) => {
+  const measureDirInfo = applicableMeasuresDirs.map((measureDir) => {
     /** @type {TestMeasureInfo} */
-    let testDirInfo = {
+    const testDirInfo = {
       // format exmId into simple, non-versioned id
       exmId: measureDir.includes('-') ? measureDir.split('-')[0] : measureDir,
       path: `./fhir-patient-generator/${measureDir}/patients-r4`
     };
-    let measureReportFile = fs.readdirSync(testDirInfo.path).find((filename) => { return filename.includes('measure-report.json');});
+    const measureReportFile = fs.readdirSync(testDirInfo.path).find((filename) => { return filename.includes('measure-report.json');});
     if (measureReportFile) {
       testDirInfo.measureReportPath = `${testDirInfo.path}/${measureReportFile}`;
     }
@@ -49,22 +49,22 @@ async function getTestMeasureList() {
  */
 async function loadTestDataFolder(testDataFolder) {
   // use data in all subfolders except for measure-reports. ex. numerator, denominator, etc.
-  let subfolders = fs.readdirSync(testDataFolder, { withFileTypes: true })
+  const subfolders = fs.readdirSync(testDataFolder, { withFileTypes: true })
     .filter((dir) => { return dir.isDirectory() && dir.name != 'measure-reports';})
     .map((dir) => { return dir.name; });
 
   /** @type {BundleLoadInfo[]} */
-  let bundleResourceInfos = [];
+  const bundleResourceInfos = [];
   // Iterate over sub folders
-  for (let subfolder of subfolders) {
-    let subfolderPath = testDataFolder + '/' + subfolder;
-    let patientBundles = fs.readdirSync(subfolderPath).filter((fileName) => { return fileName.endsWith('.json'); });
+  for (const subfolder of subfolders) {
+    const subfolderPath = testDataFolder + '/' + subfolder;
+    const patientBundles = fs.readdirSync(subfolderPath).filter((fileName) => { return fileName.endsWith('.json'); });
 
     // Iterate over bundles in this folder and post them to fqm-ruler
-    for (let patientBundleName of patientBundles) {
+    for (const patientBundleName of patientBundles) {
       process.stdout.write('.');
       //console.log(`Loading bundle ${subfolderPath}/${patientBundleName}`)
-      let newResourceInfo = await fhirInteractions.loadPatientBundle(`${subfolderPath}/${patientBundleName}`);
+      const newResourceInfo = await fhirInteractions.loadPatientBundle(`${subfolderPath}/${patientBundleName}`);
       bundleResourceInfos.push(newResourceInfo);
     }
   }
@@ -80,7 +80,7 @@ async function loadTestDataFolder(testDataFolder) {
  * @param {BundleLoadInfo[]} bundleResourceInfos Information about the bundles that should be deleted.
  */
 async function deleteBundleResources(bundleResourceInfos) {
-  for (let bundleResourceInfo of bundleResourceInfos) {
+  for (const bundleResourceInfo of bundleResourceInfos) {
     process.stdout.write('.');
     //console.log("Deleting resources from " + bundleResourceInfo.originalBundle)
     await fhirInteractions.deleteResources(bundleResourceInfo.resources);
