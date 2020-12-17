@@ -28,7 +28,7 @@ if (program.outputType === 'raw') {
   result = calculateRaw(measureBundle, patientBundles, { enableDebugOutput: program.debug });
 } else if (program.outputType === 'detailed') {
   result = calculate(measureBundle, patientBundles, { calculateSDEs: true, enableDebugOutput: program.debug });
-} else if (program.outputType == 'reports') {
+} else if (program.outputType === 'reports') {
   result = calculateMeasureReports(measureBundle, patientBundles, {
     measurementPeriodStart: '2019-01-01',
     measurementPeriodEnd: '2019-12-31',
