@@ -27,7 +27,6 @@
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^3.2.0",
     "@typescript-eslint/parser": "^3.2.0",
-    "copyfiles": "^2.4.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "jest": "^26.1.0",
@@ -36,7 +35,7 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "build": "rm -rf ./build && tsc && npm run copy-templates",
+    "build": "rm -rf ./build && tsc",
     "build:watch": "rm -rf ./build && tsc -w",
     "lint": "tsc && eslint \"**/*.{js,ts}\"",
     "lint:fix": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
@@ -45,8 +44,7 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "check": "npm run test && npm run lint && npm run prettier",
-    "prepare": "npm run build",
-    "copy-templates": "copyfiles -u 1 ./src/templates/*.hbs ./build/"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
