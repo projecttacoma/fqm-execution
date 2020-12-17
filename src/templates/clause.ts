@@ -8,4 +8,3 @@ export default `<span{{#if r}} data-ref-id="{{r}}" style="{{highlightClause r}}"
 {{~/each ~}}
 {{~/if~}}
 </span>`;
-

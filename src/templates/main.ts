@@ -3,4 +3,3 @@ export default `<pre style="tab-size: 2; border-bottom-width: 4px; line-height: 
 {{> clause}}
 </code>
 </pre>`;
-
