@@ -360,6 +360,16 @@ export function calculateGapsInCare(
           throw new Error('Argument measureBundle must include a Measure resource');
         }
         const measureResource = measureEntry.resource as R4.IMeasure;
+
+        // Gaps only supported for proportion/ratio measures
+        const scoringCode = measureResource.scoring?.coding?.find(
+          c => c.system === 'http://hl7.org/fhir/measure-scoring'
+        )?.code;
+
+        if (scoringCode !== MeasureScoreType.PROP) {
+          throw new Error(`Gaps in care not supported for measure scoring type ${scoringCode}`);
+        }
+
         const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId);
 
         if (!matchingGroup) {
