@@ -527,7 +527,8 @@ export function findRetrieves(
           parentQuerySatisfied,
           retreiveSatisfied,
           queryLocalId,
-          retrieveLocalId: expr.localId
+          retrieveLocalId: expr.localId,
+          libraryName: elm.library.identifier.id
         });
       }
     } else if (
@@ -547,7 +548,8 @@ export function findRetrieves(
           parentQuerySatisfied,
           retreiveSatisfied,
           queryLocalId,
-          retrieveLocalId: expr.localId
+          retrieveLocalId: expr.localId,
+          libraryName: elm.library.identifier.id
         });
       }
     }
