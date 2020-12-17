@@ -23,6 +23,8 @@ export interface CalculationOptions {
   calculateSDEs?: boolean;
   /** Include HTML structure for highlighting */
   calculateHTML?: boolean;
+  /** Enable debug output including CQL, ELM, results */
+  enableDebugOutput?: boolean;
 }
 
 /**
@@ -198,4 +200,18 @@ export interface DataTypeQuery {
   queryLocalId?: string;
   /** name of the library where the statment can be looked up */
   libraryName?: string;
+}
+
+/*
+ * Debug output if enabled
+ */
+export interface DebugOutput {
+  cql?: { name: string; cql: string }[];
+  elm?: ELM[];
+  vs?: cql.ValueSetMap;
+  html?: { name: string; html: string }[];
+  rawResults?: cql.Results | string;
+  detailedResults?: ExecutionResult[];
+  measureReports?: R4.IMeasureReport[];
+  gaps?: DataTypeQuery[];
 }

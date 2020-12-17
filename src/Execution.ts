@@ -1,11 +1,10 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { CalculationOptions, RawExecutionData } from './types/Calculator';
+import { CalculationOptions, RawExecutionData, DebugOutput } from './types/Calculator';
 
 // import { PatientSource } from 'cql-exec-fhir';
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
-import { dumpELMJSONs, dumpCQLs, dumpObject, dumpVSMap } from './DebugHelper';
 import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
 import { codeableConceptToPopulationType } from './MeasureHelpers';
 import { PopulationType } from './types/Enums';
@@ -14,7 +13,8 @@ import { generateELMJSONFunction } from './CalculatorHelpers';
 export function execute(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  debugObject?: DebugOutput
 ): RawExecutionData {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure') as R4.IBundle_Entry;
@@ -125,17 +125,18 @@ export function execute(
   const executionDateTime = cql.DateTime.fromJSDate(new Date(), 0);
   const rep = new cql.Repository(elmJSONs);
   const lib = rep.resolve(rootLibIdentifer.id, rootLibIdentifer.version);
-
-  dumpELMJSONs(elmJSONs);
-  dumpCQLs(cqls);
-  dumpVSMap(vsMap);
-
   const executor = new cql.Executor(lib, codeService, parameters);
   const results = executor.exec(patientSource, executionDateTime);
 
   // Map evaluated resource from engine to the raw FHIR json
   results.evaluatedRecords = results.evaluatedRecords.map((r: any) => r._json);
 
-  dumpObject(results, 'rawResults.json');
+  if (debugObject && options.enableDebugOutput) {
+    debugObject.elm = elmJSONs;
+    debugObject.cql = cqls;
+    debugObject.vs = vsMap;
+    debugObject.rawResults = results;
+  }
+
   return { rawResults: results, elmLibraries: elmJSONs, mainLibraryName: rootLibIdentifer.id };
 }
