@@ -1,12 +1,9 @@
 import { Annotation, ELM } from './types/ELMTypes';
 import Handlebars from 'handlebars';
-import fs from 'fs';
-import path from 'path';
 import { ClauseResult, StatementResult } from './types/Calculator';
 import { FinalResult, Relevance } from './types/Enums';
-
-const mainTemplate = fs.readFileSync(path.join(__dirname, './templates/main.hbs'), 'utf8');
-const clauseTemplate = fs.readFileSync(path.join(__dirname, './templates/clause.hbs'), 'utf8');
+import mainTemplate from './templates/main';
+import clauseTemplate from './templates/clause';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
