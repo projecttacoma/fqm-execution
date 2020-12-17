@@ -13,7 +13,8 @@ const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
     retreiveSatisfied: false,
     retrieveLocalId: '14',
     parentQuerySatisfied: false,
-    queryLocalId: undefined
+    queryLocalId: undefined,
+    libraryName: 'SimpleQueries'
   }
 ];
 const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
@@ -23,7 +24,8 @@ const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
     retreiveSatisfied: false,
     retrieveLocalId: '18',
     parentQuerySatisfied: false,
-    queryLocalId: '24'
+    queryLocalId: '24',
+    libraryName: 'SimpleQueries'
   }
 ];
 const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
@@ -36,7 +38,8 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
     retreiveSatisfied: true,
     retrieveLocalId: '16',
     parentQuerySatisfied: false,
-    queryLocalId: undefined
+    queryLocalId: undefined,
+    libraryName: 'SimpleQueries'
   }
 ];
 const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
@@ -46,7 +49,8 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
     retreiveSatisfied: false,
     retrieveLocalId: '4',
     parentQuerySatisfied: false,
-    queryLocalId: undefined
+    queryLocalId: undefined,
+    libraryName: 'SimpleDep'
   }
 ];
 const EXAMPLE_DETAILED_RESULTS: DetailedPopulationGroupResult = {
