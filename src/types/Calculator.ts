@@ -179,14 +179,23 @@ export interface EpisodeResults {
  * Data type and query used in ELM
  */
 export interface DataTypeQuery {
+  /** FHIR data type of the retrieve */
   dataType: string;
+  /** valueSet used, if applicable */
   valueSet?: string;
+  /** code used, if applicable */
   code?: {
     system: string;
     code: string;
   };
+  /** whether or not the retrieve was truthy */
   retreiveSatisfied?: boolean;
+  /** whether or not the entire query was truthy */
   parentQuerySatisfied?: boolean;
+  /** localId in ELM for the retreive statement */
   retrieveLocalId?: string;
+  /** localId in ELM for the query statement */
   queryLocalId?: string;
+  /** name of the library where the statment can be looked up */
+  libraryName?: string;
 }
