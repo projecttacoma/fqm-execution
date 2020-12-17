@@ -62,6 +62,7 @@ const gapsInCare = Calculator.calculateGapsInCare(measureBundle, patientBundles,
 The options that we support for calculation are as follows:
 | option                 |  type   | optional? | description                                                                 |
 | :--------------------- | :-----: | :-------: | :-------------------------------------------------------------------------- |
+| enableDebugOutput      | boolean |    yes    |                 Enable debug output from function calls. Defaults to false. |
 | includeClauseResults   | boolean |    yes    |                        Option to include clause results. Defaults to false. |
 | includePrettyResults   | boolean |    yes    |   Option to include pretty results on statement results. Defaults to false. |
 | includeHighlighting    | boolean |    yes    |         Include highlighting in MeasureReport narrative. Defaults to false. |
@@ -79,6 +80,7 @@ To run the globally installed CLI (see above), use the global `fqm-exeuction com
 Usage: fqm-execution [options]
 
 Options:
+  -d, --debug                                 enable debug output (default: false)
   -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps" (default: "detailed")
   -m, --measure-bundle <measure-bundle>       path to measure bundle
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle
@@ -134,6 +136,10 @@ Or using the built JavaScript:
 npm run build
 node build/cli.js [options]
 ```
+
+### Debug Option
+
+The CLI comes build with a debug option (`-d/--debug`) which will include a `debugOutput` property on the results object containing any CQL, ELM, ValueSets, and engine results processed during execution.
 
 ### Debugging in VS Code
 

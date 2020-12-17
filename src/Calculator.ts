@@ -4,13 +4,13 @@ import {
   CalculationOptions,
   PopulationResult,
   DetailedPopulationGroupResult,
-  DataTypeQuery
+  DataTypeQuery,
+  DebugOutput
 } from './types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
-import { dumpHTML, dumpObject } from './DebugHelper';
 import * as CalculatorHelpers from './CalculatorHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
 import { generateHTML } from './HTMLGenerator';
@@ -27,7 +27,8 @@ export function calculate(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): ExecutionResult[] {
+): { results: ExecutionResult[]; debugOutput?: DebugOutput } {
+  const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
   if (!measureEntry || !measureEntry.resource) {
     throw new Error('Measure resource was not found in provided measure bundle');
@@ -35,7 +36,7 @@ export function calculate(
   const measure = measureEntry.resource as R4.IMeasure;
   const executionResults: ExecutionResult[] = [];
 
-  const results = Execution.execute(measureBundle, patientBundles, options);
+  const results = Execution.execute(measureBundle, patientBundles, options, debugObject);
   if (!results.rawResults) {
     throw new Error(results.errorMessage ?? 'something happened with no error message');
   }
@@ -117,7 +118,17 @@ export function calculate(
           detailedGroupResult.groupId
         );
         detailedGroupResult.html = html;
-        dumpHTML(html, `clauses-${detailedGroupResult.groupId}.html`);
+        if (debugObject && options.enableDebugOutput) {
+          const debugHtml = {
+            name: `clauses-${detailedGroupResult.groupId}.html`,
+            html
+          };
+          if (debugObject.html?.length !== 0) {
+            debugObject.html?.push(debugHtml);
+          } else {
+            debugObject.html = [debugHtml];
+          }
+        }
       }
 
       // add this group result to the patient results
@@ -131,8 +142,12 @@ export function calculate(
 
     executionResults.push(patientExecutionResult);
   });
-  dumpObject(executionResults, 'detailedResults.json');
-  return executionResults;
+
+  if (debugObject && options.enableDebugOutput) {
+    debugObject.detailedResults = executionResults;
+  }
+
+  return { results: executionResults, debugOutput: debugObject };
 }
 
 /**
@@ -147,9 +162,9 @@ export function calculateMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): R4.IMeasureReport[] {
+): { results: R4.IMeasureReport[]; debugOutput?: DebugOutput } {
   // options should be updated by this call if measurementPeriod wasn't initially passed in
-  const results = calculate(measureBundle, patientBundles, options);
+  const { results, debugOutput } = calculate(measureBundle, patientBundles, options);
   const reports: R4.IMeasureReport[] = [];
   results.forEach(result => {
     const report = <R4.IMeasureReport>{};
@@ -319,21 +334,24 @@ export function calculateMeasureReports(
     reports.push(report);
   });
 
-  // dump to debug
-  dumpObject(reports, 'measure-report.json');
-  return reports;
+  if (debugOutput && options.enableDebugOutput) {
+    debugOutput.measureReports = reports;
+  }
+
+  return { results: reports, debugOutput };
 }
 
 export function calculateRaw(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): cql.Results | string {
-  const results = Execution.execute(measureBundle, patientBundles, options);
+): { results: cql.Results | string; debugOutput?: DebugOutput } {
+  const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
+  const results = Execution.execute(measureBundle, patientBundles, options, debugObject);
   if (results.rawResults) {
-    return results.rawResults;
+    return { results: results.rawResults, debugOutput: debugObject };
   } else {
-    return results.errorMessage ?? 'something happened with no error message';
+    return { results: results.errorMessage ?? 'something happened with no error message', debugOutput: debugObject };
   }
 }
 
@@ -341,9 +359,9 @@ export function calculateGapsInCare(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): DataTypeQuery[] {
+): { results: DataTypeQuery[]; debugOutput?: DebugOutput } {
   // Detailed results for population, raw results for ELM content
-  const results = calculate(measureBundle, patientBundles, options);
+  const { results, debugOutput } = calculate(measureBundle, patientBundles, options);
   const { elmLibraries, mainLibraryName } = Execution.execute(measureBundle, patientBundles, options);
 
   let result: DataTypeQuery[] = [];
@@ -399,8 +417,12 @@ export function calculateGapsInCare(
       }
     });
   });
-  dumpObject(result, 'gaps.json');
-  return result;
+
+  if (debugOutput && options.enableDebugOutput) {
+    debugOutput.gaps = result;
+  }
+
+  return { results: result, debugOutput };
 }
 
 function addSDE(report: R4.IMeasureReport, measureURL: string, result: ExecutionResult) {
