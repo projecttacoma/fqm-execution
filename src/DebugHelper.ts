@@ -2,6 +2,12 @@ import { ELM } from './types/ELMTypes';
 import { ValueSetMap } from './types/CQLTypes';
 import fs from 'fs';
 
+export function clearDebugFolder(): void {
+  if (fs.existsSync('debug/')) {
+    fs.rmdirSync('debug/', { recursive: true });
+  }
+}
+
 export function dumpHTMLs(htmls: { name: string; html: string }[]): void {
   // create debug folder if it doesnt exist
   if (!fs.existsSync('debug/html')) {
