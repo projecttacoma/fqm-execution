@@ -350,26 +350,25 @@ export function calculateGapsInCare(
 
   results.forEach(res => {
     res.detailedResults?.forEach(dr => {
+      const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
+      if (!measureEntry || !measureEntry.resource) {
+        throw new Error('Argument measureBundle must include a Measure resource');
+      }
+
+      // Gaps only supported for proportion/ratio measures
+      const measureResource = measureEntry.resource as R4.IMeasure;
+      const scoringCode = measureResource.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')
+        ?.code;
+
+      if (scoringCode !== MeasureScoreType.PROP) {
+        throw new Error(`Gaps in care not supported for measure scoring type ${scoringCode}`);
+      }
+
       const denomResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result;
       const numerResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
 
       // Calculate gaps if patient is in denominator but not numerator
       if (denomResult && !numerResult) {
-        const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
-        if (!measureEntry || !measureEntry.resource) {
-          throw new Error('Argument measureBundle must include a Measure resource');
-        }
-        const measureResource = measureEntry.resource as R4.IMeasure;
-
-        // Gaps only supported for proportion/ratio measures
-        const scoringCode = measureResource.scoring?.coding?.find(
-          c => c.system === 'http://hl7.org/fhir/measure-scoring'
-        )?.code;
-
-        if (scoringCode !== MeasureScoreType.PROP) {
-          throw new Error(`Gaps in care not supported for measure scoring type ${scoringCode}`);
-        }
-
         const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId);
 
         if (!matchingGroup) {
