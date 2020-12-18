@@ -139,7 +139,7 @@ node build/cli.js [options]
 
 ### Debug Option
 
-The CLI comes build with a debug option (`-d/--debug`) which will include a `debugOutput` property on the results object containing any CQL, ELM, ValueSets, and engine results processed during execution.
+The CLI comes built with a debug option (`-d/--debug`) which will include a `debugOutput` property on the results object containing any CQL, ELM, ValueSets, and engine results processed during execution.
 
 ### Debugging in VS Code
 
