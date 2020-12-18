@@ -5,7 +5,7 @@ import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import { calculate, calculateGapsInCare, calculateMeasureReports, calculateRaw } from './Calculator';
-import { dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
+import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
 
 program
   .option('-d, --debug', 'enable debug output', false)
@@ -41,6 +41,8 @@ if (program.outputType === 'raw') {
 }
 
 if (program.debug) {
+  clearDebugFolder();
+
   const debugOutput = result?.debugOutput;
 
   // Dump raw, detailed, reports, gapt in care objects
