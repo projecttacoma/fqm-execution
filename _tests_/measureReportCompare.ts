@@ -129,4 +129,4 @@ function compareMeasureReports(referenceReport, report) {
   return badPatientsList;
 }
 
-module.exports.compareMeasureReports = compareMeasureReports;
+export default compareMeasureReports;
