@@ -1,5 +1,6 @@
 {
   "resourceType": "DetectedIssue",
+  "id": "example",
   "status": "final",
   "code": {
     "coding": [
@@ -21,11 +22,43 @@
         {
           "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
           "valueDataRequirement": {
-            "type": "Procedure",
+            "type": "Condition",
             "codeFilter": [
               {
                 "path": "code",
-                "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1020"
+                "valueSet": "http://example.com/test-vs"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status",
+                "code": "open-gap"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "detail": [
+        {
+          "reference": "MeasureReport/example"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
+          "valueDataRequirement": {
+            "type": "Condition",
+            "codeFilter": [
+              {
+                "path": "code",
+                "valueSet": "http://example.com/test-vs"
               }
             ]
           }
@@ -57,7 +90,12 @@
             "codeFilter": [
               {
                 "path": "code",
-                "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1011"
+                "code": [
+                  {
+                    "system": "EXAMPLE",
+                    "code": "test"
+                  }
+                ]
               }
             ]
           }
@@ -85,75 +123,11 @@
         {
           "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
           "valueDataRequirement": {
-            "type": "Procedure",
+            "type": "Condition",
             "codeFilter": [
               {
                 "path": "code",
-                "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1010"
-              }
-            ]
-          }
-        },
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status",
-                "code": "open-gap"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "detail": [
-        {
-          "reference": "MeasureReport/example"
-        }
-      ],
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
-          "valueDataRequirement": {
-            "type": "Procedure",
-            "codeFilter": [
-              {
-                "path": "code",
-                "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1039"
-              }
-            ]
-          }
-        },
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status",
-                "code": "open-gap"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "detail": [
-        {
-          "reference": "MeasureReport/example"
-        }
-      ],
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
-          "valueDataRequirement": {
-            "type": "Procedure",
-            "codeFilter": [
-              {
-                "path": "code",
-                "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1038"
+                "valueSet": "http://example.com/test-vs-2"
               }
             ]
           }

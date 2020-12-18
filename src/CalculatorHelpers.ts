@@ -1,4 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { v4 as uuidv4 } from 'uuid';
 import {
   DataTypeQuery,
   DetailedPopulationGroupResult,
@@ -518,11 +519,14 @@ export function findRetrieves(
     const parentQuerySatisfied = parentQueryResult?.final === FinalResult.TRUE;
     const retreiveSatisfied = retreiveResult?.final === FinalResult.TRUE;
 
+    // If present, strip off HL7 prefix to data type
+    const dataType = expr.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+
     if (expr.codes?.type === 'ValueSetRef') {
       const valueSet = elm.library.valueSets?.def.find(v => v.name === expr.codes.name);
       if (valueSet) {
         results.push({
-          dataType: expr.dataType,
+          dataType,
           valueSet: valueSet.id,
           parentQuerySatisfied,
           retreiveSatisfied,
@@ -540,7 +544,7 @@ export function findRetrieves(
       const code = elm.library.codes?.def.find(c => c.name === codeName);
       if (code) {
         results.push({
-          dataType: expr.dataType,
+          dataType,
           code: {
             system: code.codeSystem.name,
             code: code.id
@@ -584,4 +588,131 @@ export function findRetrieves(
     }
   }
   return results;
+}
+
+/**
+ * Generate a FHIR DetectedIssue resource for Gaps in Care per http://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-detectedissue-deqm.html
+ *
+ * @param queries numerator queries from a call to findRetrieves
+ * @param measureReport FHIR MeasureReport to be referenced by the issue
+ */
+export function generateDetectedIssueResource(
+  queries: DataTypeQuery[],
+  measureReport: R4.IMeasureReport
+): R4.IDetectedIssue {
+  return {
+    resourceType: 'DetectedIssue',
+    id: uuidv4(),
+    status: 'final',
+    code: {
+      coding: [
+        {
+          system: 'http://terminology.hl7.org/CodeSystem/detectedissue-category',
+          code: 'care-gap',
+          display: 'Gap in Care Detected'
+        }
+      ]
+    },
+    evidence: queries.map(q => {
+      const codeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
+        path: 'code'
+      };
+
+      if (q.valueSet) {
+        codeFilter.valueSet = q.valueSet;
+      } else if (q.code) {
+        codeFilter.code = [
+          {
+            code: q.code.code,
+            system: q.code.system
+          }
+        ];
+      }
+
+      return {
+        detail: [{ reference: `MeasureReport/${measureReport.id}` }],
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data',
+            valueDataRequirement: {
+              type: q.dataType,
+              codeFilter: [{ ...codeFilter }]
+            }
+          },
+          {
+            url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status',
+            valueCodeableConcept: {
+              coding: [
+                {
+                  system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status',
+                  code: 'open-gap'
+                }
+              ]
+            }
+          }
+        ]
+      };
+    })
+  };
+}
+
+/**
+ * Generate a Gaps in Care Bundle resource per http://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-bundle-deqm.html
+ *
+ * @param detectedIssue FHIR DetectedIssue generated during gaps
+ * @param measureReport FHIR MeasureReport generated during calculation
+ * @param patient Current FHIR Patient processed in execution
+ */
+export function generateGapsInCareBundle(
+  detectedIssue: R4.IDetectedIssue,
+  measureReport: R4.IMeasureReport,
+  patient: R4.IPatient
+): R4.IBundle {
+  const composition: R4.IComposition = {
+    resourceType: 'Composition',
+    type: {
+      coding: [
+        {
+          system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-doc-type',
+          code: 'gaps-doc',
+          display: 'Gaps in Care Report'
+        }
+      ]
+    },
+    author: [{ ...measureReport.subject }],
+    subject: measureReport.subject,
+    date: new Date().toString(),
+    title: 'Gaps in Care Report',
+    section: [
+      {
+        title: measureReport.measure,
+        focus: {
+          reference: `MeasureReport/${measureReport.id}`
+        },
+        entry: [
+          {
+            reference: `DetectedIssue/${detectedIssue.id}`
+          }
+        ]
+      }
+    ]
+  };
+  return {
+    resourceType: 'Bundle',
+    type: R4.BundleTypeKind._document,
+    entry: [
+      {
+        resource: composition
+      },
+      {
+        resource: detectedIssue
+      },
+      {
+        resource: measureReport
+      },
+      {
+        resource: patient
+      }
+    ]
+  };
 }

@@ -213,5 +213,8 @@ export interface DebugOutput {
   rawResults?: cql.Results | string;
   detailedResults?: ExecutionResult[];
   measureReports?: R4.IMeasureReport[];
-  gaps?: DataTypeQuery[];
+  gaps?: {
+    retrieves: DataTypeQuery[];
+    bundle: R4.IBundle;
+  };
 }
