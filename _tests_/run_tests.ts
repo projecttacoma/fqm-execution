@@ -6,11 +6,10 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
-
-const process = require('process');
-const measureReportCompare = require('./measureReportCompare');
-const fhirInteractions = require('./fhirInteractions');
-const testDataHelpers = require('./testDataHelpers');
+import  process  from 'process';
+import measureReportCompare  from './measureReportCompare';
+//import fhirInteractions  from  './fhirInteractions';
+//import  testDataHelpers from './testDataHelpers'; 
 
 function parseBundle(filePath: string): R4.IBundle {
   const contents = fs.readFileSync(filePath, 'utf8');

@@ -1,7 +1,10 @@
-const fs = require('fs');
-const process = require('process');
-const fhirInteractions = require('./fhirInteractions');
-
+import cql from 'cql-execution';
+import { PatientSource } from 'cql-exec-fhir';
+import { RTTI_Bundle } from '@ahryman40k/ts-fhir-types/lib/R4';
+import path from 'path';
+import { program } from 'commander';
+import  fs from 'fs';
+import getMeasureReport from './fhirInteractions';
 /**
  * Information about the test data available for a measure.
  * 
@@ -16,7 +19,7 @@ const fhirInteractions = require('./fhirInteractions');
  * 
  * @returns {Promise<TestMeasureInfo[]>} List of information about each available test measure data.
  */
-async function getTestMeasureList() {
+ export async function getTestMeasureList() {
   // Find applicable measure test data directories in fhir-patient-generator
   const fpgDir = fs.readdirSync('./fhir-patient-generator/');
   const applicableMeasuresDirs = fpgDir.filter((dir) => { return dir.startsWith('EXM_'); });
@@ -47,7 +50,7 @@ async function getTestMeasureList() {
  * @param {String} testDataFolder Path to the folder of test data.
  * @returns {BundleLoadInfo[]} Information about each loaded bundle.
  */
-async function loadTestDataFolder(testDataFolder) {
+export async function loadTestDataFolder(testDataFolder) {
   // use data in all subfolders except for measure-reports. ex. numerator, denominator, etc.
   const subfolders = fs.readdirSync(testDataFolder, { withFileTypes: true })
     .filter((dir) => { return dir.isDirectory() && dir.name != 'measure-reports';})
@@ -79,7 +82,7 @@ async function loadTestDataFolder(testDataFolder) {
  * 
  * @param {BundleLoadInfo[]} bundleResourceInfos Information about the bundles that should be deleted.
  */
-async function deleteBundleResources(bundleResourceInfos) {
+ export async function deleteBundleResources(bundleResourceInfos) {
   for (const bundleResourceInfo of bundleResourceInfos) {
     process.stdout.write('.');
     //console.log("Deleting resources from " + bundleResourceInfo.originalBundle)
@@ -94,7 +97,7 @@ async function deleteBundleResources(bundleResourceInfos) {
  * @param {String} measureReportPath Path to the reference measure report.
  * @returns {FHIR.MeasureReport} The MeasureReport resource that will be compared against.
  */
-async function loadReferenceMeasureReport(measureReportPath) {
+export async function loadReferenceMeasureReport(measureReportPath) {
   return new Promise((resolve, reject) => {
     fs.readFile(measureReportPath, (err, data) => {
       if (err) reject(err);
@@ -103,7 +106,3 @@ async function loadReferenceMeasureReport(measureReportPath) {
   });
 }
 
-module.exports.getTestMeasureList = getTestMeasureList;
-module.exports.loadTestDataFolder = loadTestDataFolder;
-module.exports.deleteBundleResources = deleteBundleResources;
-module.exports.loadReferenceMeasureReport = loadReferenceMeasureReport;
