@@ -123,7 +123,7 @@ export function calculate(
             name: `clauses-${detailedGroupResult.groupId}.html`,
             html
           };
-          if (debugObject.html?.length !== 0) {
+          if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
             debugObject.html?.push(debugHtml);
           } else {
             debugObject.html = [debugHtml];
