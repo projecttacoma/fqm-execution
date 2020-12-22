@@ -4,7 +4,6 @@ import {
   CalculationOptions,
   PopulationResult,
   DetailedPopulationGroupResult,
-  DataTypeQuery,
   DebugOutput
 } from './types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
@@ -13,6 +12,7 @@ import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
 import * as CalculatorHelpers from './CalculatorHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
+import * as GapsInCareHelpers from './GapsInCareHelpers';
 import { generateHTML } from './HTMLGenerator';
 
 /**
@@ -423,14 +423,14 @@ export function calculateGapsInCare(
           throw new Error(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
         }
 
-        const retrieves = CalculatorHelpers.findRetrieves(
+        const retrieves = GapsInCareHelpers.findRetrieves(
           mainLibraryELM,
           elmLibraries,
           numerELMExpression.expression,
           dr
         );
 
-        const detectedIssue = CalculatorHelpers.generateDetectedIssueResource(retrieves, matchingMeasureReport);
+        const detectedIssue = GapsInCareHelpers.generateDetectedIssueResource(retrieves, matchingMeasureReport);
 
         // find this patient's bundle
         const patientBundle = patientBundles.find(patientBundle => {
@@ -446,7 +446,7 @@ export function calculateGapsInCare(
           throw new Error(`Could not find Patient ${res.patientId} in patientBundles`);
         }
 
-        result = CalculatorHelpers.generateGapsInCareBundle(
+        result = GapsInCareHelpers.generateGapsInCareBundle(
           detectedIssue,
           matchingMeasureReport,
           patientEntry.resource as R4.IPatient

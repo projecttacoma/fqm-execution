@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { findRetrieves, generateDetectedIssueResource, generateGapsInCareBundle } from '../src/CalculatorHelpers';
+import { findRetrieves, generateDetectedIssueResource, generateGapsInCareBundle } from '../src/GapsInCareHelpers';
 import { DataTypeQuery, DetailedPopulationGroupResult } from '../src/types/Calculator';
 import { FinalResult } from '../src/types/Enums';
 import { getELMFixture, getJSONFixture } from './helpers/testHelpers';
