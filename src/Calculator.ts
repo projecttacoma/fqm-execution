@@ -4,7 +4,6 @@ import {
   CalculationOptions,
   PopulationResult,
   DetailedPopulationGroupResult,
-  DataTypeQuery,
   DebugOutput
 } from './types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
@@ -13,6 +12,7 @@ import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
 import * as CalculatorHelpers from './CalculatorHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
+import * as GapsInCareHelpers from './GapsInCareHelpers';
 import { generateHTML } from './HTMLGenerator';
 
 /**
@@ -170,6 +170,7 @@ export function calculateMeasureReports(
     const report = <R4.IMeasureReport>{};
 
     // simple fields
+    report.id = uuidv4();
     report.resourceType = 'MeasureReport';
     report.period = {
       start: options.measurementPeriodStart, // double check format of start and end that we're passing in https://www.hl7.org/fhir/datatypes.html#dateTime... we don't seem to be passing anything in from CLI
@@ -359,14 +360,23 @@ export function calculateGapsInCare(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): { results: DataTypeQuery[]; debugOutput?: DebugOutput } {
+): { results: R4.IBundle; debugOutput?: DebugOutput } {
   // Detailed results for population, raw results for ELM content
   const { results, debugOutput } = calculate(measureBundle, patientBundles, options);
   const { elmLibraries, mainLibraryName } = Execution.execute(measureBundle, patientBundles, options);
+  const measureReports = calculateMeasureReports(measureBundle, patientBundles, options);
 
-  let result: DataTypeQuery[] = [];
+  let result: R4.IBundle = <R4.IBundle>{};
 
   results.forEach(res => {
+    const matchingMeasureReport = measureReports.results.find(
+      mr => mr.subject?.reference?.split('/')[1] === res.patientId
+    );
+
+    if (!matchingMeasureReport) {
+      throw new Error(`No MeasureReport generated during gaps in care for ${res.patientId}`);
+    }
+
     res.detailedResults?.forEach(dr => {
       const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
       if (!measureEntry || !measureEntry.resource) {
@@ -413,14 +423,44 @@ export function calculateGapsInCare(
           throw new Error(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
         }
 
-        result = CalculatorHelpers.findRetrieves(mainLibraryELM, elmLibraries, numerELMExpression.expression, dr);
+        const retrieves = GapsInCareHelpers.findRetrieves(
+          mainLibraryELM,
+          elmLibraries,
+          numerELMExpression.expression,
+          dr
+        );
+
+        const detectedIssue = GapsInCareHelpers.generateDetectedIssueResource(retrieves, matchingMeasureReport);
+
+        // find this patient's bundle
+        const patientBundle = patientBundles.find(patientBundle => {
+          const patientEntry = patientBundle.entry?.find(
+            bundleEntry => bundleEntry.resource?.resourceType === 'Patient'
+          );
+          return patientEntry?.resource?.id === res.patientId;
+        });
+
+        const patientEntry = patientBundle?.entry?.find(e => e.resource?.resourceType === 'Patient');
+
+        if (!patientEntry) {
+          throw new Error(`Could not find Patient ${res.patientId} in patientBundles`);
+        }
+
+        result = GapsInCareHelpers.generateGapsInCareBundle(
+          detectedIssue,
+          matchingMeasureReport,
+          patientEntry.resource as R4.IPatient
+        );
+
+        if (debugOutput && options.enableDebugOutput) {
+          debugOutput.gaps = {
+            retrieves,
+            bundle: result
+          };
+        }
       }
     });
   });
-
-  if (debugOutput && options.enableDebugOutput) {
-    debugOutput.gaps = result;
-  }
 
   return { results: result, debugOutput };
 }
