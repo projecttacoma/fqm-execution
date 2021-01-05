@@ -6,4 +6,4 @@ if ! ./_tests_/rebuild_bundles.sh; then
 fi
 
 echo "> Starting Calculation and Comparison of MeasureReports"
-node ./_tests_/calcurun_tests.ts $1
+node ./_tests_/run_tests.ts $1
