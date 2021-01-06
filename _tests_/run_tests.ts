@@ -7,10 +7,8 @@ import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import  process  from 'process';
-import measureReportCompare  from './measureReportCompare';
-//import fhirInteractions  from  './fhirInteractions';
-//import  testDataHelpers from './testDataHelpers';
-
+import {getTestMeasureList, deleteBundleResources, loadReferenceMeasureReport}  from  './testDataHelpers';
+import {getMeasureReport} from './fhirInteractions';
 function parseBundle(filePath: string): R4.IBundle {
   const contents = fs.readFileSync(filePath, 'utf8');
   return JSON.parse(contents) as R4.IBundle;
@@ -29,8 +27,8 @@ async function calculateMeasuresAndCompare() {
   }
 
   // grab info on measures in fqm-execution and measures in test data
-  const fqmMeasures = await fhirInteractions.getfqmMeasureList();
-  const testPatientMeasures = await testDataHelpers.getTestMeasureList();
+  //const fqmMeasures = await fhirInteractions.getfqmMeasureList();
+  const testPatientMeasures = await getTestMeasureList();
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
   if (onlyMeasureExmId &&
@@ -71,12 +69,12 @@ async function calculateMeasuresAndCompare() {
     const bundleResourceInfos = await testDataHelpers.loadTestDataFolder(testPatientMeasure.path);
 
     // Execute the measure, i.e. get the MeasureReport from fqm-execution
-    const report = await fhirInteractions.getMeasureReport(fqmMeasure.id);
+    const report = await getMeasureReport(fqmMeasure.id);
     // Load the reference report from the test data
-    const referenceReport = await testDataHelpers.loadReferenceMeasureReport(testPatientMeasure.measureReportPath);
+    const referenceReport = await loadReferenceMeasureReport(testPatientMeasure.measureReportPath);
 
     // Compare measure reports and get the list of information about patients with discrepancies
-    const badPatients = measureReportCompare.compareMeasureReports(referenceReport, report);
+    const badPatients = compareMeasureReports(referenceReport, report);
 
     // Add to the measure info to print at the end
     measureDiffInfo.push({
@@ -86,7 +84,7 @@ async function calculateMeasuresAndCompare() {
 
     // Clean up the test patients so they don't pollute the next test.
     console.log(`Removing test data for ${testPatientMeasure.exmId}`);
-    await testDataHelpers.deleteBundleResources(bundleResourceInfos);
+    await deleteBundleResources(bundleResourceInfos);
   }
 
   return measureDiffInfo;
