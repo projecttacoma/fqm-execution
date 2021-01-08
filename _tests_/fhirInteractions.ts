@@ -1,6 +1,6 @@
 
 import { calculateMeasureReports, calculateRaw } from '../src/Calculator';
-
+import { R4 } from '@ahryman40k/ts-fhir-types';
 
 /**
  * Information about a measure in fqm execution.

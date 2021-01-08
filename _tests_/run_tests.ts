@@ -18,7 +18,7 @@ const measureBundle = parseBundle(path.resolve(program.measureBundle));
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
 
-async function calculateMeasuresAndCompare() {
+export async function calculateMeasuresAndCompare() {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
   let onlyMeasureExmId;
   if (process.argv[2]) {
