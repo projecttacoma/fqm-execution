@@ -128,8 +128,3 @@ calculateMeasuresAndCompare() // Print listing of measures and differences found
   console.error(reason);
   process.exit(2);
 });
-
-//find data in folder
-//run measure
-//catch failures
-//store results
