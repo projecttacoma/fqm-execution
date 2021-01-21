@@ -51,7 +51,7 @@ function grabReferencedResource(reference, report) {
  * @param {String} patientName
  * @param {String} issueMessage
  */
-function addBadPatientEntry(badPatientsList, patientName, issueMessage) {
+function addBadPatientEntry(badPatientsList: any[], patientName: any, issueMessage: string) {
   // Find the patient or create them if they don't exist
   let badPatient = badPatientsList.find((badPatient) => badPatient.patientName == patientName );
   if (!badPatient) {
@@ -70,7 +70,7 @@ function addBadPatientEntry(badPatientsList, patientName, issueMessage) {
  * @param {FHIR.MeasureReport} report The report coming from execution.
  * @returns {BadPatient[]} List of bad patients and the issues with them.
  */
-function compareMeasureReports(referenceReport, report) {
+export function compareMeasureReports(referenceReport, report) {
   /** @type {BadPatient[]} */
   const badPatientsList = [];
 
@@ -129,4 +129,4 @@ function compareMeasureReports(referenceReport, report) {
   return badPatientsList;
 }
 
-export default compareMeasureReports;
+
