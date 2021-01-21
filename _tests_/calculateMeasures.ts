@@ -2,23 +2,17 @@
  * This will shell out either the cli or export the library functions to actually execute
  * the tests against the measures
  */
-
-// Import requested objects
-
+import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import  process  from 'process';
-import {getTestMeasureList, deleteBundleResources, loadReferenceMeasureReport, loadTestDataFolder}  from  './testDataHelpers';
+import {getTestMeasureList, deleteBundleResources, loadReferenceMeasureReport}  from  './testDataHelpers';
 import {getMeasureReport} from './fhirInteractions';
-import { R4 } from  '@ahryman40k/ts-fhir-types';
-import * as E from "fp-ts/lib/Either";
-import {compareMeasureReports} from './measureReportCompare';
 function parseBundle(filePath: string): R4.IBundle {
   const contents = fs.readFileSync(filePath, 'utf8');
   return JSON.parse(contents) as R4.IBundle;
 }
-
 
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
@@ -32,12 +26,15 @@ export async function calculateMeasuresAndCompare() {
     console.log(`Only running ${onlyMeasureExmId}`);
   }
 
-   const testPatientMeasures = await getTestMeasureList();
+  // grab info on measures in fqm-execution and measures in test data
+  //const fqmMeasures = await fhirInteractions.getfqmMeasureList();
+  const testPatientMeasures = await getTestMeasureList();
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
   if (onlyMeasureExmId &&
-    (!testPatientMeasures.some((testMeasure) => testMeasure.exmId == onlyMeasureExmId))) {
-      throw new Error(`Measure ${onlyMeasureExmId} was not found  in test data and was the only measure requested.`);
+    (!fqmMeasures.some((fqmMeasure) => fqmMeasure.exmId == onlyMeasureExmId) ||
+    !testPatientMeasures.some((testMeasure) => testMeasure.exmId == onlyMeasureExmId))) {
+      throw new Error(`Measure ${onlyMeasureExmId} was not found in fqm-execution or in test data and was the only measure requested.`);
   }
 
   // Array for collecting diff information to print at end.
@@ -49,25 +46,32 @@ export async function calculateMeasuresAndCompare() {
     if (onlyMeasureExmId && testPatientMeasure.exmId != onlyMeasureExmId) continue;
 
     // Check if there is a MeasureReport to compare to
-    if (!testPatientMeasure.path) {
+    if (!testPatientMeasure.measureReportPath) {
       console.log(`No Reference MeasureReport found for ${testPatientMeasure.exmId}`);
 
       // If we are only runing one measure throw an error if we cannot find the report, otherwise skip to the next one
       if (onlyMeasureExmId) {
         throw new Error(`Measure ${onlyMeasureExmId} does not have a reference MeasureReport and was the only measure requested.`);
-      } 
+      } else {
+        continue;
+      }
+    }
+
+    // Grab the corresponding information about the fqm-execution measure
+    const fqmMeasure = fqmMeasures.find((measure) => measure.exmId == testPatientMeasure.exmId);
+    if (!fqmMeasure) {
+      console.log(`Measure ${testPatientMeasure.exmId} not found in fqm-execution. Skipping.`);
+      continue;
+    }
+
     // Load up all test patients for this measure.
     console.log(`Loading test data for ${testPatientMeasure.exmId}`);
-    //need to change here, we can't load all the patients we need to iterate through each one 
-    //in the bundle 
-    const bundleResourceInfos = await loadTestDataFolder(testPatientMeasure.path);
-    for (const patBundle of bundleResourceInfos)
-    {
+    const bundleResourceInfos = await testDataHelpers.loadTestDataFolder(testPatientMeasure.path);
 
     // Execute the measure, i.e. get the MeasureReport from fqm-execution
-     const report = await getMeasureReport(testPatientMeasure.exmId, measureBundle, patBundle);
+    const report = await getMeasureReport(fqmMeasure.id);
     // Load the reference report from the test data
-    const referenceReport = await loadReferenceMeasureReport(testPatientMeasure.path);
+    const referenceReport = await loadReferenceMeasureReport(testPatientMeasure.measureReportPath);
 
     // Compare measure reports and get the list of information about patients with discrepancies
     const badPatients = compareMeasureReports(referenceReport, report);
@@ -78,8 +82,9 @@ export async function calculateMeasuresAndCompare() {
       badPatients: badPatients
     });
 
-    }
-  }
+    // Clean up the test patients so they don't pollute the next test.
+    console.log(`Removing test data for ${testPatientMeasure.exmId}`);
+    await deleteBundleResources(bundleResourceInfos);
   }
 
   return measureDiffInfo;
