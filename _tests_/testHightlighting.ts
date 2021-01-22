@@ -1,9 +1,6 @@
-import { ClauseResult } from './src/types/Calculator';
-import { FinalResult } from './src/types/Enums';
+import { ClauseResult } from '../src/types/Calculator';
+import { FinalResult } from '../src/types/Enums';
 
-// export async function  parseResults() {
-
- //}
 //check the correct highlighting was applied based on the clause results,
 //return an array
 //true == highlighting was correct
@@ -13,12 +10,14 @@ import { FinalResult } from './src/types/Enums';
 export async function checkClauseMatches (detailedResults)
 {
 
-  let groupResult = patientExecutionResult.detailedResults.pop(detailedGroupResult);
-  const htmlString = patientExecutionResult.detailedGroupResult.html;
+  let groupResult = detailedResults.pop(detailedResults.detailedGroupResult);
+  const htmlString = groupResult.detailedGroupResult.html;
   while(groupResult){
 
   const clauseResults: ClauseResult[] = groupResult.clauseResults;
-   if(clauseResults.final == FinalResult.TRUE){
+  const libraryName: string = groupResult.data.root.libraryName;
+  const clauseResult = clauseResults.find(result => result.libraryName === libraryName && result.localId === localId);
+   if(clauseResult.final == FinalResult.TRUE){
      //  color: '#20744c',
      if(!(htmlString.contain('#20744c')))
      {
@@ -31,7 +30,7 @@ export async function checkClauseMatches (detailedResults)
        return;
      } else continue;
   }
-   groupResult = patientExecutionResult.detailedResults.pop(detailedGroupResult);
+   groupResult = detailedResults.pop(detailedResults.detailedGroupResult);
 
  }
  
