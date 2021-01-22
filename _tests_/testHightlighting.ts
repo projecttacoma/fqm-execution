@@ -11,10 +11,10 @@ export async function checkClauseMatches (detailedResults)
 {
 
   let groupResult = detailedResults.pop(detailedResults.detailedGroupResult);
-  const htmlString = groupResult.detailedGroupResult.html;
   while(groupResult){
 
   const clauseResults: ClauseResult[] = groupResult.clauseResults;
+  const htmlString = groupResult.detailedGroupResult.html;
   const libraryName: string = groupResult.data.root.libraryName;
   const clauseResult = clauseResults.find(result => result.libraryName === libraryName && result.localId === localId);
    if(clauseResult.final == FinalResult.TRUE){
