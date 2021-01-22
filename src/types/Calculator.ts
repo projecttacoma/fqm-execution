@@ -25,6 +25,8 @@ export interface CalculationOptions {
   calculateHTML?: boolean;
   /** Enable debug output including CQL, ELM, results */
   enableDebugOutput?: boolean;
+  /** Enables the return of ELM Libraries and name of main library to be used for further processing. ex. gaps in care */
+  returnELM?: boolean;
 }
 
 /**
