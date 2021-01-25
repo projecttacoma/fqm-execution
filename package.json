@@ -31,12 +31,13 @@
     "eslint-config-prettier": "^6.11.0",
     "jest": "^26.1.0",
     "prettier": "^2.0.5",
+    "shx": "^0.3.3",
     "ts-jest": "^26.1.3",
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "build": "rm -rf ./build && tsc",
-    "build:watch": "rm -rf ./build && tsc -w",
+    "build": "shx rm -rf ./build && tsc",
+    "build:watch": "shx rm -rf ./build && tsc -w",
     "lint": "tsc && eslint \"**/*.{js,ts}\"",
     "lint:fix": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "prettier": "prettier --check \"**/*.{js,ts}\"",
