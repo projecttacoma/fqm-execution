@@ -1,11 +1,18 @@
 import { calculate,calculateMeasureReports, calculateRaw } from '../src/Calculator';
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { CalculationOptions } from '../src/types/Calculator';
-
+const fs = require('fs');
 const PERIOD_START = '2019-01-01';
 const PERIOD_END = '2019-12-31';
 
 /**
+ * Information about a measure 
+ * 
+ * @typedef {Object} CQFMeasureInfo
+ * @property {String} exmId - The EXM ID of the measure. ex. EXM_104
+  * @property {String} id - The Measure resource's id. ex. measure-EXM104-FHIR4-8.1.000
+  */
+ 
+ /**
  * Information about all resources that were created when a bundle was posted.
  * 
  * @typedef {Object} BundleLoadInfo
@@ -32,11 +39,10 @@ export async function getMeasureReport(measureId: string, measureBundle, patient
     console.log(`Executing measure ${measureId}`);
    
     let  calcOptions: CalculationOptions; 
+     // Start a timer
+    console.time(`Execute ${measureId}`);
     calcOptions= setupCalcOptions(); 
     calculate( measureBundle,patientBundle, calcOptions);
-
-    // Start a timer
-    console.time(`Execute ${measureId}`);
 
   });
 
@@ -53,4 +59,11 @@ export async function getMeasureReport(measureId: string, measureBundle, patient
   calcOptions.measurementPeriodStart = PERIOD_START; 
 
   return calcOptions;
+}
+export async function loadPatientBundle(patientBundlePath:string):Promise<any> {
+  let patientBundles = fs.readdirSync(patientBundlePath).filter((fileName) => { return fileName.endsWith('.json'); });
+
+  let bundleStream = fs.createReadStream(patientBundles);
+
+  return bundleStream;
 }
