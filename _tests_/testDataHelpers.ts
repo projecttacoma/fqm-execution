@@ -1,10 +1,5 @@
-import cql from 'cql-execution';
-import { PatientSource } from 'cql-exec-fhir';
-import { RTTI_Bundle } from '@ahryman40k/ts-fhir-types/lib/R4';
-import path from 'path';
-import { program } from 'commander';
-import  fs from 'fs';
-import getMeasureReport from './fhirInteractions';
+import fs from 'fs';
+import {loadPatientBundle} from './fhirInteractions';
 /**
  * Information about the test data available for a measure.
  *
@@ -31,7 +26,8 @@ import getMeasureReport from './fhirInteractions';
     const testDirInfo = {
       // format exmId into simple, non-versioned id
       exmId: measureDir.includes('-') ? measureDir.split('-')[0] : measureDir,
-      path: `./fhir-patient-generator/${measureDir}/patients-r4`
+      path: `./fhir-patient-generator/${measureDir}/patients-r4`,
+      measureReportPath : 'string'
     };
     const measureReportFile = fs.readdirSync(testDirInfo.path).find((filename) => { return filename.includes('measure-report.json');});
     if (measureReportFile) {
@@ -66,8 +62,8 @@ export async function loadTestDataFolder(testDataFolder) {
     // Iterate over bundles in this folder and post them to fqm-ruler
     for (const patientBundleName of patientBundles) {
       process.stdout.write('.');
-      //console.log(`Loading bundle ${subfolderPath}/${patientBundleName}`)
-      const newResourceInfo = await fhirInteractions.loadPatientBundle(`${subfolderPath}/${patientBundleName}`);
+      console.log(`Loading bundle ${subfolderPath}/${patientBundleName}`)
+      const newResourceInfo = await loadPatientBundle(`${subfolderPath}/${patientBundleName}`);
       bundleResourceInfos.push(newResourceInfo);
     }
   }
@@ -76,20 +72,6 @@ export async function loadTestDataFolder(testDataFolder) {
   return bundleResourceInfos;
 }
 
-/**
- * Delete all Resources from the list of information about bundles. This is used to clean up after a measure test to clean fqm-ruler
- * for the next test. Each patient bundle is deleted individually, this is faster than trying to delete everything at one.
- *
- * @param {BundleLoadInfo[]} bundleResourceInfos Information about the bundles that should be deleted.
- */
- export async function deleteBundleResources(bundleResourceInfos) {
-  for (const bundleResourceInfo of bundleResourceInfos) {
-    process.stdout.write('.');
-    //console.log("Deleting resources from " + bundleResourceInfo.originalBundle)
-    await fhirInteractions.deleteResources(bundleResourceInfo.resources);
-  }
-  console.log();
-}
 
 /**
  * Loads the MeasureReport from that test data that will be used as reference.

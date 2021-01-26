@@ -1,10 +1,3 @@
-/**
- * This will shell out either the cli or export the library functions to actually execute
- * the tests against the measures
- */
-
-// Import requested objects
-
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
@@ -12,9 +5,9 @@ import  process  from 'process';
 import {getTestMeasureList, deleteBundleResources, loadReferenceMeasureReport, loadTestDataFolder}  from  './testDataHelpers';
 import {getMeasureReport} from './fhirInteractions';
 import { R4 } from  '@ahryman40k/ts-fhir-types';
-import * as E from "fp-ts/lib/Either";
 import {compareMeasureReports} from './measureReportCompare';
-function parseBundle(filePath: string): R4.IBundle {
+
+function parseBundle(filePath): R4.IBundle {
   const contents = fs.readFileSync(filePath, 'utf8');
   return JSON.parse(contents) as R4.IBundle;
 }
