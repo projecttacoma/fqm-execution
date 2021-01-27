@@ -13,7 +13,6 @@ function parseBundle(filePath: string): R4.IBundle {
 }
 
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
-const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105

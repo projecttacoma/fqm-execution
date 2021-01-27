@@ -1,7 +1,6 @@
 import { calculateMeasureReports } from '../Calculator';
 import { CalculationOptions } from '../types/Calculator';
 import { R4 } from '@ahryman40k/ts-fhir-types';
-//const fs = require('fs');
 import fs from 'fs';
 
 const PERIOD_START = '2019-01-01';
