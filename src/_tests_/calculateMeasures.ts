@@ -88,7 +88,7 @@ export  function calculateMeasuresAndCompare() {
   return measureDiffInfo;
 }
 
-  const measureDiffInfo =calculateMeasuresAndCompare() // Print listing of measures and differences found and exit.
+  const measureDiffInfo =calculateMeasuresAndCompare(); // Print listing of measures and differences found and exit.
  // .then(measureDiffInfo => {
     console.log();
     console.log('--- RESULTS ---');
