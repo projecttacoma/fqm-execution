@@ -77,9 +77,9 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
 
   return measureDiffInfo;
 }
-const measureDiffInfo = calculateMeasuresAndCompare(); // Print listing of measures and differences found and exit.
-// .then((measureDiffInfo) => {
+ // Print listing of measures and differences found and exit.
 
+const measureDiffInfo = calculateMeasuresAndCompare();
 console.log();
 console.log('--- RESULTS ---');
 console.log();
@@ -110,9 +110,4 @@ measureDiffInfo.forEach(measureDiff => {
 if (hasDifferences) {
   process.exit(1);
 }
-///})
-// Handle errors by printing and return non-zero exit status
-//catch((reason) => {
-//  console.error(reason);
-//  process.exit(2);
-//});
+
