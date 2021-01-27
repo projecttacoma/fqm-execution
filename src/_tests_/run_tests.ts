@@ -1,15 +1,11 @@
-//import { program } from 'commander';
-//import fs from 'fs';
-//import path from 'path';
-///import  process  from 'process';
+import { program } from 'commander';
+import fs from 'fs';
+import path from 'path';
+import process from 'process';
 import { BadPatient, getTestMeasureList, loadReferenceMeasureReport, loadTestDataFolder } from './testDataHelpers';
 import { getMeasureReport } from './fhirInteractions';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { compareMeasureReports } from './measureReportCompare';
-const fs = require('fs');
-const path = require('path');
-const process = require('process');
-const program = require('commander');
 
 function parseBundle(filePath: string): R4.IBundle {
   const contents = fs.readFileSync(filePath, 'utf8');
@@ -59,7 +55,11 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
       const bundleResourceInfos = loadTestDataFolder(testPatientMeasure.path);
       for (const patBundle of bundleResourceInfos) {
         // Execute the measure, i.e. get the MeasureReport from fqm-execution
-        const report = getMeasureReport(testPatientMeasure.exmId, measureBundle, patBundle);
+        const report = getMeasureReport(
+          testPatientMeasure.exmId,
+          measureBundle,
+          parseBundle(path.resolve(patBundle.toString()))
+        );
         // Load the reference report from the test data
         const referenceReport = loadReferenceMeasureReport(testPatientMeasure.path);
 
@@ -77,7 +77,7 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
 
   return measureDiffInfo;
 }
- // Print listing of measures and differences found and exit.
+// Print listing of measures and differences found and exit.
 
 const measureDiffInfo = calculateMeasuresAndCompare();
 console.log();
@@ -110,4 +110,3 @@ measureDiffInfo.forEach(measureDiff => {
 if (hasDifferences) {
   process.exit(1);
 }
-

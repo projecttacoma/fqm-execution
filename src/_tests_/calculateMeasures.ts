@@ -7,7 +7,7 @@ import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { getTestMeasureList,  loadReferenceMeasureReport, loadTestDataFolder } from './testDataHelpers';
+import { getTestMeasureList, loadReferenceMeasureReport, loadTestDataFolder } from './testDataHelpers';
 import { getMeasureReport } from './fhirInteractions';
 import { compareMeasureReports } from './measureReportCompare';
 function parseBundle(filePath: string): R4.IBundle {
@@ -18,9 +18,9 @@ function parseBundle(filePath: string): R4.IBundle {
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
-export  function calculateMeasuresAndCompare() {
+export function calculateMeasuresAndCompare() {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
-  let onlyMeasureExmId: string|undefined;
+  let onlyMeasureExmId: string | undefined;
   if (process.argv[2]) {
     onlyMeasureExmId = process.argv[2];
     console.log(`Only running ${onlyMeasureExmId}`);
@@ -28,13 +28,10 @@ export  function calculateMeasuresAndCompare() {
 
   // grab info on measures in fqm-execution and measures in test data
   //const fqmMeasures = await fhirInteractions.getfqmMeasureList();
-  const testPatientMeasures =  getTestMeasureList();
+  const testPatientMeasures = getTestMeasureList();
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
-  if (
-    onlyMeasureExmId &&
-    (!testPatientMeasures.some(testMeasure => testMeasure.exmId == onlyMeasureExmId))
-  ) {
+  if (onlyMeasureExmId && !testPatientMeasures.some(testMeasure => testMeasure.exmId == onlyMeasureExmId)) {
     throw new Error(
       `Measure ${onlyMeasureExmId} was not found in fqm-execution or in test data and was the only measure requested.`
     );
@@ -62,16 +59,14 @@ export  function calculateMeasuresAndCompare() {
       }
     }
 
-  
-
     // Load up all test patients for this measure.
     console.log(`Loading test data for ${testPatientMeasure.exmId}`);
-    const bundleResourceInfos =  loadTestDataFolder(testPatientMeasure.path);
+    const bundleResourceInfos = loadTestDataFolder(testPatientMeasure.path);
 
     // Execute the measure, i.e. get the MeasureReport from fqm-execution
-    const report =  getMeasureReport(testPatientMeasure.exmId, measureBundle, patientBundles);
+    const report = getMeasureReport(testPatientMeasure.exmId, measureBundle, patientBundles);
     // Load the reference report from the test data
-    const referenceReport =  loadReferenceMeasureReport(testPatientMeasure.measureReportPath);
+    const referenceReport = loadReferenceMeasureReport(testPatientMeasure.measureReportPath);
 
     // Compare measure reports and get the list of information about patients with discrepancies
     const badPatients = compareMeasureReports(referenceReport, report);
@@ -81,44 +76,40 @@ export  function calculateMeasuresAndCompare() {
       exmId: testPatientMeasure.exmId,
       badPatients: badPatients
     });
-
-  
   }
 
   return measureDiffInfo;
 }
 
-  const measureDiffInfo =calculateMeasuresAndCompare(); // Print listing of measures and differences found and exit.
- // .then(measureDiffInfo => {
-    console.log();
-    console.log('--- RESULTS ---');
-    console.log();
-    let hasDifferences = false;
+const measureDiffInfo = calculateMeasuresAndCompare(); // Print listing of measures and differences found and exit.
+// .then(measureDiffInfo => {
+console.log();
+console.log('--- RESULTS ---');
+console.log();
+let hasDifferences = false;
 
-    // Iterate over measures
-    measureDiffInfo.forEach(measureDiff => {
-      console.log(`MEASURE ${measureDiff.exmId}`);
+// Iterate over measures
+measureDiffInfo.forEach(measureDiff => {
+  console.log(`MEASURE ${measureDiff.exmId}`);
 
-      // Iterate over the listing of discrepancies for this measure if there are any
-      if (measureDiff.badPatients.length > 0) {
-        hasDifferences = true;
-        measureDiff.badPatients.forEach(patient => {
-          console.log(`|- ${patient.patientName}`);
-          patient.issues.forEach(issue => {
-            console.log(`|   ${issue}`);
-          });
-        });
-
-        // If there were no discrepancies
-      } else {
-        console.log('  No Issues!');
-      }
-      console.log();
+  // Iterate over the listing of discrepancies for this measure if there are any
+  if (measureDiff.badPatients.length > 0) {
+    hasDifferences = true;
+    measureDiff.badPatients.forEach(patient => {
+      console.log(`|- ${patient.patientName}`);
+      patient.issues.forEach(issue => {
+        console.log(`|   ${issue}`);
+      });
     });
 
-    // If there were discrepancies, return with non-zero exit status
-    if (hasDifferences) {
-      process.exit(1);
-    }
-  
-  
+    // If there were no discrepancies
+  } else {
+    console.log('  No Issues!');
+  }
+  console.log();
+});
+
+// If there were discrepancies, return with non-zero exit status
+if (hasDifferences) {
+  process.exit(1);
+}
