@@ -1,7 +1,9 @@
-import { calculate, calculateMeasureReports, calculateRaw } from '../Calculator';
+import { calculateMeasureReports } from '../Calculator';
 import { CalculationOptions } from '../types/Calculator';
 import { R4 } from '@ahryman40k/ts-fhir-types';
-const fs = require('fs');
+//const fs = require('fs');
+import fs from 'fs';
+
 const PERIOD_START = '2019-01-01';
 const PERIOD_END = '2019-12-31';
 
@@ -36,17 +38,16 @@ const PERIOD_END = '2019-12-31';
 export function getMeasureReport(measureId: string, measureBundle: R4.IBundle, patientBundle: R4.IBundle) {
   console.log(`Executing measure ${measureId}`);
 
-  let calcOptions: CalculationOptions;
   // Start a timer
   console.time(`Execute ${measureId}`);
-  calcOptions = setupCalcOptions();
+  const calcOptions: CalculationOptions = setupCalcOptions();
   const report = calculateMeasureReports(measureBundle, [patientBundle], calcOptions);
 
   return report.results[0];
 }
 
 function setupCalcOptions(/* string paramName, boolean value*/): CalculationOptions {
-  let calcOptions: CalculationOptions = {}; // = CalculationOptions;
+  const calcOptions: CalculationOptions = {};
   calcOptions.calculateHTML = true;
   calcOptions.calculateSDEs = true;
   calcOptions.includeClauseResults = true;
@@ -58,11 +59,11 @@ function setupCalcOptions(/* string paramName, boolean value*/): CalculationOpti
   return calcOptions;
 }
 export function loadPatientBundle(patientBundlePath: string) {
-  let patientBundles = fs.readdirSync(patientBundlePath).filter((fileName: string) => {
+  const patientBundles = fs.readdirSync(patientBundlePath).filter((fileName: string) => {
     return fileName.endsWith('.json');
   });
 
-  let bundleStream = fs.createReadStream(patientBundles);
+  const bundleStream = fs.createReadStream(patientBundlePath);
 
   return bundleStream;
 }
