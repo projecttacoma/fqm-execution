@@ -7,8 +7,9 @@ import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { getTestMeasureList, deleteBundleResources, loadReferenceMeasureReport } from './testDataHelpers';
+import { getTestMeasureList,  loadReferenceMeasureReport, loadTestDataFolder } from './testDataHelpers';
 import { getMeasureReport } from './fhirInteractions';
+import { compareMeasureReports } from './measureReportCompare';
 function parseBundle(filePath: string): R4.IBundle {
   const contents = fs.readFileSync(filePath, 'utf8');
   return JSON.parse(contents) as R4.IBundle;
@@ -17,9 +18,9 @@ function parseBundle(filePath: string): R4.IBundle {
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
-export async function calculateMeasuresAndCompare() {
+export  function calculateMeasuresAndCompare() {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
-  let onlyMeasureExmId;
+  let onlyMeasureExmId: string|undefined;
   if (process.argv[2]) {
     onlyMeasureExmId = process.argv[2];
     console.log(`Only running ${onlyMeasureExmId}`);
@@ -27,13 +28,12 @@ export async function calculateMeasuresAndCompare() {
 
   // grab info on measures in fqm-execution and measures in test data
   //const fqmMeasures = await fhirInteractions.getfqmMeasureList();
-  const testPatientMeasures = await getTestMeasureList();
+  const testPatientMeasures =  getTestMeasureList();
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
   if (
     onlyMeasureExmId &&
-    (!fqmMeasures.some(fqmMeasure => fqmMeasure.exmId == onlyMeasureExmId) ||
-      !testPatientMeasures.some(testMeasure => testMeasure.exmId == onlyMeasureExmId))
+    (!testPatientMeasures.some(testMeasure => testMeasure.exmId == onlyMeasureExmId))
   ) {
     throw new Error(
       `Measure ${onlyMeasureExmId} was not found in fqm-execution or in test data and was the only measure requested.`
@@ -62,21 +62,16 @@ export async function calculateMeasuresAndCompare() {
       }
     }
 
-    // Grab the corresponding information about the fqm-execution measure
-    const fqmMeasure = fqmMeasures.find(measure => measure.exmId == testPatientMeasure.exmId);
-    if (!fqmMeasure) {
-      console.log(`Measure ${testPatientMeasure.exmId} not found in fqm-execution. Skipping.`);
-      continue;
-    }
+  
 
     // Load up all test patients for this measure.
     console.log(`Loading test data for ${testPatientMeasure.exmId}`);
-    const bundleResourceInfos = await testDataHelpers.loadTestDataFolder(testPatientMeasure.path);
+    const bundleResourceInfos =  loadTestDataFolder(testPatientMeasure.path);
 
     // Execute the measure, i.e. get the MeasureReport from fqm-execution
-    const report = await getMeasureReport(fqmMeasure.id);
+    const report =  getMeasureReport(testPatientMeasure.exmId, measureBundle, patientBundles);
     // Load the reference report from the test data
-    const referenceReport = await loadReferenceMeasureReport(testPatientMeasure.measureReportPath);
+    const referenceReport =  loadReferenceMeasureReport(testPatientMeasure.measureReportPath);
 
     // Compare measure reports and get the list of information about patients with discrepancies
     const badPatients = compareMeasureReports(referenceReport, report);
@@ -87,15 +82,14 @@ export async function calculateMeasuresAndCompare() {
       badPatients: badPatients
     });
 
-    // Clean up the test patients so they don't pollute the next test.
-    console.log(`Removing test data for ${testPatientMeasure.exmId}`);
-    await deleteBundleResources(bundleResourceInfos);
+  
   }
 
   return measureDiffInfo;
 }
-calculateMeasuresAndCompare() // Print listing of measures and differences found and exit.
-  .then(measureDiffInfo => {
+
+  const measureDiffInfo =calculateMeasuresAndCompare() // Print listing of measures and differences found and exit.
+ // .then(measureDiffInfo => {
     console.log();
     console.log('--- RESULTS ---');
     console.log();
@@ -126,9 +120,5 @@ calculateMeasuresAndCompare() // Print listing of measures and differences found
     if (hasDifferences) {
       process.exit(1);
     }
-  })
-  // Handle errors by printing and return non-zero exit status
-  .catch(reason => {
-    console.error(reason);
-    process.exit(2);
-  });
+  
+  
