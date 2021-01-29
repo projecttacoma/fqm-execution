@@ -5,7 +5,7 @@ import { ELM, ELMStatement } from './types/ELMTypes';
 import { FinalResult } from './types/Enums';
 
 /**
- * Get all data types, and codes/valuesets used in Retreive ELM expressions
+ * Get all data types, and codes/valuesets used in Retrieve ELM expressions
  *
  * @param elm main ELM library with expressions to traverse
  * @param deps list of any dependent ELM libraries included in the main ELM
@@ -28,11 +28,11 @@ export function findRetrieves(
     const parentQueryResult = detailedResult.clauseResults?.find(
       cr => cr.libraryName === elm.library.identifier.id && cr.localId === queryLocalId
     );
-    const retreiveResult = detailedResult.clauseResults?.find(
+    const retrieveResult = detailedResult.clauseResults?.find(
       cr => cr.libraryName === elm.library.identifier.id && cr.localId === expr.localId
     );
     const parentQuerySatisfied = parentQueryResult?.final === FinalResult.TRUE;
-    const retreiveSatisfied = retreiveResult?.final === FinalResult.TRUE;
+    const retrieveSatisfied = retrieveResult?.final === FinalResult.TRUE;
 
     // If present, strip off HL7 prefix to data type
     const dataType = expr.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
@@ -44,7 +44,7 @@ export function findRetrieves(
           dataType,
           valueSet: valueSet.id,
           parentQuerySatisfied,
-          retreiveSatisfied,
+          retrieveSatisfied,
           queryLocalId,
           retrieveLocalId: expr.localId,
           libraryName: elm.library.identifier.id
@@ -65,7 +65,7 @@ export function findRetrieves(
             code: code.id
           },
           parentQuerySatisfied,
-          retreiveSatisfied,
+          retrieveSatisfied,
           queryLocalId,
           retrieveLocalId: expr.localId,
           libraryName: elm.library.identifier.id

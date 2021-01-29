@@ -11,7 +11,7 @@ const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs',
-    retreiveSatisfied: false,
+    retrieveSatisfied: false,
     retrieveLocalId: '14',
     parentQuerySatisfied: false,
     queryLocalId: undefined,
@@ -22,7 +22,7 @@ const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs',
-    retreiveSatisfied: false,
+    retrieveSatisfied: false,
     retrieveLocalId: '18',
     parentQuerySatisfied: false,
     queryLocalId: '24',
@@ -36,7 +36,7 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
       system: 'EXAMPLE',
       code: 'test'
     },
-    retreiveSatisfied: true,
+    retrieveSatisfied: true,
     retrieveLocalId: '16',
     parentQuerySatisfied: false,
     queryLocalId: undefined,
@@ -47,7 +47,7 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs-2',
-    retreiveSatisfied: false,
+    retrieveSatisfied: false,
     retrieveLocalId: '4',
     parentQuerySatisfied: false,
     queryLocalId: undefined,
