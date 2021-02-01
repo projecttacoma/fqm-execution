@@ -61,7 +61,6 @@ export function calculateMeasuresAndCompare() {
 
     // Load up all test patients for this measure.
     console.log(`Loading test data for ${testPatientMeasure.exmId}`);
-    const bundleResourceInfos = loadTestDataFolder(testPatientMeasure.path);
 
     // Execute the measure, i.e. get the MeasureReport from fqm-execution
     const report = getMeasureReport(testPatientMeasure.exmId, measureBundle, patientBundles);
