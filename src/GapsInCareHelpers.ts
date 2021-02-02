@@ -1,4 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { IDetectedIssue } from '@ahryman40k/ts-fhir-types/lib/R4';
 import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
@@ -115,6 +116,7 @@ export function generateDetectedIssueResource(
   queries: DataTypeQuery[],
   measureReport: R4.IMeasureReport
 ): R4.IDetectedIssue {
+  const guidanceResponses = generateGuidanceResponses(queries, measureReport.measure);
   return {
     resourceType: 'DetectedIssue',
     id: uuidv4(),
@@ -128,47 +130,57 @@ export function generateDetectedIssueResource(
         }
       ]
     },
-    evidence: queries.map(q => {
-      const codeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
-        path: 'code'
-      };
-
-      if (q.valueSet) {
-        codeFilter.valueSet = q.valueSet;
-      } else if (q.code) {
-        codeFilter.code = [
-          {
-            code: q.code.code,
-            system: q.code.system
-          }
-        ];
-      }
-
+    evidence: guidanceResponses.map(gr => {
       return {
-        detail: [{ reference: `MeasureReport/${measureReport.id}` }],
-        extension: [
-          {
-            url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data',
-            valueDataRequirement: {
-              type: q.dataType,
-              codeFilter: [{ ...codeFilter }]
-            }
-          },
-          {
-            url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status',
-            valueCodeableConcept: {
-              coding: [
-                {
-                  system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status',
-                  code: 'open-gap'
-                }
-              ]
-            }
-          }
-        ]
+        detail: [{ reference: `#${gr.id}` }]
       };
-    })
+    }),
+    contained: guidanceResponses
   };
+}
+
+function generateGuidanceResponses(queries: DataTypeQuery[], measureURL: string): R4.IGuidanceResponse[] {
+  const guidanceResponses: R4.IGuidanceResponse[] = queries.map(q => {
+    const codeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
+      path: 'code'
+    };
+
+    if (q.valueSet) {
+      codeFilter.valueSet = q.valueSet;
+    } else if (q.code) {
+      codeFilter.code = [
+        {
+          code: q.code.code,
+          system: q.code.system
+        }
+      ];
+    }
+    // TODO: for negative improvement, use either missing or present gapStatus code
+    const gapStatus: R4.ICodeableConcept = {
+      coding: [
+        {
+          system: 'CareGapReasonCodeSystem', // to be published TODO: update to full url
+          code: 'Missing',
+          display: 'No Data Element found from Value Set'
+        }
+      ]
+    };
+    const guidanceResponse: R4.IGuidanceResponse = {
+      resourceType: 'GuidanceResponse',
+      id: uuidv4(),
+      dataRequirement: [
+        {
+          type: q.dataType,
+          codeFilter: [{ ...codeFilter }]
+        }
+      ],
+      reasonCode: [gapStatus],
+      status: R4.GuidanceResponseStatusKind._success,
+      moduleUri: measureURL
+    };
+    return guidanceResponse;
+  });
+  return guidanceResponses;
 }
 
 /**
