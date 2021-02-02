@@ -7,7 +7,7 @@ import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { getTestMeasureList, loadReferenceMeasureReport, loadTestDataFolder } from './testDataHelpers';
+import { getTestMeasureList, loadReferenceMeasureReport } from './testDataHelpers';
 import { getMeasureReport } from './fhirInteractions';
 import { compareMeasureReports } from './measureReportCompare';
 function parseBundle(filePath: string): R4.IBundle {
