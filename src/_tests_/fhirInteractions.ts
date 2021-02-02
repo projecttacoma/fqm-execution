@@ -58,7 +58,7 @@ function setupCalcOptions(/* string paramName, boolean value*/): CalculationOpti
   return calcOptions;
 }
 export function loadPatientBundle(patientBundlePath: string) {
-  const patientBundles  = fs.readdirSync(patientBundlePath).filter((fileName: string) => {
+  const patientBundles = fs.readdirSync(patientBundlePath).filter((fileName: string) => {
     return fileName.endsWith('.json');
   });
 
