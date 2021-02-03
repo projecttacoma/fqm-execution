@@ -113,7 +113,8 @@ export function findRetrieves(
  */
 export function generateDetectedIssueResource(
   queries: DataTypeQuery[],
-  measureReport: R4.IMeasureReport
+  measureReport: R4.IMeasureReport,
+  improvementNotation: string
 ): R4.IDetectedIssue {
   const guidanceResponses = generateGuidanceResponses(queries, measureReport.measure);
   return {
