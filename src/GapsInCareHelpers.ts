@@ -2,7 +2,7 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
-import { FinalResult } from './types/Enums';
+import { FinalResult, ImprovementNotation } from './types/Enums';
 
 /**
  * Get all data types, and codes/valuesets used in Retrieve ELM expressions
@@ -31,8 +31,8 @@ export function findRetrieves(
     const retrieveResult = detailedResult.clauseResults?.find(
       cr => cr.libraryName === elm.library.identifier.id && cr.localId === expr.localId
     );
-    const parentQuerySatisfied = parentQueryResult?.final === FinalResult.TRUE;
-    const retrieveSatisfied = retrieveResult?.final === FinalResult.TRUE;
+    const parentQueryHasResult = parentQueryResult?.final === FinalResult.TRUE;
+    const retrieveHasResult = retrieveResult?.final === FinalResult.TRUE;
 
     // If present, strip off HL7 prefix to data type
     const dataType = expr.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
@@ -43,8 +43,8 @@ export function findRetrieves(
         results.push({
           dataType,
           valueSet: valueSet.id,
-          parentQuerySatisfied,
-          retrieveSatisfied,
+          parentQueryHasResult,
+          retrieveHasResult,
           queryLocalId,
           retrieveLocalId: expr.localId,
           libraryName: elm.library.identifier.id
@@ -64,8 +64,8 @@ export function findRetrieves(
             system: code.codeSystem.name,
             code: code.id
           },
-          parentQuerySatisfied,
-          retrieveSatisfied,
+          parentQueryHasResult,
+          retrieveHasResult,
           queryLocalId,
           retrieveLocalId: expr.localId,
           libraryName: elm.library.identifier.id
@@ -116,7 +116,11 @@ export function generateDetectedIssueResource(
   measureReport: R4.IMeasureReport,
   improvementNotation: string
 ): R4.IDetectedIssue {
-  const guidanceResponses = generateGuidanceResponses(queries, measureReport.measure);
+  const relevantGapQueries = queries.filter(q =>
+    // If positive improvement, we want queries with results as gaps. Vice versa for negative
+    improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
+  );
+  const guidanceResponses = generateGuidanceResponses(relevantGapQueries, measureReport.measure);
   return {
     resourceType: 'DetectedIssue',
     id: uuidv4(),
