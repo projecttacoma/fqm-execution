@@ -12,7 +12,8 @@ function parseBundle(filePath: string): R4.IBundle {
   return JSON.parse(contents) as R4.IBundle;
 }
 
-const measureBundle = parseBundle(path.resolve(program.measureBundle));
+const prefixPath = "/connectathon/fhir401/bundles/measure/";
+const measureBundle = parseBundle(path.resolve(prefixPath + program.args[2]));
 
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
