@@ -11,9 +11,9 @@ const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs',
-    retrieveSatisfied: false,
+    retrieveHasResult: false,
     retrieveLocalId: '14',
-    parentQuerySatisfied: false,
+    parentQueryHasResult: false,
     queryLocalId: undefined,
     libraryName: 'SimpleQueries'
   }
@@ -22,9 +22,9 @@ const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs',
-    retrieveSatisfied: false,
+    retrieveHasResult: false,
     retrieveLocalId: '18',
-    parentQuerySatisfied: false,
+    parentQueryHasResult: false,
     queryLocalId: '24',
     libraryName: 'SimpleQueries'
   }
@@ -36,9 +36,9 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
       system: 'EXAMPLE',
       code: 'test'
     },
-    retrieveSatisfied: true,
+    retrieveHasResult: true,
     retrieveLocalId: '16',
-    parentQuerySatisfied: false,
+    parentQueryHasResult: false,
     queryLocalId: undefined,
     libraryName: 'SimpleQueries'
   }
@@ -47,9 +47,9 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs-2',
-    retrieveSatisfied: false,
+    retrieveHasResult: false,
     retrieveLocalId: '4',
-    parentQuerySatisfied: false,
+    parentQueryHasResult: false,
     queryLocalId: undefined,
     libraryName: 'SimpleDep'
   }
@@ -205,14 +205,14 @@ describe('Generate DetectedIssue Resource', () => {
     expect(resource).toEqual(EXAMPLE_DETECTED_ISSUE);
   });
 
-  test('retrieves with satisfied parent query should be filtered out', () => {
-    // Parent query is satisfied by something else, should be ignored from DetectedIssue
+  test('positive improvement retrieves with truthy parent query results should be filtered out', () => {
+    // Parent query is truthy, should be ignored from DetectedIssue
     const queries: DataTypeQuery[] = [
       {
         dataType: 'Condition',
         valueSet: 'http://example.com/test-vs',
-        retrieveSatisfied: false,
-        parentQuerySatisfied: true,
+        retrieveHasResult: false,
+        parentQueryHasResult: true,
         libraryName: 'SimpleQueries'
       }
     ];
@@ -221,6 +221,23 @@ describe('Generate DetectedIssue Resource', () => {
 
     // above query should be filtered out
     expect(resource.evidence).toHaveLength(0);
+  });
+
+  test('negative improvement retrieves with truthy parent query results not be filtered out', () => {
+    const queries: DataTypeQuery[] = [
+      {
+        dataType: 'Condition',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: false,
+        parentQueryHasResult: true,
+        libraryName: 'SimpleQueries'
+      }
+    ];
+
+    const resource = generateDetectedIssueResource(queries, SIMPLE_MEASURE_REPORT, ImprovementNotation.NEGATIVE);
+
+    // above query should be present since queries with results are gaps
+    expect(resource.evidence).toHaveLength(1);
   });
 });
 
