@@ -1,6 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { ExecutionResult, CalculationOptions, DebugOutput } from './types/Calculator';
-import { PopulationType, MeasureScoreType } from './types/Enums';
+import { PopulationType, MeasureScoreType, ImprovementNotation } from './types/Enums';
 import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
 import * as CalculatorHelpers from './CalculatorHelpers';
@@ -231,8 +231,22 @@ export function calculateGapsInCare(
       const denomResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result;
       const numerResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
 
-      // Calculate gaps if patient is in denominator but not numerator
-      if (denomResult && !numerResult) {
+      if (!measureResource.improvementNotation?.coding) {
+        throw new Error('Measure resource must include improvement notation');
+      }
+
+      const improvementNotation = measureResource.improvementNotation.coding[0].code;
+
+      if (!improvementNotation) {
+        throw new Error('Improvement notation code not present on measure');
+      }
+
+      // If positive improvement measure, consider patients in denominator but not numerator for gaps
+      // If negative improvement measure, consider patients in numerator for gaps
+      const populationCriteria =
+        improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult;
+
+      if (populationCriteria) {
         const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId);
 
         if (!matchingGroup) {
@@ -266,7 +280,11 @@ export function calculateGapsInCare(
           dr
         );
 
-        const detectedIssue = GapsInCareHelpers.generateDetectedIssueResource(retrieves, matchingMeasureReport);
+        const detectedIssue = GapsInCareHelpers.generateDetectedIssueResource(
+          retrieves,
+          matchingMeasureReport,
+          improvementNotation
+        );
 
         // find this patient's bundle
         const patientBundle = patientBundles.find(patientBundle => {

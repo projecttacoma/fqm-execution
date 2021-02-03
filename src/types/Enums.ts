@@ -70,3 +70,16 @@ export enum Relevance {
   TRUE = 'TRUE',
   FALSE = 'FALSE'
 }
+
+/**
+ * https://terminology.hl7.org/2.0.0/CodeSystem-measure-improvement-notation.html
+ *
+ * 'POSITIVE': Improvement is indicated as an increase in the score or measurement (e.g. Higher score indicates better quality).
+ *
+ * 'NEGATIVE': Improvement is indicated as a decrease in the score or measurement (e.g. Lower score indicates better quality).
+
+ */
+export enum ImprovementNotation {
+  POSITIVE = 'increase',
+  NEGATIVE = 'decrease'
+}
