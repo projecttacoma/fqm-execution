@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        measure: [EXM_104, EXM_105, EXM_111,  EXM_124, EXM_125, EXM_130, EXM_506]
+        measure: [EXM_111, EXM_124]
         node-version: [12.x, 14.x]
 
     steps:
@@ -25,4 +25,4 @@ jobs:
       run: unzip -P $VALUESET_KEY test/fixtures/EXM130-8.0.000/EXM130-8.0.000-bundle.zip
     - run: rm EXM130-8.0.000-bundle.json
     - run: sudo chmod +x ./src/_tests_/setup.sh
-    - run: ./src/_tests_/test_measures.sh ${{ matrix.measure }}
+    - run: sudo ./src/_tests_/test_measures.sh ${{ matrix.measure }}
