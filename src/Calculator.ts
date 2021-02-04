@@ -4,6 +4,7 @@ import { PopulationType, MeasureScoreType, ImprovementNotation } from './types/E
 import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
 import * as CalculatorHelpers from './CalculatorHelpers';
+import { extractMeasurementPeriod } from './MeasureHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
 import * as MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from './GapsInCareHelpers';
@@ -24,6 +25,16 @@ export function calculate(
   options: CalculationOptions
 ): { results: ExecutionResult[]; debugOutput?: DebugOutput; elmLibraries?: ELM[]; mainLibraryName?: string } {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
+
+  // Ensure the CalculationOptions have sane defaults, only if they're not set
+  options.calculateHTML = options.calculateHTML ?? true;
+  options.calculateSDEs = options.calculateSDEs ?? true;
+  // Get the default measurement period out of the Measure object
+  const measureMPs = extractMeasurementPeriod(measureBundle);
+  // Set the measurement period start/end, but only if the caller didn't specify one
+  options.measurementPeriodStart = options.measurementPeriodStart ?? measureMPs.measurementPeriodStart;
+  options.measurementPeriodEnd = options.measurementPeriodEnd ?? measureMPs.measurementPeriodEnd;
+
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
   if (!measureEntry || !measureEntry.resource) {
     throw new Error('Measure resource was not found in provided measure bundle');

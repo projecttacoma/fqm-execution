@@ -1,6 +1,7 @@
 import { ELM, ELMStatement } from './types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType } from './types/Enums';
+import { CalculationOptions } from './types/Calculator';
 
 /**
  * Finds all localIds in a statement by it's library and statement name.
@@ -376,6 +377,27 @@ export function codeableConceptToPopulationType(concept: R4.ICodeableConcept | u
   }
 
   return null;
+}
+
+/**
+ * Pulls the measurement period out of the Measure resource in the provided bundle, assuming one is set.
+ * NOTE: the default start/end values are also set in Execution.ts
+ * so if this date is changed from 2019 it must also be changed there
+ *
+ * @param {R4.IBundle} measureBundle the FHIR Bundle object containing the Measure resource.
+ * @returns {CalculationOptions} object with only the measurement period start/end fields filled out,
+ * or the year 2019 set as the calculation period if not set in the Measure.
+ */
+export function extractMeasurementPeriod(measureBundle: R4.IBundle): CalculationOptions {
+  const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
+  if (!measureEntry || !measureEntry.resource) {
+    throw new Error('Measure resource was not found in provided measure bundle');
+  }
+  const measure = measureEntry.resource as R4.IMeasure;
+  return {
+    measurementPeriodStart: measure.effectivePeriod?.start || '2019-01-01',
+    measurementPeriodEnd: measure.effectivePeriod?.end || '2019-12-31'
+  };
 }
 
 function __guard__(value: any, transform: any) {
