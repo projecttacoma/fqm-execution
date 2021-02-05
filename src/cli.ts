@@ -6,7 +6,6 @@ import fs from 'fs';
 import path from 'path';
 import { calculate, calculateGapsInCare, calculateMeasureReports, calculateRaw } from './Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
-import { extractMeasurementPeriod } from './MeasureHelpers';
 import { CalculationOptions } from './types/Calculator';
 
 program
