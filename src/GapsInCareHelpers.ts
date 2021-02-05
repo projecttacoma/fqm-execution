@@ -175,7 +175,7 @@ function generateGuidanceResponses(queries: DataTypeQuery[], measureURL: string)
         }
       ],
       reasonCode: [gapStatus],
-      status: R4.GuidanceResponseStatusKind._success,
+      status: R4.GuidanceResponseStatusKind._dataRequired,
       moduleUri: measureURL
     };
     return guidanceResponse;

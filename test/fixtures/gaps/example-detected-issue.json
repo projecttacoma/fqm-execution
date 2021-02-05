@@ -67,7 +67,7 @@
                     ]
                 }
             ],
-            "status": "success",
+            "status": "data-required",
             "moduleUri": "Measure/example"
         },
         {
@@ -95,7 +95,7 @@
                     ]
                 }
             ],
-            "status": "success",
+            "status": "data-required",
             "moduleUri": "Measure/example"
         },
         {
@@ -128,7 +128,7 @@
                     ]
                 }
             ],
-            "status": "success",
+            "status": "data-required",
             "moduleUri": "Measure/example"
         },
         {
@@ -156,7 +156,7 @@
                     ]
                 }
             ],
-            "status": "success",
+            "status": "data-required",
             "moduleUri": "Measure/example"
         }
     ]
