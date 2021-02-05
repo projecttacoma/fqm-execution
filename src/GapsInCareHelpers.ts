@@ -1,5 +1,4 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { IDetectedIssue } from '@ahryman40k/ts-fhir-types/lib/R4';
 import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
