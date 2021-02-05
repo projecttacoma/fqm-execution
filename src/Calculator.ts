@@ -30,10 +30,10 @@ export function calculate(
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
   // Get the default measurement period out of the Measure object
-  const measureMPs = extractMeasurementPeriod(measureBundle);
+  const measurementPeriod = extractMeasurementPeriod(measureBundle);
   // Set the measurement period start/end, but only if the caller didn't specify one
-  options.measurementPeriodStart = options.measurementPeriodStart ?? measureMPs.measurementPeriodStart;
-  options.measurementPeriodEnd = options.measurementPeriodEnd ?? measureMPs.measurementPeriodEnd;
+  options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
+  options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
 
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
   if (!measureEntry || !measureEntry.resource) {
