@@ -1,3 +1,4 @@
+#!/usr/bin/env ts-node --files
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
@@ -6,14 +7,24 @@ import { BadPatient, getTestMeasureList, loadReferenceMeasureReport, loadTestDat
 import { getMeasureReport } from './fhirInteractions';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { compareMeasureReports } from './measureReportCompare';
+import { Bundle_RequestMethodKind } from '@ahryman40k/ts-fhir-types/lib/R4';
 
 function parseBundle(filePath: string): R4.IBundle {
-  const contents = fs.readFileSync(filePath, 'utf8');
-  return JSON.parse(contents) as R4.IBundle;
+  let bundle: R4.IBundle | undefined;
+  if (fs.existsSync(filePath)) {
+    const contents = fs.readFileSync(filePath, 'utf8');
+    bundle = JSON.parse(contents) as R4.IBundle;
+  } else {
+    bundle = {
+      resourceType: 'Bundle',
+      type: R4.BundleTypeKind._document,
+      entry: []
+    };
+  }
+  return bundle;
 }
 
-const prefixPath = '/connectathon/fhir401/bundles/measure/';
-const measureBundle = parseBundle(path.resolve(prefixPath + program.args[2]));
+const prefixPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/connectathon/fhir401/bundles/measure/';
 
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
@@ -24,6 +35,8 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
   }
 
   const testPatientMeasures = getTestMeasureList();
+
+  const measureBundle = parseBundle(path.resolve(prefixPath + testPatientMeasures[0].connectathonBundle));
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
   if (onlyMeasureExmId && !testPatientMeasures.some(testMeasure => testMeasure.exmId == onlyMeasureExmId)) {
@@ -58,7 +71,7 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
         const report = getMeasureReport(
           testPatientMeasure.exmId,
           measureBundle,
-          parseBundle(path.resolve(patBundle.toString()))
+          parseBundle(testPatientMeasure.connectahtonBundlePath)
         );
         // Load the reference report from the test data
         const referenceReport = loadReferenceMeasureReport(testPatientMeasure.path);

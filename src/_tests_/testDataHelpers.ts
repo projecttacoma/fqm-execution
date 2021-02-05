@@ -26,7 +26,11 @@ export interface BadPatient {
  */
 export function getTestMeasureList() {
   // Find applicable measure test data directories in fhir-patient-generator
-  const fpgDir = fs.readdirSync('./fhir-patient-generator/');
+
+  const fpgPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/fhir-patient-generator';
+  const prefixPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/connectathon/fhir401/bundles/measure/';
+  const connectathonPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/connectathon/fhir4/bundles/';
+  const fpgDir = fs.readdirSync(fpgPath);
   const applicableMeasuresDirs = fpgDir.filter(dir => {
     return dir.startsWith('EXM_');
   });
@@ -38,14 +42,34 @@ export function getTestMeasureList() {
     const testDirInfo = {
       // format exmId into simple, non-versioned id
       exmId: measureDir.includes('-') ? measureDir.split('-')[0] : measureDir,
-      path: `./fhir-patient-generator/${measureDir}/patients-r4`,
-      measureReportPath: 'string'
+      path: `./fhir-patient-generator/${measureDir}/patients-r4/`,
+      measureReportPath: 'string',
+      connectahtonBundlePath: 'string',
+      connectathonBundle: ''
     };
-    const measureReportFile = fs.readdirSync(testDirInfo.path).find(filename => {
-      return filename.includes('measure-report.json');
-    });
-    if (measureReportFile) {
-      testDirInfo.measureReportPath = `${testDirInfo.path}/${measureReportFile}`;
+
+    if (fs.existsSync(testDirInfo.path)) {
+      const measureReportFile = fs.readdirSync(testDirInfo.path).find(filename => {
+        return filename.includes('measure-report.json');
+      });
+
+      if (measureReportFile) {
+        testDirInfo.measureReportPath = `${testDirInfo.path}/${measureReportFile}`;
+      }
+    } else {
+      testDirInfo.measureReportPath = '';
+    }
+    const newString = prefixPath + measureDir.replace('_', '');
+    if (fs.existsSync(newString)) {
+      const connectahtonBundle = fs.readdirSync(newString).find(filename => {
+        return filename.includes('bundle.json');
+      });
+      if (connectahtonBundle) {
+        testDirInfo.connectahtonBundlePath = prefixPath + '/' + connectahtonBundle;
+        testDirInfo.connectathonBundle = connectahtonBundle; //'${testDirInfo.path}/connectahtonBundle';
+      }
+    } else {
+      testDirInfo.connectahtonBundlePath = '';
     }
     return testDirInfo;
   });
