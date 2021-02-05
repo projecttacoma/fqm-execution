@@ -1,149 +1,163 @@
 {
-  "resourceType": "DetectedIssue",
-  "id": "example",
-  "status": "final",
-  "code": {
-    "coding": [
-      {
-        "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category",
-        "code": "care-gap",
-        "display": "Gap in Care Detected"
-      }
+    "resourceType": "DetectedIssue",
+    "id": "example",
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category",
+                "code": "care-gap",
+                "display": "Gap in Care Detected"
+            }
+        ]
+    },
+    "evidence": [
+        {
+            "detail": [
+                {
+                    "reference": "#A"
+                }
+            ]
+        },
+        {
+            "detail": [
+                {
+                    "reference": "#B"
+                }
+            ]
+        },
+        {
+            "detail": [
+                {
+                    "reference": "#C"
+                }
+            ]
+        },
+        {
+            "detail": [
+                {
+                    "reference": "#D"
+                }
+            ]
+        }
+    ],
+    "contained": [
+        {
+            "resourceType": "GuidanceResponse",
+            "id": "A",
+            "dataRequirement": [
+                {
+                    "type": "Condition",
+                    "codeFilter": [
+                        {
+                            "path": "code",
+                            "valueSet": "http://example.com/test-vs"
+                        }
+                    ]
+                }
+            ],
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "CareGapReasonCodeSystem",
+                            "code": "Missing",
+                            "display": "No Data Element found from Value Set"
+                        }
+                    ]
+                }
+            ],
+            "status": "success",
+            "moduleUri": "Measure/example"
+        },
+        {
+            "resourceType": "GuidanceResponse",
+            "id": "B",
+            "dataRequirement": [
+                {
+                    "type": "Condition",
+                    "codeFilter": [
+                        {
+                            "path": "code",
+                            "valueSet": "http://example.com/test-vs"
+                        }
+                    ]
+                }
+            ],
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "CareGapReasonCodeSystem",
+                            "code": "Missing",
+                            "display": "No Data Element found from Value Set"
+                        }
+                    ]
+                }
+            ],
+            "status": "success",
+            "moduleUri": "Measure/example"
+        },
+        {
+            "resourceType": "GuidanceResponse",
+            "id": "C",
+            "dataRequirement": [
+                {
+                    "type": "Procedure",
+                    "codeFilter": [
+                        {
+                            "path": "code",
+                            "code": [
+                                {
+                                    "system": "EXAMPLE",
+                                    "code": "test"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "CareGapReasonCodeSystem",
+                            "code": "Missing",
+                            "display": "No Data Element found from Value Set"
+                        }
+                    ]
+                }
+            ],
+            "status": "success",
+            "moduleUri": "Measure/example"
+        },
+        {
+            "resourceType": "GuidanceResponse",
+            "id": "D",
+            "dataRequirement": [
+                {
+                    "type": "Condition",
+                    "codeFilter": [
+                        {
+                            "path": "code",
+                            "valueSet": "http://example.com/test-vs-2"
+                        }
+                    ]
+                }
+            ],
+            "reasonCode": [
+                {
+                    "coding": [
+                        {
+                            "system": "CareGapReasonCodeSystem",
+                            "code": "Missing",
+                            "display": "No Data Element found from Value Set"
+                        }
+                    ]
+                }
+            ],
+            "status": "success",
+            "moduleUri": "Measure/example"
+        }
     ]
-  },
-  "evidence": [
-    {
-      "detail": [
-        {
-          "reference": "MeasureReport/example"
-        }
-      ],
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
-          "valueDataRequirement": {
-            "type": "Condition",
-            "codeFilter": [
-              {
-                "path": "code",
-                "valueSet": "http://example.com/test-vs"
-              }
-            ]
-          }
-        },
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status",
-                "code": "open-gap"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "detail": [
-        {
-          "reference": "MeasureReport/example"
-        }
-      ],
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
-          "valueDataRequirement": {
-            "type": "Condition",
-            "codeFilter": [
-              {
-                "path": "code",
-                "valueSet": "http://example.com/test-vs"
-              }
-            ]
-          }
-        },
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status",
-                "code": "open-gap"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "detail": [
-        {
-          "reference": "MeasureReport/example"
-        }
-      ],
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
-          "valueDataRequirement": {
-            "type": "Procedure",
-            "codeFilter": [
-              {
-                "path": "code",
-                "code": [
-                  {
-                    "system": "EXAMPLE",
-                    "code": "test"
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status",
-                "code": "open-gap"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "detail": [
-        {
-          "reference": "MeasureReport/example"
-        }
-      ],
-      "extension": [
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data",
-          "valueDataRequirement": {
-            "type": "Condition",
-            "codeFilter": [
-              {
-                "path": "code",
-                "valueSet": "http://example.com/test-vs-2"
-              }
-            ]
-          }
-        },
-        {
-          "url": "http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status",
-          "valueCodeableConcept": {
-            "coding": [
-              {
-                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status",
-                "code": "open-gap"
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
 }
