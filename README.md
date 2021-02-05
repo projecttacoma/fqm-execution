@@ -84,6 +84,8 @@ Options:
   -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps" (default: "detailed")
   -m, --measure-bundle <measure-bundle>       path to measure bundle
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle
+  -s, --measurement-period-start <date>       start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)
+  -e, --measurement-period-end <date>         end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)
   -h, --help                                  display help for command
 ```
 
