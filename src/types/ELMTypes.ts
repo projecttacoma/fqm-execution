@@ -130,6 +130,110 @@ export interface ELMCode {
   };
 }
 
+/**
+ * Abstract ELM Expression.
+ */
+export interface ELMExpression {
+  /** Type of expression. */
+  type: string;
+  /** Clause id for this expression. */
+  localId?: string;
+  /** Locator in the original CQL file. Only exists if compiled with this info. */
+  locator?: string;
+}
+
+export interface ELMRetrieve extends ELMExpression {
+  type: 'Retrieve';
+  dataType: string;
+  templateId?: string;
+  codeProperty?: string;
+  codes?: ELMExpression;
+}
+
+export interface ELMValueSetRef extends ELMExpression {
+  type: 'ValueSetRef';
+  name: string;
+  libraryName?: string;
+  locator?: string;
+}
+
+export interface ELMQuery extends ELMExpression {
+  type: 'Query';
+  source: [ELMAliasedQuerySource];
+  let: [ELMLetClause];
+  relationship: [ELMRelationshipClause];
+  where?: ELMExpression;
+  return?: ELMReturnClause;
+  sort?: any;
+}
+
+export interface ELMAliasedQuerySource {
+  /** Clause id for this alias. */
+  localId?: string;
+  /** Locator in the original CQL file. Only exists if compiled with this info. */
+  locator?: string;
+  /** Expression to fetch the source for the query. */
+  expression: ELMExpression;
+  /** Named alias to reference in the query scope. */
+  alias: string;
+}
+
+export interface ELMRelationshipClause extends ELMAliasedQuerySource {
+  suchThat: ELMExpression;
+}
+
+export interface ELMLetClause {
+  /** Clause id for this alias. */
+  localId?: string;
+  /** Locator in the original CQL file. Only exists if compiled with this info. */
+  locator?: string;
+  /** Expression to fetch the source for the query. */
+  expression: ELMExpression;
+  /** Named alias to reference in the query scope. */
+  identifier: string;
+}
+
+export interface ELMReturnClause {
+  expression: ELMExpression;
+  distinct?: string;
+}
+
+export interface ELMBinaryExpression extends ELMExpression {
+  operand: [ELMExpression, ELMExpression];
+}
+
+export interface ELMEqual extends ELMBinaryExpression {
+  type: 'Equal';
+}
+
+interface ELMIExpressionRef extends ELMExpression {
+  name: string;
+  libraryName?: string;
+}
+
+export interface ELMExpressionRef extends ELMExpression {
+  type: 'ExpressionRef';
+}
+
+export interface ELMFunctionRef extends ELMIExpressionRef {
+  type: 'FunctionRef';
+  signature?: [any];
+  operand: [ELMExpression];
+}
+
+export interface ELMProperty extends ELMExpression {
+  type: 'Property';
+  source?: ELMExpression;
+  path: string;
+  scope?: string;
+}
+
+export interface ELMLiteral extends ELMExpression {
+  type: 'Literal';
+  valueType: string;
+  value?: string | number;
+}
+
 export interface LibraryDependencyInfo {
   /** The library id */
   libraryId: string;
