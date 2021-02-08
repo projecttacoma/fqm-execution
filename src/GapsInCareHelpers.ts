@@ -2,7 +2,7 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
-import { FinalResult, ImprovementNotation } from './types/Enums';
+import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
 
 /**
  * Get all data types, and codes/valuesets used in Retrieve ELM expressions
@@ -120,7 +120,7 @@ export function generateDetectedIssueResource(
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
   );
-  const guidanceResponses = generateGuidanceResponses(relevantGapQueries, measureReport.measure);
+  const guidanceResponses = generateGuidanceResponses(relevantGapQueries, measureReport.measure, improvementNotation);
   return {
     resourceType: 'DetectedIssue',
     id: uuidv4(),
@@ -143,7 +143,11 @@ export function generateDetectedIssueResource(
   };
 }
 
-function generateGuidanceResponses(queries: DataTypeQuery[], measureURL: string): R4.IGuidanceResponse[] {
+function generateGuidanceResponses(
+  queries: DataTypeQuery[],
+  measureURL: string,
+  improvementNotation: string
+): R4.IGuidanceResponse[] {
   const guidanceResponses: R4.IGuidanceResponse[] = queries.map(q => {
     const codeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
       path: 'code'
@@ -159,15 +163,23 @@ function generateGuidanceResponses(queries: DataTypeQuery[], measureURL: string)
         }
       ];
     }
-    // TODO: for negative improvement, use either missing or present gapStatus code
+
+    // TODO: update system to be full URL once defined
+    const gapCoding: R4.ICoding =
+      improvementNotation === ImprovementNotation.POSITIVE
+        ? {
+            system: 'CareGapReasonCodeSystem',
+            code: CareGapReasonCode.MISSING,
+            display: CareGapReasonCodeDisplay[CareGapReasonCode.MISSING]
+          }
+        : {
+            system: 'CareGapReasonCodeSystem',
+            code: CareGapReasonCode.PRESENT,
+            display: CareGapReasonCodeDisplay[CareGapReasonCode.PRESENT]
+          };
+
     const gapStatus: R4.ICodeableConcept = {
-      coding: [
-        {
-          system: 'CareGapReasonCodeSystem', // to be published TODO: update to full url
-          code: 'Missing',
-          display: 'No Data Element found from Value Set'
-        }
-      ]
+      coding: [gapCoding]
     };
     const guidanceResponse: R4.IGuidanceResponse = {
       resourceType: 'GuidanceResponse',

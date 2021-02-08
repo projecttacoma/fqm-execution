@@ -82,3 +82,32 @@ export enum ImprovementNotation {
   POSITIVE = 'increase',
   NEGATIVE = 'decrease'
 }
+
+/**
+ * URL to be defined
+ *
+ * 'MISSING': Gap is due to missing data
+ * 'PRESENT': Gap is due to present data
+ * 'DATEOUTOFRANGE': Gap is due to a date being out of range
+ * 'VALUEOUTOFRANGE': Gap is due to a value being out of range
+ * 'COUNTOUTOFRANGE': Gap is due to a count of resources being out of range
+ *
+ */
+export enum CareGapReasonCode {
+  MISSING = 'Missing',
+  PRESENT = 'Present',
+  DATEOUTOFRANGE = 'DateOutOfRange',
+  VALUEOUTOFRANGE = 'ValueOutOfRange',
+  COUNTOUTOFRANGE = 'CountOutOfRange'
+}
+
+/**
+ * Lookup object for CareGapReasonCode to display text
+ */
+export const CareGapReasonCodeDisplay = {
+  [CareGapReasonCode.MISSING]: 'No Data Element found from Value Set',
+  [CareGapReasonCode.PRESENT]: 'Data element was found',
+  [CareGapReasonCode.DATEOUTOFRANGE]: 'Key date was not in the expected range',
+  [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value was not in the expected range',
+  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range'
+};
