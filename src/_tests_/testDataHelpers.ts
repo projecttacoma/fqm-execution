@@ -27,9 +27,8 @@ export interface BadPatient {
 export function getTestMeasureList() {
   // Find applicable measure test data directories in fhir-patient-generator
 
-  const fpgPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/fhir-patient-generator';
-  const prefixPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/connectathon/fhir401/bundles/measure/';
-  const connectathonPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/connectathon/fhir4/bundles/';
+  const fpgPath = './src/_tests_/fhir-patient-generator';
+  const prefixPath = './src/_tests_/connectathon/fhir401/bundles/measure/';
   const fpgDir = fs.readdirSync(fpgPath);
   const applicableMeasuresDirs = fpgDir.filter(dir => {
     return dir.startsWith('EXM_');
