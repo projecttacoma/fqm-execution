@@ -24,7 +24,7 @@ function parseBundle(filePath: string): R4.IBundle {
   return bundle;
 }
 
-const prefixPath = 'C:/Users/mriley/Documents/GitHub/fqm-execution/src/_tests_/connectathon/fhir401/bundles/measure/';
+const prefixPath = './src/_tests_/connectathon/fhir401/bundles/measure/';
 
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
