@@ -18,7 +18,8 @@
     "handlebars": "^4.7.6",
     "moment": "^2.29.0",
     "uuid": "^8.3.1",
-    "@ahryman40k/ts-fhir-types": "^4.0.32"
+    "@ahryman40k/ts-fhir-types": "^4.0.32",
+    "ts-node": "9.1.1"
   },
   "devDependencies": {
     "@types/handlebars": "^4.1.0",
@@ -33,6 +34,7 @@
     "prettier": "^2.0.5",
     "shx": "^0.3.3",
     "ts-jest": "^26.1.3",
+    "ts-node": "^9.1.1",
     "typescript": "^3.9.7"
   },
   "scripts": {
@@ -44,6 +46,7 @@
     "prettier:fix": "prettier --write \"**/*.{js,ts}\"",
     "test": "jest",
     "test:watch": "jest --watchAll",
+    "test:integration": "ts-node --files ./src/_test_/run_tests.ts",
     "check": "npm run test && npm run lint && npm run prettier",
     "prepare": "npm run build"
   },
