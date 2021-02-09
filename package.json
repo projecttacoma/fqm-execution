@@ -46,7 +46,7 @@
     "prettier:fix": "prettier --write \"**/*.{js,ts}\"",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "test:integration": "ts-node --files ./src/_test_/run_tests.ts",
+    "test:integration": "ts-node --files ../src/_test_/run_tests.ts",
     "check": "npm run test && npm run lint && npm run prettier",
     "prepare": "npm run build"
   },
