@@ -7,7 +7,7 @@ import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { getTestMeasureList, loadReferenceMeasureReport } from './testDataHelpers';
+import { getTestMeasureList, loadReferenceMeasureReport, loadTestDataFolder } from './testDataHelpers';
 import { getMeasureReport } from './fhirInteractions';
 import { compareMeasureReports } from './measureReportCompare';
 function parseBundle(filePath: string): R4.IBundle {
@@ -27,7 +27,7 @@ export function calculateMeasuresAndCompare() {
   }
 
   // grab info on measures in fqm-execution and measures in test data
-  //const fqmMeasures = await fhirInteractions.getfqmMeasureList();
+
   const testPatientMeasures = getTestMeasureList();
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
@@ -61,6 +61,7 @@ export function calculateMeasuresAndCompare() {
 
     // Load up all test patients for this measure.
     console.log(`Loading test data for ${testPatientMeasure.exmId}`);
+    const bundleResourceInfos = loadTestDataFolder(testPatientMeasure.path);
 
     // Execute the measure, i.e. get the MeasureReport from fqm-execution
     const report = getMeasureReport(testPatientMeasure.exmId, measureBundle, patientBundles);
