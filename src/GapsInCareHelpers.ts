@@ -2,7 +2,7 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
-import { FinalResult } from './types/Enums';
+import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
 
 /**
  * Get all data types, and codes/valuesets used in Retrieve ELM expressions
@@ -31,8 +31,8 @@ export function findRetrieves(
     const retrieveResult = detailedResult.clauseResults?.find(
       cr => cr.libraryName === elm.library.identifier.id && cr.localId === expr.localId
     );
-    const parentQuerySatisfied = parentQueryResult?.final === FinalResult.TRUE;
-    const retrieveSatisfied = retrieveResult?.final === FinalResult.TRUE;
+    const parentQueryHasResult = parentQueryResult?.final === FinalResult.TRUE;
+    const retrieveHasResult = retrieveResult?.final === FinalResult.TRUE;
 
     // If present, strip off HL7 prefix to data type
     const dataType = expr.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
@@ -43,8 +43,8 @@ export function findRetrieves(
         results.push({
           dataType,
           valueSet: valueSet.id,
-          parentQuerySatisfied,
-          retrieveSatisfied,
+          parentQueryHasResult,
+          retrieveHasResult,
           queryLocalId,
           retrieveLocalId: expr.localId,
           libraryName: elm.library.identifier.id
@@ -64,8 +64,8 @@ export function findRetrieves(
             system: code.codeSystem.name,
             code: code.id
           },
-          parentQuerySatisfied,
-          retrieveSatisfied,
+          parentQueryHasResult,
+          retrieveHasResult,
           queryLocalId,
           retrieveLocalId: expr.localId,
           libraryName: elm.library.identifier.id
@@ -113,8 +113,14 @@ export function findRetrieves(
  */
 export function generateDetectedIssueResource(
   queries: DataTypeQuery[],
-  measureReport: R4.IMeasureReport
+  measureReport: R4.IMeasureReport,
+  improvementNotation: string
 ): R4.IDetectedIssue {
+  const relevantGapQueries = queries.filter(q =>
+    // If positive improvement, we want queries with results as gaps. Vice versa for negative
+    improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
+  );
+  const guidanceResponses = generateGuidanceResponses(relevantGapQueries, measureReport.measure, improvementNotation);
   return {
     resourceType: 'DetectedIssue',
     id: uuidv4(),
@@ -128,47 +134,69 @@ export function generateDetectedIssueResource(
         }
       ]
     },
-    evidence: queries.map(q => {
-      const codeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
-        path: 'code'
-      };
-
-      if (q.valueSet) {
-        codeFilter.valueSet = q.valueSet;
-      } else if (q.code) {
-        codeFilter.code = [
-          {
-            code: q.code.code,
-            system: q.code.system
-          }
-        ];
-      }
-
+    evidence: guidanceResponses.map(gr => {
       return {
-        detail: [{ reference: `MeasureReport/${measureReport.id}` }],
-        extension: [
-          {
-            url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gap-data',
-            valueDataRequirement: {
-              type: q.dataType,
-              codeFilter: [{ ...codeFilter }]
-            }
-          },
-          {
-            url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/extension-gaps-status',
-            valueCodeableConcept: {
-              coding: [
-                {
-                  system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/gaps-status',
-                  code: 'open-gap'
-                }
-              ]
-            }
-          }
-        ]
+        detail: [{ reference: `#${gr.id}` }]
       };
-    })
+    }),
+    contained: guidanceResponses
   };
+}
+
+function generateGuidanceResponses(
+  queries: DataTypeQuery[],
+  measureURL: string,
+  improvementNotation: string
+): R4.IGuidanceResponse[] {
+  const guidanceResponses: R4.IGuidanceResponse[] = queries.map(q => {
+    const codeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
+      path: 'code'
+    };
+
+    if (q.valueSet) {
+      codeFilter.valueSet = q.valueSet;
+    } else if (q.code) {
+      codeFilter.code = [
+        {
+          code: q.code.code,
+          system: q.code.system
+        }
+      ];
+    }
+
+    // TODO: update system to be full URL once defined
+    const gapCoding: R4.ICoding =
+      improvementNotation === ImprovementNotation.POSITIVE
+        ? {
+            system: 'CareGapReasonCodeSystem',
+            code: CareGapReasonCode.MISSING,
+            display: CareGapReasonCodeDisplay[CareGapReasonCode.MISSING]
+          }
+        : {
+            system: 'CareGapReasonCodeSystem',
+            code: CareGapReasonCode.PRESENT,
+            display: CareGapReasonCodeDisplay[CareGapReasonCode.PRESENT]
+          };
+
+    const gapStatus: R4.ICodeableConcept = {
+      coding: [gapCoding]
+    };
+    const guidanceResponse: R4.IGuidanceResponse = {
+      resourceType: 'GuidanceResponse',
+      id: uuidv4(),
+      dataRequirement: [
+        {
+          type: q.dataType,
+          codeFilter: [{ ...codeFilter }]
+        }
+      ],
+      reasonCode: [gapStatus],
+      status: R4.GuidanceResponseStatusKind._dataRequired,
+      moduleUri: measureURL
+    };
+    return guidanceResponse;
+  });
+  return guidanceResponses;
 }
 
 /**
