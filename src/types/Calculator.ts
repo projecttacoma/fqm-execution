@@ -193,9 +193,9 @@ export interface DataTypeQuery {
     code: string;
   };
   /** whether or not the retrieve was truthy */
-  retrieveSatisfied?: boolean;
+  retrieveHasResult?: boolean;
   /** whether or not the entire query was truthy */
-  parentQuerySatisfied?: boolean;
+  parentQueryHasResult?: boolean;
   /** localId in ELM for the retrieve statement */
   retrieveLocalId?: string;
   /** localId in ELM for the query statement */
