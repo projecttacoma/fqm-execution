@@ -202,6 +202,20 @@ export interface DataTypeQuery {
   queryLocalId?: string;
   /** name of the library where the statment can be looked up */
   libraryName?: string;
+  /** stack of expressions traversed during calculation */
+  expressionStack?: ExpressionStackEntry[];
+}
+
+/**
+ * Expression stack tracked during gaps in care
+ */
+export interface ExpressionStackEntry {
+  /** type of expression (e.g. 'Query') */
+  type: string;
+  /** localId of the expression */
+  localId: string;
+  /** library name where the expression lives */
+  libraryName: string;
 }
 
 /*

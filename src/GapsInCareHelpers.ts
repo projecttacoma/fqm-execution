@@ -1,6 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
-import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
+import { DataTypeQuery, DetailedPopulationGroupResult, ExpressionStackEntry } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
 
@@ -18,9 +18,19 @@ export function findRetrieves(
   deps: ELM[],
   expr: ELMStatement,
   detailedResult: DetailedPopulationGroupResult,
-  queryLocalId?: string
+  queryLocalId?: string,
+  expressionStack: ExpressionStackEntry[] = []
 ) {
   const results: DataTypeQuery[] = [];
+
+  // Push this expression onto the stack of processed expressions
+  if (expr.localId && expr.type) {
+    expressionStack.push({
+      libraryName: elm.library.identifier.id,
+      localId: expr.localId,
+      type: expr.type
+    });
+  }
 
   // Base case, get data type and code/valueset off the expression
   if (expr.type === 'Retrieve' && expr.dataType) {
@@ -47,7 +57,8 @@ export function findRetrieves(
           retrieveHasResult,
           queryLocalId,
           retrieveLocalId: expr.localId,
-          libraryName: elm.library.identifier.id
+          libraryName: elm.library.identifier.id,
+          expressionStack: [...expressionStack]
         });
       }
     } else if (
@@ -68,14 +79,20 @@ export function findRetrieves(
           retrieveHasResult,
           queryLocalId,
           retrieveLocalId: expr.localId,
-          libraryName: elm.library.identifier.id
+          libraryName: elm.library.identifier.id,
+          expressionStack: [...expressionStack]
         });
       }
+    }
+
+    // Clear stack in base case
+    while (expressionStack.length !== 0) {
+      expressionStack.pop();
     }
   } else if (expr.type === 'Query') {
     // Queries have the source array containing the expressions
     expr.source?.forEach(s => {
-      results.push(...findRetrieves(elm, deps, s.expression, detailedResult, expr.localId));
+      results.push(...findRetrieves(elm, deps, s.expression, detailedResult, expr.localId, expressionStack));
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
@@ -83,23 +100,25 @@ export function findRetrieves(
       const matchingLib = deps.find(d => d.library.identifier.id === expr.libraryName);
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === expr.name);
       if (matchingLib && exprRef) {
-        results.push(...findRetrieves(matchingLib, deps, exprRef.expression, detailedResult, queryLocalId));
+        results.push(
+          ...findRetrieves(matchingLib, deps, exprRef.expression, detailedResult, queryLocalId, expressionStack)
+        );
       }
     } else {
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === expr.name);
       if (exprRef) {
-        results.push(...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId));
+        results.push(...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId, expressionStack));
       }
     }
   } else if (expr.operand) {
     // Operand can be array or object. Recurse on either
     if (Array.isArray(expr.operand)) {
       expr.operand.forEach(e => {
-        results.push(...findRetrieves(elm, deps, e, detailedResult, queryLocalId));
+        results.push(...findRetrieves(elm, deps, e, detailedResult, queryLocalId, expressionStack));
       });
     } else {
-      results.push(...findRetrieves(elm, deps, expr.operand, detailedResult, queryLocalId));
+      results.push(...findRetrieves(elm, deps, expr.operand, detailedResult, queryLocalId, expressionStack));
     }
   }
   return results;
