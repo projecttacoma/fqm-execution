@@ -15,9 +15,17 @@ const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
     retrieveLocalId: '14',
     parentQueryHasResult: false,
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries'
+    libraryName: 'SimpleQueries',
+    expressionStack: [
+      {
+        localId: '14',
+        libraryName: 'SimpleQueries',
+        type: 'Retrieve'
+      }
+    ]
   }
 ];
+
 const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
@@ -26,9 +34,22 @@ const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
     retrieveLocalId: '18',
     parentQueryHasResult: false,
     queryLocalId: '24',
-    libraryName: 'SimpleQueries'
+    libraryName: 'SimpleQueries',
+    expressionStack: [
+      {
+        localId: '24',
+        libraryName: 'SimpleQueries',
+        type: 'Query'
+      },
+      {
+        localId: '18',
+        libraryName: 'SimpleQueries',
+        type: 'Retrieve'
+      }
+    ]
   }
 ];
+
 const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Procedure',
@@ -40,9 +61,41 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
     retrieveLocalId: '16',
     parentQueryHasResult: false,
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries'
+    libraryName: 'SimpleQueries',
+    expressionStack: [
+      {
+        localId: '16',
+        libraryName: 'SimpleQueries',
+        type: 'Retrieve'
+      }
+    ]
   }
 ];
+
+const EXPECTED_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
+  {
+    dataType: 'Condition',
+    valueSet: 'http://example.com/test-vs',
+    retrieveHasResult: false,
+    retrieveLocalId: '14',
+    parentQueryHasResult: false,
+    queryLocalId: undefined,
+    libraryName: 'SimpleQueries',
+    expressionStack: [
+      {
+        localId: '26',
+        libraryName: 'SimpleQueries',
+        type: 'ExpressionRef'
+      },
+      {
+        localId: '14',
+        libraryName: 'SimpleQueries',
+        type: 'Retrieve'
+      }
+    ]
+  }
+];
+
 const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
@@ -51,9 +104,22 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
     retrieveLocalId: '4',
     parentQueryHasResult: false,
     queryLocalId: undefined,
-    libraryName: 'SimpleDep'
+    libraryName: 'SimpleDep',
+    expressionStack: [
+      {
+        localId: '29',
+        libraryName: 'SimpleQueries',
+        type: 'ExpressionRef'
+      },
+      {
+        localId: '4',
+        libraryName: 'SimpleDep',
+        type: 'Retrieve'
+      }
+    ]
   }
 ];
+
 const EXAMPLE_DETAILED_RESULTS: DetailedPopulationGroupResult = {
   groupId: 'example',
   statementResults: [],
@@ -162,7 +228,7 @@ describe('Find Numerator Queries', () => {
       expressionRef.expression,
       EXAMPLE_DETAILED_RESULTS
     );
-    expect(results).toEqual(EXPECTED_VS_RETRIEVE_RESULTS);
+    expect(results).toEqual(EXPECTED_EXPRESSIONREF_RESULTS);
   });
 
   test('dependent library expression ref', () => {
