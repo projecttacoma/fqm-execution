@@ -100,14 +100,14 @@ function parseExpression(expression: ELMExpression): any {
       //interpertFunctionRef(expression as ELMFunctionRef);
       break;
     case 'Equal':
-      return interpertEqual(expression as ELMEqual);
+      return interpretEqual(expression as ELMEqual);
       break;
     default:
       break;
   }
 }
 
-function interpertFunctionRef(functionRef: ELMFunctionRef): any {
+function interpretFunctionRef(functionRef: ELMFunctionRef): any {
   // from fhir helpers
   if (functionRef.libraryName == 'FHIRHelpers') {
     switch (functionRef.name) {
@@ -122,10 +122,10 @@ function interpertFunctionRef(functionRef: ELMFunctionRef): any {
   }
 }
 
-function interpertEqual(equal: ELMEqual): any {
+function interpretEqual(equal: ELMEqual): any {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
-    propRef = interpertFunctionRef(equal.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
   }
