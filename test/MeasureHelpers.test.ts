@@ -196,4 +196,92 @@ describe('MeasureHelpers', () => {
       expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
     });
   });
+
+  describe('extractMeasurementPeriod', () => {
+    test('Measurement period start set on measure', () => {
+      const measureBundleFixture: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Measure',
+              effectivePeriod: {
+                start: '2000-01-01'
+              }
+            }
+          }
+        ]
+      };
+
+      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+
+      expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
+      expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
+    });
+
+    test('Measurement period end set on measure', () => {
+      const measureBundleFixture: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Measure',
+              effectivePeriod: {
+                end: '2000-12-31'
+              }
+            }
+          }
+        ]
+      };
+
+      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+
+      expect(mpConfig.measurementPeriodStart).toBe('2019-01-01');
+      expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
+    });
+
+    test('Measurement period start and end set on measure', () => {
+      const measureBundleFixture: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Measure',
+              effectivePeriod: {
+                start: '2000-01-01',
+                end: '2000-12-31'
+              }
+            }
+          }
+        ]
+      };
+
+      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+
+      expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
+      expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
+    });
+
+    test('Neither set on measure', () => {
+      const measureBundleFixture: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Measure',
+              effectivePeriod: {
+                start: '',
+                end: ''
+              }
+            }
+          }
+        ]
+      };
+
+      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+
+      expect(mpConfig.measurementPeriodStart).toBe('2019-01-01');
+      expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
+    });
+  });
 });

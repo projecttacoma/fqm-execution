@@ -6,12 +6,23 @@ import fs from 'fs';
 import path from 'path';
 import { calculate, calculateGapsInCare, calculateMeasureReports, calculateRaw } from './Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
+import { CalculationOptions } from './types/Calculator';
 
 program
   .option('-d, --debug', 'enable debug output', false)
   .option('-o, --output-type <type>', 'type of output, "raw", "detailed", "reports", "gaps"', 'detailed')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
   .requiredOption('-p, --patient-bundles <patient-bundles...>', 'paths to patient bundle')
+  .option(
+    '-s, --measurement-period-start <date>',
+    'start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)',
+    undefined
+  )
+  .option(
+    '-e, --measurement-period-end <date>',
+    'end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)',
+    undefined
+  )
   .parse(process.argv);
 
 function parseBundle(filePath: string): R4.IBundle {
@@ -24,20 +35,24 @@ const measureBundle = parseBundle(path.resolve(program.measureBundle));
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
 let result;
+
+const calcOptions: CalculationOptions = { enableDebugOutput: program.debug };
+// Override the measurement period start/end in the options only if the user specfied them
+if (program.measurementPeriodStart) {
+  calcOptions.measurementPeriodStart = program.measurementPeriodStart;
+}
+if (program.measurementPeriodEnd) {
+  calcOptions.measurementPeriodEnd = program.measurementPeriodEnd;
+}
+
 if (program.outputType === 'raw') {
-  result = calculateRaw(measureBundle, patientBundles, { enableDebugOutput: program.debug });
+  result = calculateRaw(measureBundle, patientBundles, calcOptions);
 } else if (program.outputType === 'detailed') {
-  result = calculate(measureBundle, patientBundles, { calculateSDEs: true, enableDebugOutput: program.debug });
+  result = calculate(measureBundle, patientBundles, calcOptions);
 } else if (program.outputType === 'reports') {
-  result = calculateMeasureReports(measureBundle, patientBundles, {
-    measurementPeriodStart: '2019-01-01',
-    measurementPeriodEnd: '2019-12-31',
-    calculateSDEs: true,
-    calculateHTML: true,
-    enableDebugOutput: program.debug
-  });
+  result = calculateMeasureReports(measureBundle, patientBundles, calcOptions);
 } else if (program.outputType === 'gaps') {
-  result = calculateGapsInCare(measureBundle, patientBundles, { enableDebugOutput: program.debug });
+  result = calculateGapsInCare(measureBundle, patientBundles, calcOptions);
 }
 
 if (program.debug) {
