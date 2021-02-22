@@ -41,7 +41,7 @@ export function getTestMeasureList() {
     const testDirInfo = {
       // format exmId into simple, non-versioned id
       exmId: measureDir.includes('-') ? measureDir.split('-')[0] : measureDir,
-      path: `./fhir-patient-generator/${measureDir}/patients-r4/`,
+      path: `./src/_tests_/fhir-patient-generator/${measureDir}/patients-r4/`,
       measureReportPath: 'string',
       connectahtonBundlePath: 'string',
       connectathonBundle: ''
