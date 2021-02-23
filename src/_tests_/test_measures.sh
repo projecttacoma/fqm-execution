@@ -1,3 +1,3 @@
 #!/bin/bash
 echo "> running the tests"
-npm  run test:integration $1
+npm  run test:integration "$1"
