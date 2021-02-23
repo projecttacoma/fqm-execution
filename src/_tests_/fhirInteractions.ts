@@ -38,7 +38,6 @@ export function getMeasureReport(measureId: string, measureBundle: R4.IBundle, p
   console.log(`Executing measure ${measureId}`);
 
   // Start a timer
-  console.time(`Execute ${measureId}`);
   const calcOptions: CalculationOptions = setupCalcOptions();
   const report = calculateMeasureReports(measureBundle, [patientBundle], calcOptions);
 
@@ -58,7 +57,7 @@ function setupCalcOptions(/* string paramName, boolean value*/): CalculationOpti
   return calcOptions;
 }
 export function loadPatientBundle(patientBundlePath: string) {
-  const patientBundle = fs.readFileSync(patientBundlePath);
-  const bundleStream = fs.createReadStream(patientBundle);
+  const patientBundle = fs.readFileSync(patientBundlePath, 'utf8');
+  const bundleStream = JSON.parse(patientBundle) as R4.IBundle;
   return bundleStream;
 }
