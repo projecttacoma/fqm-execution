@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { join } from 'path';
 import { loadPatientBundle } from './fhirInteractions';
 /**
  * Information about the test data available for a measure.
@@ -59,12 +60,14 @@ export function getTestMeasureList() {
       testDirInfo.measureReportPath = '';
     }
     const newString = prefixPath + measureDir.replace('_', '');
+
     if (fs.existsSync(newString)) {
       const connectahtonBundle = fs.readdirSync(newString).find(filename => {
         return filename.includes('bundle.json');
       });
       if (connectahtonBundle) {
-        testDirInfo.connectahtonBundlePath = prefixPath + '/' + connectahtonBundle;
+        const tempPath = prefixPath + measureDir.replace('_', '') + '/';
+        testDirInfo.connectahtonBundlePath = join(tempPath, connectahtonBundle);
         testDirInfo.connectathonBundle = connectahtonBundle; //'${testDirInfo.path}/connectahtonBundle';
       }
     } else {
