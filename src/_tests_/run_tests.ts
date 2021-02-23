@@ -22,7 +22,6 @@ function parseBundle(filePath: string): R4.IBundle {
   return bundle;
 }
 
-
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
   let onlyMeasureExmId: string | undefined;
