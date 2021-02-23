@@ -36,8 +36,6 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
 
   const testPatientMeasures = getTestMeasureList();
 
-  const measureBundle = parseBundle(path.resolve(prefixPath + testPatientMeasures[0].connectathonBundle));
-
   // if we are testing only one measure check it exists in both test data and fqm-execution
   //need to fix this handling of underscore
   /* if (onlyMeasureExmId && !testPatientMeasures.some(testMeasure => testMeasure.exmId == onlyMeasureExmId)) {
@@ -52,8 +50,9 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
   for (const testPatientMeasure of testPatientMeasures) {
     // Skip if we are in run one mode and this is not the only one we should run
 
-    console.log('inside outer loop');
     if (onlyMeasureExmId && testPatientMeasure.exmId.replace('_', '') != onlyMeasureExmId) continue;
+
+    const measureBundle = parseBundle(path.resolve(testPatientMeasure.connectahtonBundlePath));
 
     //Check if there is a MeasureReport to compare to
     if (!testPatientMeasure.path) {
@@ -74,14 +73,12 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
     const bundleResourceInfos = loadTestDataFolder(testPatientMeasure.path);
     for (const patBundle of bundleResourceInfos) {
       // Execute the measure, i.e. get the MeasureReport from fqm-execution
-      console.log('got into loop of patBundle');
-      const report = getMeasureReport(
-        testPatientMeasure.exmId,
-        measureBundle,
-        parseBundle(testPatientMeasure.connectahtonBundlePath)
-      );
+
+      const report = getMeasureReport(testPatientMeasure.exmId, measureBundle, patBundle.bundle);
+
       // Load the reference report from the test data
-      const referenceReport = loadReferenceMeasureReport(testPatientMeasure.path);
+
+      const referenceReport = loadReferenceMeasureReport(testPatientMeasure.path, patBundle.fileName);
 
       // Compare measure reports and get the list of information about patients with discrepancies
       const badPatients = compareMeasureReports(referenceReport, report);

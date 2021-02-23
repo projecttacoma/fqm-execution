@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        measure: [EXM_111, EXM_124]
+        measure: [EXM104, EXM105, EXM124, EXM125, EXM130, EXM506]
         node-version: [12.x, 14.x]
 
     steps:

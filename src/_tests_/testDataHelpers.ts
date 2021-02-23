@@ -1,5 +1,6 @@
+import { R4 } from '@ahryman40k/ts-fhir-types';
 import fs from 'fs';
-import { join } from 'path';
+import path, { join } from 'path';
 import { loadPatientBundle } from './fhirInteractions';
 /**
  * Information about the test data available for a measure.
@@ -98,7 +99,7 @@ export function loadTestDataFolder(testDataFolder: string) {
     });
 
   /** @type {BundleLoadInfo[]} */
-  const bundleResourceInfos = [];
+  const bundleResourceInfos: { fileName: string; bundle: R4.IBundle }[] = [];
   // Iterate over sub folders
   for (const subfolder of subfolders) {
     const subfolderPath = testDataFolder + '/' + subfolder;
@@ -106,12 +107,12 @@ export function loadTestDataFolder(testDataFolder: string) {
       return fileName.endsWith('.json');
     });
 
-    // Iterate over bundles in this folder and post them to fqm-ruler
+    // Iterate over bundles in this folder and post them
     for (const patientBundleName of patientBundles) {
       process.stdout.write('.');
       console.log(`Loading bundle ${subfolderPath}/${patientBundleName}`);
       const newResourceInfo = loadPatientBundle(`${subfolderPath}/${patientBundleName}`);
-      bundleResourceInfos.push(newResourceInfo);
+      bundleResourceInfos.push({ fileName: patientBundleName, bundle: newResourceInfo });
     }
   }
   console.log();
@@ -125,7 +126,9 @@ export function loadTestDataFolder(testDataFolder: string) {
  * @param {String} measureReportPath Path to the reference measure report.
  * @returns {FHIR.MeasureReport} The MeasureReport resource that will be compared against.
  */
-export function loadReferenceMeasureReport(measureReportPath: string) {
-  const file = fs.readFileSync(measureReportPath, 'utf-8');
+export function loadReferenceMeasureReport(filePath: string, patientBundle: string) {
+  const c = patientBundle.substring(0, patientBundle.lastIndexOf('.'));
+  const mRfilename = c + '-MeasureReport.json';
+  const file = fs.readFileSync(path.join(filePath, '/measure-reports/' + mRfilename), 'utf-8');
   return JSON.parse(file);
 }
