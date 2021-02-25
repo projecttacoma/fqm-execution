@@ -15,10 +15,12 @@ import { loadPatientBundle } from './fhirInteractions';
  *
  * @typedef {Object} BadPatient
  * @property {String} patientName - Patient Name.
+ * @property {boolean} thereWasAnIssue - flag to indicate if there was an issue with the comparison to the reference report default is false which means that there was no issues
  * @property {String[]} issues - List of reasons this patient is bad.
  */
 export interface BadPatient {
   patientName: string;
+  thereWasAnIssue: boolean;
   issues: string[];
 }
 /**

@@ -23,9 +23,9 @@ function findCorrespondingGroup(referenceGroup: R4.IMeasureReport_Group, report:
  */
 function findCorrespondingPopulation(
   referencePopulation: R4.IMeasureReport_Population,
-  group: R4.IMeasureReport_Group
+  group: R4.IMeasureReport_Group | undefined
 ) {
-  return group.population?.find(population => {
+  return group?.population?.find(population => {
     if (referencePopulation.code?.coding && population.code?.coding) {
       return referencePopulation.code.coding[0].code == population.code.coding[0].code;
     }
@@ -39,10 +39,28 @@ function findCorrespondingPopulation(
  * @param {String} reference FHIR '#' style reference to contained resource
  * @param {FHIR.MeasureReport} report The report to find the contained reference.
  */
-function grabReferencedResource(reference: string, report: R4.IMeasureReport) {
-  const id = reference.replace('#', '');
+function grabReferencedResource(reference: string | undefined, report: R4.IMeasureReport) {
+  const id = reference?.replace('#', '');
   return report.contained?.find(resource => {
     return resource.id == id;
+  });
+}
+
+/**
+ * Finds the corresponding population result in a group for the given reference population.
+ *
+ * @param {*} referencePopulation The reference population. This is the one we are trying to find the match for.
+ * @param {*} group The group to look for the population in
+ * @returns {Object} The corresponding population.
+ */
+function grabCountFromReference(
+  referencePopulation: R4.IMeasureReport_Population | undefined,
+  group: R4.IMeasureReport_Group
+) {
+  return group.population?.find(population => {
+    if (referencePopulation?.count && population?.count) {
+      return referencePopulation?.count == population?.count;
+    }
   });
 }
 
@@ -53,16 +71,25 @@ function grabReferencedResource(reference: string, report: R4.IMeasureReport) {
  * @param {String} patientName
  * @param {String} issueMessage
  */
-function addBadPatientEntry(badPatientsList: BadPatient[], patientName: string, issueMessage: string) {
+function addBadPatientEntry(
+  badPatientsList: BadPatient[],
+  patientName: string,
+  thereWasAnIssue: boolean,
+  issueMessage: string
+) {
   // Find the patient or create them if they don't exist
   let badPatient = badPatientsList.find(badPatient => badPatient.patientName == patientName);
   if (!badPatient) {
-    badPatient = { patientName: patientName, issues: [] };
+    badPatient = { patientName: patientName, thereWasAnIssue, issues: [] };
     badPatientsList.push(badPatient);
   }
 
   // Add the issue message to their list of issues.
-  badPatient.issues.push(issueMessage);
+  if (badPatient?.thereWasAnIssue == true) {
+    badPatient.issues.push(issueMessage);
+  } else {
+    badPatient.issues.push('no issue');
+  }
 }
 
 /**
@@ -72,88 +99,69 @@ function addBadPatientEntry(badPatientsList: BadPatient[], patientName: string, 
  * @param {FHIR.MeasureReport} report The report coming from execution.
  * @returns {BadPatient[]} List of bad patients and the issues with them.
  */
-export function compareMeasureReports(referenceReport: R4.IMeasureReport, report: R4.IMeasureReport) {
+export function compareMeasureReports(referenceReport: R4.IMeasureReport, report: R4.IMeasureReport, fileName: string) {
   /** @type {BadPatient[]} */
   const badPatientsList: BadPatient[] = [];
 
   console.log(`Comparing reports for ${referenceReport.measure}`);
 
   // iterate groups in referenceReport
-  referenceReport.group?.forEach(referenceGroup => {
-    console.log(`  Comparing group: ${referenceGroup.id}`);
-    // find corresponding group in report
-    const group = findCorrespondingGroup(referenceGroup, report);
+  if (referenceReport?.group) {
+    referenceReport.group.forEach(referenceGroup => {
+      console.log(`  Comparing group: ${referenceGroup.id}`);
+      // find corresponding group in report
+      const group = findCorrespondingGroup(referenceGroup, report);
 
-    // iterate populations
-    referenceGroup.population?.forEach(referencePopulation => {
-      if (referencePopulation.code?.coding) {
-        console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
-      }
-      // find corresponding population
+      // iterate populations
+      referenceGroup.population?.forEach(referencePopulation => {
+        if (referencePopulation.code?.coding) {
+          console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
+        }
+        // find corresponding population
 
-      if (group && referencePopulation.subjectResults?.reference) {
         const population = findCorrespondingPopulation(referencePopulation, group);
 
         // grab lists of patients
         const referenceList = <any>(
-          grabReferencedResource(referencePopulation.subjectResults.reference, referenceReport)
+          grabReferencedResource(referencePopulation?.subjectResults?.reference, referenceReport)
         );
-        if (population?.subjectResults?.reference) {
-          const list = <any>grabReferencedResource(population.subjectResults.reference, report);
 
-          // Turn into list of patient names from reference report, default to [] if list is empty/nonexistent
-          let referencePatientNames: string[] = [];
-          if (referenceList?.entry) {
-            referencePatientNames = referenceList.entry.map((e: any) => {
-              return e.item.display;
-            });
+        if (population?.count) {
+          const list = <any>grabCountFromReference(population, report);
+
+          if (!(population?.count == referencePopulation.count)) {
+            const patientName = fileName.substring(0, fileName.lastIndexOf('-'));
+            console.log('        MISSING  ' + patientName);
+            addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${referenceGroup.id}`);
           }
-
-          // Turn into list of patient names from calculated report. default to [] if list is empty/nonexistent
-          let patientNames: string[] = [];
-          if (list.entry) {
-            patientNames = list.entry.map((e: any) => {
-              return e.item.display;
-            });
-          }
-
-          // compare lists
-          const missingPatients = referencePatientNames.filter(patientName => {
-            return !patientNames.includes(patientName);
-          });
-          const unexpectedPatients = patientNames.filter(patientName => {
-            return !referencePatientNames.includes(patientName);
-          });
-
-          // log patients that are missing in the report
-          console.log(`      Expected ${referencePatientNames.length} - Actual ${patientNames.length}`);
-          missingPatients.forEach(patientName => {
-            if (referencePopulation?.code?.coding) {
-              console.log(`        MISSING    ${patientName}`);
-              addBadPatientEntry(
-                badPatientsList,
-                patientName,
-                `Missing from ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`
-              );
-            }
-          });
-
-          // log patients that were unexpected in the report
-          unexpectedPatients.forEach(patientName => {
-            if (referencePopulation?.code?.coding) {
-              console.log(`        UNEXPECTED ${patientName}`);
-              addBadPatientEntry(
-                badPatientsList,
-                patientName,
-                `Unexpected in ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`
-              );
-            }
-          });
         }
-      }
-    });
-  });
+        /*missingPatients.forEach((patientName: string) => {
+          if (referencePopulation?.count) {
+            console.log(`        MISSING    ${patientName}`);
+            addBadPatientEntry(
+              badPatientsList,
+              patientName,
+              true,
+              `Missing from ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`
+            );
+          }
+        });*/
 
+        // log patients that were unexpected in the report
+        /*unexpectedPatients.forEach(patientName => {
+          if (referencePopulation?.code?.coding) {
+            console.log(`        UNEXPECTED ${patientName}`);
+            addBadPatientEntry(
+              badPatientsList,
+              patientName,
+              true,
+              `Unexpected in ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`
+            );
+          }
+        });*/
+      });
+    });
+  }
   // return list of patients with issues
   return badPatientsList;
 }

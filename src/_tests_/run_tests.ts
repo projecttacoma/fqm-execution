@@ -22,6 +22,7 @@ function parseBundle(filePath: string): R4.IBundle {
   return bundle;
 }
 
+
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
   let onlyMeasureExmId: string | undefined;
@@ -77,7 +78,7 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
       const referenceReport = loadReferenceMeasureReport(testPatientMeasure.path, patBundle.fileName);
 
       // Compare measure reports and get the list of information about patients with discrepancies
-      const badPatients = compareMeasureReports(referenceReport, report);
+      const badPatients = compareMeasureReports(referenceReport, report, patBundle.fileName);
 
       // Add to the measure info to print at the end
       measureDiffInfo.push({
@@ -91,33 +92,39 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
 }
 // Print listing of measures and differences found and exit.
 
-const measureDiffInfo = calculateMeasuresAndCompare();
+const measureDiffInfo  = calculateMeasuresAndCompare();
 console.log();
 console.log('--- RESULTS ---');
 console.log();
 let hasDifferences = false;
 
 // Iterate over measures
-measureDiffInfo.forEach(measureDiff => {
-  console.log(`MEASURE ${measureDiff.exmId}`);
 
-  // Iterate over the listing of discrepancies for this measure if there are any
-  if (measureDiff.badPatients.length > 0) {
-    hasDifferences = true;
-    measureDiff.badPatients.forEach(patient => {
-      console.log(`|- ${patient.patientName}`);
-      patient.issues.forEach(issue => {
-        console.log(`|   ${issue}`);
+const listofMeasures = getTestMeasureList();
+for (const measure of listofMeasures) {
+  console.log(`MEASURE ${measure.exmId}`);
+
+  measureDiffInfo.forEach(measureDiff => {
+    // Iterate over the listing of discrepancies for this measure if there are any
+
+    if (measureDiff.badPatients.length > 0) {
+      hasDifferences = true;
+      measureDiff.badPatients.forEach(patient => {
+        console.log(`|- ${patient.patientName}`);
+        patient.issues.forEach(issue => {
+          console.log(`|   ${issue}`);
+        });
       });
-    });
 
-    // If there were no discrepancies
-  } else {
-    console.log('  No Issues!');
+      // If there were no discrepancies
+    }
+  });
+  if (!hasDifferences) {
+    console.log('No Issues');
   }
   console.log();
-});
-
+  hasDifferences = false;
+}
 // If there were discrepancies, return with non-zero exit status
 if (hasDifferences) {
   process.exit(1);
