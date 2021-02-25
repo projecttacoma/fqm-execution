@@ -22,23 +22,30 @@ function parseBundle(filePath: string): R4.IBundle {
   return bundle;
 }
 
+/*{ exmId: string; badPatients: BadPatient[] }[]*/
+/**
+ * Container for issues found during MeasureReport comparison.
+ *
+ * @typedef {Object} MeasDiff
+ * @property {String} exmId - Patient Name.
+ * @property {BadPatient[]} badPatients[] - List of bad patients and their issues
+ */
+export interface MeasDiff {
+  exmId: string;
+  badPatients: BadPatient[];
+}
 
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
-  let onlyMeasureExmId: string | undefined;
-  if (process.argv[2]) {
-    onlyMeasureExmId = process.argv[2];
-    console.log(`Only running ${onlyMeasureExmId}`);
-  }
+ 
 
   const testPatientMeasures = getTestMeasureList();
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
-  //need to fix this handling of underscore
-  /* if (onlyMeasureExmId && !testPatientMeasures.some(testMeasure => testMeasure.exmId == onlyMeasureExmId)) {
   
-    throw new Error(`Measure ${onlyMeasureExmId} was not found  in test data and was the only measure requested.`);
-  }*/
+  if (onlyMeasureExmId && !testPatientMeasures.some(testMeasure => testMeasure.exmId.replace('_', '') == onlyMeasureExmId)) {
+  throw new Error(`Measure ${onlyMeasureExmId} was not found  in test data and was the only measure requested.`);
+  }
 
   // Array for collecting diff information to print at end.
   const measureDiffInfo = [];
@@ -68,6 +75,7 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
     //need to change here, we can't load all the patients we need to iterate through each one
     //in the bundle
     const bundleResourceInfos = loadTestDataFolder(testPatientMeasure.path);
+    console.log(`Executing measure ${testPatientMeasure.exmId}`);
     for (const patBundle of bundleResourceInfos) {
       // Execute the measure, i.e. get the MeasureReport from fqm-execution
 
@@ -91,8 +99,12 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
   return measureDiffInfo;
 }
 // Print listing of measures and differences found and exit.
-
-const measureDiffInfo  = calculateMeasuresAndCompare();
+let onlyMeasureExmId: string | undefined;
+if (process.argv[2]) {
+  onlyMeasureExmId = process.argv[2];
+  console.log(`Only running ${onlyMeasureExmId}`);
+}
+const measureDiffInfo = calculateMeasuresAndCompare();
 console.log();
 console.log('--- RESULTS ---');
 console.log();
@@ -102,11 +114,12 @@ let hasDifferences = false;
 
 const listofMeasures = getTestMeasureList();
 for (const measure of listofMeasures) {
+  if (onlyMeasureExmId && measure.exmId.replace('_', '') != onlyMeasureExmId) continue;
   console.log(`MEASURE ${measure.exmId}`);
-
+  hasDifferences = false;
   measureDiffInfo.forEach(measureDiff => {
     // Iterate over the listing of discrepancies for this measure if there are any
-
+   
     if (measureDiff.badPatients.length > 0) {
       hasDifferences = true;
       measureDiff.badPatients.forEach(patient => {
@@ -123,7 +136,6 @@ for (const measure of listofMeasures) {
     console.log('No Issues');
   }
   console.log();
-  hasDifferences = false;
 }
 // If there were discrepancies, return with non-zero exit status
 if (hasDifferences) {
