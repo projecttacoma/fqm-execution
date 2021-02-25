@@ -37,14 +37,16 @@ export interface MeasDiff {
 
 export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
- 
 
   const testPatientMeasures = getTestMeasureList();
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
-  
-  if (onlyMeasureExmId && !testPatientMeasures.some(testMeasure => testMeasure.exmId.replace('_', '') == onlyMeasureExmId)) {
-  throw new Error(`Measure ${onlyMeasureExmId} was not found  in test data and was the only measure requested.`);
+
+  if (
+    onlyMeasureExmId &&
+    !testPatientMeasures.some(testMeasure => testMeasure.exmId.replace('_', '') == onlyMeasureExmId)
+  ) {
+    throw new Error(`Measure ${onlyMeasureExmId} was not found  in test data and was the only measure requested.`);
   }
 
   // Array for collecting diff information to print at end.
@@ -119,7 +121,7 @@ for (const measure of listofMeasures) {
   hasDifferences = false;
   measureDiffInfo.forEach(measureDiff => {
     // Iterate over the listing of discrepancies for this measure if there are any
-   
+
     if (measureDiff.badPatients.length > 0) {
       hasDifferences = true;
       measureDiff.badPatients.forEach(patient => {

@@ -1,5 +1,4 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { idText } from 'typescript';
 import { BadPatient } from './testDataHelpers';
 const debug = process.env.DEBUG;
 /**
@@ -47,23 +46,6 @@ function grabReferencedResource(reference: string | undefined, report: R4.IMeasu
   });
 }
 
-/**
- * Finds the corresponding population result in a group for the given reference population.
- *
- * @param {*} referencePopulation The reference population. This is the one we are trying to find the match for.
- * @param {*} group The group to look for the population in
- * @returns {Object} The corresponding population.
- */
-function grabCountFromReference(
-  referencePopulation: R4.IMeasureReport_Population | undefined,
-  group: R4.IMeasureReport_Group
-) {
-  return group.population?.find(population => {
-    if (referencePopulation?.count && population?.count) {
-      return referencePopulation?.count == population?.count;
-    }
-  });
-}
 
 /**
  * Add an issue entry to the given bad patient list for a specific patient. Add this patient to the list if are not already in it.
@@ -104,66 +86,36 @@ export function compareMeasureReports(referenceReport: R4.IMeasureReport, report
   /** @type {BadPatient[]} */
   const badPatientsList: BadPatient[] = [];
   const patientName = fileName.substring(0, fileName.lastIndexOf('-'));
-  if(debug) {
-  console.log(`Comparing reports for ${referenceReport.measure}`);
-  console.log (`Comparing results for ${patientName}`);
+  if (debug) {
+    console.log(`Comparing reports for ${referenceReport.measure}`);
+    console.log(`Comparing results for ${patientName}`);
   }
   // iterate groups in referenceReport
   if (referenceReport?.group) {
     referenceReport.group.forEach(referenceGroup => {
-      if(debug) console.log(`  Comparing group: ${referenceGroup.id}`);
+      if (debug) console.log(`  Comparing group: ${referenceGroup.id}`);
       // find corresponding group in report
       const group = findCorrespondingGroup(referenceGroup, report);
 
       // iterate populations
       referenceGroup.population?.forEach(referencePopulation => {
-        let popName  = "";
+        let popName = '';
         if (referencePopulation.code?.coding) {
           popName = referencePopulation.code.coding[0].display || ' unknown pop';
-          if(debug)  console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
+          if (debug) console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
         }
         // find corresponding population
 
         const population = findCorrespondingPopulation(referencePopulation, group);
 
         // grab lists of patients
-        const referenceList = <any>(
-          grabReferencedResource(referencePopulation?.subjectResults?.reference, referenceReport)
-        );
 
         if (population?.count) {
-          
-
           if (!(population?.count == referencePopulation.count)) {
-
             console.log('        MISSING  ' + patientName);
             addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
           }
         }
-        /*missingPatients.forEach((patientName: string) => {
-          if (referencePopulation?.count) {
-            console.log(`        MISSING    ${patientName}`);
-            addBadPatientEntry(
-              badPatientsList,
-              patientName,
-              true,
-              `Missing from ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`
-            );
-          }
-        });*/
-
-        // log patients that were unexpected in the report
-        /*unexpectedPatients.forEach(patientName => {
-          if (referencePopulation?.code?.coding) {
-            console.log(`        UNEXPECTED ${patientName}`);
-            addBadPatientEntry(
-              badPatientsList,
-              patientName,
-              true,
-              `Unexpected in ${referenceGroup.id} - ${referencePopulation.code.coding[0].display}`
-            );
-          }
-        });*/
       });
     });
   }

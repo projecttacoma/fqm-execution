@@ -35,8 +35,6 @@ const PERIOD_END = '2019-12-31';
  * @returns {Promise<R4.IMeasureReport>} The patient-list MeasureReport.
  */
 export function getMeasureReport(measureId: string, measureBundle: R4.IBundle, patientBundle: R4.IBundle) {
- 
-
   // Start a timer
   const calcOptions: CalculationOptions = setupCalcOptions();
   const report = calculateMeasureReports(measureBundle, [patientBundle], calcOptions);
