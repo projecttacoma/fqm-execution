@@ -1,6 +1,7 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { idText } from 'typescript';
 import { BadPatient } from './testDataHelpers';
-
+const debug = process.env.DEBUG;
 /**
  * Finds the corresponding group in a measure report for the given reference group in.
  *
@@ -102,20 +103,24 @@ function addBadPatientEntry(
 export function compareMeasureReports(referenceReport: R4.IMeasureReport, report: R4.IMeasureReport, fileName: string) {
   /** @type {BadPatient[]} */
   const badPatientsList: BadPatient[] = [];
-
+  const patientName = fileName.substring(0, fileName.lastIndexOf('-'));
+  if(debug) {
   console.log(`Comparing reports for ${referenceReport.measure}`);
-
+  console.log (`Comparing results for ${patientName}`);
+  }
   // iterate groups in referenceReport
   if (referenceReport?.group) {
     referenceReport.group.forEach(referenceGroup => {
-      console.log(`  Comparing group: ${referenceGroup.id}`);
+      if(debug) console.log(`  Comparing group: ${referenceGroup.id}`);
       // find corresponding group in report
       const group = findCorrespondingGroup(referenceGroup, report);
 
       // iterate populations
       referenceGroup.population?.forEach(referencePopulation => {
+        let popName  = "";
         if (referencePopulation.code?.coding) {
-          console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
+          popName = referencePopulation.code.coding[0].display || ' unknown pop';
+          if(debug)  console.log(`    Comparing population: ${referencePopulation.code.coding[0].display}`);
         }
         // find corresponding population
 
@@ -127,12 +132,12 @@ export function compareMeasureReports(referenceReport: R4.IMeasureReport, report
         );
 
         if (population?.count) {
-          const list = <any>grabCountFromReference(population, report);
+          
 
           if (!(population?.count == referencePopulation.count)) {
-            const patientName = fileName.substring(0, fileName.lastIndexOf('-'));
+
             console.log('        MISSING  ' + patientName);
-            addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${referenceGroup.id}`);
+            addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
           }
         }
         /*missingPatients.forEach((patientName: string) => {
