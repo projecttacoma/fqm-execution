@@ -33,20 +33,6 @@ function findCorrespondingPopulation(
 }
 
 /**
- * Gets the contained Resource in a MeasureReport by '#' local reference. This is used to grab the list of patients
- * that calculated in a population.
- *
- * @param {String} reference FHIR '#' style reference to contained resource
- * @param {FHIR.MeasureReport} report The report to find the contained reference.
- */
-function grabReferencedResource(reference: string | undefined, report: R4.IMeasureReport) {
-  const id = reference?.replace('#', '');
-  return report.contained?.find(resource => {
-    return resource.id == id;
-  });
-}
-
-/**
  * Add an issue entry to the given bad patient list for a specific patient. Add this patient to the list if are not already in it.
  *
  * @param {BadPatient[]} badPatientsList
