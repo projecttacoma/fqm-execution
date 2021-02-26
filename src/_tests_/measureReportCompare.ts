@@ -46,7 +46,6 @@ function grabReferencedResource(reference: string | undefined, report: R4.IMeasu
   });
 }
 
-
 /**
  * Add an issue entry to the given bad patient list for a specific patient. Add this patient to the list if are not already in it.
  *
@@ -108,12 +107,15 @@ export function compareMeasureReports(referenceReport: R4.IMeasureReport, report
 
         const population = findCorrespondingPopulation(referencePopulation, group);
 
-        // grab lists of patients
-
-        if (population?.count) {
+        if (population?.count && referencePopulation?.count) {
           if (!(population?.count == referencePopulation.count)) {
-            console.log('        MISSING  ' + patientName);
-            addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
+            if (!(population?.count == 0 && referencePopulation.count == 0)) {
+              console.log('        MISSING  ' + patientName);
+
+              addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
+            } else if (!(population?.count > 0 && referencePopulation.count > 0)) {
+              addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
+            }
           }
         }
       });
