@@ -20,7 +20,7 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm run check
-       - env:
+    - env:
         VALUESET_KEY: ${{ secrets.VALUESET_KEY }}
       run: unzip -P $VALUESET_KEY test/fixtures/EXM130-8.0.000/EXM130-8.0.000-bundle.zip
     - run: rm EXM130-8.0.000-bundle.json
