@@ -20,9 +20,13 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm run check
-    - env:
-        VALUESET_KEY: ${{ secrets.VALUESET_KEY }}
-      run: unzip -P $VALUESET_KEY test/fixtures/EXM130-8.0.000/EXM130-8.0.000-bundle.zip
+    - env:   
+       VALUESET_KEY: ${{ secrets.VALUESET_KEY }}
+      with:
+        path: |
+          ./src/_tests_/fhir-patient-generator
+          ./src/_tests_/connectathon
+    - run: unzip -P $VALUESET_KEY test/fixtures/EXM130-8.0.000/EXM130-8.0.000-bundle.zip
     - run: rm EXM130-8.0.000-bundle.json
     - run: sudo chmod +x ./src/_tests_/setup.sh
     - run: ./src/_tests_/setup.sh
