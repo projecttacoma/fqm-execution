@@ -42,6 +42,8 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
 
   // if we are testing only one measure check it exists in both test data and fqm-execution
 
+  console.log(onlyMeasureExmId);
+  console.log(testPatientMeasures);
   if (
     onlyMeasureExmId &&
     !testPatientMeasures.some(testMeasure => testMeasure.exmId.replace('_', '') == onlyMeasureExmId)

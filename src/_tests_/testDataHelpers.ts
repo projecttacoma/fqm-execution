@@ -30,13 +30,19 @@ export interface BadPatient {
  */
 export function getTestMeasureList() {
   // Find applicable measure test data directories in fhir-patient-generator
+  //
+  const dirs = fs.readdirSync('./');
 
-  const fpgPath = './src/_tests_/fhir-patient-generator';
-  const prefixPath = './src/_tests_/connectathon/fhir401/bundles/measure/';
+  console.log('dirs', dirs);
+
+  const fpgPath = './fhir-patient-generator';
+  const prefixPath = './connectathon/fhir401/bundles/measure/';
   const fpgDir = fs.readdirSync(fpgPath);
   const applicableMeasuresDirs = fpgDir.filter(dir => {
     return dir.startsWith('EXM_');
   });
+
+  console.log('applicableMeasuresDirs', applicableMeasuresDirs);
 
   // Pull out applicable measure information on them
   /** @type {TestMeasureInfo[]} */
@@ -45,7 +51,7 @@ export function getTestMeasureList() {
     const testDirInfo = {
       // format exmId into simple, non-versioned id
       exmId: measureDir.includes('-') ? measureDir.split('-')[0] : measureDir,
-      path: `./src/_tests_/fhir-patient-generator/${measureDir}/patients-r4`,
+      path: `./fhir-patient-generator/${measureDir}/patients-r4`,
       measureReportPath: 'string',
       connectahtonBundlePath: 'string',
       connectathonBundle: ''
