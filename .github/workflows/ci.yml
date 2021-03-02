@@ -20,10 +20,20 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm run check
-    - env:
-        VALUESET_KEY: ${{ secrets.VALUESET_KEY }}
-      run: unzip -P $VALUESET_KEY test/fixtures/EXM130-8.0.000/EXM130-8.0.000-bundle.zip
-    - run: rm EXM130-8.0.000-bundle.json
+  integration_test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        measure: [EXM104, EXM105, EXM124, EXM125, EXM130, EXM506]
+        node-version: [12.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}    
     - run: sudo chmod +x ./src/_tests_/setup.sh
     - run: ./src/_tests_/setup.sh
     - run: sudo chmod +x ./src/_tests_/test_measures.sh
