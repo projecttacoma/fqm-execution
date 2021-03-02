@@ -241,6 +241,7 @@ export function calculateGapsInCare(
 
       const denomResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result;
       const numerResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
+      const numerRelevance = dr.populationRelevance?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
 
       if (!measureResource.improvementNotation?.coding) {
         throw new Error('Measure resource must include improvement notation');
@@ -254,8 +255,10 @@ export function calculateGapsInCare(
 
       // If positive improvement measure, consider patients in denominator but not numerator for gaps
       // If negative improvement measure, consider patients in numerator for gaps
+      // For either case, ignore patient if numerator isn't relevant
       const populationCriteria =
-        improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult;
+        numerRelevance &&
+        (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
 
       if (populationCriteria) {
         const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId);
