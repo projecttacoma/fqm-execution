@@ -94,14 +94,16 @@ export function compareMeasureReports(referenceReport: R4.IMeasureReport, report
         const population = findCorrespondingPopulation(referencePopulation, group);
 
         if (population?.count && referencePopulation?.count) {
-          if (!(population?.count == referencePopulation.count)) {
-            if (!(population?.count == 0 && referencePopulation.count == 0)) {
-              console.log('        MISSING  ' + patientName);
-
-              addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
-            } else if (!(population?.count > 0 && referencePopulation.count > 0)) {
-              addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
-            }
+          if (population?.count == referencePopulation.count) {
+            return;
+          } else if (
+            (population?.count == 0 && referencePopulation.count == 0) ||
+            (population?.count > 0 && referencePopulation.count > 0)
+          ) {
+            return;
+          } else {
+            console.log('        MISSING  ' + patientName);
+            addBadPatientEntry(badPatientsList, patientName, true, `Missing from ${popName}`);
           }
         }
       });
