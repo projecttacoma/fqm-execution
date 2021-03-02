@@ -5,7 +5,5 @@ debug/
 **/.DS_Store
 test/fixtures/elm/queries/translation-output
 test/fixtures/elm/queries/.start-translator
-_tests_/fhir-patient-generator/
-src/_tests_/connectathon
-src/_tests_/connectathon
-_tests_/connectathon/
+connectathon/
+fhir-patient-generator/

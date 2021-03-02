@@ -96,10 +96,7 @@ export function compareMeasureReports(referenceReport: R4.IMeasureReport, report
         if (population?.count && referencePopulation?.count) {
           if (population?.count == referencePopulation.count) {
             return;
-          } else if (
-            (population?.count == 0 && referencePopulation.count == 0) ||
-            (population?.count > 0 && referencePopulation.count > 0)
-          ) {
+          } else if (population?.count > 0 && referencePopulation.count > 0) {
             return;
           } else {
             console.log('        MISSING  ' + patientName);

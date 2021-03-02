@@ -47,7 +47,7 @@ export function getTestMeasureList() {
       exmId: measureDir.includes('-') ? measureDir.split('-')[0] : measureDir,
       path: `./fhir-patient-generator/${measureDir}/patients-r4`,
       measureReportPath: 'string',
-      connectahtonBundlePath: 'string',
+      connectathonBundlePath: 'string',
       connectathonBundle: ''
     };
 
@@ -65,16 +65,16 @@ export function getTestMeasureList() {
     const newString = prefixPath + measureDir.replace('_', '');
 
     if (fs.existsSync(newString)) {
-      const connectahtonBundle = fs.readdirSync(newString).find(filename => {
+      const connectathonBundle = fs.readdirSync(newString).find(filename => {
         return filename.includes('bundle.json');
       });
-      if (connectahtonBundle) {
+      if (connectathonBundle) {
         const tempPath = prefixPath + measureDir.replace('_', '') + '/';
-        testDirInfo.connectahtonBundlePath = join(tempPath, connectahtonBundle);
-        testDirInfo.connectathonBundle = connectahtonBundle; //'${testDirInfo.path}/connectahtonBundle';
+        testDirInfo.connectathonBundlePath = join(tempPath, connectathonBundle);
+        testDirInfo.connectathonBundle = connectathonBundle; //'${testDirInfo.path}/connectathonBundle';
       }
     } else {
-      testDirInfo.connectahtonBundlePath = '';
+      testDirInfo.connectathonBundlePath = '';
     }
     return testDirInfo;
   });

@@ -58,7 +58,7 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
 
     if (onlyMeasureExmId && testPatientMeasure.exmId.replace('_', '') != onlyMeasureExmId) continue;
 
-    const measureBundle = parseBundle(path.resolve(testPatientMeasure.connectahtonBundlePath));
+    const measureBundle = parseBundle(path.resolve(testPatientMeasure.connectathonBundlePath));
 
     //Check if there is a MeasureReport to compare to
     if (!testPatientMeasure.path) {
