@@ -19,7 +19,9 @@ export interface Results {
   localIdPatientResultsMap: {
     [patientId: string]: LocalIdResults;
   };
-  evaluatedRecords: any[];
+  patientEvaluatedRecords: {
+    [patientId: string]: any[];
+  };
 }
 
 export interface StatementResults {
