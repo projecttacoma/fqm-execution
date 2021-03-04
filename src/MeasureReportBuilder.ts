@@ -148,8 +148,8 @@ export function buildMeasureReports(
       report.group?.push(group);
     });
 
-    if (result.evaluatedResources) {
-      result.evaluatedResources.forEach(resource => {
+    if (result.evaluatedResource) {
+      result.evaluatedResource.forEach(resource => {
         const reference: R4.IReference = {
           reference: `${resource.resourceType}/${resource.id}`
         };

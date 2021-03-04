@@ -69,7 +69,7 @@ export function calculate(
     const patientExecutionResult: ExecutionResult = {
       patientId: patient.id,
       detailedResults: [],
-      evaluatedResources: rawResults.evaluatedRecords
+      evaluatedResource: rawResults.patientEvaluatedRecords[patient.id]
     };
 
     // Grab statement results for the patient

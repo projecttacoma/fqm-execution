@@ -11,15 +11,15 @@
     "build/*"
   ],
   "dependencies": {
+    "@ahryman40k/ts-fhir-types": "^4.0.32",
     "atob": "^2.1.2",
     "commander": "^6.1.0",
     "cql-exec-fhir": "1.5.0-beta.1",
-    "cql-execution": "2.1.0",
+    "cql-execution": "^2.2.0",
     "handlebars": "^4.7.6",
     "moment": "^2.29.0",
-    "uuid": "^8.3.1",
-    "@ahryman40k/ts-fhir-types": "^4.0.32",
-    "ts-node": "9.1.1"
+    "ts-node": "9.1.1",
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@types/handlebars": "^4.1.0",
