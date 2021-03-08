@@ -204,6 +204,8 @@ export interface DataTypeQuery {
   libraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
+  /** whether or not the gap was close to being closed */
+  isNearMiss?: boolean;
 }
 
 /**

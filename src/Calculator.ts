@@ -294,6 +294,8 @@ export function calculateGapsInCare(
           dr
         );
 
+        GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation);
+
         const detectedIssue = GapsInCareHelpers.generateDetectedIssueResource(
           retrieves,
           matchingMeasureReport,
