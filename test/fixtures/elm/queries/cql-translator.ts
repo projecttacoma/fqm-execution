@@ -51,14 +51,14 @@ interface ElmLibrary extends translationService.ElmLibrary {
  *
  * @returns {translationService.ElmLibraries} ELM from translator
  */
-async function translateCQL():Promise<translationService.ElmLibraries> {
+async function translateCQL(): Promise<translationService.ElmLibraries> {
   const cqlPath = path.resolve(path.join(__dirname), './');
-  const cqlFiles = fs.readdirSync(cqlPath).filter((f) => path.extname(f) === '.cql');
-  const cqlRequestBody:translationService.CqlLibraries = {};
+  const cqlFiles = fs.readdirSync(cqlPath).filter(f => path.extname(f) === '.cql');
+  const cqlRequestBody: translationService.CqlLibraries = {};
 
-  cqlFiles.forEach((f) => {
+  cqlFiles.forEach(f => {
     cqlRequestBody[path.basename(f, '.cql')] = {
-      cql: fs.readFileSync(path.join(cqlPath, f), 'utf8'),
+      cql: fs.readFileSync(path.join(cqlPath, f), 'utf8')
     };
   });
 
@@ -72,8 +72,8 @@ async function translateCQL():Promise<translationService.ElmLibraries> {
  * @param {ElmLibrary} elm ELM JSON to look for errors in
  * @returns {object[]} annotations with severity error
  */
-function processErrors(elm:ElmLibrary):object[] {
-  const errors:object[] = [];
+function processErrors(elm: ElmLibrary): object[] {
+  const errors: object[] = [];
 
   // Check annotations for errors. If no annotations, no errors
   if (elm.library.annotation) {
@@ -88,7 +88,7 @@ function processErrors(elm:ElmLibrary):object[] {
 }
 
 translateCQL()
-  .then((libraries) => {
+  .then(libraries => {
     const buildPath = path.join(__dirname, './output');
     Object.entries(libraries).forEach(([libName, elm]) => {
       const errors = processErrors(elm as ElmLibrary);
@@ -103,7 +103,7 @@ translateCQL()
       }
     });
   })
-  .catch((e) => {
+  .catch(e => {
     console.error(`HTTP error translating CQL: ${e.message}`);
     console.error(e.stack);
     process.exit(1);
