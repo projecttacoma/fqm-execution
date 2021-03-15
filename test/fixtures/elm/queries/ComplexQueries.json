@@ -1,0 +1,769 @@
+{
+   "library" : {
+      "annotation" : [ {
+         "translatorOptions" : "EnableAnnotations,EnableLocators",
+         "type" : "CqlToElmInfo"
+      }, {
+         "libraryId" : "MATGlobalCommonFunctions",
+         "libraryVersion" : "5.0.000",
+         "startLine" : 277,
+         "startChar" : 19,
+         "endLine" : 277,
+         "endChar" : 53,
+         "message" : "Could not resolve membership operator for terminology target of the retrieve.",
+         "errorType" : "semantic",
+         "errorSeverity" : "warning",
+         "type" : "CqlToElmError"
+      } ],
+      "identifier" : {
+         "id" : "ComplexQueries",
+         "version" : "0.0.1"
+      },
+      "schemaIdentifier" : {
+         "id" : "urn:hl7-org:elm",
+         "version" : "r1"
+      },
+      "usings" : {
+         "def" : [ {
+            "localIdentifier" : "System",
+            "uri" : "urn:hl7-org:elm-types:r1"
+         }, {
+            "localId" : "1",
+            "locator" : "3:1-3:26",
+            "localIdentifier" : "FHIR",
+            "uri" : "http://hl7.org/fhir",
+            "version" : "4.0.1"
+         } ]
+      },
+      "includes" : {
+         "def" : [ {
+            "localId" : "2",
+            "locator" : "5:1-5:35",
+            "localIdentifier" : "FHIRHelpers",
+            "path" : "FHIRHelpers",
+            "version" : "4.0.1"
+         }, {
+            "localId" : "3",
+            "locator" : "6:1-6:64",
+            "localIdentifier" : "Global",
+            "path" : "MATGlobalCommonFunctions",
+            "version" : "5.0.000"
+         } ]
+      },
+      "parameters" : {
+         "def" : [ {
+            "localId" : "30",
+            "locator" : "25:1-26:66",
+            "name" : "Measurement Period",
+            "accessLevel" : "Public",
+            "default" : {
+               "localId" : "27",
+               "locator" : "26:11-26:66",
+               "lowClosed" : true,
+               "highClosed" : false,
+               "type" : "Interval",
+               "low" : {
+                  "localId" : "25",
+                  "locator" : "26:20-26:41",
+                  "type" : "DateTime",
+                  "year" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "2019",
+                     "type" : "Literal"
+                  },
+                  "month" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "1",
+                     "type" : "Literal"
+                  },
+                  "day" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "1",
+                     "type" : "Literal"
+                  },
+                  "hour" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  },
+                  "minute" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  },
+                  "second" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  },
+                  "millisecond" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  }
+               },
+               "high" : {
+                  "localId" : "26",
+                  "locator" : "26:44-26:65",
+                  "type" : "DateTime",
+                  "year" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "2020",
+                     "type" : "Literal"
+                  },
+                  "month" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "1",
+                     "type" : "Literal"
+                  },
+                  "day" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "1",
+                     "type" : "Literal"
+                  },
+                  "hour" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  },
+                  "minute" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  },
+                  "second" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  },
+                  "millisecond" : {
+                     "valueType" : "{urn:hl7-org:elm-types:r1}Integer",
+                     "value" : "0",
+                     "type" : "Literal"
+                  }
+               }
+            },
+            "parameterTypeSpecifier" : {
+               "localId" : "29",
+               "locator" : "25:32-25:49",
+               "type" : "IntervalTypeSpecifier",
+               "pointType" : {
+                  "localId" : "28",
+                  "locator" : "25:41-25:48",
+                  "name" : "{urn:hl7-org:elm-types:r1}DateTime",
+                  "type" : "NamedTypeSpecifier"
+               }
+            }
+         } ]
+      },
+      "codeSystems" : {
+         "def" : [ {
+            "localId" : "4",
+            "locator" : "8:1-8:42",
+            "name" : "EXAMPLE",
+            "id" : "http://example.com",
+            "accessLevel" : "Public"
+         }, {
+            "localId" : "5",
+            "locator" : "9:1-9:46",
+            "name" : "EXAMPLE-2",
+            "id" : "http://example.com/2",
+            "accessLevel" : "Public"
+         }, {
+            "localId" : "6",
+            "locator" : "10:1-10:101",
+            "name" : "ConditionClinicalStatusCodes",
+            "id" : "http://terminology.hl7.org/CodeSystem/condition-clinical",
+            "accessLevel" : "Public"
+         } ]
+      },
+      "valueSets" : {
+         "def" : [ {
+            "localId" : "7",
+            "locator" : "12:1-12:48",
+            "name" : "test-vs",
+            "id" : "http://example.com/test-vs",
+            "accessLevel" : "Public"
+         } ]
+      },
+      "codes" : {
+         "def" : [ {
+            "localId" : "9",
+            "locator" : "14:1-14:39",
+            "name" : "test-code",
+            "id" : "test",
+            "accessLevel" : "Public",
+            "codeSystem" : {
+               "localId" : "8",
+               "locator" : "14:31-14:39",
+               "name" : "EXAMPLE"
+            }
+         }, {
+            "localId" : "11",
+            "locator" : "15:1-15:45",
+            "name" : "test-code-2",
+            "id" : "test-2",
+            "accessLevel" : "Public",
+            "codeSystem" : {
+               "localId" : "10",
+               "locator" : "15:35-15:45",
+               "name" : "EXAMPLE-2"
+            }
+         }, {
+            "localId" : "13",
+            "locator" : "17:1-17:59",
+            "name" : "Active",
+            "id" : "active",
+            "accessLevel" : "Public",
+            "codeSystem" : {
+               "localId" : "12",
+               "locator" : "17:30-17:59",
+               "name" : "ConditionClinicalStatusCodes"
+            }
+         }, {
+            "localId" : "15",
+            "locator" : "18:1-18:67",
+            "name" : "Recurrence",
+            "id" : "recurrence",
+            "accessLevel" : "Public",
+            "codeSystem" : {
+               "localId" : "14",
+               "locator" : "18:38-18:67",
+               "name" : "ConditionClinicalStatusCodes"
+            }
+         }, {
+            "localId" : "17",
+            "locator" : "19:1-19:61",
+            "name" : "Relapse",
+            "id" : "relapse",
+            "accessLevel" : "Public",
+            "codeSystem" : {
+               "localId" : "16",
+               "locator" : "19:32-19:61",
+               "name" : "ConditionClinicalStatusCodes"
+            }
+         } ]
+      },
+      "concepts" : {
+         "def" : [ {
+            "localId" : "20",
+            "locator" : "21:1-21:77",
+            "name" : "test-concept",
+            "display" : "test-concept",
+            "accessLevel" : "Public",
+            "code" : [ {
+               "localId" : "18",
+               "locator" : "21:27-21:37",
+               "name" : "test-code"
+            }, {
+               "localId" : "19",
+               "locator" : "21:40-21:52",
+               "name" : "test-code-2"
+            } ]
+         }, {
+            "localId" : "24",
+            "locator" : "23:1-23:82",
+            "name" : "Condition Active",
+            "display" : "Active",
+            "accessLevel" : "Public",
+            "code" : [ {
+               "localId" : "21",
+               "locator" : "23:31-23:38",
+               "name" : "Active"
+            }, {
+               "localId" : "22",
+               "locator" : "23:41-23:52",
+               "name" : "Recurrence"
+            }, {
+               "localId" : "23",
+               "locator" : "23:55-23:63",
+               "name" : "Relapse"
+            } ]
+         } ]
+      },
+      "statements" : {
+         "def" : [ {
+            "locator" : "28:1-28:15",
+            "name" : "Patient",
+            "context" : "Patient",
+            "expression" : {
+               "type" : "SingletonFrom",
+               "operand" : {
+                  "locator" : "28:1-28:15",
+                  "dataType" : "{http://hl7.org/fhir}Patient",
+                  "templateId" : "http://hl7.org/fhir/StructureDefinition/Patient",
+                  "type" : "Retrieve"
+               }
+            }
+         }, {
+            "localId" : "43",
+            "locator" : "30:1-33:45",
+            "name" : "Code And Starts During MP",
+            "context" : "Patient",
+            "accessLevel" : "Public",
+            "annotation" : [ {
+               "type" : "Annotation",
+               "s" : {
+                  "r" : "43",
+                  "s" : [ {
+                     "value" : [ "define ","\"Code And Starts During MP\"",":\n  " ]
+                  }, {
+                     "r" : "42",
+                     "s" : [ {
+                        "s" : [ {
+                           "r" : "32",
+                           "s" : [ {
+                              "r" : "31",
+                              "s" : [ {
+                                 "r" : "31",
+                                 "s" : [ {
+                                    "value" : [ "[","Condition",": " ]
+                                 }, {
+                                    "s" : [ {
+                                       "value" : [ "\"test-vs\"" ]
+                                    } ]
+                                 }, {
+                                    "value" : [ "]" ]
+                                 } ]
+                              } ]
+                           }, {
+                              "value" : [ " ","C" ]
+                           } ]
+                        } ]
+                     }, {
+                        "value" : [ "\n    " ]
+                     }, {
+                        "r" : "41",
+                        "s" : [ {
+                           "value" : [ "where " ]
+                        }, {
+                           "r" : "41",
+                           "s" : [ {
+                              "r" : "36",
+                              "s" : [ {
+                                 "r" : "34",
+                                 "s" : [ {
+                                    "r" : "33",
+                                    "s" : [ {
+                                       "value" : [ "C" ]
+                                    } ]
+                                 }, {
+                                    "value" : [ "." ]
+                                 }, {
+                                    "r" : "34",
+                                    "s" : [ {
+                                       "value" : [ "clinicalStatus" ]
+                                    } ]
+                                 } ]
+                              }, {
+                                 "value" : [ " ","~"," " ]
+                              }, {
+                                 "r" : "35",
+                                 "s" : [ {
+                                    "value" : [ "\"Condition Active\"" ]
+                                 } ]
+                              } ]
+                           }, {
+                              "value" : [ "\n      and " ]
+                           }, {
+                              "r" : "40",
+                              "s" : [ {
+                                 "r" : "38",
+                                 "s" : [ {
+                                    "r" : "37",
+                                    "s" : [ {
+                                       "value" : [ "C" ]
+                                    } ]
+                                 }, {
+                                    "value" : [ "." ]
+                                 }, {
+                                    "r" : "38",
+                                    "s" : [ {
+                                       "value" : [ "onset" ]
+                                    } ]
+                                 } ]
+                              }, {
+                                 "r" : "40",
+                                 "value" : [ " ","during"," " ]
+                              }, {
+                                 "r" : "39",
+                                 "s" : [ {
+                                    "value" : [ "\"Measurement Period\"" ]
+                                 } ]
+                              } ]
+                           } ]
+                        } ]
+                     } ]
+                  } ]
+               }
+            } ],
+            "expression" : {
+               "localId" : "42",
+               "locator" : "31:3-33:45",
+               "type" : "Query",
+               "source" : [ {
+                  "localId" : "32",
+                  "locator" : "31:3-31:26",
+                  "alias" : "C",
+                  "expression" : {
+                     "localId" : "31",
+                     "locator" : "31:3-31:24",
+                     "dataType" : "{http://hl7.org/fhir}Condition",
+                     "templateId" : "http://hl7.org/fhir/StructureDefinition/Condition",
+                     "codeProperty" : "code",
+                     "type" : "Retrieve",
+                     "codes" : {
+                        "locator" : "31:15-31:23",
+                        "name" : "test-vs",
+                        "type" : "ValueSetRef"
+                     }
+                  }
+               } ],
+               "relationship" : [ ],
+               "where" : {
+                  "localId" : "41",
+                  "locator" : "32:5-33:45",
+                  "type" : "And",
+                  "operand" : [ {
+                     "localId" : "36",
+                     "locator" : "32:11-32:47",
+                     "type" : "Equivalent",
+                     "operand" : [ {
+                        "name" : "ToConcept",
+                        "libraryName" : "FHIRHelpers",
+                        "type" : "FunctionRef",
+                        "operand" : [ {
+                           "localId" : "34",
+                           "locator" : "32:11-32:26",
+                           "path" : "clinicalStatus",
+                           "scope" : "C",
+                           "type" : "Property"
+                        } ]
+                     }, {
+                        "localId" : "35",
+                        "locator" : "32:30-32:47",
+                        "name" : "Condition Active",
+                        "type" : "ConceptRef"
+                     } ]
+                  }, {
+                     "localId" : "40",
+                     "locator" : "33:11-33:45",
+                     "type" : "IncludedIn",
+                     "operand" : [ {
+                        "name" : "ToInterval",
+                        "libraryName" : "FHIRHelpers",
+                        "type" : "FunctionRef",
+                        "operand" : [ {
+                           "asType" : "{http://hl7.org/fhir}Period",
+                           "type" : "As",
+                           "operand" : {
+                              "localId" : "38",
+                              "locator" : "33:11-33:17",
+                              "path" : "onset",
+                              "scope" : "C",
+                              "type" : "Property"
+                           }
+                        } ]
+                     }, {
+                        "localId" : "39",
+                        "locator" : "33:26-33:45",
+                        "name" : "Measurement Period",
+                        "type" : "ParameterRef"
+                     } ]
+                  } ]
+               }
+            }
+         }, {
+            "localId" : "66",
+            "locator" : "35:1-39:80",
+            "name" : "Observation Status Value Exists and During MP",
+            "context" : "Patient",
+            "accessLevel" : "Public",
+            "annotation" : [ {
+               "type" : "Annotation",
+               "s" : {
+                  "r" : "66",
+                  "s" : [ {
+                     "value" : [ "define ","\"Observation Status Value Exists and During MP\"",":\n  " ]
+                  }, {
+                     "r" : "65",
+                     "s" : [ {
+                        "s" : [ {
+                           "r" : "45",
+                           "s" : [ {
+                              "r" : "44",
+                              "s" : [ {
+                                 "r" : "44",
+                                 "s" : [ {
+                                    "value" : [ "[","Observation",": " ]
+                                 }, {
+                                    "s" : [ {
+                                       "value" : [ "\"test-vs\"" ]
+                                    } ]
+                                 }, {
+                                    "value" : [ "]" ]
+                                 } ]
+                              } ]
+                           }, {
+                              "value" : [ " ","Obs" ]
+                           } ]
+                        } ]
+                     }, {
+                        "value" : [ "\n    " ]
+                     }, {
+                        "r" : "64",
+                        "s" : [ {
+                           "value" : [ "where " ]
+                        }, {
+                           "r" : "64",
+                           "s" : [ {
+                              "r" : "57",
+                              "s" : [ {
+                                 "r" : "53",
+                                 "s" : [ {
+                                    "r" : "47",
+                                    "s" : [ {
+                                       "r" : "46",
+                                       "s" : [ {
+                                          "value" : [ "Obs" ]
+                                       } ]
+                                    }, {
+                                       "value" : [ "." ]
+                                    }, {
+                                       "r" : "47",
+                                       "s" : [ {
+                                          "value" : [ "status" ]
+                                       } ]
+                                    } ]
+                                 }, {
+                                    "value" : [ " in " ]
+                                 }, {
+                                    "r" : "52",
+                                    "s" : [ {
+                                       "value" : [ "{" ]
+                                    }, {
+                                       "r" : "48",
+                                       "s" : [ {
+                                          "value" : [ "'final'" ]
+                                       } ]
+                                    }, {
+                                       "value" : [ ", " ]
+                                    }, {
+                                       "r" : "49",
+                                       "s" : [ {
+                                          "value" : [ "'amended'" ]
+                                       } ]
+                                    }, {
+                                       "value" : [ ", " ]
+                                    }, {
+                                       "r" : "50",
+                                       "s" : [ {
+                                          "value" : [ "'corrected'" ]
+                                       } ]
+                                    }, {
+                                       "value" : [ ", " ]
+                                    }, {
+                                       "r" : "51",
+                                       "s" : [ {
+                                          "value" : [ "'preliminary'" ]
+                                       } ]
+                                    }, {
+                                       "value" : [ "}" ]
+                                    } ]
+                                 } ]
+                              }, {
+                                 "value" : [ "\n      and " ]
+                              }, {
+                                 "r" : "56",
+                                 "s" : [ {
+                                    "r" : "55",
+                                    "s" : [ {
+                                       "r" : "54",
+                                       "s" : [ {
+                                          "value" : [ "Obs" ]
+                                       } ]
+                                    }, {
+                                       "value" : [ "." ]
+                                    }, {
+                                       "r" : "55",
+                                       "s" : [ {
+                                          "value" : [ "value" ]
+                                       } ]
+                                    } ]
+                                 }, {
+                                    "value" : [ " is not null" ]
+                                 } ]
+                              } ]
+                           }, {
+                              "value" : [ "\n      and " ]
+                           }, {
+                              "r" : "63",
+                              "s" : [ {
+                                 "r" : "61",
+                                 "s" : [ {
+                                    "r" : "58",
+                                    "s" : [ {
+                                       "value" : [ "Global" ]
+                                    } ]
+                                 }, {
+                                    "value" : [ "." ]
+                                 }, {
+                                    "r" : "61",
+                                    "s" : [ {
+                                       "value" : [ "\"Normalize Interval\"","(" ]
+                                    }, {
+                                       "r" : "60",
+                                       "s" : [ {
+                                          "r" : "59",
+                                          "s" : [ {
+                                             "value" : [ "Obs" ]
+                                          } ]
+                                       }, {
+                                          "value" : [ "." ]
+                                       }, {
+                                          "r" : "60",
+                                          "s" : [ {
+                                             "value" : [ "effective" ]
+                                          } ]
+                                       } ]
+                                    }, {
+                                       "value" : [ ")" ]
+                                    } ]
+                                 } ]
+                              }, {
+                                 "r" : "63",
+                                 "value" : [ " ","during"," " ]
+                              }, {
+                                 "r" : "62",
+                                 "s" : [ {
+                                    "value" : [ "\"Measurement Period\"" ]
+                                 } ]
+                              } ]
+                           } ]
+                        } ]
+                     } ]
+                  } ]
+               }
+            } ],
+            "expression" : {
+               "localId" : "65",
+               "locator" : "36:3-39:80",
+               "type" : "Query",
+               "source" : [ {
+                  "localId" : "45",
+                  "locator" : "36:3-36:30",
+                  "alias" : "Obs",
+                  "expression" : {
+                     "localId" : "44",
+                     "locator" : "36:3-36:26",
+                     "dataType" : "{http://hl7.org/fhir}Observation",
+                     "templateId" : "http://hl7.org/fhir/StructureDefinition/Observation",
+                     "codeProperty" : "code",
+                     "type" : "Retrieve",
+                     "codes" : {
+                        "locator" : "36:17-36:25",
+                        "name" : "test-vs",
+                        "type" : "ValueSetRef"
+                     }
+                  }
+               } ],
+               "relationship" : [ ],
+               "where" : {
+                  "localId" : "64",
+                  "locator" : "37:5-39:80",
+                  "type" : "And",
+                  "operand" : [ {
+                     "localId" : "57",
+                     "locator" : "37:11-38:31",
+                     "type" : "And",
+                     "operand" : [ {
+                        "localId" : "53",
+                        "locator" : "37:11-37:72",
+                        "type" : "In",
+                        "operand" : [ {
+                           "name" : "ToString",
+                           "libraryName" : "FHIRHelpers",
+                           "type" : "FunctionRef",
+                           "operand" : [ {
+                              "localId" : "47",
+                              "locator" : "37:11-37:20",
+                              "path" : "status",
+                              "scope" : "Obs",
+                              "type" : "Property"
+                           } ]
+                        }, {
+                           "localId" : "52",
+                           "locator" : "37:25-37:72",
+                           "type" : "List",
+                           "element" : [ {
+                              "localId" : "48",
+                              "locator" : "37:26-37:32",
+                              "valueType" : "{urn:hl7-org:elm-types:r1}String",
+                              "value" : "final",
+                              "type" : "Literal"
+                           }, {
+                              "localId" : "49",
+                              "locator" : "37:35-37:43",
+                              "valueType" : "{urn:hl7-org:elm-types:r1}String",
+                              "value" : "amended",
+                              "type" : "Literal"
+                           }, {
+                              "localId" : "50",
+                              "locator" : "37:46-37:56",
+                              "valueType" : "{urn:hl7-org:elm-types:r1}String",
+                              "value" : "corrected",
+                              "type" : "Literal"
+                           }, {
+                              "localId" : "51",
+                              "locator" : "37:59-37:71",
+                              "valueType" : "{urn:hl7-org:elm-types:r1}String",
+                              "value" : "preliminary",
+                              "type" : "Literal"
+                           } ]
+                        } ]
+                     }, {
+                        "localId" : "56",
+                        "locator" : "38:11-38:31",
+                        "type" : "Not",
+                        "operand" : {
+                           "locator" : "38:11-38:31",
+                           "type" : "IsNull",
+                           "operand" : {
+                              "localId" : "55",
+                              "locator" : "38:11-38:19",
+                              "path" : "value",
+                              "scope" : "Obs",
+                              "type" : "Property"
+                           }
+                        }
+                     } ]
+                  }, {
+                     "localId" : "63",
+                     "locator" : "39:11-39:80",
+                     "type" : "IncludedIn",
+                     "operand" : [ {
+                        "localId" : "61",
+                        "locator" : "39:11-39:52",
+                        "name" : "Normalize Interval",
+                        "libraryName" : "Global",
+                        "type" : "FunctionRef",
+                        "operand" : [ {
+                           "localId" : "60",
+                           "locator" : "39:39-39:51",
+                           "path" : "effective",
+                           "scope" : "Obs",
+                           "type" : "Property"
+                        } ]
+                     }, {
+                        "localId" : "62",
+                        "locator" : "39:61-39:80",
+                        "name" : "Measurement Period",
+                        "type" : "ParameterRef"
+                     } ]
+                  } ]
+               }
+            }
+         } ]
+      }
+   }
+}

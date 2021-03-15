@@ -34,6 +34,9 @@ export interface ELMLibrary {
   codes?: {
     def: ELMCode[];
   };
+  concepts?: {
+    def: ELMConcept[];
+  };
   /** Standard define or define function statements. The actual logic is defined here. */
   statements: {
     /** List of statement definitions. */
@@ -130,6 +133,15 @@ export interface ELMCode {
   };
 }
 
+export interface ELMConcept {
+  name: string;
+  display: string;
+  accessLevel: string;
+  code: {
+    name: string;
+  }[];
+}
+
 /**
  * Abstract ELM Expression.
  */
@@ -198,12 +210,34 @@ export interface ELMReturnClause {
   distinct?: string;
 }
 
+export interface ELMAs extends ELMExpression {
+  type: 'As';
+  asType: string;
+  operand: ELMExpression;
+}
+
 export interface ELMBinaryExpression extends ELMExpression {
   operand: [ELMExpression, ELMExpression];
 }
 
 export interface ELMEqual extends ELMBinaryExpression {
   type: 'Equal';
+}
+
+export interface ELMEquivalent extends ELMBinaryExpression {
+  type: 'Equivalent';
+}
+
+export interface ELMAnd extends ELMBinaryExpression {
+  type: 'And';
+}
+
+export interface ELMOr extends ELMBinaryExpression {
+  type: 'Or';
+}
+
+export interface ELMIncludedIn extends ELMBinaryExpression {
+  type: 'IncludedIn';
 }
 
 interface ELMIExpressionRef extends ELMExpression {
@@ -221,11 +255,20 @@ export interface ELMFunctionRef extends ELMIExpressionRef {
   operand: [ELMExpression];
 }
 
+export interface ELMParameterRef extends ELMIExpressionRef {
+  type: 'ParameterRef';
+}
+
 export interface ELMProperty extends ELMExpression {
   type: 'Property';
   source?: ELMExpression;
   path: string;
   scope?: string;
+}
+
+export interface ELMConceptRef extends ELMExpression {
+  type: 'ConceptRef';
+  name: string;
 }
 
 export interface ELMLiteral extends ELMExpression {
