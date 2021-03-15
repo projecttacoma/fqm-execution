@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 import fs from 'fs';
 import path from 'path';
 import * as translationService from 'cql-translation-service-client';
