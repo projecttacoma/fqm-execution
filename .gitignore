@@ -3,7 +3,7 @@ build/
 debug/
 .vscode
 **/.DS_Store
-test/fixtures/elm/queries/translation-output
+test/fixtures/elm/queries/output/*
 test/fixtures/elm/queries/.start-translator
 connectathon/
 fhir-patient-generator/
