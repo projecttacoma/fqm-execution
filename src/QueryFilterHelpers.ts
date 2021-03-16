@@ -1,6 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
-import { ELMTypes } from './types';
 import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
 import {
   ELM,
@@ -18,7 +17,11 @@ import {
   ELMConceptRef,
   ELMIncludedIn,
   ELMParameterRef,
-  ELMAs
+  ELMAs,
+  ELMIn,
+  ELMList,
+  ELMNot,
+  ELMIsNull
 } from './types/ELMTypes';
 import { FinalResult } from './types/Enums';
 
@@ -115,6 +118,12 @@ function interpretExpression(expression: ELMExpression, library: ELM): any {
     case 'IncludedIn':
       return interpretIncludedIn(expression as ELMIncludedIn, library);
       break;
+    case 'In':
+      return interpretIn(expression as ELMIn, library);
+      break;
+    case 'Not':
+      return interpretNot(expression as ELMNot, library);
+      break;
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
       //TODO: recursively look for accessing attributes of sources to say they have been accessed
@@ -175,6 +184,25 @@ function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM): any {
     }
   } else {
     console.warn(`do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`);
+  }
+}
+
+function interpretNot(not: ELMNot, library: ELM): any {
+  if (not.operand.type === 'IsNull') {
+    const isNull = not.operand as ELMIsNull;
+    if (isNull.operand.type === 'Property') {
+      const propRef = isNull.operand as ELMProperty;
+      return {
+        type: 'notnull',
+        attribute: propRef.path,
+        alias: propRef.scope,
+        localId: not.localId
+      };
+    } else {
+      console.warn(`could not handle 'isNull' inside 'not' for expression type ${isNull.operand.type}`);
+    }
+  } else {
+    console.warn(`could not handle 'not' for expression type ${not.operand.type}`);
   }
 }
 
@@ -277,6 +305,32 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM): any {
         ref: (includedIn.operand[1] as ELMParameterRef).name
       },
       attribute: propRef.path,
+      localId: includedIn.localId
+    };
+  } else {
+    console.warn('could not resolve IncludedIn operand[1] ' + includedIn.operand[1].type);
+  }
+}
+
+function interpretIn(includedIn: ELMIn, library: ELM): any {
+  let propRef: ELMProperty | null = null;
+  if (includedIn.operand[0].type == 'FunctionRef') {
+    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
+  } else if (includedIn.operand[0].type == 'Property') {
+    propRef = includedIn.operand[0] as ELMProperty;
+  }
+
+  if (propRef == null) {
+    console.warn('could not resolve property ref for IncludedIn');
+    return;
+  }
+
+  if (includedIn.operand[1].type == 'List') {
+    return {
+      type: 'in',
+      alias: propRef.scope,
+      attribute: propRef.path,
+      valueList: (includedIn.operand[1] as ELMList).element.map(item => item.value),
       localId: includedIn.localId
     };
   } else {

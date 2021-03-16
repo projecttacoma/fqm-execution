@@ -236,8 +236,22 @@ export interface ELMOr extends ELMBinaryExpression {
   type: 'Or';
 }
 
+export interface ELMNot extends ELMExpression {
+  type: 'Not';
+  operand: ELMExpression;
+}
+
+export interface ELMIsNull extends ELMExpression {
+  type: 'IsNull';
+  operand: ELMExpression;
+}
+
 export interface ELMIncludedIn extends ELMBinaryExpression {
   type: 'IncludedIn';
+}
+
+export interface ELMIn extends ELMBinaryExpression {
+  type: 'In';
 }
 
 interface ELMIExpressionRef extends ELMExpression {
@@ -275,6 +289,11 @@ export interface ELMLiteral extends ELMExpression {
   type: 'Literal';
   valueType: string;
   value?: string | number;
+}
+
+export interface ELMList extends ELMExpression {
+  type: 'List';
+  element: ELMLiteral[];
 }
 
 export interface LibraryDependencyInfo {

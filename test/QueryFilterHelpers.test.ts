@@ -83,6 +83,12 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP = {
             localId: '53'
           },
           {
+            type: 'notnull',
+            alias: 'Obs',
+            attribute: 'value',
+            localId: '56'
+          },
+          {
             type: 'during',
             alias: 'Obs',
             attribute: 'effective',
@@ -90,12 +96,6 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP = {
               ref: 'Measurement Period'
             },
             localId: '63'
-          },
-          {
-            type: 'notnull',
-            alias: 'Obs',
-            attribute: 'value',
-            localId: '56'
           }
         ]
       }
