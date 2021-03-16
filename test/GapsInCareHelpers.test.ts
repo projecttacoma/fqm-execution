@@ -315,7 +315,6 @@ describe('Generate DetectedIssue Resource', () => {
 describe('Find Near misses', () => {
   test('simple query/retrieve discrepancy near misses', () => {
     const retrieves = calculateNearMisses(EXPECTED_CODE_RESULTS, ImprovementNotation.POSITIVE);
-    console.log('retrieves:', retrieves);
     retrieves.forEach(r => {
       console.log('near miss:', r.isNearMiss);
       expect(r.isNearMiss).toBeTruthy();
