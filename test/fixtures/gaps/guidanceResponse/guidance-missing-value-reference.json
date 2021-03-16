@@ -1,0 +1,43 @@
+[
+  {
+    "resourceType": "GuidanceResponse",
+    "id": "e3505055-e235-401d-9487-e9e250cc16dd",
+    "dataRequirement": [
+      {
+        "type": "Observation",
+        "codeFilter": [
+          {
+            "path": "code",
+            "valueSet": "http://example.com/test-vs"
+          }
+        ]
+      }
+    ],
+    "reasonReference": {
+      "reference": "Observation/example"
+    },
+    "status": "data-required",
+    "moduleUri": "http://hl7.org/fhir/us/cqfmeasures/Measure/EXM130"
+  },
+  {
+    "resourceType": "Observation",
+    "id": "example",
+    "code": {
+      "coding": [
+        {
+          "system": "CareGapReasonCodeSystem",
+          "code": "MissingValue",
+          "display": "Data element was found, but value was missing"
+        }
+      ]
+    },
+    "referenceRange": [
+      {
+        "high": {
+          "value": 9,
+          "unit": "%"
+        }
+      }
+    ]
+  }
+]
