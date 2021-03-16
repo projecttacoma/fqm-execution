@@ -17,6 +17,8 @@ To use the `Makefile` provided in this directory to translate CQL into ELM JSON:
 
 If the translation service returns any errors from translation, the parser will output errors for the first file it comes to with errors. That file, and any after it, will not be written to `output/`
 
+The translation service is called with `EnableAnnotations` and `EnableLocators` set, through URL query parameters.
+
 ## Cleanup
 
 To stop the translation service, run `make clean`. This will not delete any translated JSON in `output/`.

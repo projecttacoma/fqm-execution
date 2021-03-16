@@ -6,7 +6,8 @@ import * as translationService from 'cql-translation-service-client';
 
 const TRANSLATION_SERVICE_URL = 'http://localhost:8080/cql/translator';
 
-const client = new translationService.Client(TRANSLATION_SERVICE_URL);
+// Build the service URL with annotations & locators set to true as query params
+const client = new translationService.Client(`${TRANSLATION_SERVICE_URL}?annotations=true&locators=true`);
 
 // This interface is extended here to add the "annotation" property
 // because the client type sets its value type to "object" rather than "object[]"
