@@ -313,11 +313,17 @@ describe('Generate DetectedIssue Resource', () => {
 });
 
 describe('Find Near misses', () => {
-  test('simple query/retrieve discrepancy near misses', () => {
+  test('simple query/retrieve discrepancy near miss', () => {
     const retrieves = calculateNearMisses(EXPECTED_CODE_RESULTS, ImprovementNotation.POSITIVE);
     retrieves.forEach(r => {
-      console.log('near miss:', r.isNearMiss);
       expect(r.isNearMiss).toBeTruthy();
+    });
+  });
+
+  test('retrieve false, not a near miss', () => {
+    const retrieves = calculateNearMisses(EXPECTED_VS_RETRIEVE_RESULTS, ImprovementNotation.POSITIVE);
+    retrieves.forEach(r => {
+      expect(r.isNearMiss).toBeFalsy();
     });
   });
 });
