@@ -287,12 +287,14 @@ export function calculateGapsInCare(
           throw new Error(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
         }
 
-        const retrieves = GapsInCareHelpers.findRetrieves(
+        let retrieves = GapsInCareHelpers.findRetrieves(
           mainLibraryELM,
           elmLibraries,
           numerELMExpression.expression,
           dr
         );
+
+        retrieves = GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation);
 
         const detectedIssue = GapsInCareHelpers.generateDetectedIssueResource(
           retrieves,

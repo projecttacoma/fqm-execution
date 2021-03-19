@@ -1,5 +1,10 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { findRetrieves, generateDetectedIssueResource, generateGapsInCareBundle } from '../src/GapsInCareHelpers';
+import {
+  findRetrieves,
+  generateDetectedIssueResource,
+  generateGapsInCareBundle,
+  calculateNearMisses
+} from '../src/GapsInCareHelpers';
 import { DataTypeQuery, DetailedPopulationGroupResult } from '../src/types/Calculator';
 import { FinalResult, ImprovementNotation } from '../src/types/Enums';
 import { getELMFixture, getJSONFixture } from './helpers/testHelpers';
@@ -304,6 +309,22 @@ describe('Generate DetectedIssue Resource', () => {
 
     // above query should be present since queries with results are gaps
     expect(resource.evidence).toHaveLength(1);
+  });
+});
+
+describe('Find Near misses', () => {
+  test('simple query/retrieve discrepancy near miss', () => {
+    const retrieves = calculateNearMisses(EXPECTED_CODE_RESULTS, ImprovementNotation.POSITIVE);
+    retrieves.forEach(r => {
+      expect(r.isNearMiss).toBeTruthy();
+    });
+  });
+
+  test('retrieve false, not a near miss', () => {
+    const retrieves = calculateNearMisses(EXPECTED_VS_RETRIEVE_RESULTS, ImprovementNotation.POSITIVE);
+    retrieves.forEach(r => {
+      expect(r.isNearMiss).toBeFalsy();
+    });
   });
 });
 
