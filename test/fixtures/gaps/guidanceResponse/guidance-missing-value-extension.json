@@ -12,9 +12,12 @@
       ],
       "extension": [
         {
-          "url": "http://example.com/dr-value-attribute",
-          "valueString": "result",
+          "url": "http://example.com/dr-value",
           "extension": [
+            {
+              "url": "http://example.com/dr-value-attribute",
+              "valueString": "result"
+            },
             {
               "url": "http://example.com/dr-value-filter",
               "valueRange": {
