@@ -15,11 +15,11 @@
           "url": "http://example.com/dr-value",
           "extension": [
             {
-              "url": "http://example.com/dr-value-attribute",
+              "url": "dr-value-attribute",
               "valueString": "result"
             },
             {
-              "url": "http://example.com/dr-value-filter",
+              "url": "dr-value-filter",
               "valueRange": {
                 "high": {
                   "value": 9,
