@@ -1,4 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { ExpressionLanguageKind } from '@ahryman40k/ts-fhir-types/lib/R4';
 import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult } from './types/Calculator';
 import {
@@ -21,7 +22,8 @@ import {
   ELMIn,
   ELMList,
   ELMNot,
-  ELMIsNull
+  ELMIsNull,
+  ELMUnaryExpression
 } from './types/ELMTypes';
 import { FinalResult } from './types/Enums';
 
@@ -126,8 +128,40 @@ function interpretExpression(expression: ELMExpression, library: ELM): any {
       break;
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
-      //TODO: recursively look for accessing attributes of sources to say they have been accessed
+      const propUsage = findPropertyUsage(expression, expression.localId);
+      if (propUsage) {
+        return propUsage;
+      } else {
+        return {
+          type: 'unknown',
+          localId: expression.localId
+        };
+      }
       break;
+  }
+}
+
+// Fall back to finding property use
+function findPropertyUsage(expression: any, unknownLocalId?: string): any {
+  if (expression.type === 'Property') {
+    const propRef = expression as ELMProperty;
+    return {
+      type: 'unknown',
+      alias: propRef.scope,
+      attribute: propRef.path,
+      localId: unknownLocalId
+    };
+  } else if (Array.isArray(expression.operand)) {
+    for (let i = 0; i < expression.operand.length; i++) {
+      const propInfo = findPropertyUsage(expression.operand[i], unknownLocalId);
+      if (propInfo) {
+        return propInfo;
+      }
+    }
+  } else if (expression.operand) {
+    return findPropertyUsage(expression.operand, unknownLocalId);
+  } else {
+    return null;
   }
 }
 
@@ -143,6 +177,7 @@ function interpretAnd(andExpression: ELMAnd, library: ELM): any {
   } else {
     andInfo.children.push(interpretExpression(andExpression.operand[1], library));
   }
+  andInfo.children = andInfo.children.filter(filter => filter.type !== 'truth');
   return andInfo;
 }
 
@@ -158,6 +193,7 @@ function interpretOr(orExpression: ELMOr, library: ELM): any {
   } else {
     orInfo.children.push(interpretExpression(orExpression.operand[1], library));
   }
+  orInfo.children = orInfo.children.filter(filter => filter.type !== 'truth');
   return orInfo;
 }
 
@@ -198,6 +234,17 @@ function interpretNot(not: ELMNot, library: ELM): any {
         alias: propRef.scope,
         localId: not.localId
       };
+    } else if (isNull.operand.type === 'End' || isNull.operand.type === 'Start') {
+      const endOrStart = isNull.operand as ELMUnaryExpression;
+      // if it is "Measurement Period" we can return that this will always be true/removed
+      if (
+        endOrStart.operand.type === 'ParameterRef' &&
+        (endOrStart.operand as ELMParameterRef).name === 'Measurement Period'
+      ) {
+        return { type: 'truth' };
+      } else {
+        // TODO do more parsing of this
+      }
     } else {
       console.warn(`could not handle 'isNull' inside 'not' for expression type ${isNull.operand.type}`);
     }
@@ -293,7 +340,9 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM): any {
   }
 
   if (propRef == null) {
-    console.warn('could not resolve property ref for IncludedIn');
+    console.warn(
+      `could not resolve property ref for IncludedIn:${includedIn.localId}. first operand is a ${includedIn.operand[0].type}`
+    );
     return;
   }
 
@@ -321,7 +370,16 @@ function interpretIn(includedIn: ELMIn, library: ELM): any {
   }
 
   if (propRef == null) {
-    console.warn('could not resolve property ref for IncludedIn');
+    console.warn(
+      `could not resolve property ref for In:${includedIn.localId}. first operand is a ${includedIn.operand[0].type}`
+    );
+
+    const foundPropUsage = findPropertyUsage(includedIn, includedIn.localId);
+    if (foundPropUsage) {
+      console.warn(`  found property ref "${foundPropUsage.alias}.${foundPropUsage.attribute}" in first operand.`);
+      return foundPropUsage;
+    }
+
     return;
   }
 

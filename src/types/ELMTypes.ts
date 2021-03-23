@@ -220,6 +220,10 @@ export interface ELMBinaryExpression extends ELMExpression {
   operand: [ELMExpression, ELMExpression];
 }
 
+export interface ELMUnaryExpression extends ELMExpression {
+  operand: ELMExpression;
+}
+
 export interface ELMEqual extends ELMBinaryExpression {
   type: 'Equal';
 }
@@ -236,14 +240,12 @@ export interface ELMOr extends ELMBinaryExpression {
   type: 'Or';
 }
 
-export interface ELMNot extends ELMExpression {
+export interface ELMNot extends ELMUnaryExpression {
   type: 'Not';
-  operand: ELMExpression;
 }
 
-export interface ELMIsNull extends ELMExpression {
+export interface ELMIsNull extends ELMUnaryExpression {
   type: 'IsNull';
-  operand: ELMExpression;
 }
 
 export interface ELMIncludedIn extends ELMBinaryExpression {
@@ -252,6 +254,14 @@ export interface ELMIncludedIn extends ELMBinaryExpression {
 
 export interface ELMIn extends ELMBinaryExpression {
   type: 'In';
+}
+
+export interface ELMEnd extends ELMUnaryExpression {
+  type: 'End';
+}
+
+export interface ELMStart extends ELMUnaryExpression {
+  type: 'Start';
 }
 
 interface ELMIExpressionRef extends ELMExpression {

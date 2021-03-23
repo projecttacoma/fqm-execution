@@ -204,6 +204,8 @@ export interface DataTypeQuery {
   libraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
+  /** Info about query */
+  queryInfo?: any;
 }
 
 /**

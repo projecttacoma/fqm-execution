@@ -37,3 +37,7 @@ define "Observation Status Value Exists and During MP":
     where Obs.status in {'final', 'amended', 'corrected', 'preliminary'}
       and Obs.value is not null
       and Global."Normalize Interval"(Obs.effective) during "Measurement Period"
+
+define "Encounter 2 Years Before End of MP":
+  [Encounter: "test-vs"] Enc
+    where Global."Normalize Interval"(Enc.period) ends 2 years or less before end of "Measurement Period"

@@ -103,6 +103,31 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP = {
   ]
 };
 
+const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP = {
+  localId: '77',
+  sources: [
+    {
+      retrieveLocalId: '67',
+      sourceLocalId: '68',
+      alias: 'Enc',
+      resourceType: 'Encounter',
+      filters: {
+        type: 'and',
+        children: [
+          {
+            type: 'during',
+            alias: 'Enc',
+            attribute: 'period',
+            valuePeriod: {
+              ref: 'Measurement Period'
+            }
+          }
+        ]
+      }
+    }
+  ]
+};
+
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
@@ -130,5 +155,17 @@ describe('Parse Query Info', () => {
     const queryLocalId = statement.expression.localId;
     const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
+  });
+
+  test('complex - valueset with period two years before end of MP', () => {
+    const statement = complexQueryELM.library.statements.def.find(
+      def => def.name == 'Encounter 2 Years Before End of MP'
+    );
+    if (!statement) {
+      fail('Could not find statement.');
+    }
+    const queryLocalId = statement.expression.localId;
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId);
+    expect(queryInfo).toEqual(EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP);
   });
 });

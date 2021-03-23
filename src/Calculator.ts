@@ -10,6 +10,7 @@ import * as MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from './GapsInCareHelpers';
 import { generateHTML } from './HTMLGenerator';
 import { ELM } from './types/ELMTypes';
+import { parseQueryInfo } from './QueryFilterHelpers';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -293,6 +294,12 @@ export function calculateGapsInCare(
           numerELMExpression.expression,
           dr
         );
+
+        retrieves.forEach(retrieve => {
+          if (retrieve.queryLocalId) {
+            retrieve.queryInfo = parseQueryInfo(mainLibraryELM, retrieve.queryLocalId);
+          }
+        });
 
         retrieves = GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation);
 
