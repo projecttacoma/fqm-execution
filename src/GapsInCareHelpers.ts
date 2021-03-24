@@ -278,3 +278,22 @@ export function generateGapsInCareBundle(
     ]
   };
 }
+
+/**
+ * Add near miss data to each DataTypeQuery passed in
+ *
+ * @param retrieves numerator queries from a call to findRetrieves
+ * @param improvementNotation string indicating positive or negative improvement notation for the measure being used
+ */
+export function calculateNearMisses(retrieves: DataTypeQuery[], improvementNotation: string) {
+  return retrieves.map(r => {
+    let isNearMiss;
+    if (improvementNotation === ImprovementNotation.POSITIVE) {
+      isNearMiss = r.retrieveHasResult && !r.parentQueryHasResult;
+    } else {
+      // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
+      isNearMiss = false;
+    }
+    return { ...r, isNearMiss };
+  });
+}

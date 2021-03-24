@@ -129,7 +129,9 @@ export function execute(
   const results = executor.exec(patientSource, executionDateTime);
 
   // Map evaluated resource from engine to the raw FHIR json
-  results.evaluatedRecords = results.evaluatedRecords.map((r: any) => r._json);
+  Object.keys(results.patientEvaluatedRecords).forEach(patientId => {
+    results.patientEvaluatedRecords[patientId] = results.patientEvaluatedRecords[patientId].map((r: any) => r._json);
+  });
 
   if (debugObject && options.enableDebugOutput) {
     debugObject.elm = elmJSONs;
