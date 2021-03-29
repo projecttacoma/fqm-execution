@@ -193,6 +193,13 @@ When contributing new code, ensure that all tests, lint, and prettier checks pas
 ``` bash
 npm run check
 ```
+### Architecture Overview
+![Overview](doc/FQM.png)
+
+A visual representation of the  calculate sequence of the application can be seen below:
+
+![Calculate](doc/calculate_Sequence.png)
+
 
 ## License
 
