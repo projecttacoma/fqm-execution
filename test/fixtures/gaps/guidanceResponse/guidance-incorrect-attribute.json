@@ -1,0 +1,35 @@
+{
+  "resourceType": "GuidanceResponse",
+  "id": "e3505055-e235-401d-9487-e9e250cc16dd",
+  "dataRequirement": [
+    {
+      "type": "Observation",
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://example.com/test-vs"
+        },
+        {
+          "path": "status",
+          "code": [{
+            "system": "http://hl7.org/fhir/observation-status",
+            "code": "final"
+          }]
+        }
+      ]
+    }
+  ],
+  "reasonCode": [
+    {
+      "coding": [
+        {
+          "system": "CareGapReasonCodeSystem",
+          "code": "IncorectAttribute",
+          "display": "Data element had an incorrect attribute value"
+        }
+      ]
+    }
+  ],
+  "status": "data-required",
+  "moduleUri": "http://hl7.org/fhir/us/cqfmeasures/Measure/EXM130"
+}

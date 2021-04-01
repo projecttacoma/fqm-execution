@@ -1,0 +1,51 @@
+{
+  "resourceType": "GuidanceResponse",
+  "id": "e3505055-e235-401d-9487-e9e250cc16dd",
+  "dataRequirement": [
+    {
+      "type": "Observation",
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://example.com/test-vs"
+        },
+        {
+          "path": "status",
+          "code": [
+            {
+              "system": "http://hl7.org/fhir/observation-status",
+              "code": "final"
+            }
+          ]
+        }
+      ],
+      "dateFilter": [
+        {
+          "path": "effectivePeriod",
+          "valuePeriod": {
+            "start": "2019-01-01",
+            "end": "2019-12-31"
+          }
+        }
+      ]
+    }
+  ],
+  "reasonCode": [
+    {
+      "coding": [
+        {
+          "system": "CareGapReasonCodeSystem",
+          "code": "DateOutOfRange",
+          "display": "Data element was found, date was out of range"
+        },
+        {
+          "system": "CareGapReasonCodeSystem",
+          "code": "IncorectAttribute",
+          "display": "Data element had an incorrect attribute value"
+        }
+      ]
+    }
+  ],
+  "status": "data-required",
+  "moduleUri": "http://hl7.org/fhir/us/cqfmeasures/Measure/EXM130"
+}

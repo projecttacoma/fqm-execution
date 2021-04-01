@@ -1,0 +1,48 @@
+{
+  "resourceType": "GuidanceResponse",
+  "id": "e3505055-e235-401d-9487-e9e250cc16dd",
+  "dataRequirement": [
+    {
+      "type": "Observation",
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://example.com/test-vs"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://example.com/dr-value",
+          "extension": [
+            {
+              "url": "dr-value-attribute",
+              "valueString": "result"
+            },
+            {
+              "url": "dr-value-filter",
+              "valueRange": {
+                "high": {
+                  "value": 9,
+                  "unit": "%"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "reasonCode": [
+    {
+      "coding": [
+        {
+          "system": "CareGapReasonCodeSystem",
+          "code": "ValueOutOfRange",
+          "display": "Data element was found, but value was out of range"
+        }
+      ]
+    }
+  ],
+  "status": "data-required",
+  "moduleUri": "http://hl7.org/fhir/us/cqfmeasures/Measure/EXM130"
+}
