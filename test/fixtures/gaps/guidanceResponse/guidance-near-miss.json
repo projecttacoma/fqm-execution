@@ -1,0 +1,77 @@
+{
+  "resourceType": "GuidanceResponse",
+  "id": "85047955-9450-4ea6-8845-711518728a9c",
+  "contained": [
+    {
+      "resourceType": "Procedure",
+      "id": "denom-EXM130-2",
+      "meta": {
+        "profile": [
+          "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+        ]
+      },
+      "status": "completed",
+      "code": {
+        "coding": [
+          {
+            "system": "http://www.ama-assn.org/go/cpt",
+            "code": "44393",
+            "display": "Colonoscopy through stoma; with ablation of tumor(s), polyp(s), or other lesion(s) not amenable to removal by hot biopsy forceps, bipolar cautery or snare technique"
+          }
+        ]
+      },
+      "subject": {
+        "reference": "Patient/denom-EXM130"
+      },
+      "performedPeriod": {
+        "start": "2009-12-30T12:00:00",
+        "end": "2009-12-30T13:00:00"
+      }
+    }
+  ],
+  "dataRequirement": [
+    {
+      "type": "Procedure",
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1020"
+        }
+      ],
+      "dateFilter": [
+        {
+          "path": "performedPeriod.end",
+          "valuePeriod": {
+            "start": "2010-01-01",
+            "end": "2020-12-31"
+          }
+        }
+      ]
+    }
+  ],
+  "reasonCode": [
+    {
+      "coding": [
+        {
+          "code": "DateOutOfRange",
+          "system": "CareGapReasonCodeSystem",
+          "display": "Date of an attribute is outside of the desired range"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://example.com/care-gap-near-miss-resource",
+          "valueReference": {
+            "reference": "#denom-EXM130-2"
+          }
+        },
+        {
+          "url": "http://example.com/care-gap-near-miss-attribute",
+          "valueString": "performedPeriod"
+        }
+      ]
+    }
+  ],
+  "status": "data-required",
+  "moduleUri": "http://hl7.org/fhir/us/cqfmeasures/Measure/EXM130"
+}
