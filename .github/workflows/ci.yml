@@ -20,6 +20,15 @@ jobs:
     - run: npm run build --if-present
     - run: npm run check
 
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: artiomtr/jest-coverage-report-action@v1.1
+        with:
+          github_token: ${{ secrets.ACCESS_TOKEN_CI }}
+          #threshold: 60
+
   integration_test:
 
     runs-on: ubuntu-latest
