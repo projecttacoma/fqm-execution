@@ -6,7 +6,7 @@ import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
 import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
-import { codeableConceptToPopulationType } from './MeasureHelpers';
+import { codeableConceptToPopulationType, isValidLibraryURL } from './MeasureHelpers';
 import { PopulationType } from './types/Enums';
 import { generateELMJSONFunction } from './CalculatorHelpers';
 
@@ -24,7 +24,9 @@ export function execute(
     return { errorMessage: 'library not identified in measure' };
   }
   const rootLibRef = measure?.library[0];
-  const rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
+  let rootLibId: string;
+  if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
+  else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
 
   const libraries: R4.ILibrary[] = [];
   const elmJSONs: ELM[] = [];
@@ -42,12 +44,15 @@ export function execute(
         if (elmEncoded.data) {
           const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
           const elm = JSON.parse(decoded) as ELM;
-          if (library.id === rootLibId) {
+          if (library.url == rootLibId) {
+            rootLibIdentifer = elm.library.identifier;
+          } else if (library.id === rootLibId) {
             rootLibIdentifer = elm.library.identifier;
           }
           if (elm.library?.includes?.def) {
             elm.library.includes.def = elm.library.includes.def.map(def => {
               def.path = def.path.substring(def.path.lastIndexOf('/') + 1);
+
               return def;
             });
           }
