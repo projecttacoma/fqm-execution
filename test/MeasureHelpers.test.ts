@@ -284,4 +284,16 @@ describe('MeasureHelpers', () => {
       expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
     });
   });
+
+  describe('isValidLibraryURL', () => {
+    test('returns true if it is a valid url ', () => {
+      const ret = MeasureHelpers.isValidLibraryURL('https://example.com/Library-url');
+      expect(ret).toBeTruthy();
+    });
+
+    test('returns false if it is not  a valid url ', () => {
+      const ret = MeasureHelpers.isValidLibraryURL('Library/example');
+      expect(ret).toBeFalsy();
+    });
+  });
 });
