@@ -3,10 +3,15 @@ import { DataTypeQuery, DetailedPopulationGroupResult } from '../src/types/Calcu
 import { FinalResult } from '../src/types/Enums';
 import { getELMFixture, getJSONFixture } from './helpers/testHelpers';
 import { parseQueryInfo } from '../src/QueryFilterHelpers';
+import * as cql from 'cql-execution';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
 const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
+
+const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
+const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
+const PARAMETERS = { 'Measurement Period': new cql.Interval(START_MP, END_MP, true, false) };
 
 const EXPECTED_VS_WITH_ID_CHECK_QUERY = {
   localId: '24',
@@ -42,7 +47,7 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP = {
             type: 'in',
             alias: 'C',
             attribute: 'clinicalStatus',
-            valueList: [
+            valueCodingList: [
               { code: 'active', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
               { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
               { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
@@ -93,7 +98,9 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP = {
             alias: 'Obs',
             attribute: 'effective',
             valuePeriod: {
-              ref: 'Measurement Period'
+              ref: 'Measurement Period',
+              start: '2019-01-01T00:00:00.000Z',
+              end: '2019-12-31T23:59:59.999Z'
             },
             localId: '63'
           }
@@ -117,9 +124,11 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP = {
           {
             type: 'during',
             alias: 'Enc',
-            attribute: 'period',
+            attribute: 'period.end',
             valuePeriod: {
-              ref: 'Measurement Period'
+              ref: 'Measurement Period',
+              start: '2017-12-31T23:59:59.999Z',
+              end: '2019-12-31T23:59:59.999Z'
             }
           }
         ]
@@ -131,7 +140,7 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP = {
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId);
+    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, PARAMETERS);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -141,7 +150,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId);
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
     expect(queryInfo).toEqual(EXPECTED_CODE_AND_STARTS_DURING_MP);
   });
 
@@ -153,7 +162,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId);
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
   });
 
@@ -165,7 +174,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId);
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
     expect(queryInfo).toEqual(EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP);
   });
 });

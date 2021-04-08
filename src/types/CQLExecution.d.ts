@@ -26,7 +26,7 @@ declare module 'cql-execution' {
   }
 
   export class Interval {
-    constructor(start: any, end: any);
+    constructor(low: any, high: any, lowClosed?: boolean, highClosed?: boolean);
     low: any;
     high: any;
   }
@@ -39,5 +39,15 @@ declare module 'cql-execution' {
   export class Quantity {
     value: number;
     unit: string;
+  }
+
+  export class Expression {
+    constructor(json: any);
+    execute(context: any);
+    arg: Expression;
+  }
+
+  export class PatientContext {
+    constructor(library: Library, patient: any, codeService: any, parameters: any);
   }
 }

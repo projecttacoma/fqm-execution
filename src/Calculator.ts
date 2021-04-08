@@ -297,7 +297,7 @@ export function calculateGapsInCare(
 
         retrieves.forEach(retrieve => {
           if (retrieve.queryLocalId) {
-            retrieve.queryInfo = parseQueryInfo(mainLibraryELM, retrieve.queryLocalId);
+            retrieve.queryInfo = parseQueryInfo(mainLibraryELM, retrieve.queryLocalId, {});
           }
         });
 
