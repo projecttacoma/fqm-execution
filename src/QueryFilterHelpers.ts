@@ -24,29 +24,30 @@ import {
 } from './types/ELMTypes';
 import {
   AndFilter,
+  AnyFilter,
   DuringFilter,
   EqualsFilter,
-  Filter,
   InFilter,
   NotNullFilter,
   OrFilter,
+  QueryInfo,
+  SourceInfo,
   TautologyFilter,
-  UnknownAttributeFilter,
   UnknownFilter
 } from './types/QueryFilterTypes';
 
-export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: any): any {
+export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: any): QueryInfo {
   const expression = findClauseInLibrary(library, queryLocalId);
   if (expression?.type == 'Query') {
     const query = expression as ELMQuery;
-    const queryInfo = {
+    const queryInfo: QueryInfo = {
       localId: query?.localId,
-      sources: parseSources(query)
+      sources: parseSources(query),
+      filter: { type: 'truth' }
     };
     if (query.where) {
       const whereInfo = interpretExpression(query.where, library, parameters);
-      const source = queryInfo.sources[0]; //find(source => source.alias === whereInfo.alias);
-      source.filters = whereInfo;
+      queryInfo.filter = whereInfo;
     }
     return queryInfo;
   } else {
@@ -83,17 +84,16 @@ function findClauseInExpression(expression: any, localId: string): ELMExpression
   }
 }
 
-function parseSources(query: ELMQuery): any[] {
-  const sources: any[] = [];
+function parseSources(query: ELMQuery): SourceInfo[] {
+  const sources: SourceInfo[] = [];
   query.source.forEach(source => {
     if (source.expression.type == 'Retrieve') {
       const retrieveInfo = parseRetrieveInfo(source.expression as ELMRetrieve);
-      const sourceInfo = {
+      const sourceInfo: SourceInfo = {
         sourceLocalId: source.localId,
         retrieveLocalId: source.expression.localId,
         alias: source.alias,
-        resourceType: retrieveInfo.resourceType,
-        filters: []
+        resourceType: retrieveInfo.resourceType
       };
       sources.push(sourceInfo);
     }
@@ -108,7 +108,7 @@ function parseRetrieveInfo(retrieve: ELMRetrieve): any {
   };
 }
 
-function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): Filter {
+function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): AnyFilter {
   switch (expression.type) {
     case 'FunctionRef':
       //interpretFunctionRef(expression as ELMFunctionRef, library);
@@ -149,7 +149,7 @@ function interpretExpression(expression: ELMExpression, library: ELM, parameters
 }
 
 // Fall back to finding property use
-function findPropertyUsage(expression: any, unknownLocalId?: string): UnknownAttributeFilter | null {
+function findPropertyUsage(expression: any, unknownLocalId?: string): UnknownFilter | null {
   if (expression.type === 'Property') {
     const propRef = expression as ELMProperty;
     if (propRef.scope) {
@@ -205,7 +205,7 @@ function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilt
   return orInfo;
 }
 
-function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM): any {
+function interpretFunctionRef(functionRef: ELMFunctionRef, _library: ELM): any {
   // from fhir helpers
   if (functionRef.libraryName == 'FHIRHelpers' || functionRef.libraryName == 'Global') {
     switch (functionRef.name) {
@@ -231,7 +231,7 @@ function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM): any {
   }
 }
 
-function interpretNot(not: ELMNot, library: ELM): NotNullFilter | TautologyFilter | UnknownFilter {
+function interpretNot(not: ELMNot, _library: ELM): NotNullFilter | TautologyFilter | UnknownFilter {
   if (not.operand.type === 'IsNull') {
     const isNull = not.operand as ELMIsNull;
     if (isNull.operand.type === 'Property') {
@@ -262,10 +262,7 @@ function interpretNot(not: ELMNot, library: ELM): NotNullFilter | TautologyFilte
   return { type: 'unknown' };
 }
 
-function interpretEquivalent(
-  equal: ELMEquivalent,
-  library: ELM
-): EqualsFilter | InFilter | UnknownFilter | UnknownAttributeFilter {
+function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
@@ -399,11 +396,7 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
   return { type: 'unknown' };
 }
 
-function interpretIn(
-  includedIn: ELMIn,
-  library: ELM,
-  parameters: any
-): InFilter | DuringFilter | UnknownFilter | UnknownAttributeFilter {
+function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (includedIn.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);

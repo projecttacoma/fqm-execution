@@ -1,5 +1,30 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 
+export type AnyFilter =
+  | Filter
+  | AttributeFilter
+  | AndFilter
+  | OrFilter
+  | UnknownFilter
+  | InFilter
+  | DuringFilter
+  | NotNullFilter
+  | EqualsFilter
+  | TautologyFilter;
+
+export interface QueryInfo {
+  localId?: string;
+  sources: SourceInfo[];
+  filter: AnyFilter;
+}
+
+export interface SourceInfo {
+  retrieveLocalId?: string;
+  sourceLocalId?: string;
+  alias: string;
+  resourceType: string;
+}
+
 export interface Filter {
   type: string;
   localId?: string;
@@ -7,12 +32,12 @@ export interface Filter {
 
 export interface AndFilter extends Filter {
   type: 'and';
-  children: Filter[];
+  children: AnyFilter[];
 }
 
 export interface OrFilter extends Filter {
   type: 'or';
-  children: Filter[];
+  children: AnyFilter[];
 }
 
 interface AttributeFilter extends Filter {
@@ -44,12 +69,10 @@ export interface EqualsFilter extends AttributeFilter {
   value: string | number;
 }
 
-export interface UnknownAttributeFilter extends AttributeFilter {
-  type: 'unknown';
-}
-
 export interface UnknownFilter extends Filter {
   type: 'unknown';
+  alias?: string;
+  attribute?: string;
 }
 
 /**
