@@ -298,7 +298,7 @@ export function findLocalIdForLibraryRef(
 }
 
 /**
- * Figure out if a statement is a function given libraryand statement name.
+ * Figure out if a statement is a function given library and statement name.
  * @public
  * @param {ELM} libraryName - The name of the library the statement belongs to.
  * @param {string} statementName - The statement name to search for.
@@ -402,4 +402,15 @@ export function extractMeasurementPeriod(measureBundle: R4.IBundle): Calculation
 
 function __guard__(value: any, transform: any) {
   return typeof value !== 'undefined' && value !== null ? transform(value) : undefined;
+}
+/**
+ * Figure out if a string is a  valid URL  or if it's just a string
+ * @public
+ * @param {string} libraryName - The name of the library depending on the origin of the measure this may a url
+ * @return {boolean} If the statement is a function or not.
+ */
+export function isValidLibraryURL(libraryName: string) {
+  const urlFormat = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+  const r = new RegExp(urlFormat);
+  return r.test(libraryName);
 }
