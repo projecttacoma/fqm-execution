@@ -424,6 +424,58 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
 }
 
 /**
+ * Collates valuesets from a measure by going through all of the measure bundle's libraries' dataCriteria's codeFilters' valueset
+ *
+ * @param {R4.IBundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
+ * @returns {R4.IValueSet[]} An array of all valuesets in the measure that are used by the measure's libraries
+ */
+export function getAllDependentValuesets(measureBundle: R4.IBundle): R4.IValueSet[] {
+  if (!measureBundle.entry) {
+    throw new Error('Expected measure bundle to contain entries');
+  }
+  const libraryEntries = measureBundle.entry?.filter(
+    e => e.resource?.resourceType === 'Library' && e.resource.dataRequirement
+  );
+
+  // create an array of valueset urls
+  const vsURLs: string[] = libraryEntries.reduce((acc, lib) => {
+    const libraryResource = lib.resource as R4.ILibrary;
+    if (!libraryResource || !libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
+      throw new Error('Expected library entry to have resource with dataRequirements that have codeFilters');
+    }
+    // pull all valuset urls out of this library's dataRequirements
+    const libraryVSURL: string[] = libraryResource.dataRequirement.reduce((accumulator, dr) => {
+      if (dr.codeFilter && dr.codeFilter.length > 0) {
+        // get each valueset url for each codeFilter (if valueset url exists)
+        const vs: string[] = dr.codeFilter
+          .filter(cf => cf.valueSet)
+          .map(cf => {
+            return cf.valueSet as string;
+          });
+        return accumulator.concat(vs);
+      } else {
+        return accumulator;
+      }
+    }, [] as string[]);
+    return acc.concat(libraryVSURL as string[]);
+  }, [] as string[]);
+
+  // unique-ify
+  const uniqueVS = vsURLs.filter((value, index, self) => self.indexOf(value) === index);
+
+  // find actual valueset resource from URLs
+  return uniqueVS.map(url => {
+    return measureBundle.entry?.find(e => {
+      if (e.resource?.resourceType === 'ValueSet') {
+        const vsResource = e.resource as R4.IValueSet;
+        return vsResource.url === url;
+      }
+      return false;
+    })?.resource as R4.IValueSet;
+  });
+}
+
+/**
  * Returns an ELM function to add to the ELM before it is used for calculation. This function is genereated
  * for each observation on the measure. It returns a list of tuples, with each episode being observed and the
  * observation for the episode.
