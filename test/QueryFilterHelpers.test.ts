@@ -5,7 +5,6 @@ import { QueryInfo } from '../src/types/QueryFilterTypes';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
-const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
 
 const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
 const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
@@ -59,7 +58,9 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
         alias: 'C',
         attribute: 'onset',
         valuePeriod: {
-          ref: 'Measurement Period'
+          ref: 'Measurement Period',
+          start: '2019-01-01T00:00:00.000Z',
+          end: '2019-12-31T23:59:59.999Z'
         },
         localId: '40'
       }
@@ -128,7 +129,7 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
         valuePeriod: {
           ref: 'Measurement Period',
           start: '2017-12-31T23:59:59.999Z',
-          end: '2019-12-31T23:59:59.999Z'
+          end: '2019-12-31T23:59:59.998Z'
         }
       }
     ]

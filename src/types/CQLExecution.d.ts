@@ -29,6 +29,8 @@ declare module 'cql-execution' {
     constructor(low: any, high: any, lowClosed?: boolean, highClosed?: boolean);
     low: any;
     high: any;
+    start(): DateTime;
+    end(): DateTime;
   }
 
   export class Code {

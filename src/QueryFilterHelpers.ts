@@ -88,12 +88,11 @@ function parseSources(query: ELMQuery): SourceInfo[] {
   const sources: SourceInfo[] = [];
   query.source.forEach(source => {
     if (source.expression.type == 'Retrieve') {
-      const retrieveInfo = parseRetrieveInfo(source.expression as ELMRetrieve);
       const sourceInfo: SourceInfo = {
         sourceLocalId: source.localId,
         retrieveLocalId: source.expression.localId,
         alias: source.alias,
-        resourceType: retrieveInfo.resourceType
+        resourceType: parseDataType(source.expression as ELMRetrieve)
       };
       sources.push(sourceInfo);
     }
@@ -101,11 +100,8 @@ function parseSources(query: ELMQuery): SourceInfo[] {
   return sources;
 }
 
-function parseRetrieveInfo(retrieve: ELMRetrieve): any {
-  // TODO: Parse and determine valueset or code filter info. Possibly share code in GapsInCareHelpers.
-  return {
-    resourceType: retrieve.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '')
-  };
+function parseDataType(retrieve: ELMRetrieve): string {
+  return retrieve.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 }
 
 function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): AnyFilter {
@@ -114,7 +110,7 @@ function interpretExpression(expression: ELMExpression, library: ELM, parameters
       //interpretFunctionRef(expression as ELMFunctionRef, library);
       break;
     case 'Equal':
-      return interpretEqual(expression as ELMEqual, library);
+      return interpretEqual(expression as ELMEqual);
       break;
     case 'Equivalent':
       return interpretEquivalent(expression as ELMEquivalent, library);
@@ -132,7 +128,7 @@ function interpretExpression(expression: ELMExpression, library: ELM, parameters
       return interpretIn(expression as ELMIn, library, parameters);
       break;
     case 'Not':
-      return interpretNot(expression as ELMNot, library);
+      return interpretNot(expression as ELMNot);
       break;
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
@@ -205,7 +201,7 @@ function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilt
   return orInfo;
 }
 
-function interpretFunctionRef(functionRef: ELMFunctionRef, _library: ELM): any {
+function interpretFunctionRef(functionRef: ELMFunctionRef): any {
   // from fhir helpers
   if (functionRef.libraryName == 'FHIRHelpers' || functionRef.libraryName == 'Global') {
     switch (functionRef.name) {
@@ -231,7 +227,7 @@ function interpretFunctionRef(functionRef: ELMFunctionRef, _library: ELM): any {
   }
 }
 
-function interpretNot(not: ELMNot, _library: ELM): NotNullFilter | TautologyFilter | UnknownFilter {
+function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFilter {
   if (not.operand.type === 'IsNull') {
     const isNull = not.operand as ELMIsNull;
     if (isNull.operand.type === 'Property') {
@@ -265,7 +261,7 @@ function interpretNot(not: ELMNot, _library: ELM): NotNullFilter | TautologyFilt
 function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
+    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
   }
@@ -327,10 +323,10 @@ function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
   return [];
 }
 
-function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | UnknownFilter {
+function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
+    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
   }
@@ -357,7 +353,7 @@ function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | UnknownFi
 function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters: any): DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (includedIn.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
+    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef);
   } else if (includedIn.operand[0].type == 'Property') {
     propRef = includedIn.operand[0] as ELMProperty;
   }
@@ -376,8 +372,8 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
     };
     // If this parameter is known use it
     if (parameters[paramName]) {
-      valuePeriod.start = parameters[paramName].start();
-      valuePeriod.end = parameters[paramName].end();
+      valuePeriod.start = (parameters[paramName] as cql.Interval).start().toString().replace('+00:00', 'Z');
+      valuePeriod.end = (parameters[paramName] as cql.Interval).end().toString().replace('+00:00', 'Z');
     }
     if (propRef.scope) {
       return {
@@ -399,14 +395,14 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
 function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (includedIn.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
+    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef);
   } else if (includedIn.operand[0].type == 'Property') {
     propRef = includedIn.operand[0] as ELMProperty;
   } else if (includedIn.operand[0].type == 'End' || includedIn.operand[0].type == 'Start') {
     const startOrEnd = includedIn.operand[0] as ELMUnaryExpression;
     const suffix = startOrEnd.type === 'End' ? '.end' : '.start';
     if (startOrEnd.operand.type == 'FunctionRef') {
-      propRef = interpretFunctionRef(startOrEnd.operand as ELMFunctionRef, library);
+      propRef = interpretFunctionRef(startOrEnd.operand as ELMFunctionRef);
     } else if (startOrEnd.operand.type == 'Property') {
       propRef = startOrEnd.operand as ELMProperty;
     }
@@ -464,7 +460,7 @@ function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter
     // build an expression that has the interval creation and
     const intervalExpr = new cql.Expression({ operand: includedIn.operand[1] });
     const ctx = new cql.PatientContext(new cql.Library(library), null, null, parameters);
-    const interval = intervalExpr.arg.execute(ctx);
+    const interval: cql.Interval = intervalExpr.arg.execute(ctx);
 
     if (propRef.scope) {
       return {
@@ -473,8 +469,8 @@ function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter
         attribute: propRef.path,
         valuePeriod: {
           ref: 'Measurement Period',
-          start: interval.start().toString(),
-          end: interval.end().toString()
+          start: interval.start().toString().replace('+00:00', 'Z'),
+          end: interval.end().toString().replace('+00:00', 'Z')
         }
       };
     } else {
