@@ -424,12 +424,13 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
 }
 
 /**
- * Collates valuesets from a measure by going through all of the measure bundle's libraries' dataCriteria's codeFilters' valueset
+ * Collates dependent valuesets from a measure by going through all of the measure bundle's libraries' dataCriteria's codeFilters' valueset.
+ * Then finds all valuesets that are not already contained in the measure bundle.
  *
  * @param {R4.IBundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
- * @returns {R4.IValueSet[]} An array of all valuesets in the measure that are used by the measure's libraries
+ * @returns {string[]} An array of all dependent valueset urls in the measure that are used by the measure's libraries but not contained in the measure bundle
  */
-export function getAllDependentValuesets(measureBundle: R4.IBundle): R4.IValueSet[] {
+export function getMissingDependentValuesets(measureBundle: R4.IBundle): string[] {
   if (!measureBundle.entry) {
     throw new Error('Expected measure bundle to contain entries');
   }
@@ -463,15 +464,16 @@ export function getAllDependentValuesets(measureBundle: R4.IBundle): R4.IValueSe
   // unique-ify
   const uniqueVS = vsURLs.filter((value, index, self) => self.indexOf(value) === index);
 
-  // find actual valueset resource from URLs
-  return uniqueVS.map(url => {
-    return measureBundle.entry?.find(e => {
+  // filter to any valueset urls that cannot be found
+  return uniqueVS.filter(url => {
+    // if the url can't be found in the bundle entries, filter test returns !(undefined)
+    return !measureBundle.entry?.find(e => {
       if (e.resource?.resourceType === 'ValueSet') {
         const vsResource = e.resource as R4.IValueSet;
         return vsResource.url === url;
       }
       return false;
-    })?.resource as R4.IValueSet;
+    });
   });
 }
 

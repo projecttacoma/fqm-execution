@@ -8,7 +8,7 @@ import { ELM, ELMIdentifier } from './types/ELMTypes';
 import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
 import { codeableConceptToPopulationType, isValidLibraryURL } from './MeasureHelpers';
 import { PopulationType } from './types/Enums';
-import { generateELMJSONFunction } from './CalculatorHelpers';
+import { generateELMJSONFunction, getMissingDependentValuesets } from './CalculatorHelpers';
 
 export function execute(
   measureBundle: R4.IBundle,
@@ -22,6 +22,13 @@ export function execute(
   if (measure?.library === undefined) {
     // TODO: handle no library case
     return { errorMessage: 'library not identified in measure' };
+  }
+  // check for any missing valuesets
+  const missingVS = getMissingDependentValuesets(measureBundle);
+  if (missingVS.length > 0) {
+    return {
+      errorMessage: `Measure bundle does not contain the following valueset resource dependencies: ${missingVS.join()}`
+    };
   }
   const rootLibRef = measure?.library[0];
   let rootLibId: string;
