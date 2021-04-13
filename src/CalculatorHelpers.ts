@@ -424,6 +424,60 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
 }
 
 /**
+ * Collates dependent valuesets from a measure by going through all of the measure bundle's libraries' dataCriteria's codeFilters' valueset.
+ * Then finds all valuesets that are not already contained in the measure bundle.
+ *
+ * @param {R4.IBundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
+ * @returns {string[]} An array of all dependent valueset urls in the measure that are used by the measure's libraries but not contained in the measure bundle
+ */
+export function getMissingDependentValuesets(measureBundle: R4.IBundle): string[] {
+  if (!measureBundle.entry) {
+    throw new Error('Expected measure bundle to contain entries');
+  }
+  const libraryEntries = measureBundle.entry?.filter(
+    e => e.resource?.resourceType === 'Library' && e.resource.dataRequirement
+  );
+
+  // create an array of valueset urls
+  const vsURLs: string[] = libraryEntries.reduce((acc, lib) => {
+    const libraryResource = lib.resource as R4.ILibrary;
+    if (!libraryResource || !libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
+      throw new Error('Expected library entry to have resource with dataRequirements that have codeFilters');
+    }
+    // pull all valuset urls out of this library's dataRequirements
+    const libraryVSURL: string[] = libraryResource.dataRequirement.reduce((accumulator, dr) => {
+      if (dr.codeFilter && dr.codeFilter.length > 0) {
+        // get each valueset url for each codeFilter (if valueset url exists)
+        const vs: string[] = dr.codeFilter
+          .filter(cf => cf.valueSet)
+          .map(cf => {
+            return cf.valueSet as string;
+          });
+        return accumulator.concat(vs);
+      } else {
+        return accumulator;
+      }
+    }, [] as string[]);
+    return acc.concat(libraryVSURL as string[]);
+  }, [] as string[]);
+
+  // unique-ify
+  const uniqueVS = vsURLs.filter((value, index, self) => self.indexOf(value) === index);
+
+  // filter to any valueset urls that cannot be found
+  return uniqueVS.filter(url => {
+    // if the url can't be found in the bundle entries, filter test returns !(undefined)
+    return !measureBundle.entry?.find(e => {
+      if (e.resource?.resourceType === 'ValueSet') {
+        const vsResource = e.resource as R4.IValueSet;
+        return vsResource.url === url;
+      }
+      return false;
+    });
+  });
+}
+
+/**
  * Returns an ELM function to add to the ELM before it is used for calculation. This function is genereated
  * for each observation on the measure. It returns a list of tuples, with each episode being observed and the
  * observation for the episode.
