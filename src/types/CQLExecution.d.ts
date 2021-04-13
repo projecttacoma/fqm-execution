@@ -7,7 +7,7 @@ declare module 'cql-execution' {
   }
 
   export class Executor {
-    constructor(library: Library, codeService: CodeService, parameters: any);
+    constructor(library: Library, codeService: CodeService, parameters: { [key: string]: any });
     exec(patientsource: PatientSource, executionDateTime: any): Results;
   }
 

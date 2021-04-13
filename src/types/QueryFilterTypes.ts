@@ -12,6 +12,7 @@ export type AnyFilter =
   | EqualsFilter
   | TautologyFilter;
 
+/** Detailed information about a query and the filtering it does. */
 export interface QueryInfo {
   localId?: string;
   sources: SourceInfo[];

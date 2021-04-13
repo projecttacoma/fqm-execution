@@ -41,6 +41,10 @@ export interface RawExecutionData {
   elmLibraries?: ELM[];
   /** the name of the "main" library used for execution. */
   mainLibraryName?: string;
+  /** Parameters used in execution. Useful for gaps in care processing. */
+  parameters?: {
+    [key: string]: any;
+  };
 }
 
 /**

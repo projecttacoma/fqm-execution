@@ -36,7 +36,7 @@ import {
   UnknownFilter
 } from './types/QueryFilterTypes';
 
-export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: any): QueryInfo {
+export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: { [key: string]: any } = {}): QueryInfo {
   const expression = findClauseInLibrary(library, queryLocalId);
   if (expression?.type == 'Query') {
     const query = expression as ELMQuery;
