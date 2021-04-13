@@ -27,7 +27,7 @@ jobs:
       - uses: artiomtr/jest-coverage-report-action@v1.1
         with:
           github_token: ${{ secrets.ACCESS_TOKEN_CI }}
-          #threshold: 60
+          threshold: 60
 
   integration_test:
 
