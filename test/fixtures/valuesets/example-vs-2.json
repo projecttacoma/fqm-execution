@@ -1,0 +1,21 @@
+{
+  "resourceType": "ValueSet",
+  "id": "example-valueset-2",
+  "url": "http://example.com/example-valueset-2",
+  "status": "draft",
+  "version": "1",
+  "compose": {
+    "include": [
+      {
+        "system": "http://example.com",
+        "version": "1",
+        "concept": [
+          {
+            "code": "example-code-3",
+            "display": "Example Code 3"
+          }
+        ]
+      }
+    ]
+  }
+}
