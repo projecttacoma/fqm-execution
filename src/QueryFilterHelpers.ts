@@ -36,6 +36,15 @@ import {
   UnknownFilter
 } from './types/QueryFilterTypes';
 
+/**
+ * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
+ * how the query is filtered.
+ *
+ * @param library The library ELM the query resides in.
+ * @param queryLocalId The localId for the query we want to get information on.
+ * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
+ * @returns Information about the query and how it is filtered.
+ */
 export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: { [key: string]: any } = {}): QueryInfo {
   const expression = findClauseInLibrary(library, queryLocalId);
   if (expression?.type == 'Query') {
@@ -55,6 +64,13 @@ export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: {
   }
 }
 
+/**
+ * Find an ELM clause by localId in a given library.
+ *
+ * @param library The library to search in.
+ * @param localId The localId to look for.
+ * @returns The expression if found or null.
+ */
 function findClauseInLibrary(library: ELM, localId: string): ELMExpression | null {
   for (let i = 0; i < library.library.statements.def.length; i++) {
     const statement = library.library.statements.def[i];
@@ -66,6 +82,13 @@ function findClauseInLibrary(library: ELM, localId: string): ELMExpression | nul
   return null;
 }
 
+/**
+ * Recursively search an ELM tree for an expression (clause) with a given localId.
+ *
+ * @param expression The expression tree to search for the clause in.
+ * @param localId The localId to look for.
+ * @returns The expression if found or null.
+ */
 function findClauseInExpression(expression: any, localId: string): ELMExpression | null {
   if (typeof expression === 'string' || typeof expression === 'number' || typeof expression === 'boolean') {
     return null;
@@ -84,6 +107,12 @@ function findClauseInExpression(expression: any, localId: string): ELMExpression
   }
 }
 
+/**
+ * Parse information about the sources in a given query.
+ *
+ * @param query The Query expression to parse.
+ * @returns Information about each source. This is usually an array of one.
+ */
 function parseSources(query: ELMQuery): SourceInfo[] {
   const sources: SourceInfo[] = [];
   query.source.forEach(source => {
@@ -100,10 +129,25 @@ function parseSources(query: ELMQuery): SourceInfo[] {
   return sources;
 }
 
+/**
+ * Pulls out the resource type of the retrieve.
+ *
+ * @param retrieve The retrieve expression to pull out resource type from.
+ * @returns FHIR ResourceType name.
+ */
 function parseDataType(retrieve: ELMRetrieve): string {
   return retrieve.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 }
 
+/**
+ * Interprets an expression into a filter tree. This is the central point where the interpreting occurs. This function
+ * determines the expression type and sends it to the correct place to be parsed.
+ *
+ * @param expression The ELM expression/clause to attempt to interpret into a filter.
+ * @param library The ELM library, in case it is needed for calculating intervals.
+ * @param parameters The parameters used for calculation.
+ * @returns The simpler Filter representation of this clause.
+ */
 function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): AnyFilter {
   switch (expression.type) {
     case 'FunctionRef':

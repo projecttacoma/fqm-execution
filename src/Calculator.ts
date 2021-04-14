@@ -307,8 +307,13 @@ export function calculateGapsInCare(
         );
 
         retrieves.forEach(retrieve => {
-          if (retrieve.queryLocalId) {
-            retrieve.queryInfo = parseQueryInfo(mainLibraryELM, retrieve.queryLocalId, parameters);
+          // If the retrieves have a localId for the query and a known library name, we can get more info
+          // on how the query filters the sources.
+          if (retrieve.queryLocalId && retrieve.libraryName) {
+            const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.libraryName);
+            if (library) {
+              retrieve.queryInfo = parseQueryInfo(library, retrieve.queryLocalId, parameters);
+            }
           }
         });
 
