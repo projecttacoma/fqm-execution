@@ -1,9 +1,11 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { group } from 'console';
 import {
   findRetrieves,
   generateDetectedIssueResource,
   generateGapsInCareBundle,
-  calculateNearMisses
+  calculateNearMisses,
+  groupGapQueries
 } from '../src/GapsInCareHelpers';
 import { DataTypeQuery, DetailedPopulationGroupResult } from '../src/types/Calculator';
 import { FinalResult, ImprovementNotation } from '../src/types/Enums';
@@ -118,6 +120,72 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
       },
       {
         localId: '4',
+        libraryName: 'SimpleDep',
+        type: 'Retrieve'
+      }
+    ]
+  }
+];
+
+const OR_GROUP_QUERIES: DataTypeQuery[] =[
+  {
+    dataType: 'Procedure',
+    valueSet: 'http://example.com/test-vs-2',
+    retrieveHasResult: false,
+    retrieveLocalId: '4',
+    parentQueryHasResult: false,
+    queryLocalId: undefined,
+    libraryName: 'SimpleDep',
+    expressionStack: [
+      {
+        localId: '29',
+        libraryName: 'SimpleQueries',
+        type: 'Or'
+      },
+      {
+        localId: '4',
+        libraryName: 'SimpleDep',
+        type: 'Retrieve'
+      }
+    ]
+  },
+  {
+    dataType: 'Procedure',
+    valueSet: 'http://example.com/test-vs-4',
+    retrieveHasResult: false,
+    retrieveLocalId: '5',
+    parentQueryHasResult: false,
+    queryLocalId: undefined,
+    libraryName: 'SimpleDep',
+    expressionStack: [
+      {
+        localId: '29',
+        libraryName: 'SimpleQueries',
+        type: 'Or'
+      },
+      {
+        localId: '5',
+        libraryName: 'SimpleDep',
+        type: 'Retrieve'
+      }
+    ]
+  },
+  {
+    dataType: 'Procedure',
+    valueSet: 'http://example.com/test-vs-4',
+    retrieveHasResult: false,
+    retrieveLocalId: '6',
+    parentQueryHasResult: false,
+    queryLocalId: undefined,
+    libraryName: 'SimpleDep',
+    expressionStack: [
+      {
+        localId: '44',
+        libraryName: 'SimpleQueries',
+        type: 'ExpressionRef'
+      },
+      {
+        localId: '5',
         libraryName: 'SimpleDep',
         type: 'Retrieve'
       }
@@ -309,6 +377,17 @@ describe('Generate DetectedIssue Resource', () => {
 
     // above query should be present since queries with results are gaps
     expect(resource.evidence).toHaveLength(1);
+  });
+});
+
+describe('Find grouped queries', () => {
+  test('grouped OR Queries', () => {
+    const queries = groupGapQueries(OR_GROUP_QUERIES);
+
+    // should be 2 entries: 1 group of 2 queries, 1 ungrouped query
+    expect(queries).toHaveLength(2);
+    expect(queries[0]).toHaveLength(2);
+    expect(queries[1]).toHaveLength(1);
   });
 });
 

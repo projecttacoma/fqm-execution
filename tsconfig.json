@@ -4,6 +4,7 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "target": "es5",
+    "lib": ["es2019"],
     "module": "commonjs",
     "allowJs": true,
     "outDir": "./build",
