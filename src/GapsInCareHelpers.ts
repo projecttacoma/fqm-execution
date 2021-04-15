@@ -126,37 +126,39 @@ export function findRetrieves(
  * @param queries numerator queries from a call to findRetrieves
  * @param measureReport FHIR MeasureReport to be referenced by the issue
  */
-export function generateDetectedIssueResource(
+export function generateDetectedIssueResources(
   queries: DataTypeQuery[],
   measureReport: R4.IMeasureReport,
   improvementNotation: string
-): R4.IDetectedIssue {
+): R4.IDetectedIssue[] {
   const relevantGapQueries = queries.filter(q =>
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
   );
   const groupedQueries = groupGapQueries(relevantGapQueries);
-  const guidanceResponses = groupedQueries.flatMap(q => generateGuidanceResponses(q, measureReport.measure, improvementNotation));
-  return {
-    resourceType: 'DetectedIssue',
-    id: uuidv4(),
-    status: 'final',
-    code: {
-      coding: [
-        {
-          system: 'http://terminology.hl7.org/CodeSystem/detectedissue-category',
-          code: 'care-gap',
-          display: 'Gap in Care Detected'
-        }
-      ]
-    },
-    evidence: guidanceResponses.map(gr => {
+  const guidanceResponses = groupedQueries.map(q => generateGuidanceResponses(q, measureReport.measure, improvementNotation));
+  return guidanceResponses.map(gr => {
       return {
-        detail: [{ reference: `#${gr.id}` }]
+        resourceType: 'DetectedIssue',
+        id: uuidv4(),
+        status: 'final',
+        code: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/detectedissue-category',
+              code: 'care-gap',
+              display: 'Gap in Care Detected'
+            }
+          ]
+        },
+        evidence: gr.map(gr => {
+          return {
+            detail: [{ reference: `#${gr.id}` }]
+          };
+        }),
+        contained: gr
       };
-    }),
-    contained: guidanceResponses
-  };
+    });
 }
 
 /**
@@ -260,7 +262,7 @@ function generateGuidanceResponses(
  * @param patient Current FHIR Patient processed in execution
  */
 export function generateGapsInCareBundle(
-  detectedIssue: R4.IDetectedIssue,
+  detectedIssues: R4.IDetectedIssue[],
   measureReport: R4.IMeasureReport,
   patient: R4.IPatient
 ): R4.IBundle {
@@ -285,23 +287,18 @@ export function generateGapsInCareBundle(
         focus: {
           reference: `MeasureReport/${measureReport.id}`
         },
-        entry: [
-          {
-            reference: `DetectedIssue/${detectedIssue.id}`
-          }
-        ]
+        entry: detectedIssues.map(i => {
+          return { reference: `DetectedIssue/${i.id}`};
+        })
       }
     ]
   };
-  return {
+  const returnBundle:R4.IBundle = {
     resourceType: 'Bundle',
     type: R4.BundleTypeKind._document,
     entry: [
       {
         resource: composition
-      },
-      {
-        resource: detectedIssue
       },
       {
         resource: measureReport
@@ -311,6 +308,10 @@ export function generateGapsInCareBundle(
       }
     ]
   };
+  detectedIssues.forEach(i => {
+    returnBundle.entry?.push({ resource: i});
+  });
+  return returnBundle;
 }
 
 /**

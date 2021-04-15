@@ -319,7 +319,7 @@ export function calculateGapsInCare(
 
         retrieves = GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation);
 
-        const detectedIssue = GapsInCareHelpers.generateDetectedIssueResource(
+        const detectedIssues = GapsInCareHelpers.generateDetectedIssueResources(
           retrieves,
           matchingMeasureReport,
           improvementNotation
@@ -340,7 +340,7 @@ export function calculateGapsInCare(
         }
 
         result = GapsInCareHelpers.generateGapsInCareBundle(
-          detectedIssue,
+          detectedIssues,
           matchingMeasureReport,
           patientEntry.resource as R4.IPatient
         );
