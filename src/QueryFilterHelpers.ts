@@ -188,7 +188,13 @@ function interpretExpression(expression: ELMExpression, library: ELM, parameters
   };
 }
 
-// Fall back to finding property use
+/**
+ * Recursively search an ELM expression for usage of a property on a query source.
+ *
+ * @param expression Expression to search for property use in.
+ * @param unknownLocalId The localId of the parent express that should be identified as the clause we are unable to parse.
+ * @returns An `UnknownFilter` describing the attribute that was accessed or null if none was found.
+ */
 function findPropertyUsage(expression: any, unknownLocalId?: string): UnknownFilter | null {
   if (expression.type === 'Property') {
     const propRef = expression as ELMProperty;
@@ -213,6 +219,14 @@ function findPropertyUsage(expression: any, unknownLocalId?: string): UnknownFil
   return null;
 }
 
+/**
+ * Parses an `and` expression into a tree of filters. This will flatten directly nested `and` statements.
+ *
+ * @param andExpression The and expression to interpret.
+ * @param library The library the elm is in.
+ * @param parameters The original calculation parameters.
+ * @returns The filter tree for this and expression.
+ */
 function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any): AndFilter {
   const andInfo: AndFilter = { type: 'and', children: [] };
   if (andExpression.operand[0].type == 'And') {
@@ -229,6 +243,14 @@ function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any): And
   return andInfo;
 }
 
+/**
+ * Parses an `or` expression into a tree of filters. This will flatten directly nested `or` statements.
+ *
+ * @param orExpression The or expression to interpret.
+ * @param library The library the elm is in.
+ * @param parameters The original calculation parameters.
+ * @returns The filter tree for this or expression.
+ */
 function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilter {
   const orInfo: OrFilter = { type: 'or', children: [] };
   if (orExpression.operand[0].type == 'Or') {
@@ -245,8 +267,15 @@ function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilt
   return orInfo;
 }
 
+/**
+ * Attempt to interpret what a FunctionRef is doing. This currently checks to see if it can be treated as a passthrough
+ * to the property accessed in the operand.
+ *
+ * @param functionRef The function ref to look at.
+ * @returns Usually an ELMProperty expression for the operand if it can be considered a passthrough.
+ */
 function interpretFunctionRef(functionRef: ELMFunctionRef): any {
-  // from fhir helpers
+  // from fhir helpers or MAT Global
   if (functionRef.libraryName == 'FHIRHelpers' || functionRef.libraryName == 'Global') {
     switch (functionRef.name) {
       case 'ToString':
@@ -271,6 +300,13 @@ function interpretFunctionRef(functionRef: ELMFunctionRef): any {
   }
 }
 
+/**
+ * Interprets a `not` expression into a filter. This currently is able to handle "not null" and superfluous checks
+ * that cql-to-elm adds (ie. a check to see if the end of "Measurement Period" is not null)
+ *
+ * @param not The ELM `Not` expression to parse.
+ * @returns The interpreted filter. This may be a TautologyFilter that can be removed.
+ */
 function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFilter {
   if (not.operand.type === 'IsNull') {
     const isNull = not.operand as ELMIsNull;
@@ -302,6 +338,14 @@ function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFil
   return { type: 'unknown' };
 }
 
+/**
+ * Parses an ELM equivalent expression into a filter. This currently handles checks against literals and checks against
+ * a concept reference.
+ *
+ * @param equal The ELM equivalent clause to parse.
+ * @param library The library the clause resides in.
+ * @returns The filter representation.
+ */
 function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
@@ -349,6 +393,14 @@ function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter |
   return { type: 'unknown' };
 }
 
+/**
+ * Gets a list of codes in a CQL concept reference by name. These are returned as
+ * FHIR Codings.
+ *
+ * @param name Name of the concept.
+ * @param library The library elm the concept should be found in.
+ * @returns A list of codings in the concept
+ */
 function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
   const concept = library.library.concepts?.def.find(concept => concept.name === name);
   if (concept) {
@@ -367,6 +419,12 @@ function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
   return [];
 }
 
+/**
+ * Parses an ELM equivalent expression into a filter. This currently only handles checks against literal values.
+ *
+ * @param equal The equal expression to be parsed.
+ * @returns Filter representing the equal filter.
+ */
 function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
@@ -394,6 +452,15 @@ function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
   return { type: 'unknown' };
 }
 
+/**
+ * Parses an `IncludedIn` clause to a simpler filter representation. Currently handles comparisons to the
+ * "Measurement Period" parameter.
+ *
+ * @param includedIn IncludedId expression to be parsed.
+ * @param library The library the expression resides in.
+ * @param parameters The original parameters used for calculation.
+ * @returns Filter representation of the IncludedIn clause.
+ */
 function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters: any): DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (includedIn.operand[0].type == 'FunctionRef') {
@@ -436,14 +503,24 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
   return { type: 'unknown' };
 }
 
-function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
+/**
+ * Parses a `in` expression. This may seen in CQL as 'during'. This can handle a two situations.
+ *  - A value, such as a code, is checked to be if it's in a list of literals. ex. status in { 'complete', 'amended' }
+ *  - A time value is being checked if it is during a calculated interval. Usually based on "Measurement Period".
+ *
+ * @param inExpr The `in` expression to parse.
+ * @param library The library the expression resides in.
+ * @param parameters The parameters used for calculation.
+ * @returns Filter representation of the In clause.
+ */
+function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
-  if (includedIn.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef);
-  } else if (includedIn.operand[0].type == 'Property') {
-    propRef = includedIn.operand[0] as ELMProperty;
-  } else if (includedIn.operand[0].type == 'End' || includedIn.operand[0].type == 'Start') {
-    const startOrEnd = includedIn.operand[0] as ELMUnaryExpression;
+  if (inExpr.operand[0].type == 'FunctionRef') {
+    propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef);
+  } else if (inExpr.operand[0].type == 'Property') {
+    propRef = inExpr.operand[0] as ELMProperty;
+  } else if (inExpr.operand[0].type == 'End' || inExpr.operand[0].type == 'Start') {
+    const startOrEnd = inExpr.operand[0] as ELMUnaryExpression;
     const suffix = startOrEnd.type === 'End' ? '.end' : '.start';
     if (startOrEnd.operand.type == 'FunctionRef') {
       propRef = interpretFunctionRef(startOrEnd.operand as ELMFunctionRef);
@@ -464,10 +541,10 @@ function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter
 
   if (propRef == null) {
     console.warn(
-      `could not resolve property ref for In:${includedIn.localId}. first operand is a ${includedIn.operand[0].type}`
+      `could not resolve property ref for In:${inExpr.localId}. first operand is a ${inExpr.operand[0].type}`
     );
 
-    const foundPropUsage = findPropertyUsage(includedIn, includedIn.localId);
+    const foundPropUsage = findPropertyUsage(inExpr, inExpr.localId);
     if (foundPropUsage) {
       console.warn(`  found property ref "${foundPropUsage.alias}.${foundPropUsage.attribute}" in first operand.`);
       return foundPropUsage;
@@ -476,33 +553,33 @@ function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter
     return { type: 'unknown' };
   }
 
-  if (includedIn.operand[1].type == 'List') {
+  if (inExpr.operand[1].type == 'List') {
     if (propRef.scope) {
       return {
         type: 'in',
         alias: propRef.scope,
         attribute: propRef.path,
-        valueList: (includedIn.operand[1] as ELMList).element.map(item => item.value) as (string | number)[],
-        localId: includedIn.localId
+        valueList: (inExpr.operand[1] as ELMList).element.map(item => item.value) as (string | number)[],
+        localId: inExpr.localId
       };
     } else {
       console.warn('Could not find scope for property reference');
       return { type: 'unknown' };
     }
-  } else if (includedIn.operand[1].type == 'Interval') {
-    const propRefInInterval = findPropertyUsage(includedIn.operand[1], undefined);
+  } else if (inExpr.operand[1].type == 'Interval') {
+    const propRefInInterval = findPropertyUsage(inExpr.operand[1], undefined);
     if (propRefInInterval) {
       console.warn('cannot handle intervals constructed on query data right now');
       return {
         type: 'unknown',
-        localId: includedIn.localId,
+        localId: inExpr.localId,
         alias: propRef.scope,
         attribute: propRef.path
       };
     }
 
     // build an expression that has the interval creation and
-    const intervalExpr = new cql.Expression({ operand: includedIn.operand[1] });
+    const intervalExpr = new cql.Expression({ operand: inExpr.operand[1] });
     const ctx = new cql.PatientContext(new cql.Library(library), null, null, parameters);
     const interval: cql.Interval = intervalExpr.arg.execute(ctx);
 
@@ -521,7 +598,7 @@ function interpretIn(includedIn: ELMIn, library: ELM, parameters: any): InFilter
       console.warn('could not resolve property scope');
     }
   } else {
-    console.warn('could not resolve IncludedIn operand[1] ' + includedIn.operand[1].type);
+    console.warn('could not resolve In operand[1] ' + inExpr.operand[1].type);
   }
   return { type: 'unknown' };
 }

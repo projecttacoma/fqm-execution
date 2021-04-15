@@ -2,6 +2,7 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType, FinalResult, Relevance } from './Enums';
 import * as cql from './CQLTypes';
 import { ELM } from './ELMTypes';
+import { QueryInfo } from './QueryFilterTypes';
 
 /**
  * Options for calculation.
@@ -208,8 +209,8 @@ export interface DataTypeQuery {
   libraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
-  /** Info about query */
-  queryInfo?: any;
+  /** Info about query and how it is filtered. */
+  queryInfo?: QueryInfo;
 }
 
 /**
