@@ -138,27 +138,27 @@ export function generateDetectedIssueResources(
   const groupedQueries = groupGapQueries(relevantGapQueries);
   const guidanceResponses = groupedQueries.map(q => generateGuidanceResponses(q, measureReport.measure, improvementNotation));
   return guidanceResponses.map(gr => {
-      return {
-        resourceType: 'DetectedIssue',
-        id: uuidv4(),
-        status: 'final',
-        code: {
-          coding: [
-            {
-              system: 'http://terminology.hl7.org/CodeSystem/detectedissue-category',
-              code: 'care-gap',
-              display: 'Gap in Care Detected'
-            }
-          ]
-        },
-        evidence: gr.map(gr => {
-          return {
-            detail: [{ reference: `#${gr.id}` }]
-          };
-        }),
-        contained: gr
-      };
-    });
+    return {
+      resourceType: 'DetectedIssue',
+      id: uuidv4(),
+      status: 'final',
+      code: {
+        coding: [
+          {
+            system: 'http://terminology.hl7.org/CodeSystem/detectedissue-category',
+            code: 'care-gap',
+            display: 'Gap in Care Detected'
+          }
+        ]
+      },
+      evidence: gr.map(gr => {
+        return {
+          detail: [{ reference: `#${gr.id}` }]
+        };
+      }),
+      contained: gr
+    };
+  });
 }
 
 /**

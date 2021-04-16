@@ -341,9 +341,8 @@ describe('Generate DetectedIssue Resource', () => {
           e.detail[0].reference = '#' + IDS[index];
         }
       });
-
-      expect(resource).toEqual(EXAMPLE_DETECTED_ISSUE);
     });
+    expect(resources).toEqual(EXAMPLE_DETECTED_ISSUE);
   });
 
   test('positive improvement retrieves with truthy parent query results should be filtered out', () => {
@@ -360,8 +359,8 @@ describe('Generate DetectedIssue Resource', () => {
 
     const resource = generateDetectedIssueResources(queries, SIMPLE_MEASURE_REPORT, ImprovementNotation.POSITIVE);
 
-    // above query should be filtered out
-    expect(resource[0].evidence).toHaveLength(0);
+    // above query should be filtered out, which should result in no DetectedIssue resources
+    expect(resource).toHaveLength(0);
   });
 
   test('negative improvement retrieves with truthy parent query results not be filtered out', () => {
@@ -418,27 +417,38 @@ describe('FHIR Bundle Generation', () => {
     const bundle = generateGapsInCareBundle(EXAMPLE_DETECTED_ISSUE, EXAMPLE_MEASURE_REPORT, EXAMPLE_GAPS_PATIENT);
 
     expect(bundle.entry).toBeDefined();
-    expect(bundle.entry).toHaveLength(4);
+    expect(bundle.entry).toHaveLength(7);
 
     expect(bundle.entry).toContainEqual(
-      expect.objectContaining({
-        resource: expect.objectContaining({
-          resourceType: 'Composition',
-          section: [
-            {
-              title: 'example',
-              focus: {
-                reference: 'MeasureReport/example'
-              },
-              entry: [
-                {
-                  reference: 'DetectedIssue/example'
-                }
-              ]
-            }
-          ]
+      expect.arrayContaining([
+        expect.objectContaining({
+          resource: expect.objectContaining({
+            resourceType: 'Composition',
+            section: [
+              expect.objectContaining({
+                title: 'example',
+                focus: {
+                  reference: 'MeasureReport/example'
+                },
+                entry: [
+                  {
+                    reference: 'DetectedIssue/example'
+                  },
+                  {
+                    reference: 'DetectedIssue/example'
+                  },
+                  {
+                    reference: 'DetectedIssue/example'
+                  },
+                  {
+                    reference: 'DetectedIssue/example'
+                  }
+                ]
+              })
+            ]
+          })
         })
-      })
+      ])
     );
 
     expect(bundle.entry).toContainEqual(
