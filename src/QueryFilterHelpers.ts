@@ -150,38 +150,31 @@ function parseDataType(retrieve: ELMRetrieve): string {
  */
 function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): AnyFilter {
   switch (expression.type) {
-    case 'FunctionRef':
-      //interpretFunctionRef(expression as ELMFunctionRef, library);
-      break;
     case 'Equal':
       return interpretEqual(expression as ELMEqual);
-      break;
     case 'Equivalent':
       return interpretEquivalent(expression as ELMEquivalent, library);
-      break;
     case 'And':
       return interpretAnd(expression as ELMAnd, library, parameters);
-      break;
     case 'Or':
       return interpretOr(expression as ELMOr, library, parameters);
-      break;
     case 'IncludedIn':
       return interpretIncludedIn(expression as ELMIncludedIn, library, parameters);
-      break;
     case 'In':
       return interpretIn(expression as ELMIn, library, parameters);
-      break;
     case 'Not':
       return interpretNot(expression as ELMNot);
-      break;
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
+      // Look for a property (source attribute) usage in the expression tree. This can denote an
+      // attribute on a resource was checked but we don't know what it was checked for.
       const propUsage = findPropertyUsage(expression, expression.localId);
       if (propUsage) {
         return propUsage;
       }
-      break;
   }
+  // If we cannot make sense of this expression or find a parameter usage in it, then we should return
+  // an UnknownFilter to denote something is done here that we could not interpret.
   return {
     type: 'unknown',
     localId: expression.localId
@@ -302,7 +295,9 @@ function interpretFunctionRef(functionRef: ELMFunctionRef): any {
 
 /**
  * Interprets a `not` expression into a filter. This currently is able to handle "not null" and superfluous checks
- * that cql-to-elm adds (ie. a check to see if the end of "Measurement Period" is not null)
+ * that cql-to-elm adds (i.e. a check to see if the end of "Measurement Period" is not null)
+ *
+ * This is commonly seen in measures as an `Observation.value is not null`.
  *
  * @param not The ELM `Not` expression to parse.
  * @returns The interpreted filter. This may be a TautologyFilter that can be removed.
@@ -420,7 +415,7 @@ function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
 }
 
 /**
- * Parses an ELM equivalent expression into a filter. This currently only handles checks against literal values.
+ * Parses an ELM equal expression into a filter. This currently only handles checks against literal values.
  *
  * @param equal The equal expression to be parsed.
  * @returns Filter representing the equal filter.
@@ -502,7 +497,7 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
 }
 
 /**
- * Parses a `in` expression. This may seen in CQL as 'during'. This can handle a two situations.
+ * Parses a `in` expression. This may seen in CQL as 'during'. This can handle two situations.
  *  - A value, such as a code, is checked to be if it's in a list of literals. ex. status in { 'complete', 'amended' }
  *  - A time value is being checked if it is during a calculated interval. Usually based on "Measurement Period".
  *
