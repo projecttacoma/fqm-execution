@@ -80,7 +80,6 @@ export interface InFilter extends AttributeFilter {
 export interface DuringFilter extends AttributeFilter {
   type: 'during';
   valuePeriod: {
-    ref?: string;
     start?: string;
     end?: string;
   };

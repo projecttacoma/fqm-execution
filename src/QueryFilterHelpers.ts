@@ -478,9 +478,7 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
 
   if (includedIn.operand[1].type == 'ParameterRef') {
     const paramName = (includedIn.operand[1] as ELMParameterRef).name;
-    const valuePeriod: any = {
-      ref: paramName
-    };
+    const valuePeriod: { start?: string; end?: string } = {};
     // If this parameter is known use it
     if (parameters[paramName]) {
       valuePeriod.start = (parameters[paramName] as cql.Interval).start().toString().replace('+00:00', 'Z');
@@ -589,7 +587,6 @@ function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | D
         alias: propRef.scope,
         attribute: propRef.path,
         valuePeriod: {
-          ref: 'Measurement Period',
           start: interval.start().toString().replace('+00:00', 'Z'),
           end: interval.end().toString().replace('+00:00', 'Z')
         }

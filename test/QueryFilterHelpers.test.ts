@@ -58,7 +58,6 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
         alias: 'C',
         attribute: 'onset',
         valuePeriod: {
-          ref: 'Measurement Period',
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
@@ -99,7 +98,6 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
         alias: 'Obs',
         attribute: 'effective',
         valuePeriod: {
-          ref: 'Measurement Period',
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
@@ -127,7 +125,6 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
         alias: 'Enc',
         attribute: 'period.end',
         valuePeriod: {
-          ref: 'Measurement Period',
           start: '2017-12-31T23:59:59.999Z',
           end: '2019-12-31T23:59:59.998Z'
         }
