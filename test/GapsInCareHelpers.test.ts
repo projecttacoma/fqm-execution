@@ -420,35 +420,33 @@ describe('FHIR Bundle Generation', () => {
     expect(bundle.entry).toHaveLength(7);
 
     expect(bundle.entry).toContainEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          resource: expect.objectContaining({
-            resourceType: 'Composition',
-            section: [
-              expect.objectContaining({
-                title: 'example',
-                focus: {
-                  reference: 'MeasureReport/example'
+      expect.objectContaining({
+        resource: expect.objectContaining({
+          resourceType: 'Composition',
+          section: [
+            expect.objectContaining({
+              title: 'example',
+              focus: {
+                reference: 'MeasureReport/example'
+              },
+              entry: expect.arrayContaining([
+                {
+                  reference: 'DetectedIssue/example'
                 },
-                entry: [
-                  {
-                    reference: 'DetectedIssue/example'
-                  },
-                  {
-                    reference: 'DetectedIssue/example'
-                  },
-                  {
-                    reference: 'DetectedIssue/example'
-                  },
-                  {
-                    reference: 'DetectedIssue/example'
-                  }
-                ]
-              })
-            ]
-          })
+                {
+                  reference: 'DetectedIssue/example'
+                },
+                {
+                  reference: 'DetectedIssue/example'
+                },
+                {
+                  reference: 'DetectedIssue/example'
+                }
+              ])
+            })
+          ]
         })
-      ])
+      })
     );
 
     expect(bundle.entry).toContainEqual(
@@ -463,10 +461,12 @@ describe('FHIR Bundle Generation', () => {
       })
     );
 
-    expect(bundle.entry).toContainEqual(
-      expect.objectContaining({
-        resource: EXAMPLE_DETECTED_ISSUE
-      })
-    );
+    EXAMPLE_DETECTED_ISSUE.forEach((e:R4.IDetectedIssue) => {
+      expect(bundle.entry).toContainEqual(
+        expect.objectContaining({
+          resource: e
+        })
+      );
+    })
   });
 });
