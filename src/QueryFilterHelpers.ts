@@ -43,6 +43,8 @@ import {
  * @param library The library ELM the query resides in.
  * @param queryLocalId The localId for the query we want to get information on.
  * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
+ *                    "Measurement Period" is the only supported parameter at the moment as it is the only parameter
+ *                    seen in eCQMs.
  * @returns Information about the query and how it is filtered.
  */
 export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: { [key: string]: any } = {}): QueryInfo {
