@@ -175,6 +175,7 @@ export type AnyELMExpression =
   | ELMProperty
   | ELMConceptRef
   | ELMLiteral
+  | ELMInterval
   | ELMList;
 
 export interface ELMRetrieve extends ELMExpression {
@@ -322,6 +323,14 @@ export interface ELMLiteral extends ELMExpression {
   type: 'Literal';
   valueType: string;
   value?: string | number;
+}
+
+export interface ELMInterval extends ELMExpression {
+  type: 'Interval';
+  lowClosed?: boolean;
+  highClosed?: boolean;
+  low?: AnyELMExpression;
+  high?: AnyELMExpression;
 }
 
 export interface ELMList extends ELMExpression {

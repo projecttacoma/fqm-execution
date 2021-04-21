@@ -20,7 +20,8 @@ import {
   ELMList,
   ELMNot,
   ELMIsNull,
-  ELMUnaryExpression
+  ELMUnaryExpression,
+  ELMInterval
 } from './types/ELMTypes';
 import {
   AndFilter,
@@ -569,31 +570,21 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
       return { type: 'unknown' };
     }
   } else if (inExpr.operand[1].type == 'Interval') {
-    const propRefInInterval = findPropertyUsage(inExpr.operand[1], undefined);
-    if (propRefInInterval) {
-      console.warn('cannot handle intervals constructed on query data right now');
+    // execute the interval creation elm.
+    const period = executeIntervalELM(inExpr.operand[1] as ELMInterval, library, parameters);
+    if (period == null) {
       return {
         type: 'unknown',
         localId: inExpr.localId,
         alias: propRef.scope,
         attribute: propRef.path
       };
-    }
-
-    // build an expression that has the interval creation and
-    const intervalExpr = new cql.Expression({ operand: inExpr.operand[1] });
-    const ctx = new cql.PatientContext(new cql.Library(library), null, null, parameters);
-    const interval: cql.Interval = intervalExpr.arg.execute(ctx);
-
-    if (propRef.scope) {
+    } else if (propRef.scope) {
       return {
         type: 'during',
         alias: propRef.scope,
         attribute: propRef.path,
-        valuePeriod: {
-          start: interval.start().toString().replace('+00:00', 'Z'),
-          end: interval.end().toString().replace('+00:00', 'Z')
-        }
+        valuePeriod: period
       };
     } else {
       console.warn('could not resolve property scope');
@@ -602,4 +593,38 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
     console.warn('could not resolve In operand[1] ' + inExpr.operand[1].type);
   }
   return { type: 'unknown' };
+}
+
+/**
+ * Calculates an ELM expression that creates a CQL Interval using the cql-execution engine.
+ * This is used to create the periods that are based on the "Measurement Period".
+ *
+ * @param intervalExpr ELM Interval Expression to execute.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @param parameters The execution parameters.
+ * @returns A FHIR Period like structure with start and end of the calculated interval.
+ */
+export function executeIntervalELM(
+  intervalExpr: ELMInterval,
+  library: ELM,
+  parameters: any
+): {
+  start?: string;
+  end?: string;
+} | null {
+  // make sure the interval created based on property usage from the query source
+  const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
+  if (propRefInInterval) {
+    console.warn('cannot handle intervals constructed on query data right now');
+    return null;
+  }
+
+  // build an expression that has the interval creation and
+  const intervalExecExpr = new cql.Expression({ operand: intervalExpr });
+  const ctx = new cql.PatientContext(new cql.Library(library), null, null, parameters);
+  const interval: cql.Interval = intervalExecExpr.arg.execute(ctx);
+  return {
+    start: interval.start().toString().replace('+00:00', 'Z'),
+    end: interval.end().toString().replace('+00:00', 'Z')
+  };
 }
