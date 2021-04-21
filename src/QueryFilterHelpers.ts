@@ -148,7 +148,7 @@ function parseDataType(retrieve: ELMRetrieve): string {
  * @param parameters The parameters used for calculation.
  * @returns The simpler Filter representation of this clause.
  */
-function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): AnyFilter {
+export function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): AnyFilter {
   switch (expression.type) {
     case 'Equal':
       return interpretEqual(expression as ELMEqual);
@@ -188,7 +188,7 @@ function interpretExpression(expression: ELMExpression, library: ELM, parameters
  * @param unknownLocalId The localId of the parent express that should be identified as the clause we are unable to parse.
  * @returns An `UnknownFilter` describing the attribute that was accessed or null if none was found.
  */
-function findPropertyUsage(expression: any, unknownLocalId?: string): UnknownFilter | null {
+export function findPropertyUsage(expression: any, unknownLocalId?: string): UnknownFilter | null {
   if (expression.type === 'Property') {
     const propRef = expression as ELMProperty;
     if (propRef.scope) {
@@ -220,7 +220,7 @@ function findPropertyUsage(expression: any, unknownLocalId?: string): UnknownFil
  * @param parameters The original calculation parameters.
  * @returns The filter tree for this and expression.
  */
-function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any): AndFilter {
+export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any): AndFilter {
   const andInfo: AndFilter = { type: 'and', children: [] };
   if (andExpression.operand[0].type == 'And') {
     andInfo.children.push(...interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters).children);
@@ -244,7 +244,7 @@ function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any): And
  * @param parameters The original calculation parameters.
  * @returns The filter tree for this or expression.
  */
-function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilter {
+export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilter {
   const orInfo: OrFilter = { type: 'or', children: [] };
   if (orExpression.operand[0].type == 'Or') {
     orInfo.children.push(...interpretOr(orExpression.operand[0] as ELMOr, library, parameters).children);
@@ -267,7 +267,7 @@ function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilt
  * @param functionRef The function ref to look at.
  * @returns Usually an ELMProperty expression for the operand if it can be considered a passthrough.
  */
-function interpretFunctionRef(functionRef: ELMFunctionRef): any {
+export function interpretFunctionRef(functionRef: ELMFunctionRef): any {
   // from fhir helpers or MAT Global
   if (functionRef.libraryName == 'FHIRHelpers' || functionRef.libraryName == 'Global') {
     switch (functionRef.name) {
@@ -302,7 +302,7 @@ function interpretFunctionRef(functionRef: ELMFunctionRef): any {
  * @param not The ELM `Not` expression to parse.
  * @returns The interpreted filter. This may be a TautologyFilter that can be removed.
  */
-function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFilter {
+export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFilter {
   if (not.operand.type === 'IsNull') {
     const isNull = not.operand as ELMIsNull;
     if (isNull.operand.type === 'Property') {
@@ -341,7 +341,7 @@ function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFil
  * @param library The library the clause resides in.
  * @returns The filter representation.
  */
-function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
+export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
@@ -396,7 +396,7 @@ function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter |
  * @param library The library elm the concept should be found in.
  * @returns A list of codings in the concept
  */
-function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
+export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
   const concept = library.library.concepts?.def.find(concept => concept.name === name);
   if (concept) {
     const codes: R4.ICoding[] = [];
@@ -420,7 +420,7 @@ function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
  * @param equal The equal expression to be parsed.
  * @returns Filter representing the equal filter.
  */
-function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
+export function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
@@ -456,7 +456,11 @@ function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
  * @param parameters The original parameters used for calculation.
  * @returns Filter representation of the IncludedIn clause.
  */
-function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters: any): DuringFilter | UnknownFilter {
+export function interpretIncludedIn(
+  includedIn: ELMIncludedIn,
+  library: ELM,
+  parameters: any
+): DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (includedIn.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef);
@@ -474,10 +478,13 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
   if (includedIn.operand[1].type == 'ParameterRef') {
     const paramName = (includedIn.operand[1] as ELMParameterRef).name;
     const valuePeriod: { start?: string; end?: string } = {};
-    // If this parameter is known use it
-    if (parameters[paramName]) {
+    // If this parameter is known and is an interval we can use it
+    if (parameters[paramName] && parameters[paramName].isInterval) {
       valuePeriod.start = (parameters[paramName] as cql.Interval).start().toString().replace('+00:00', 'Z');
       valuePeriod.end = (parameters[paramName] as cql.Interval).end().toString().replace('+00:00', 'Z');
+    } else {
+      console.warn(`could not find parameter "${paramName}" or it was not an interval.`);
+      return { type: 'unknown', alias: propRef.scope, attribute: propRef.path };
     }
     if (propRef.scope) {
       return {
@@ -506,7 +513,7 @@ function interpretIncludedIn(includedIn: ELMIncludedIn, library: ELM, parameters
  * @param parameters The parameters used for calculation.
  * @returns Filter representation of the In clause.
  */
-function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
+export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (inExpr.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef);

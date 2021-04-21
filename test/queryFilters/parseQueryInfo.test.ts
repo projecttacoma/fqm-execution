@@ -1,7 +1,7 @@
-import { getELMFixture } from './helpers/testHelpers';
-import { parseQueryInfo } from '../src/QueryFilterHelpers';
+import { getELMFixture } from '../helpers/testHelpers';
+import { parseQueryInfo } from '../../src/QueryFilterHelpers';
 import * as cql from 'cql-execution';
-import { QueryInfo } from '../src/types/QueryFilterTypes';
+import { QueryInfo } from '../../src/types/QueryFilterTypes';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');

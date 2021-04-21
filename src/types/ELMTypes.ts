@@ -154,12 +154,35 @@ export interface ELMExpression {
   locator?: string;
 }
 
+export type AnyELMExpression =
+  | ELMExpression
+  | ELMRetrieve
+  | ELMValueSetRef
+  | ELMQuery
+  | ELMAs
+  | ELMEqual
+  | ELMEquivalent
+  | ELMAnd
+  | ELMOr
+  | ELMIsNull
+  | ELMIncludedIn
+  | ELMIn
+  | ELMEnd
+  | ELMStart
+  | ELMExpressionRef
+  | ELMFunctionRef
+  | ELMParameterRef
+  | ELMProperty
+  | ELMConceptRef
+  | ELMLiteral
+  | ELMList;
+
 export interface ELMRetrieve extends ELMExpression {
   type: 'Retrieve';
   dataType: string;
   templateId?: string;
   codeProperty?: string;
-  codes?: ELMExpression;
+  codes?: AnyELMExpression;
 }
 
 export interface ELMValueSetRef extends ELMExpression {
@@ -174,7 +197,7 @@ export interface ELMQuery extends ELMExpression {
   source: [ELMAliasedQuerySource];
   let: [ELMLetClause];
   relationship: [ELMRelationshipClause];
-  where?: ELMExpression;
+  where?: AnyELMExpression;
   return?: ELMReturnClause;
   sort?: any;
 }
@@ -185,13 +208,13 @@ export interface ELMAliasedQuerySource {
   /** Locator in the original CQL file. Only exists if compiled with this info. */
   locator?: string;
   /** Expression to fetch the source for the query. */
-  expression: ELMExpression;
+  expression: AnyELMExpression;
   /** Named alias to reference in the query scope. */
   alias: string;
 }
 
 export interface ELMRelationshipClause extends ELMAliasedQuerySource {
-  suchThat: ELMExpression;
+  suchThat: AnyELMExpression;
 }
 
 export interface ELMLetClause {
@@ -200,28 +223,28 @@ export interface ELMLetClause {
   /** Locator in the original CQL file. Only exists if compiled with this info. */
   locator?: string;
   /** Expression to fetch the source for the query. */
-  expression: ELMExpression;
+  expression: AnyELMExpression;
   /** Named alias to reference in the query scope. */
   identifier: string;
 }
 
 export interface ELMReturnClause {
-  expression: ELMExpression;
+  expression: AnyELMExpression;
   distinct?: string;
 }
 
 export interface ELMAs extends ELMExpression {
   type: 'As';
   asType: string;
-  operand: ELMExpression;
+  operand: AnyELMExpression;
 }
 
 export interface ELMBinaryExpression extends ELMExpression {
-  operand: [ELMExpression, ELMExpression];
+  operand: [AnyELMExpression, AnyELMExpression];
 }
 
 export interface ELMUnaryExpression extends ELMExpression {
-  operand: ELMExpression;
+  operand: AnyELMExpression;
 }
 
 export interface ELMEqual extends ELMBinaryExpression {
@@ -276,7 +299,7 @@ export interface ELMExpressionRef extends ELMExpression {
 export interface ELMFunctionRef extends ELMIExpressionRef {
   type: 'FunctionRef';
   signature?: [any];
-  operand: [ELMExpression];
+  operand: [AnyELMExpression];
 }
 
 export interface ELMParameterRef extends ELMIExpressionRef {
@@ -285,7 +308,7 @@ export interface ELMParameterRef extends ELMIExpressionRef {
 
 export interface ELMProperty extends ELMExpression {
   type: 'Property';
-  source?: ELMExpression;
+  source?: AnyELMExpression;
   path: string;
   scope?: string;
 }
