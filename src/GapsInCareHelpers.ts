@@ -179,7 +179,7 @@ export function groupGapQueries(queries: DataTypeQuery[]):DataTypeQuery[][]  {
     // as query grouping evolves
     if (stackEntry && stackEntry.type == 'Or') {
       if (queryGroups.get(stackEntryString(stackEntry))) {
-        // If we've already started a group for these queries, add to the grou
+        // If we've already started a group for these queries, add to the group
         queryGroups.get(stackEntryString(stackEntry))?.push(q);
       } else {
         // Otherwise, start a new group
