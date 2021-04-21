@@ -1,5 +1,4 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { group } from 'console';
 import {
   findRetrieves,
   generateDetectedIssueResources,
@@ -127,7 +126,7 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
   }
 ];
 
-const OR_GROUP_QUERIES: DataTypeQuery[] =[
+const OR_GROUP_QUERIES: DataTypeQuery[] = [
   {
     dataType: 'Procedure',
     valueSet: 'http://example.com/test-vs-2',
@@ -461,12 +460,12 @@ describe('FHIR Bundle Generation', () => {
       })
     );
 
-    EXAMPLE_DETECTED_ISSUE.forEach((e:R4.IDetectedIssue) => {
+    EXAMPLE_DETECTED_ISSUE.forEach((e: R4.IDetectedIssue) => {
       expect(bundle.entry).toContainEqual(
         expect.objectContaining({
           resource: e
         })
       );
-    })
+    });
   });
 });

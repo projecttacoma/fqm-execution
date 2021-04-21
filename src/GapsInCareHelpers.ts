@@ -84,7 +84,6 @@ export function findRetrieves(
         });
       }
     }
-
   } else if (expr.type === 'Query') {
     // Queries have the source array containing the expressions
     expr.source?.forEach(s => {
@@ -104,7 +103,9 @@ export function findRetrieves(
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === expr.name);
       if (exprRef) {
-        results.push(...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId, [...expressionStack]));
+        results.push(
+          ...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId, [...expressionStack])
+        );
       }
     }
   } else if (expr.operand) {
@@ -136,7 +137,9 @@ export function generateDetectedIssueResources(
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
   );
   const groupedQueries = groupGapQueries(relevantGapQueries);
-  const guidanceResponses = groupedQueries.map(q => generateGuidanceResponses(q, measureReport.measure, improvementNotation));
+  const guidanceResponses = groupedQueries.map(q =>
+    generateGuidanceResponses(q, measureReport.measure, improvementNotation)
+  );
   return guidanceResponses.map(gr => {
     return {
       resourceType: 'DetectedIssue',
@@ -165,15 +168,15 @@ export function generateDetectedIssueResources(
  * "Groups" gaps queries that are functionally the same in terms of putting a patient into the improvement population
  * (whether that is the numerator or the denominator, depending on the improvement notation). For the moment, only handles
  * "or"-d queries, where any one of the listed DataTypeQuery objects would put the patient into the improvement population.
- * 
+ *
  * @param queries list of queries from the execution engine.
  * @returns an array of arrays of type DataTypeQuery
  */
-export function groupGapQueries(queries: DataTypeQuery[]):DataTypeQuery[][]  {
+export function groupGapQueries(queries: DataTypeQuery[]): DataTypeQuery[][] {
   const queryGroups = new Map<string, DataTypeQuery[]>();
-  const ungroupedQueries:DataTypeQuery[][] = [];
+  const ungroupedQueries: DataTypeQuery[][] = [];
 
-  queries.forEach((q):void => {
+  queries.forEach((q): void => {
     const stackEntry = q.expressionStack ? q.expressionStack[0] : undefined;
     // Logic to determine grouped queries. Will likely get more complex
     // as query grouping evolves
@@ -194,7 +197,7 @@ export function groupGapQueries(queries: DataTypeQuery[]):DataTypeQuery[][]  {
   return Array.from(queryGroups.values()).concat(ungroupedQueries);
 }
 
-function stackEntryString(entry:ExpressionStackEntry):string {
+function stackEntryString(entry: ExpressionStackEntry): string {
   return JSON.stringify(entry);
 }
 
@@ -288,12 +291,12 @@ export function generateGapsInCareBundle(
           reference: `MeasureReport/${measureReport.id}`
         },
         entry: detectedIssues.map(i => {
-          return { reference: `DetectedIssue/${i.id}`};
+          return { reference: `DetectedIssue/${i.id}` };
         })
       }
     ]
   };
-  const returnBundle:R4.IBundle = {
+  const returnBundle: R4.IBundle = {
     resourceType: 'Bundle',
     type: R4.BundleTypeKind._document,
     entry: [
@@ -309,7 +312,7 @@ export function generateGapsInCareBundle(
     ]
   };
   detectedIssues.forEach(i => {
-    returnBundle.entry?.push({ resource: i});
+    returnBundle.entry?.push({ resource: i });
   });
   return returnBundle;
 }
