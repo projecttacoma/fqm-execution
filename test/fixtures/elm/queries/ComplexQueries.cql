@@ -41,3 +41,9 @@ define "Observation Status Value Exists and During MP":
 define "Encounter 2 Years Before End of MP":
   [Encounter: "test-vs"] Enc
     where Global."Normalize Interval"(Enc.period) ends 2 years or less before end of "Measurement Period"
+
+define "Code Active Or Starts During MP Or Abatement is not null":
+  [Condition: "test-vs"] C
+    where C.clinicalStatus ~ "Condition Active"
+      or C.onset during "Measurement Period"
+      or C.abatement is not null
