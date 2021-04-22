@@ -4,7 +4,7 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "target": "es5",
-    "lib": ["es2019"],
+    "lib": ["ESNext"],
     "module": "commonjs",
     "allowJs": true,
     "outDir": "./build",
