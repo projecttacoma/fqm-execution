@@ -152,5 +152,5 @@ export function execute(
     debugObject.rawResults = results;
   }
 
-  return { rawResults: results, elmLibraries: elmJSONs, mainLibraryName: rootLibIdentifer.id };
+  return { rawResults: results, elmLibraries: elmJSONs, mainLibraryName: rootLibIdentifer.id, parameters: parameters };
 }

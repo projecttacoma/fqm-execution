@@ -10,6 +10,7 @@ import * as MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from './GapsInCareHelpers';
 import { generateHTML } from './HTMLGenerator';
 import { ELM } from './types/ELMTypes';
+import { parseQueryInfo } from './QueryFilterHelpers';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -23,7 +24,13 @@ export function calculate(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): { results: ExecutionResult[]; debugOutput?: DebugOutput; elmLibraries?: ELM[]; mainLibraryName?: string } {
+): {
+  results: ExecutionResult[];
+  debugOutput?: DebugOutput;
+  elmLibraries?: ELM[];
+  mainLibraryName?: string;
+  parameters?: { [key: string]: any };
+} {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
   // Ensure the CalculationOptions have sane defaults, only if they're not set
@@ -159,7 +166,8 @@ export function calculate(
       results: executionResults,
       debugOutput: debugObject,
       elmLibraries: results.elmLibraries,
-      mainLibraryName: results.mainLibraryName
+      mainLibraryName: results.mainLibraryName,
+      parameters: results.parameters
     };
   } else {
     return { results: executionResults, debugOutput: debugObject };
@@ -212,7 +220,11 @@ export function calculateGapsInCare(
 ): { results: R4.IBundle; debugOutput?: DebugOutput } {
   // Detailed results for populations get ELM content back
   options.returnELM = true;
-  const { results, debugOutput, elmLibraries, mainLibraryName } = calculate(measureBundle, patientBundles, options);
+  const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = calculate(
+    measureBundle,
+    patientBundles,
+    options
+  );
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
 
   let result: R4.IBundle = <R4.IBundle>{};
@@ -293,6 +305,17 @@ export function calculateGapsInCare(
           numerELMExpression.expression,
           dr
         );
+
+        retrieves.forEach(retrieve => {
+          // If the retrieves have a localId for the query and a known library name, we can get more info
+          // on how the query filters the sources.
+          if (retrieve.queryLocalId && retrieve.libraryName) {
+            const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.libraryName);
+            if (library) {
+              retrieve.queryInfo = parseQueryInfo(library, retrieve.queryLocalId, parameters);
+            }
+          }
+        });
 
         retrieves = GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation);
 

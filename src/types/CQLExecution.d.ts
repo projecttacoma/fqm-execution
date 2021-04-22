@@ -7,7 +7,7 @@ declare module 'cql-execution' {
   }
 
   export class Executor {
-    constructor(library: Library, codeService: CodeService, parameters: any);
+    constructor(library: Library, codeService: CodeService, parameters: { [key: string]: any });
     exec(patientsource: PatientSource, executionDateTime: any): Results;
   }
 
@@ -26,9 +26,11 @@ declare module 'cql-execution' {
   }
 
   export class Interval {
-    constructor(start: any, end: any);
+    constructor(low: any, high: any, lowClosed?: boolean, highClosed?: boolean);
     low: any;
     high: any;
+    start(): DateTime;
+    end(): DateTime;
   }
 
   export class Code {
@@ -39,5 +41,15 @@ declare module 'cql-execution' {
   export class Quantity {
     value: number;
     unit: string;
+  }
+
+  export class Expression {
+    constructor(json: any);
+    execute(context: any);
+    arg: Expression;
+  }
+
+  export class PatientContext {
+    constructor(library: Library, patient: any, codeService: any, parameters: any);
   }
 }

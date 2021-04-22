@@ -34,6 +34,9 @@ export interface ELMLibrary {
   codes?: {
     def: ELMCode[];
   };
+  concepts?: {
+    def: ELMConcept[];
+  };
   /** Standard define or define function statements. The actual logic is defined here. */
   statements: {
     /** List of statement definitions. */
@@ -128,6 +131,211 @@ export interface ELMCode {
   codeSystem: {
     name: string;
   };
+}
+
+export interface ELMConcept {
+  name: string;
+  display: string;
+  accessLevel: string;
+  code: {
+    name: string;
+  }[];
+}
+
+/**
+ * Abstract ELM Expression.
+ */
+export interface ELMExpression {
+  /** Type of expression. */
+  type: string;
+  /** Clause id for this expression. */
+  localId?: string;
+  /** Locator in the original CQL file. Only exists if compiled with this info. */
+  locator?: string;
+}
+
+export type AnyELMExpression =
+  | ELMExpression
+  | ELMRetrieve
+  | ELMValueSetRef
+  | ELMQuery
+  | ELMAs
+  | ELMEqual
+  | ELMEquivalent
+  | ELMAnd
+  | ELMOr
+  | ELMIsNull
+  | ELMIncludedIn
+  | ELMIn
+  | ELMEnd
+  | ELMStart
+  | ELMExpressionRef
+  | ELMFunctionRef
+  | ELMParameterRef
+  | ELMProperty
+  | ELMConceptRef
+  | ELMLiteral
+  | ELMInterval
+  | ELMList;
+
+export interface ELMRetrieve extends ELMExpression {
+  type: 'Retrieve';
+  dataType: string;
+  templateId?: string;
+  codeProperty?: string;
+  codes?: AnyELMExpression;
+}
+
+export interface ELMValueSetRef extends ELMExpression {
+  type: 'ValueSetRef';
+  name: string;
+  libraryName?: string;
+  locator?: string;
+}
+
+export interface ELMQuery extends ELMExpression {
+  type: 'Query';
+  source: [ELMAliasedQuerySource];
+  let: [ELMLetClause];
+  relationship: [ELMRelationshipClause];
+  where?: AnyELMExpression;
+  return?: ELMReturnClause;
+  sort?: any;
+}
+
+export interface ELMAliasedQuerySource {
+  /** Clause id for this alias. */
+  localId?: string;
+  /** Locator in the original CQL file. Only exists if compiled with this info. */
+  locator?: string;
+  /** Expression to fetch the source for the query. */
+  expression: AnyELMExpression;
+  /** Named alias to reference in the query scope. */
+  alias: string;
+}
+
+export interface ELMRelationshipClause extends ELMAliasedQuerySource {
+  suchThat: AnyELMExpression;
+}
+
+export interface ELMLetClause {
+  /** Clause id for this alias. */
+  localId?: string;
+  /** Locator in the original CQL file. Only exists if compiled with this info. */
+  locator?: string;
+  /** Expression to fetch the source for the query. */
+  expression: AnyELMExpression;
+  /** Named alias to reference in the query scope. */
+  identifier: string;
+}
+
+export interface ELMReturnClause {
+  expression: AnyELMExpression;
+  distinct?: string;
+}
+
+export interface ELMAs extends ELMExpression {
+  type: 'As';
+  asType: string;
+  operand: AnyELMExpression;
+}
+
+export interface ELMBinaryExpression extends ELMExpression {
+  operand: [AnyELMExpression, AnyELMExpression];
+}
+
+export interface ELMUnaryExpression extends ELMExpression {
+  operand: AnyELMExpression;
+}
+
+export interface ELMEqual extends ELMBinaryExpression {
+  type: 'Equal';
+}
+
+export interface ELMEquivalent extends ELMBinaryExpression {
+  type: 'Equivalent';
+}
+
+export interface ELMAnd extends ELMBinaryExpression {
+  type: 'And';
+}
+
+export interface ELMOr extends ELMBinaryExpression {
+  type: 'Or';
+}
+
+export interface ELMNot extends ELMUnaryExpression {
+  type: 'Not';
+}
+
+export interface ELMIsNull extends ELMUnaryExpression {
+  type: 'IsNull';
+}
+
+export interface ELMIncludedIn extends ELMBinaryExpression {
+  type: 'IncludedIn';
+}
+
+export interface ELMIn extends ELMBinaryExpression {
+  type: 'In';
+}
+
+export interface ELMEnd extends ELMUnaryExpression {
+  type: 'End';
+}
+
+export interface ELMStart extends ELMUnaryExpression {
+  type: 'Start';
+}
+
+interface ELMIExpressionRef extends ELMExpression {
+  name: string;
+  libraryName?: string;
+}
+
+export interface ELMExpressionRef extends ELMExpression {
+  type: 'ExpressionRef';
+}
+
+export interface ELMFunctionRef extends ELMIExpressionRef {
+  type: 'FunctionRef';
+  signature?: [any];
+  operand: [AnyELMExpression];
+}
+
+export interface ELMParameterRef extends ELMIExpressionRef {
+  type: 'ParameterRef';
+}
+
+export interface ELMProperty extends ELMExpression {
+  type: 'Property';
+  source?: AnyELMExpression;
+  path: string;
+  scope?: string;
+}
+
+export interface ELMConceptRef extends ELMExpression {
+  type: 'ConceptRef';
+  name: string;
+}
+
+export interface ELMLiteral extends ELMExpression {
+  type: 'Literal';
+  valueType: string;
+  value?: string | number;
+}
+
+export interface ELMInterval extends ELMExpression {
+  type: 'Interval';
+  lowClosed?: boolean;
+  highClosed?: boolean;
+  low?: AnyELMExpression;
+  high?: AnyELMExpression;
+}
+
+export interface ELMList extends ELMExpression {
+  type: 'List';
+  element: ELMLiteral[];
 }
 
 export interface LibraryDependencyInfo {

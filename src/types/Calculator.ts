@@ -2,6 +2,7 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType, FinalResult, Relevance } from './Enums';
 import * as cql from './CQLTypes';
 import { ELM } from './ELMTypes';
+import { QueryInfo } from './QueryFilterTypes';
 
 /**
  * Options for calculation.
@@ -41,6 +42,10 @@ export interface RawExecutionData {
   elmLibraries?: ELM[];
   /** the name of the "main" library used for execution. */
   mainLibraryName?: string;
+  /** Parameters used in execution. Useful for gaps in care processing. */
+  parameters?: {
+    [key: string]: any;
+  };
 }
 
 /**
@@ -204,6 +209,8 @@ export interface DataTypeQuery {
   libraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
+  /** Info about query and how it is filtered. */
+  queryInfo?: QueryInfo;
 }
 
 /**
