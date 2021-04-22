@@ -203,6 +203,14 @@ function stackEntryString(entry: ExpressionStackEntry): string {
   return JSON.stringify(entry);
 }
 
+/**
+ * Genereate FHIR GuidanceReponse resources for queries that are gaps
+ *
+ * @param queries list of all queries that are gaps for this measure
+ * @param measureURL fully qualified URL referencing the measure
+ * @param improvementNotation ImprovementNotation.POSITIVE or ImprovementNotation.NEGATIVE
+ * @returns list of FHIR GuidanceResponse resources with detailed gaps information
+ */
 export function generateGuidanceResponses(
   queries: DataTypeQuery[],
   measureURL: string,

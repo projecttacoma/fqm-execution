@@ -1,6 +1,12 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { EqualsFilter, InFilter, DuringFilter, AndFilter, AnyFilter } from './types/QueryFilterTypes';
 
+/**
+ * Take any nesting of base filters and AND filters and flatten into one list
+ *
+ * @param filter the root filter to flatten
+ * @returns a list of all filters used by this query at one level
+ */
 export function flattenFilters(filter: AnyFilter): AnyFilter[] {
   if (filter.type !== 'and') {
     return [filter];
@@ -14,6 +20,12 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
   }
 }
 
+/**
+ * Map an EqualsFilter or InFilter into a FHIR DataRequirement codeFilter
+ *
+ * @param filter the filter to translate
+ * @returns codeFilter list to be put on the DataRequirement
+ */
 export function generateDetailedCodeFilters(filter: EqualsFilter | InFilter): R4.IDataRequirement_CodeFilter[] {
   if (filter.type === 'equals') {
     const equalsFilter = filter as EqualsFilter;
@@ -49,6 +61,12 @@ export function generateDetailedCodeFilters(filter: EqualsFilter | InFilter): R4
   return [];
 }
 
+/**
+ * Map a during filter into a FHIR DataRequirement dateFilter
+ *
+ * @param filter the "during" filter to map
+ * @returns list with one entry for the dateFilter
+ */
 export function generateDetailedDateFilters(filter: DuringFilter): R4.IDataRequirement_DateFilter[] {
   return [
     {
