@@ -84,15 +84,10 @@ export function findRetrieves(
         });
       }
     }
-
-    // Clear stack in base case
-    while (expressionStack.length !== 0) {
-      expressionStack.pop();
-    }
   } else if (expr.type === 'Query') {
     // Queries have the source array containing the expressions
     expr.source?.forEach(s => {
-      results.push(...findRetrieves(elm, deps, s.expression, detailedResult, expr.localId, expressionStack));
+      results.push(...findRetrieves(elm, deps, s.expression, detailedResult, expr.localId, [...expressionStack]));
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
@@ -101,24 +96,26 @@ export function findRetrieves(
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === expr.name);
       if (matchingLib && exprRef) {
         results.push(
-          ...findRetrieves(matchingLib, deps, exprRef.expression, detailedResult, queryLocalId, expressionStack)
+          ...findRetrieves(matchingLib, deps, exprRef.expression, detailedResult, queryLocalId, [...expressionStack])
         );
       }
     } else {
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === expr.name);
       if (exprRef) {
-        results.push(...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId, expressionStack));
+        results.push(
+          ...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId, [...expressionStack])
+        );
       }
     }
   } else if (expr.operand) {
     // Operand can be array or object. Recurse on either
     if (Array.isArray(expr.operand)) {
       expr.operand.forEach(e => {
-        results.push(...findRetrieves(elm, deps, e, detailedResult, queryLocalId, expressionStack));
+        results.push(...findRetrieves(elm, deps, e, detailedResult, queryLocalId, [...expressionStack]));
       });
     } else {
-      results.push(...findRetrieves(elm, deps, expr.operand, detailedResult, queryLocalId, expressionStack));
+      results.push(...findRetrieves(elm, deps, expr.operand, detailedResult, queryLocalId, [...expressionStack]));
     }
   }
   return results;
@@ -130,36 +127,78 @@ export function findRetrieves(
  * @param queries numerator queries from a call to findRetrieves
  * @param measureReport FHIR MeasureReport to be referenced by the issue
  */
-export function generateDetectedIssueResource(
+export function generateDetectedIssueResources(
   queries: DataTypeQuery[],
   measureReport: R4.IMeasureReport,
   improvementNotation: string
-): R4.IDetectedIssue {
+): R4.IDetectedIssue[] {
   const relevantGapQueries = queries.filter(q =>
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
   );
-  const guidanceResponses = generateGuidanceResponses(relevantGapQueries, measureReport.measure, improvementNotation);
-  return {
-    resourceType: 'DetectedIssue',
-    id: uuidv4(),
-    status: 'final',
-    code: {
-      coding: [
-        {
-          system: 'http://terminology.hl7.org/CodeSystem/detectedissue-category',
-          code: 'care-gap',
-          display: 'Gap in Care Detected'
-        }
-      ]
-    },
-    evidence: guidanceResponses.map(gr => {
-      return {
-        detail: [{ reference: `#${gr.id}` }]
-      };
-    }),
-    contained: guidanceResponses
-  };
+  const groupedQueries = groupGapQueries(relevantGapQueries);
+  const guidanceResponses = groupedQueries.map(q =>
+    generateGuidanceResponses(q, measureReport.measure, improvementNotation)
+  );
+  return guidanceResponses.map(gr => {
+    return {
+      resourceType: 'DetectedIssue',
+      id: uuidv4(),
+      status: 'final',
+      code: {
+        coding: [
+          {
+            system: 'http://terminology.hl7.org/CodeSystem/detectedissue-category',
+            code: 'care-gap',
+            display: 'Gap in Care Detected'
+          }
+        ]
+      },
+      evidence: gr.map(gr => {
+        return {
+          detail: [{ reference: `#${gr.id}` }]
+        };
+      }),
+      contained: gr
+    };
+  });
+}
+
+/**
+ * "Groups" gaps queries that are functionally the same in terms of putting a patient into the improvement population
+ * (whether that is the numerator or the denominator, depending on the improvement notation). For the moment, only handles
+ * "or"-d queries, where any one of the listed DataTypeQuery objects would put the patient into the improvement population.
+ *
+ * @param queries list of queries from the execution engine.
+ * @returns an array of arrays of type DataTypeQuery
+ */
+export function groupGapQueries(queries: DataTypeQuery[]): DataTypeQuery[][] {
+  const queryGroups = new Map<string, DataTypeQuery[]>();
+  const ungroupedQueries: DataTypeQuery[][] = [];
+
+  queries.forEach((q): void => {
+    const stackEntry = q.expressionStack ? q.expressionStack[0] : undefined;
+    // Logic to determine grouped queries. Will likely get more complex
+    // as query grouping evolves
+    if (stackEntry && stackEntry.type == 'Or') {
+      if (queryGroups.get(stackEntryString(stackEntry))) {
+        // If we've already started a group for these queries, add to the group
+        queryGroups.get(stackEntryString(stackEntry))?.push(q);
+      } else {
+        // Otherwise, start a new group
+        queryGroups.set(stackEntryString(stackEntry), [q]);
+      }
+    } else {
+      // collect queries that aren't part of a grouping
+      ungroupedQueries.push([q]);
+    }
+  });
+
+  return Array.from(queryGroups.values()).concat(ungroupedQueries);
+}
+
+function stackEntryString(entry: ExpressionStackEntry): string {
+  return JSON.stringify(entry);
 }
 
 function generateGuidanceResponses(
@@ -226,7 +265,7 @@ function generateGuidanceResponses(
  * @param patient Current FHIR Patient processed in execution
  */
 export function generateGapsInCareBundle(
-  detectedIssue: R4.IDetectedIssue,
+  detectedIssues: R4.IDetectedIssue[],
   measureReport: R4.IMeasureReport,
   patient: R4.IPatient
 ): R4.IBundle {
@@ -251,23 +290,18 @@ export function generateGapsInCareBundle(
         focus: {
           reference: `MeasureReport/${measureReport.id}`
         },
-        entry: [
-          {
-            reference: `DetectedIssue/${detectedIssue.id}`
-          }
-        ]
+        entry: detectedIssues.map(i => {
+          return { reference: `DetectedIssue/${i.id}` };
+        })
       }
     ]
   };
-  return {
+  const returnBundle: R4.IBundle = {
     resourceType: 'Bundle',
     type: R4.BundleTypeKind._document,
     entry: [
       {
         resource: composition
-      },
-      {
-        resource: detectedIssue
       },
       {
         resource: measureReport
@@ -277,6 +311,10 @@ export function generateGapsInCareBundle(
       }
     ]
   };
+  detectedIssues.forEach(i => {
+    returnBundle.entry?.push({ resource: i });
+  });
+  return returnBundle;
 }
 
 /**
@@ -285,7 +323,7 @@ export function generateGapsInCareBundle(
  * @param retrieves numerator queries from a call to findRetrieves
  * @param improvementNotation string indicating positive or negative improvement notation for the measure being used
  */
-export function calculateNearMisses(retrieves: DataTypeQuery[], improvementNotation: string) {
+export function calculateNearMisses(retrieves: DataTypeQuery[], improvementNotation: string): DataTypeQuery[] {
   return retrieves.map(r => {
     let isNearMiss;
     if (improvementNotation === ImprovementNotation.POSITIVE) {

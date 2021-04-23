@@ -211,6 +211,8 @@ export interface DataTypeQuery {
   expressionStack?: ExpressionStackEntry[];
   /** Info about query and how it is filtered. */
   queryInfo?: QueryInfo;
+  /** boolean determining whether a data type query is considered a "near miss" */
+  isNearMiss?: boolean;
 }
 
 /**
