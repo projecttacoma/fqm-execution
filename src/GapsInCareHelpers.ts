@@ -204,7 +204,7 @@ function stackEntryString(entry: ExpressionStackEntry): string {
 }
 
 /**
- * Genereate FHIR GuidanceReponse resources for queries that are gaps
+ * Generate FHIR GuidanceResponse resources for queries that are gaps
  *
  * @param queries list of all queries that are gaps for this measure
  * @param measureURL fully qualified URL referencing the measure

@@ -528,7 +528,7 @@ describe('Guidance Response', () => {
     expect(gr.dataRequirement).toEqual(drWithAttributeFilter);
   });
 
-  test('should generate data requirement with in attribute codeFilter', () => {
+  test('should generate data requirement with "in" attribute codeFilter', () => {
     const drWithAttributeFilter: R4.IDataRequirement[] = [
       {
         type: 'Procedure',
@@ -579,7 +579,7 @@ describe('Guidance Response', () => {
     expect(gr.dataRequirement).toEqual(drWithAttributeFilter);
   });
 
-  test('should generate data requirement with in codings attribute codeFilter', () => {
+  test('should generate data requirement with "in" codings attribute codeFilter', () => {
     const drWithAttributeFilter: R4.IDataRequirement[] = [
       {
         type: 'Procedure',
