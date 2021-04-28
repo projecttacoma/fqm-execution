@@ -18,7 +18,7 @@ describe('DataRequirementHelpers', () => {
       expect(flattenedFilters[0]).toEqual(equalsFilter);
     });
 
-    test('should flatten and filters', () => {
+    test('should flatten AND filters', () => {
       const equalsFilter0: EqualsFilter = {
         type: 'equals',
         alias: 'R',
@@ -127,7 +127,7 @@ describe('DataRequirementHelpers', () => {
       expect(DataRequirementHelpers.generateDetailedCodeFilter(inf)).toEqual(expectedCodeFilter);
     });
 
-    test('in filter with non-string list should be ignored', () => {
+    test('IN filter with non-string list should be ignored', () => {
       const inf: InFilter = {
         type: 'in',
         alias: 'R',
@@ -138,7 +138,7 @@ describe('DataRequirementHelpers', () => {
       expect(DataRequirementHelpers.generateDetailedCodeFilter(inf)).toBeNull();
     });
 
-    test('in filter should pass through valueCodingList', () => {
+    test('IN filter should pass through valueCodingList', () => {
       const inf: InFilter = {
         type: 'in',
         alias: 'R',
