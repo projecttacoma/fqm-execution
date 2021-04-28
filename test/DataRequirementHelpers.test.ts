@@ -101,7 +101,7 @@ describe('DataRequirementHelpers', () => {
       expect(DataRequirementHelpers.generateDetailedCodeFilter(ef)).toEqual(expectedCodeFilter);
     });
 
-    test('in filter should pull off all of valueList', () => {
+    test('IN filter should pull off all of valueList', () => {
       const inf: InFilter = {
         type: 'in',
         alias: 'R',
