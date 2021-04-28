@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult, ExpressionStackEntry } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
+import { flattenFilters, generateDetailedCodeFilter, generateDetailedDateFilter } from './DataRequirementHelpers';
+import { EqualsFilter, InFilter, DuringFilter } from './types/QueryFilterTypes';
 
 /**
  * Get all data types, and codes/valuesets used in Retrieve ELM expressions
@@ -201,20 +203,28 @@ function stackEntryString(entry: ExpressionStackEntry): string {
   return JSON.stringify(entry);
 }
 
-function generateGuidanceResponses(
+/**
+ * Generate FHIR GuidanceResponse resources for queries that are gaps
+ *
+ * @param queries list of all queries that are gaps for this measure
+ * @param measureURL fully qualified URL referencing the measure
+ * @param improvementNotation ImprovementNotation.POSITIVE or ImprovementNotation.NEGATIVE
+ * @returns list of FHIR GuidanceResponse resources with detailed gaps information
+ */
+export function generateGuidanceResponses(
   queries: DataTypeQuery[],
   measureURL: string,
   improvementNotation: string
 ): R4.IGuidanceResponse[] {
   const guidanceResponses: R4.IGuidanceResponse[] = queries.map(q => {
-    const codeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
+    const dataTypeCodeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
       path: 'code'
     };
 
     if (q.valueSet) {
-      codeFilter.valueSet = q.valueSet;
+      dataTypeCodeFilter.valueSet = q.valueSet;
     } else if (q.code) {
-      codeFilter.code = [
+      dataTypeCodeFilter.code = [
         {
           code: q.code.code,
           system: q.code.system
@@ -223,6 +233,7 @@ function generateGuidanceResponses(
     }
 
     // TODO: update system to be full URL once defined
+    // TODO: include logic for other codes based on results of parsed queries
     const gapCoding: R4.ICoding =
       improvementNotation === ImprovementNotation.POSITIVE
         ? {
@@ -239,15 +250,37 @@ function generateGuidanceResponses(
     const gapStatus: R4.ICodeableConcept = {
       coding: [gapCoding]
     };
+
+    const dataRequirement: R4.IDataRequirement = {
+      type: q.dataType,
+      codeFilter: [{ ...dataTypeCodeFilter }]
+    };
+
+    if (q.queryInfo) {
+      const detailedFilters = flattenFilters(q.queryInfo.filter);
+
+      detailedFilters.forEach(df => {
+        if (df.type === 'equals' || df.type === 'in') {
+          const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter);
+
+          if (cf !== null) {
+            dataRequirement.codeFilter?.push(cf);
+          }
+        } else if (df.type === 'during') {
+          const dateFilter = generateDetailedDateFilter(df as DuringFilter);
+          if (dataRequirement.dateFilter) {
+            dataRequirement.dateFilter.push(dateFilter);
+          } else {
+            dataRequirement.dateFilter = [dateFilter];
+          }
+        }
+      });
+    }
+
     const guidanceResponse: R4.IGuidanceResponse = {
       resourceType: 'GuidanceResponse',
       id: uuidv4(),
-      dataRequirement: [
-        {
-          type: q.dataType,
-          codeFilter: [{ ...codeFilter }]
-        }
-      ],
+      dataRequirement: [dataRequirement],
       reasonCode: [gapStatus],
       status: R4.GuidanceResponseStatusKind._dataRequired,
       moduleUri: measureURL

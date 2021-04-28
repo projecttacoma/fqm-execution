@@ -4,7 +4,8 @@ import {
   generateDetectedIssueResources,
   generateGapsInCareBundle,
   calculateNearMisses,
-  groupGapQueries
+  groupGapQueries,
+  generateGuidanceResponses
 } from '../src/GapsInCareHelpers';
 import { DataTypeQuery, DetailedPopulationGroupResult } from '../src/types/Calculator';
 import { FinalResult, ImprovementNotation } from '../src/types/Enums';
@@ -467,5 +468,299 @@ describe('FHIR Bundle Generation', () => {
         })
       );
     });
+  });
+});
+
+describe('Guidance Response', () => {
+  const baseQuery: DataTypeQuery = {
+    dataType: 'Procedure',
+    valueSet: 'http://example.com/test-vs',
+    retrieveHasResult: true,
+    parentQueryHasResult: false,
+    isNearMiss: true
+  };
+
+  test('should generate data requirement with equals attribute codeFilter', () => {
+    const drWithAttributeFilter: R4.IDataRequirement[] = [
+      {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed'
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const query: DataTypeQuery = {
+      ...baseQuery,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'P',
+            resourceType: 'Procedure'
+          }
+        ],
+        filter: {
+          type: 'equals',
+          alias: 'P',
+          value: 'completed',
+          attribute: 'status'
+        }
+      }
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithAttributeFilter);
+  });
+
+  test('should generate data requirement with "in" attribute codeFilter', () => {
+    const drWithAttributeFilter: R4.IDataRequirement[] = [
+      {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed'
+              },
+              {
+                code: 'amended'
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const query: DataTypeQuery = {
+      ...baseQuery,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'P',
+            resourceType: 'Procedure'
+          }
+        ],
+        filter: {
+          type: 'in',
+          alias: 'P',
+          valueList: ['completed', 'amended'],
+          attribute: 'status'
+        }
+      }
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithAttributeFilter);
+  });
+
+  test('should generate data requirement with "in" codings attribute codeFilter', () => {
+    const drWithAttributeFilter: R4.IDataRequirement[] = [
+      {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed',
+                system: 'http://example.com/system'
+              },
+              {
+                code: 'amended',
+                system: 'http://example.com/system'
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const query: DataTypeQuery = {
+      ...baseQuery,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'P',
+            resourceType: 'Procedure'
+          }
+        ],
+        filter: {
+          type: 'in',
+          alias: 'P',
+          valueCodingList: [
+            {
+              code: 'completed',
+              system: 'http://example.com/system'
+            },
+            {
+              code: 'amended',
+              system: 'http://example.com/system'
+            }
+          ],
+          attribute: 'status'
+        }
+      }
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithAttributeFilter);
+  });
+
+  test('should generate data requirement with dateFilter', () => {
+    const drWithDate: R4.IDataRequirement[] = [
+      {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          }
+        ],
+        dateFilter: [
+          {
+            path: 'performed.end',
+            valuePeriod: {
+              start: '2009-12-31',
+              end: '2019-12-31'
+            }
+          }
+        ]
+      }
+    ];
+
+    const query: DataTypeQuery = {
+      ...baseQuery,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'P',
+            resourceType: 'Procedure'
+          }
+        ],
+        filter: {
+          type: 'during',
+          alias: 'P',
+          attribute: 'performed.end',
+          valuePeriod: {
+            start: '2009-12-31',
+            end: '2019-12-31'
+          }
+        }
+      }
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithDate);
+  });
+
+  test('should generate combo data requirement with codeFilter and dateFilter', () => {
+    const drWithDateAndCode: R4.IDataRequirement[] = [
+      {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed'
+              }
+            ]
+          }
+        ],
+        dateFilter: [
+          {
+            path: 'performed.end',
+            valuePeriod: {
+              start: '2009-12-31',
+              end: '2019-12-31'
+            }
+          }
+        ]
+      }
+    ];
+
+    const query: DataTypeQuery = {
+      ...baseQuery,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'P',
+            resourceType: 'Procedure'
+          }
+        ],
+        filter: {
+          type: 'and',
+          children: [
+            {
+              type: 'equals',
+              alias: 'P',
+              value: 'completed',
+              attribute: 'status'
+            },
+            {
+              type: 'during',
+              alias: 'P',
+              attribute: 'performed.end',
+              valuePeriod: {
+                start: '2009-12-31',
+                end: '2019-12-31'
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithDateAndCode);
   });
 });
