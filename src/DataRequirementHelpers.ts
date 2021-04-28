@@ -24,54 +24,46 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
  * Map an EqualsFilter or InFilter into a FHIR DataRequirement codeFilter
  *
  * @param filter the filter to translate
- * @returns codeFilter list to be put on the DataRequirement
+ * @returns codeFilter to be put on the DataRequirement
  */
-export function generateDetailedCodeFilters(filter: EqualsFilter | InFilter): R4.IDataRequirement_CodeFilter[] {
+export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter): R4.IDataRequirement_CodeFilter | null {
   if (filter.type === 'equals') {
     const equalsFilter = filter as EqualsFilter;
     if (typeof equalsFilter.value === 'string')
-      return [
-        {
-          path: equalsFilter.attribute,
-          code: [{ code: equalsFilter.value }]
-        }
-      ];
+      return {
+        path: equalsFilter.attribute,
+        code: [{ code: equalsFilter.value }]
+      };
   } else if (filter.type === 'in') {
     const inFilter = filter as InFilter;
 
     if (inFilter.valueList?.every(v => typeof v === 'string')) {
-      return [
-        {
-          path: inFilter.attribute,
-          code: inFilter.valueList.map(v => ({
-            code: v as string
-          }))
-        }
-      ];
+      return {
+        path: inFilter.attribute,
+        code: inFilter.valueList.map(v => ({
+          code: v as string
+        }))
+      };
     } else if (filter.valueCodingList) {
-      return [
-        {
-          path: filter.attribute,
-          code: filter.valueCodingList
-        }
-      ];
+      return {
+        path: filter.attribute,
+        code: filter.valueCodingList
+      };
     }
   }
 
-  return [];
+  return null;
 }
 
 /**
  * Map a during filter into a FHIR DataRequirement dateFilter
  *
  * @param filter the "during" filter to map
- * @returns list with one entry for the dateFilter
+ * @returns dateFilter for the dateFilter list of dataRequirement
  */
-export function generateDetailedDateFilters(filter: DuringFilter): R4.IDataRequirement_DateFilter[] {
-  return [
-    {
-      path: filter.attribute,
-      valuePeriod: filter.valuePeriod
-    }
-  ];
+export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequirement_DateFilter {
+  return {
+    path: filter.attribute,
+    valuePeriod: filter.valuePeriod
+  };
 }

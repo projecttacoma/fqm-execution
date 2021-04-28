@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DataTypeQuery, DetailedPopulationGroupResult, ExpressionStackEntry } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
-import { flattenFilters, generateDetailedCodeFilters, generateDetailedDateFilters } from './DataRequirementHelpers';
+import { flattenFilters, generateDetailedCodeFilter, generateDetailedDateFilter } from './DataRequirementHelpers';
 import { EqualsFilter, InFilter, DuringFilter } from './types/QueryFilterTypes';
 
 /**
@@ -261,13 +261,17 @@ export function generateGuidanceResponses(
 
       detailedFilters.forEach(df => {
         if (df.type === 'equals' || df.type === 'in') {
-          dataRequirement.codeFilter?.push(...generateDetailedCodeFilters(df as EqualsFilter | InFilter));
+          const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter);
+
+          if (cf !== null) {
+            dataRequirement.codeFilter?.push(cf);
+          }
         } else if (df.type === 'during') {
-          const dateFilters = generateDetailedDateFilters(df as DuringFilter);
+          const dateFilter = generateDetailedDateFilter(df as DuringFilter);
           if (dataRequirement.dateFilter) {
-            dataRequirement.dateFilter.push(...dateFilters);
+            dataRequirement.dateFilter.push(dateFilter);
           } else {
-            dataRequirement.dateFilter = dateFilters;
+            dataRequirement.dateFilter = [dateFilter];
           }
         }
       });
