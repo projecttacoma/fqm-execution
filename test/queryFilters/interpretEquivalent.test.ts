@@ -1,15 +1,9 @@
 import { getELMFixture } from '../helpers/testHelpers';
-import * as cql from 'cql-execution';
 import * as QueryFilter from '../../src/QueryFilterHelpers';
-import { ELMEquivalent, ELMFunctionRef } from '../../src/types/ELMTypes';
-import { UnknownFilter } from '../../src/types/QueryFilterTypes';
+import { ELMEquivalent } from '../../src/types/ELMTypes';
 
 // to use as a library parameter for tests
 const EXTRA_QUERIES_ELM = getELMFixture('elm/queries/ExtraQueries.json');
-const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
-const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
-const MP_INTERVAL = new cql.Interval(START_MP, END_MP, true, false);
-const EXEC_PARAMS = { 'Measurement Period': MP_INTERVAL };
 
 /** From ExtraQueries.cql "FunctionRef In Same library": */
 const EQUIVALENT_WITH_PARAMREF: ELMEquivalent = {

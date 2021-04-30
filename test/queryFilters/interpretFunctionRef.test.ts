@@ -1,14 +1,5 @@
-import { getELMFixture } from '../helpers/testHelpers';
-import * as cql from 'cql-execution';
 import * as QueryFilter from '../../src/QueryFilterHelpers';
 import { ELMFunctionRef } from '../../src/types/ELMTypes';
-import { UnknownFilter } from '../../src/types/QueryFilterTypes';
-
-// to use as a library parameter for tests
-const EXTRA_QUERIES_ELM = getELMFixture('elm/queries/ExtraQueries.json');
-const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
-const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
-const MP_INTERVAL = new cql.Interval(START_MP, END_MP, true, false);
 
 /** From ExtraQueries.cql "FunctionRef In Same library": */
 const FUNCTIONREF_IN_SAME_LIBRARY: ELMFunctionRef = {
@@ -73,6 +64,7 @@ describe('interpretFunctionRef', () => {
     expect(functionRefRes).toBeUndefined();
   });
 
+  /** This is more complicated than originally expected and needs some further work to handle this unexpected scenario. */
   test.skip('FunctionRef with complexity in param of known function not supported', () => {
     const functionRefRes = QueryFilter.interpretFunctionRef(FUNCTIONREF_WITH_PARAM_COMPLEXITY);
     expect(functionRefRes).toBeUndefined();

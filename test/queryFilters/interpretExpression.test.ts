@@ -1,14 +1,9 @@
 import { getELMFixture } from '../helpers/testHelpers';
-import * as cql from 'cql-execution';
 import * as QueryFilter from '../../src/QueryFilterHelpers';
-import { ELMExpression, ELMFunctionRef } from '../../src/types/ELMTypes';
-import { DuringFilter, UnknownFilter } from '../../src/types/QueryFilterTypes';
+import { ELMFunctionRef } from '../../src/types/ELMTypes';
 
 // to use as a library parameter for tests
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
-const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
-const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
-const MP_INTERVAL = new cql.Interval(START_MP, END_MP, true, false);
 
 describe('interpretExpression', () => {
   test('unknown expression type with property ref', () => {

@@ -1,14 +1,15 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import * as cql from 'cql-execution';
 import * as QueryFilter from '../../src/QueryFilterHelpers';
-import { ELMIn, ELMIncludedIn } from '../../src/types/ELMTypes';
-import { DuringFilter, UnknownFilter } from '../../src/types/QueryFilterTypes';
+import { ELMIn } from '../../src/types/ELMTypes';
+import { DuringFilter } from '../../src/types/QueryFilterTypes';
 
 // to use as a library parameter for tests
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
 const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
 const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
 const MP_INTERVAL = new cql.Interval(START_MP, END_MP, true, false);
+const EXEC_PARAMS = { 'Measurement Period': MP_INTERVAL };
 
 /** From ExtraQueries.cql. "Encounter Starts 2 Years Or Less Before MP" */
 const IN_STARTS_CALC_AGAINST_MP: any = {
@@ -298,8 +299,7 @@ const FUNCTION_REF_IN_INTERVAL = {
 
 describe('interpretIn', () => {
   test('Property starts during two years before end of MP', () => {
-    const parameters = { 'Measurement Period': MP_INTERVAL };
-    const filter = QueryFilter.interpretIn(IN_STARTS_CALC_AGAINST_MP, complexQueryELM, parameters) as DuringFilter;
+    const filter = QueryFilter.interpretIn(IN_STARTS_CALC_AGAINST_MP, complexQueryELM, EXEC_PARAMS) as DuringFilter;
     expect(filter.type).toEqual('during');
     expect(filter.valuePeriod).toEqual({
       start: '2017-12-31T23:59:59.999Z',
@@ -318,14 +318,12 @@ describe('interpretIn', () => {
   });
 
   test('does not support non-sensical call to ToList for second operand.', () => {
-    const parameters = { 'Measurement Period': MP_INTERVAL };
-    const filter = QueryFilter.interpretIn(IN_PROP_IN_MP_TOLIST as ELMIn, complexQueryELM, parameters);
+    const filter = QueryFilter.interpretIn(IN_PROP_IN_MP_TOLIST as ELMIn, complexQueryELM, EXEC_PARAMS);
     expect(filter.type).toEqual('unknown');
   });
 
   test('function call to unknown function as first operand not supported but identifies attribute', () => {
-    const parameters = { 'Measurement Period': null };
-    const filter = QueryFilter.interpretIn(FUNCTION_REF_IN_INTERVAL as ELMIn, complexQueryELM, parameters);
+    const filter = QueryFilter.interpretIn(FUNCTION_REF_IN_INTERVAL as ELMIn, complexQueryELM, EXEC_PARAMS);
     expect(filter.type).toEqual('unknown');
     expect(filter.alias).toEqual('Enc');
     expect(filter.attribute).toEqual('period');
