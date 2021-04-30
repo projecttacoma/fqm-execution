@@ -173,6 +173,7 @@ export type AnyELMExpression =
   | ELMFunctionRef
   | ELMParameterRef
   | ELMProperty
+  | ELMAliasRef
   | ELMConceptRef
   | ELMLiteral
   | ELMInterval
@@ -312,6 +313,11 @@ export interface ELMProperty extends ELMExpression {
   source?: AnyELMExpression;
   path: string;
   scope?: string;
+}
+
+export interface ELMAliasRef extends ELMExpression {
+  type: 'AliasRef';
+  name: 'string';
 }
 
 export interface ELMConceptRef extends ELMExpression {

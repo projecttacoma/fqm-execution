@@ -623,8 +623,12 @@ export function executeIntervalELM(
   const intervalExecExpr = new cql.Expression({ operand: intervalExpr });
   const ctx = new cql.PatientContext(new cql.Library(library), null, null, parameters);
   const interval: cql.Interval = intervalExecExpr.arg.execute(ctx);
-  return {
-    start: interval.start().toString().replace('+00:00', 'Z'),
-    end: interval.end().toString().replace('+00:00', 'Z')
-  };
+  if (interval != null && interval.start() != null && interval.end() != null) {
+    return {
+      start: interval.start().toString().replace('+00:00', 'Z'),
+      end: interval.end().toString().replace('+00:00', 'Z')
+    };
+  } else {
+    return null;
+  }
 }
