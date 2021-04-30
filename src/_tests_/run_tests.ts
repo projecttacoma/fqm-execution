@@ -35,7 +35,7 @@ export interface MeasDiff {
   badPatients: BadPatient[];
 }
 
-export function calculateMeasuresAndCompare(): { exmId: string; badPatients: BadPatient[] }[] {
+export async function calculateMeasuresAndCompare(): Promise<{ exmId: string, badPatients: BadPatient[] }[]> {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
 
   const testPatientMeasures = getTestMeasureList();
@@ -81,7 +81,7 @@ export function calculateMeasuresAndCompare(): { exmId: string; badPatients: Bad
     for (const patBundle of bundleResourceInfos) {
       // Execute the measure, i.e. get the MeasureReport from fqm-execution
 
-      const report = getMeasureReport(testPatientMeasure.exmId, measureBundle, patBundle.bundle);
+      const report = await getMeasureReport(testPatientMeasure.exmId, measureBundle, patBundle.bundle);
 
       // Load the reference report from the test data
 
@@ -106,40 +106,41 @@ if (process.argv[2]) {
   onlyMeasureExmId = process.argv[2];
   console.log(`Only running ${onlyMeasureExmId}`);
 }
-const measureDiffInfo = calculateMeasuresAndCompare();
-console.log();
-console.log('--- RESULTS ---');
-console.log();
-let hasDifferences = false;
-
-// Iterate over measures
-
-const listofMeasures = getTestMeasureList();
-for (const measure of listofMeasures) {
-  if (onlyMeasureExmId && measure.exmId.replace('_', '') != onlyMeasureExmId) continue;
-  console.log(`MEASURE ${measure.exmId}`);
-  hasDifferences = false;
-  measureDiffInfo.forEach(measureDiff => {
-    // Iterate over the listing of discrepancies for this measure if there are any
-
-    if (measureDiff.badPatients.length > 0) {
-      hasDifferences = true;
-      measureDiff.badPatients.forEach(patient => {
-        console.log(`|- ${patient.patientName}`);
-        patient.issues.forEach(issue => {
-          console.log(`|   ${issue}`);
-        });
-      });
-
-      // If there were no discrepancies
-    }
-  });
-  if (!hasDifferences) {
-    console.log('No Issues');
-  }
+calculateMeasuresAndCompare().then((measureDiffInfo) => {
   console.log();
-}
-// If there were discrepancies, return with non-zero exit status
-if (hasDifferences) {
-  process.exit(1);
-}
+  console.log('--- RESULTS ---');
+  console.log();
+  let hasDifferences = false;
+
+  // Iterate over measures
+
+  const listofMeasures = getTestMeasureList();
+  for (const measure of listofMeasures) {
+    if (onlyMeasureExmId && measure.exmId.replace('_', '') != onlyMeasureExmId) continue;
+    console.log(`MEASURE ${measure.exmId}`);
+    hasDifferences = false;
+    measureDiffInfo.forEach(measureDiff => {
+      // Iterate over the listing of discrepancies for this measure if there are any
+
+      if (measureDiff.badPatients.length > 0) {
+        hasDifferences = true;
+        measureDiff.badPatients.forEach(patient => {
+          console.log(`|- ${patient.patientName}`);
+          patient.issues.forEach(issue => {
+            console.log(`|   ${issue}`);
+          });
+        });
+
+        // If there were no discrepancies
+      }
+    });
+    if (!hasDifferences) {
+      console.log('No Issues');
+    }
+    console.log();
+  }
+  // If there were discrepancies, return with non-zero exit status
+  if (hasDifferences) {
+    process.exit(1);
+  }
+});

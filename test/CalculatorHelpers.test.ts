@@ -15,20 +15,6 @@ const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
 
 describe('CalculatorHelpers', () => {
-  describe('getAllDependentValuesets', () => {
-    test('Finds all valuesets that are missing in the standard measure bundle', () => {
-      const measureBundle: R4.IBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json');
-      const vs = CalculatorHelpers.getMissingDependentValuesets(measureBundle);
-      expect(vs.length).toEqual(0);
-    });
-    test('Finds all valuesets that are missing in the missingVS measure bundle', () => {
-      const measureBundle: R4.IBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
-      const vs = CalculatorHelpers.getMissingDependentValuesets(measureBundle);
-      expect(vs.length).toEqual(1);
-      expect(vs[0]).toEqual('http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016');
-    });
-  });
-
   describe('Population Values', () => {
     test('NUMER population not modified by inclusion in NUMEX', () => {
       const statementResults: StatementResults = {

@@ -20,17 +20,17 @@ import { parseQueryInfo } from './QueryFilterHelpers';
  * @param options Options for calculation.
  * @returns Detailed execution results. One for each patient.
  */
-export function calculate(
+export async function calculate(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): {
+): Promise<{
   results: ExecutionResult[];
   debugOutput?: DebugOutput;
   elmLibraries?: ELM[];
   mainLibraryName?: string;
   parameters?: { [key: string]: any };
-} {
+}> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
   // Ensure the CalculationOptions have sane defaults, only if they're not set
@@ -49,7 +49,7 @@ export function calculate(
   const measure = measureEntry.resource as R4.IMeasure;
   const executionResults: ExecutionResult[] = [];
 
-  const results = Execution.execute(measureBundle, patientBundles, options, debugObject);
+  const results = await Execution.execute(measureBundle, patientBundles, options, debugObject);
   if (!results.rawResults) {
     throw new Error(results.errorMessage ?? 'something happened with no error message');
   }
@@ -182,13 +182,13 @@ export function calculate(
  * @param options Options for calculation.
  * @returns MeasureReport resource for each patient according to standard https://www.hl7.org/fhir/measurereport.html
  */
-export function calculateMeasureReports(
+export async function calculateMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): { results: R4.IMeasureReport[]; debugOutput?: DebugOutput } {
+): Promise<{ results: R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
   // options should be updated by this call if measurementPeriod wasn't initially passed in
-  const { results, debugOutput } = calculate(measureBundle, patientBundles, options);
+  const { results, debugOutput } = await calculate(measureBundle, patientBundles, options);
 
   const reports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
 
@@ -199,13 +199,13 @@ export function calculateMeasureReports(
   return { results: reports, debugOutput };
 }
 
-export function calculateRaw(
+export async function calculateRaw(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): { results: cql.Results | string; debugOutput?: DebugOutput } {
+): Promise<{ results: cql.Results | string; debugOutput?: DebugOutput }> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
-  const results = Execution.execute(measureBundle, patientBundles, options, debugObject);
+  const results = await Execution.execute(measureBundle, patientBundles, options, debugObject);
   if (results.rawResults) {
     return { results: results.rawResults, debugOutput: debugObject };
   } else {
@@ -213,14 +213,14 @@ export function calculateRaw(
   }
 }
 
-export function calculateGapsInCare(
+export async function calculateGapsInCare(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): { results: R4.IBundle; debugOutput?: DebugOutput } {
+): Promise<{ results: R4.IBundle; debugOutput?: DebugOutput }> {
   // Detailed results for populations get ELM content back
   options.returnELM = true;
-  const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = calculate(
+  const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = await calculate(
     measureBundle,
     patientBundles,
     options

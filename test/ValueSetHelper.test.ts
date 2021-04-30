@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { valueSetsForCodeService } from '../src/ValueSetHelper';
+import { valueSetsForCodeService, getMissingDependentValuesets } from '../src/helpers/ValueSetHelper';
 import { getJSONFixture } from './helpers/testHelpers';
 
 type ValueSetWithNoUndefined = R4.IValueSet & {
@@ -18,6 +18,19 @@ const exampleValueSet1 = getJSONFixture('valuesets/example-vs-1.json') as ValueS
 const exampleValueSet2 = getJSONFixture('valuesets/example-vs-2.json') as ValueSetWithNoUndefined;
 
 describe('ValueSetHelper', () => {
+  describe('getAllDependentValuesets', () => {
+    test('Finds all valuesets that are missing in the standard measure bundle', () => {
+      const measureBundle: R4.IBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json');
+      const vs = getMissingDependentValuesets(measureBundle);
+      expect(vs.length).toEqual(0);
+    });
+    test('Finds all valuesets that are missing in the missingVS measure bundle', () => {
+      const measureBundle: R4.IBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
+      const vs = getMissingDependentValuesets(measureBundle);
+      expect(vs.length).toEqual(1);
+      expect(vs[0]).toEqual('http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016');
+    });
+  });
   test('valueSetMapper should include all codes', () => {
     const map = valueSetsForCodeService([exampleValueSet1, exampleValueSet2]);
 

@@ -34,10 +34,10 @@ const PERIOD_END = '2019-12-31';
  * @param {String} measureId The id of the measure to execute on fqm execution.
  * @returns {Promise<R4.IMeasureReport>} The patient-list MeasureReport.
  */
-export function getMeasureReport(measureId: string, measureBundle: R4.IBundle, patientBundle: R4.IBundle) {
+export async function getMeasureReport(measureId: string, measureBundle: R4.IBundle, patientBundle: R4.IBundle) {
   // Start a timer
   const calcOptions: CalculationOptions = setupCalcOptions();
-  const report = calculateMeasureReports(measureBundle, [patientBundle], calcOptions);
+  const report = await calculateMeasureReports(measureBundle, [patientBundle], calcOptions);
 
   return report.results[0];
 }
