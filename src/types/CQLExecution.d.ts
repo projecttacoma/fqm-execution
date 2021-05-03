@@ -31,6 +31,7 @@ declare module 'cql-execution' {
     high: any;
     start(): DateTime;
     end(): DateTime;
+    contains(item: any, precision?: any): boolean;
   }
 
   export class Code {
