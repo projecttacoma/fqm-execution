@@ -42,6 +42,60 @@ const INCLUDEDIN_MP: ELMIncludedIn = {
   ]
 };
 
+const INCLUDEDIN_DIRECT_PROP_IN_MP: ELMIncludedIn = {
+  localId: '40',
+  locator: '33:11-33:45',
+  type: 'IncludedIn',
+  operand: [
+    {
+      localId: '38',
+      locator: '33:11-33:17',
+      path: 'onset',
+      scope: 'C',
+      type: 'Property'
+    },
+    {
+      localId: '39',
+      locator: '33:26-33:45',
+      name: 'Measurement Period',
+      type: 'ParameterRef'
+    }
+  ]
+};
+
+/** Abnormal order of operands. */
+const INCLUDEDIN_MP_IN_PROPERTY: ELMIncludedIn = {
+  localId: '40',
+  locator: '33:11-33:45',
+  type: 'IncludedIn',
+  operand: [
+    {
+      localId: '39',
+      locator: '33:26-33:45',
+      name: 'Measurement Period',
+      type: 'ParameterRef'
+    },
+    {
+      name: 'ToInterval',
+      libraryName: 'FHIRHelpers',
+      type: 'FunctionRef',
+      operand: [
+        {
+          asType: '{http://hl7.org/fhir}Period',
+          type: 'As',
+          operand: {
+            localId: '38',
+            locator: '33:11-33:17',
+            path: 'onset',
+            scope: 'C',
+            type: 'Property'
+          }
+        }
+      ]
+    }
+  ]
+};
+
 // Comparing against another attribute on the same resource. currently not supported.
 const INCLUDEDIN_OTHER_ATTRIBUTE: ELMIncludedIn = {
   localId: '40',
@@ -98,6 +152,32 @@ describe('interpretIncludedIn', () => {
     });
     expect(filter.alias).toEqual('C');
     expect(filter.attribute).toEqual('onset');
+  });
+
+  test('valid parameter interval ref with direct to property', () => {
+    const parameters = { 'Measurement Period': MP_INTERVAL };
+    const filter = QueryFilter.interpretIncludedIn(
+      INCLUDEDIN_DIRECT_PROP_IN_MP,
+      complexQueryELM,
+      parameters
+    ) as DuringFilter;
+    expect(filter.type).toEqual('during');
+    expect(filter.valuePeriod).toEqual({
+      start: '2019-01-01T00:00:00.000Z',
+      end: '2019-12-31T23:59:59.999Z'
+    });
+    expect(filter.alias).toEqual('C');
+    expect(filter.attribute).toEqual('onset');
+  });
+
+  test('Parameter in Property not supported', () => {
+    const parameters = { 'Measurement Period': START_MP };
+    const filter = QueryFilter.interpretIncludedIn(
+      INCLUDEDIN_MP_IN_PROPERTY,
+      complexQueryELM,
+      parameters
+    ) as UnknownFilter;
+    expect(filter.type).toEqual('unknown');
   });
 
   test('invalid type parameter interval ref', () => {

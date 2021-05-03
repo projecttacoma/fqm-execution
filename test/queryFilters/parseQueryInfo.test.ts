@@ -133,10 +133,60 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
   }
 };
 
+const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
+  localId: '94',
+  sources: [
+    {
+      retrieveLocalId: '79',
+      sourceLocalId: '80',
+      alias: 'C',
+      resourceType: 'Condition'
+    }
+  ],
+  filter: {
+    type: 'or',
+    children: [
+      {
+        type: 'in',
+        alias: 'C',
+        attribute: 'clinicalStatus',
+        valueCodingList: [
+          { code: 'active', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
+          { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
+          { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
+        ],
+        localId: '84'
+      },
+      {
+        type: 'during',
+        alias: 'C',
+        attribute: 'onset',
+        valuePeriod: {
+          start: '2019-01-01T00:00:00.000Z',
+          end: '2019-12-31T23:59:59.999Z'
+        },
+        localId: '88'
+      },
+      {
+        type: 'notnull',
+        alias: 'C',
+        attribute: 'abatement',
+        localId: '92'
+      }
+    ]
+  }
+};
+
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
     const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, PARAMETERS);
+    expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
+  });
+
+  test('simple valueset with id check with no parameters passed in', () => {
+    const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
+    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -172,5 +222,23 @@ describe('Parse Query Info', () => {
     const queryLocalId = statement.expression.localId;
     const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
     expect(queryInfo).toEqual(EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP);
+  });
+
+  test('complex - valueset with code OR interval check OR field not null', () => {
+    const statement = complexQueryELM.library.statements.def.find(
+      def => def.name == 'Code Active Or Starts During MP Or Abatement is not null'
+    );
+    if (!statement) {
+      fail('Could not find statement.');
+    }
+    const queryLocalId = statement.expression.localId;
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
+    expect(queryInfo).toEqual(EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL);
+  });
+
+  test('incorrect localid should throw error', () => {
+    expect(() => {
+      parseQueryInfo(simpleQueryELM, '360', PARAMETERS);
+    }).toThrow('Clause 360 in SimpleQueries was not a Query or not found.');
   });
 });
