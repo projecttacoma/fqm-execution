@@ -611,6 +611,7 @@ export function executeIntervalELM(
 ): {
   start?: string;
   end?: string;
+  interval?: cql.Interval;
 } | null {
   // make sure the interval created based on property usage from the query source
   const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
@@ -626,7 +627,8 @@ export function executeIntervalELM(
   if (interval != null && interval.start() != null && interval.end() != null) {
     return {
       start: interval.start().toString().replace('+00:00', 'Z'),
-      end: interval.end().toString().replace('+00:00', 'Z')
+      end: interval.end().toString().replace('+00:00', 'Z'),
+      interval
     };
   } else {
     return null;

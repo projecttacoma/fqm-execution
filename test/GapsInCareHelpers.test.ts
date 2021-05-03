@@ -1,4 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import * as cql from 'cql-execution';
 import {
   findRetrieves,
   generateDetectedIssueResources,
@@ -7,9 +8,13 @@ import {
   groupGapQueries,
   generateGuidanceResponses
 } from '../src/GapsInCareHelpers';
-import { DataTypeQuery, DetailedPopulationGroupResult } from '../src/types/Calculator';
-import { FinalResult, ImprovementNotation } from '../src/types/Enums';
+import { DataTypeQuery, DetailedPopulationGroupResult, ClauseResult } from '../src/types/Calculator';
+import { FinalResult, ImprovementNotation, CareGapReasonCode } from '../src/types/Enums';
 import { getELMFixture, getJSONFixture } from './helpers/testHelpers';
+
+type DetailedResultWithClause = DetailedPopulationGroupResult & {
+  clauseResults: ClauseResult[];
+};
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
@@ -392,18 +397,176 @@ describe('Find grouped queries', () => {
   });
 });
 
-describe('Find Near misses', () => {
+describe('Find Near Misses', () => {
   test('simple query/retrieve discrepancy near miss', () => {
     const retrieves = calculateNearMisses(EXPECTED_CODE_RESULTS, ImprovementNotation.POSITIVE);
     retrieves.forEach(r => {
-      expect(r.isNearMiss).toBeTruthy();
+      expect(r.nearMissInfo).toBeDefined();
+      expect(r.nearMissInfo?.isNearMiss).toBeTruthy();
     });
   });
 
   test('retrieve false, not a near miss', () => {
     const retrieves = calculateNearMisses(EXPECTED_VS_RETRIEVE_RESULTS, ImprovementNotation.POSITIVE);
     retrieves.forEach(r => {
-      expect(r.isNearMiss).toBeFalsy();
+      expect(r.nearMissInfo).toBeDefined();
+      expect(r.nearMissInfo?.isNearMiss).toBeFalsy();
+    });
+  });
+
+  describe('Near Miss Reasons', () => {
+    const baseQuery: DataTypeQuery = {
+      dataType: 'Procedure',
+      valueSet: 'http://example.com/test-vs',
+      retrieveHasResult: true,
+      parentQueryHasResult: false,
+      libraryName: 'example',
+      retrieveLocalId: 'procedure'
+    };
+
+    const dr: DetailedResultWithClause = {
+      groupId: 'group-1',
+      clauseResults: [
+        {
+          localId: 'false-clause',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.FALSE,
+          raw: false
+        },
+        {
+          localId: 'true-clause',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: true
+        },
+        {
+          localId: 'procedure',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            {
+              performed: {
+                start: { value: '2000-01-01' },
+                end: { value: '2000-01-02' } // out of range of desired interval
+              }
+            }
+          ]
+        }
+      ],
+      statementResults: []
+    };
+
+    test('retrieve with false attribute filter should be code INVALIDATTRIBUTE', () => {
+      const q: DataTypeQuery = {
+        ...baseQuery,
+        queryInfo: {
+          sources: [
+            {
+              alias: 'P',
+              resourceType: 'Procedure',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter: {
+            type: 'equals',
+            alias: 'P',
+            value: 'completed',
+            attribute: 'status',
+            localId: 'false-clause'
+          }
+        }
+      };
+
+      const [r] = calculateNearMisses([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.nearMissInfo).toBeDefined();
+      expect(r.nearMissInfo?.isNearMiss).toBe(true);
+      expect(r.nearMissInfo?.reasonCodes).toEqual([CareGapReasonCode.INVALIDATTRIBUTE]);
+    });
+
+    test('retrieve with false date filter should be code DATEOUTOFRANGE', () => {
+      const intervalStart = '2009-12-31';
+      const intervalEnd = '2019-12-31';
+
+      const q: DataTypeQuery = {
+        ...baseQuery,
+        queryInfo: {
+          sources: [
+            {
+              alias: 'P',
+              resourceType: 'Procedure',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter: {
+            type: 'during',
+            alias: 'P',
+            attribute: 'performed.end',
+            valuePeriod: {
+              start: intervalStart,
+              end: intervalEnd,
+              interval: new cql.Interval(intervalStart, intervalEnd)
+            }
+          }
+        }
+      };
+
+      const [r] = calculateNearMisses([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.nearMissInfo).toBeDefined();
+      expect(r.nearMissInfo?.isNearMiss).toBe(true);
+      expect(r.nearMissInfo?.reasonCodes).toEqual([CareGapReasonCode.DATEOUTOFRANGE]);
+    });
+
+    test('retrieve with both false date and attribute filters should be code both INVALIDATTRIBUTE and DATEOUTOFRANGE', () => {
+      const intervalStart = '2009-12-31';
+      const intervalEnd = '2019-12-31';
+
+      const q: DataTypeQuery = {
+        ...baseQuery,
+        queryInfo: {
+          sources: [
+            {
+              alias: 'P',
+              resourceType: 'Procedure',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter: {
+            type: 'and',
+            children: [
+              {
+                type: 'equals',
+                alias: 'P',
+                value: 'completed',
+                attribute: 'status',
+                localId: 'false-clause'
+              },
+              {
+                type: 'during',
+                alias: 'P',
+                attribute: 'performed.end',
+                valuePeriod: {
+                  start: intervalStart,
+                  end: intervalEnd,
+                  interval: new cql.Interval(intervalStart, intervalEnd)
+                }
+              }
+            ]
+          }
+        }
+      };
+
+      const [r] = calculateNearMisses([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.nearMissInfo).toBeDefined();
+      expect(r.nearMissInfo?.isNearMiss).toBe(true);
+      expect(r.nearMissInfo?.reasonCodes?.sort()).toEqual(
+        [CareGapReasonCode.INVALIDATTRIBUTE, CareGapReasonCode.DATEOUTOFRANGE].sort()
+      );
     });
   });
 });
@@ -476,8 +639,7 @@ describe('Guidance Response', () => {
     dataType: 'Procedure',
     valueSet: 'http://example.com/test-vs',
     retrieveHasResult: true,
-    parentQueryHasResult: false,
-    isNearMiss: true
+    parentQueryHasResult: false
   };
 
   test('should generate data requirement with equals attribute codeFilter', () => {

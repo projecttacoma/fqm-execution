@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { PopulationType, FinalResult, Relevance } from './Enums';
+import { PopulationType, FinalResult, Relevance, CareGapReasonCode } from './Enums';
 import * as cql from './CQLTypes';
 import { ELM } from './ELMTypes';
 import { QueryInfo } from './QueryFilterTypes';
@@ -213,8 +213,18 @@ export interface DataTypeQuery {
   expressionStack?: ExpressionStackEntry[];
   /** Info about query and how it is filtered. */
   queryInfo?: QueryInfo;
-  /** boolean determining whether a data type query is considered a "near miss" */
-  isNearMiss?: boolean;
+  /** Info about the near miss query */
+  nearMissInfo?: NearMissInfo;
+}
+
+/**
+ * Detailed information about a near-miss query
+ */
+export interface NearMissInfo {
+  /** whether or not the query is a near miss */
+  isNearMiss: boolean;
+  /** codes that represent the causes of the near miss */
+  reasonCodes?: CareGapReasonCode[];
 }
 
 /**
