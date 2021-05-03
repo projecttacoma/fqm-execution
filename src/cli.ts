@@ -23,6 +23,11 @@ program
     'end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)',
     undefined
   )
+  .option(
+    '-a, --vs-api-key <key>',
+    'API key, to authenticate against the valueset service to be used for resolving missing valuesets',
+    undefined
+  )
   .parse(process.argv);
 
 function parseBundle(filePath: string): R4.IBundle {
@@ -48,7 +53,10 @@ const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
-const calcOptions: CalculationOptions = { enableDebugOutput: program.debug };
+const calcOptions: CalculationOptions = { 
+  enableDebugOutput: program.debug,
+  vsAPIKey: program.vsApiKey
+};
 
 // Override the measurement period start/end in the options only if the user specfied them
 if (program.measurementPeriodStart) {

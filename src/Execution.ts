@@ -25,27 +25,20 @@ export async function execute(
     return { errorMessage: 'library not identified in measure' };
   }
   // check for any missing valuesets
+  let valueSets: R4.IValueSet[] = [];
   const missingVS = getMissingDependentValuesets(measureBundle);
-  const vsr = new ValueSetResolver('<API KEY GOES HERE>');
-  const expansions = await vsr.getExpansionForValuesetUrls(missingVS);
-
-  // remove any valuesets we got from their URLs from the "missing" list
-  expansions.forEach((vs) => {
-    if (vs.url) {
-      const index = missingVS.indexOf(vs.url);
-      if (index > -1) {
-        missingVS.splice(index, 1);
-      }
-    }
-  });
-
   if (missingVS.length > 0) {
-    return {
-      errorMessage: `Measure bundle does not contain the following valueset resource dependencies: ${missingVS.join()}`
-    };
+    const vsr = new ValueSetResolver(options.vsAPIKey);
+    const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
+
+    if (errorMessages.length > 0) {
+      return {
+        errorMessage: `${errorMessages.join()}`
+      };
+    }
+    valueSets = expansions;
   }
 
-  const valueSets: R4.IValueSet[] = expansions;
   measureBundle.entry?.forEach(e => {
     if (e.resource?.resourceType === 'ValueSet') {
       valueSets.push(e.resource as R4.IValueSet);
