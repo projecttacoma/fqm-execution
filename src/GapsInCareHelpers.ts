@@ -391,7 +391,9 @@ export function calculateNearMisses(
           // Separate interval handling for 'during' filters
           if (f.type === 'during') {
             const duringFilter = f as DuringFilter;
-            const resources = detailedResult.clauseResults?.find(cr => cr.localId === r.retrieveLocalId);
+            const resources = detailedResult.clauseResults?.find(
+              cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
+            );
 
             if (duringFilter.valuePeriod.interval && resources) {
               const path = duringFilter.attribute.split('.');
@@ -400,6 +402,10 @@ export function calculateNearMisses(
               resources.raw.forEach((r: any) => {
                 let desiredAttr = r;
                 path.forEach(key => {
+                  if (desiredAttr.value?.isDateTime) {
+                    return;
+                  }
+
                   desiredAttr = desiredAttr[key];
                 });
 
