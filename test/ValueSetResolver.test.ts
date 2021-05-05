@@ -24,7 +24,7 @@ const vsr = new ValueSetResolver('an_api_key');
 // Mock out network calls in test-land
 const mock = new MockAdapter(vsr.instance);
 
-  describe('ValueSetResolver', () => {
+describe('ValueSetResolver', () => {
   describe('findMissingValuesets', () => {
     test('should return an empty array if all valueset URLs are present in the provided array', () => {
       const missingVS = vsr.findMissingValuesets(expectedValuesets, exampleVSArray);
@@ -39,8 +39,8 @@ const mock = new MockAdapter(vsr.instance);
 
   describe('getExpansionForValuesetUrls', () => {
     beforeAll(() => {
-      mock.onGet(`${exampleValueSet1.url}/$expand`,).reply(200, exampleValueSet1);
-      mock.onGet(`${exampleValueSet2.url}/$expand`,).reply(200, exampleValueSet2);
+      mock.onGet(`${exampleValueSet1.url}/$expand`).reply(200, exampleValueSet1);
+      mock.onGet(`${exampleValueSet2.url}/$expand`).reply(200, exampleValueSet2);
     });
 
     test('can GET several valuesets successfully', async () => {
@@ -49,28 +49,28 @@ const mock = new MockAdapter(vsr.instance);
       expect(errors).toEqual([]);
     });
 
-    test('should return a useful error if it can\'t get a valueset', async () => {
-      const [expansions, errors] = await vsr.getExpansionForValuesetUrls(['http://no.valueset/url', ...expectedValuesets]);
+    test("should return a useful error if it can't get a valueset", async () => {
+      const [expansions, errors] = await vsr.getExpansionForValuesetUrls([
+        'http://no.valueset/url',
+        ...expectedValuesets
+      ]);
       expect(expansions).toEqual(expect.arrayContaining(exampleVSArray));
       // Error message should contain the valueset url
-      expect(errors).toEqual(expect.arrayContaining([
-        expect.stringContaining('http://no.valueset/url/$expand')
-      ]));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringContaining('http://no.valueset/url/$expand')]));
       // Error message should contain the status code for the failed GET
-      expect(errors).toEqual(expect.arrayContaining([
-        expect.stringContaining('404')
-      ]));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringContaining('404')]));
     });
 
     test('should return a useful error if it is still missing a valueset', async () => {
-      // This pretends to be a valueset that has the wrong 
-      mock.onGet('http://no.valueset/url/$expand',).reply(200, { url: 'http://a_different.valueset/url' });
-      const [expansions, errors] = await vsr.getExpansionForValuesetUrls(['http://no.valueset/url', ...expectedValuesets]);
+      // This pretends to be a valueset that has the wrong
+      mock.onGet('http://no.valueset/url/$expand').reply(200, { url: 'http://a_different.valueset/url' });
+      const [expansions, errors] = await vsr.getExpansionForValuesetUrls([
+        'http://no.valueset/url',
+        ...expectedValuesets
+      ]);
       expect(expansions).toEqual(expect.arrayContaining(exampleVSArray));
       // Error message should contain the valueset url
-      expect(errors).toEqual(expect.arrayContaining([
-        expect.stringContaining('http://no.valueset/url')
-      ]));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringContaining('http://no.valueset/url')]));
     });
   });
 });

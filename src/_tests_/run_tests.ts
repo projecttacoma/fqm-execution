@@ -35,7 +35,7 @@ export interface MeasDiff {
   badPatients: BadPatient[];
 }
 
-export async function calculateMeasuresAndCompare(): Promise<{ exmId: string, badPatients: BadPatient[] }[]> {
+export async function calculateMeasuresAndCompare(): Promise<{ exmId: string; badPatients: BadPatient[] }[]> {
   // look for an argument on the command line to indicate the only measure to run. i.e. EXM_105
 
   const testPatientMeasures = getTestMeasureList();
@@ -106,7 +106,7 @@ if (process.argv[2]) {
   onlyMeasureExmId = process.argv[2];
   console.log(`Only running ${onlyMeasureExmId}`);
 }
-calculateMeasuresAndCompare().then((measureDiffInfo) => {
+calculateMeasuresAndCompare().then(measureDiffInfo => {
   console.log();
   console.log('--- RESULTS ---');
   console.log();

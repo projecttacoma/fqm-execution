@@ -9,15 +9,15 @@ export class ValueSetResolver {
     this.apiKey = apiKey;
     this.instance = axios.create({
       headers: {
-        'Accept': 'application/fhir+json',
-        'Authorization': `Basic ${this.authHeaderValue()}`
+        Accept: 'application/fhir+json',
+        Authorization: `Basic ${this.authHeaderValue()}`
       },
       timeout: 60,
       withCredentials: true
     });
   }
 
-  private authHeaderValue():string {
+  private authHeaderValue(): string {
     return Buffer.from(`apikey:${this.apiKey}`).toString('base64');
   }
 
@@ -25,7 +25,7 @@ export class ValueSetResolver {
     // Make the actual requests. We use 'allSettled' here because we want all the results,
     // whether the requests succeed or fail.
     const results = await Promise.allSettled(
-      urls.map((url) => {
+      urls.map(url => {
         return this.instance.get<R4.IValueSet>(`${url}/$expand`);
       })
     );
@@ -34,7 +34,7 @@ export class ValueSetResolver {
     const errors: string[] = [];
     // Go through the results and find any that failed.
     // If there are failures, build an error string
-    results.forEach((r) => {
+    results.forEach(r => {
       if (r.status == 'fulfilled') {
         valuesets.push(r.value.data);
       } else {
@@ -52,10 +52,10 @@ export class ValueSetResolver {
     return [valuesets, missingValuesets];
   }
 
-  findMissingValuesets(missingVSURLs:string[], expansions:R4.IValueSet[]):string[] {
-    const stillMissingValuesets:string[] = [...missingVSURLs];
+  findMissingValuesets(missingVSURLs: string[], expansions: R4.IValueSet[]): string[] {
+    const stillMissingValuesets: string[] = [...missingVSURLs];
     // remove any valuesets we got from their URLs from the "missing" list
-    expansions.forEach((vs) => {
+    expansions.forEach(vs => {
       if (vs.url) {
         const index = stillMissingValuesets.indexOf(vs.url);
         if (index > -1) {
@@ -65,5 +65,4 @@ export class ValueSetResolver {
     });
     return stillMissingValuesets;
   }
-
 }

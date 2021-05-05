@@ -30,7 +30,9 @@ export async function execute(
   if (missingVS.length > 0) {
     if (!options.vsAPIKey || options.vsAPIKey.length == 0) {
       return {
-        errorMessage: `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
+        errorMessage: `Missing the following valuesets: ${missingVS.join(
+          ', '
+        )}, and no API key was provided to resolve them`
       };
     }
     const vsr = new ValueSetResolver(options.vsAPIKey || '');

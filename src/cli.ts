@@ -35,7 +35,11 @@ function parseBundle(filePath: string): R4.IBundle {
   return JSON.parse(contents) as R4.IBundle;
 }
 
-async function calc(measureBundle:R4.IBundle, patientBundles:R4.IBundle[], calcOptions:CalculationOptions): Promise<any> {
+async function calc(
+  measureBundle: R4.IBundle,
+  patientBundles: R4.IBundle[],
+  calcOptions: CalculationOptions
+): Promise<any> {
   let result;
   if (program.outputType === 'raw') {
     result = await calculateRaw(measureBundle, patientBundles, calcOptions);
@@ -53,7 +57,7 @@ const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
 const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
-const calcOptions: CalculationOptions = { 
+const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,
   vsAPIKey: program.vsApiKey
 };
@@ -67,51 +71,53 @@ if (program.measurementPeriodEnd) {
 }
 
 // Calculation is now async, so we have to do a callback here
-calc(measureBundle, patientBundles, calcOptions).then((result) => {
-  if (program.debug) {
-    clearDebugFolder();
-  
-    const debugOutput = result?.debugOutput;
-  
-    // Dump raw, detailed, reports, gapt in care objects
-    if (debugOutput?.rawResults) {
-      dumpObject(debugOutput.rawResults, 'rawResults.json');
+calc(measureBundle, patientBundles, calcOptions)
+  .then(result => {
+    if (program.debug) {
+      clearDebugFolder();
+
+      const debugOutput = result?.debugOutput;
+
+      // Dump raw, detailed, reports, gapt in care objects
+      if (debugOutput?.rawResults) {
+        dumpObject(debugOutput.rawResults, 'rawResults.json');
+      }
+
+      if (debugOutput?.detailedResults) {
+        dumpObject(debugOutput.detailedResults, 'detailedResults.json');
+      }
+
+      if (debugOutput?.measureReports) {
+        dumpObject(debugOutput.measureReports, 'measureReports.json');
+      }
+
+      if (debugOutput?.gaps) {
+        dumpObject(debugOutput.gaps, 'gaps.json');
+      }
+
+      // Dump ELM
+      if (debugOutput?.elm) {
+        dumpELMJSONs(debugOutput.elm);
+      }
+
+      // Dump CQL
+      if (debugOutput?.cql) {
+        dumpCQLs(debugOutput.cql);
+      }
+
+      // Dump VS Map
+      if (debugOutput?.vs) {
+        dumpVSMap(debugOutput.vs);
+      }
+
+      // Dump HTML
+      if (debugOutput?.html) {
+        dumpHTMLs(debugOutput.html);
+      }
     }
-  
-    if (debugOutput?.detailedResults) {
-      dumpObject(debugOutput.detailedResults, 'detailedResults.json');
-    }
-  
-    if (debugOutput?.measureReports) {
-      dumpObject(debugOutput.measureReports, 'measureReports.json');
-    }
-  
-    if (debugOutput?.gaps) {
-      dumpObject(debugOutput.gaps, 'gaps.json');
-    }
-  
-    // Dump ELM
-    if (debugOutput?.elm) {
-      dumpELMJSONs(debugOutput.elm);
-    }
-  
-    // Dump CQL
-    if (debugOutput?.cql) {
-      dumpCQLs(debugOutput.cql);
-    }
-  
-    // Dump VS Map
-    if (debugOutput?.vs) {
-      dumpVSMap(debugOutput.vs);
-    }
-  
-    // Dump HTML
-    if (debugOutput?.html) {
-      dumpHTMLs(debugOutput.html);
-    }
-  }
-  
-  console.log(JSON.stringify(result?.results, null, 2));
-}).catch((error) => {
-  console.error(error.message);
-});
+
+    console.log(JSON.stringify(result?.results, null, 2));
+  })
+  .catch(error => {
+    console.error(error.message);
+  });

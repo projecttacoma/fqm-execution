@@ -38,7 +38,7 @@ export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): Valu
       // TODO: handle situation where ValueSet does not have URL
     }
 
-    if (valueSet.expansion && valueSet.expansion.contains && valueSet.expansion.contains.length > 0){
+    if (valueSet.expansion && valueSet.expansion.contains && valueSet.expansion.contains.length > 0) {
       // Default to using expansion if it exists
       valueSets[valueSetId][version] = getHierarchicalCodes(valueSet.expansion.contains);
     } else if (valueSet.compose) {
@@ -63,8 +63,8 @@ export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): Valu
   return valueSets;
 }
 
-function getHierarchicalCodes(contains:R4.IValueSet_Contains[]):CQLCode[] {
-  const codes:CQLCode[] = [];
+function getHierarchicalCodes(contains: R4.IValueSet_Contains[]): CQLCode[] {
+  const codes: CQLCode[] = [];
   contains.forEach(contain => {
     if (!contain.abstract && !contain.inactive && contain.code && contain.system) {
       codes.push({
@@ -98,7 +98,7 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
  * @param {R4.IBundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
  * @returns {string[]} An array of all dependent valueset urls in the measure that are used by the measure's libraries but not contained in the measure bundle
  */
- export function getMissingDependentValuesets(measureBundle: R4.IBundle): string[] {
+export function getMissingDependentValuesets(measureBundle: R4.IBundle): string[] {
   if (!measureBundle.entry) {
     throw new Error('Expected measure bundle to contain entries');
   }
