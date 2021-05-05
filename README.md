@@ -101,6 +101,8 @@ fqm-execution -o reports -m /path/to/measure/bundle.json -p /path/to/patient1/bu
 
 If the Measure bundle provided doesn't contain all the required `ValueSet` resources (with expansions or composes) to calculate the measure, an API key can be provided to resolve the valuesets from their provided URLs. Currently only tested with valuesets from [The NLM FHIR Valueset API](https://cts.nlm.nih.gov/fhir).
 
+To find your VSAC API key, sign into [the UTS homepage](https://uts.nlm.nih.gov/uts/), click on `My Profile` in the top right, and copy the `API KEY` value from the `UMLS Licensee Profile`.
+
 ### TypeScript
 
 `fqm-execution` exports custom-defined TypeScript interfaces used within the code to allow for easy integration into other TypeScript projects. The TypeScript files defining these interfaces can be found [here](https://github.com/projecttacoma/fqm-execution/tree/master/src/types)
