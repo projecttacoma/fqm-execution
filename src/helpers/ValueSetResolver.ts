@@ -3,23 +3,22 @@ import axios, { AxiosInstance } from 'axios';
 
 export class ValueSetResolver {
   protected apiKey: string;
-  protected instance: AxiosInstance;
+  public instance: AxiosInstance;
 
-  constructor(apiKey: string|undefined) {
-    this.apiKey = apiKey || '';
+  constructor(apiKey: string) {
+    this.apiKey = apiKey;
     this.instance = axios.create({
       headers: {
         'Accept': 'application/fhir+json',
-        'Authorization': `Basic ${this.generateAuthHeaderValue()}`
+        'Authorization': `Basic ${this.authHeaderValue()}`
       },
-      timeout: 1000,
+      timeout: 60,
       withCredentials: true
     });
   }
 
-  private generateAuthHeaderValue():string {
-    const buff = Buffer.from(`apikey:${this.apiKey}`);
-    return buff.toString('base64');
+  private authHeaderValue():string {
+    return Buffer.from(`apikey:${this.apiKey}`).toString('base64');
   }
 
   async getExpansionForValuesetUrls(urls: string[]): Promise<[R4.IValueSet[], string[]]> {
@@ -39,7 +38,7 @@ export class ValueSetResolver {
       if (r.status == 'fulfilled') {
         valuesets.push(r.value.data);
       } else {
-        errors.push(`Valueset with URL ${r.reason.config.url} could not be retrieved: ${r.reason}`);
+        errors.push(`Valueset with URL ${r.reason.config.url} could not be retrieved. Reason: ${r.reason.message}`);
       }
     });
 
@@ -47,20 +46,20 @@ export class ValueSetResolver {
     if (errors.length > 0) {
       return [valuesets, errors];
     }
-    
-    // See if there are still any valuesets missing (not sure this will ever get hit?)
+
+    // Check to make sure we have all the valueset URLs we think we're going to
     const missingValuesets = this.findMissingValuesets(urls, valuesets);
     return [valuesets, missingValuesets];
   }
 
   findMissingValuesets(missingVSURLs:string[], expansions:R4.IValueSet[]):string[] {
-    const stillMissingValuesets:string[] = [];
+    const stillMissingValuesets:string[] = [...missingVSURLs];
     // remove any valuesets we got from their URLs from the "missing" list
     expansions.forEach((vs) => {
       if (vs.url) {
-        const index = missingVSURLs.indexOf(vs.url);
+        const index = stillMissingValuesets.indexOf(vs.url);
         if (index > -1) {
-          stillMissingValuesets.push(vs.url);
+          stillMissingValuesets.splice(index, 1);
         }
       }
     });

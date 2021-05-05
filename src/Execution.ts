@@ -28,12 +28,17 @@ export async function execute(
   let valueSets: R4.IValueSet[] = [];
   const missingVS = getMissingDependentValuesets(measureBundle);
   if (missingVS.length > 0) {
-    const vsr = new ValueSetResolver(options.vsAPIKey);
+    if (!options.vsAPIKey || options.vsAPIKey.length == 0) {
+      return {
+        errorMessage: `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
+      };
+    }
+    const vsr = new ValueSetResolver(options.vsAPIKey || '');
     const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
 
     if (errorMessages.length > 0) {
       return {
-        errorMessage: `${errorMessages.join()}`
+        errorMessage: errorMessages.join()
       };
     }
     valueSets = expansions;

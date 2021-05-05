@@ -112,4 +112,6 @@ calc(measureBundle, patientBundles, calcOptions).then((result) => {
   }
   
   console.log(JSON.stringify(result?.results, null, 2));
+}).catch((error) => {
+  console.error(error.message);
 });

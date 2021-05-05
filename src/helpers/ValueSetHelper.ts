@@ -66,16 +66,16 @@ export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): Valu
 function getHierarchicalCodes(contains:R4.IValueSet_Contains[]):CQLCode[] {
   const codes:CQLCode[] = [];
   contains.forEach(contain => {
-    if (!contain.abstract && contain.code && contain.system) {
+    if (!contain.abstract && !contain.inactive && contain.code && contain.system) {
       codes.push({
         code: contain.code,
         system: contain.system,
         version: contain.version,
         display: contain.display
       });
-      if (contain.contains && contain.contains.length > 0) {
-        codes.push(...getHierarchicalCodes(contain.contains));
-      }
+    }
+    if (contain.contains && contain.contains.length > 0) {
+      codes.push(...getHierarchicalCodes(contain.contains));
     }
   });
   return codes;
