@@ -13,7 +13,7 @@ export class ValueSetResolver {
         Authorization: `Basic ${this.authHeaderValue()}`
       },
       // Timeout is in ms, not seconds
-      timeout: 60_000, 
+      timeout: 60_000,
       withCredentials: true
     });
   }
