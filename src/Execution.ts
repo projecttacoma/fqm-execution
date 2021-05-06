@@ -5,17 +5,18 @@ import { CalculationOptions, RawExecutionData, DebugOutput } from './types/Calcu
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { ELM, ELMIdentifier } from './types/ELMTypes';
-import { parseTimeStringAsUTC, valueSetsForCodeService } from './ValueSetHelper';
+import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './helpers/ValueSetHelper';
 import { codeableConceptToPopulationType, isValidLibraryURL } from './MeasureHelpers';
 import { PopulationType } from './types/Enums';
-import { generateELMJSONFunction, getMissingDependentValuesets } from './CalculatorHelpers';
+import { generateELMJSONFunction } from './CalculatorHelpers';
+import { ValueSetResolver } from './helpers/ValueSetResolver';
 
-export function execute(
+export async function execute(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions,
   debugObject?: DebugOutput
-): RawExecutionData {
+): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure') as R4.IBundle_Entry;
   const measure = measureEntry.resource as R4.IMeasure;
@@ -24,12 +25,34 @@ export function execute(
     return { errorMessage: 'library not identified in measure' };
   }
   // check for any missing valuesets
+  let valueSets: R4.IValueSet[] = [];
   const missingVS = getMissingDependentValuesets(measureBundle);
   if (missingVS.length > 0) {
-    return {
-      errorMessage: `Measure bundle does not contain the following valueset resource dependencies: ${missingVS.join()}`
-    };
+    if (!options.vsAPIKey || options.vsAPIKey.length == 0) {
+      return {
+        errorMessage: `Missing the following valuesets: ${missingVS.join(
+          ', '
+        )}, and no API key was provided to resolve them`
+      };
+    }
+    const vsr = new ValueSetResolver(options.vsAPIKey || '');
+    const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
+
+    if (errorMessages.length > 0) {
+      return {
+        errorMessage: errorMessages.join('\n')
+      };
+    }
+    valueSets = expansions;
   }
+
+  measureBundle.entry?.forEach(e => {
+    if (e.resource?.resourceType === 'ValueSet') {
+      valueSets.push(e.resource as R4.IValueSet);
+    }
+  });
+  const vsMap = valueSetsForCodeService(valueSets);
+
   const rootLibRef = measure?.library[0];
   let rootLibId: string;
   if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
@@ -85,14 +108,6 @@ export function execute(
   if (rootLibIdentifer.id === '') {
     return { errorMessage: 'no library' };
   }
-
-  const valueSets: R4.IValueSet[] = [];
-  measureBundle.entry?.forEach(e => {
-    if (e.resource?.resourceType === 'ValueSet') {
-      valueSets.push(e.resource as R4.IValueSet);
-    }
-  });
-  const vsMap = valueSetsForCodeService(valueSets);
 
   // Measure datetime stuff
   let start;

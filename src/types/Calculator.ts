@@ -28,6 +28,8 @@ export interface CalculationOptions {
   enableDebugOutput?: boolean;
   /** Enables the return of ELM Libraries and name of main library to be used for further processing. ex. gaps in care */
   returnELM?: boolean;
+  /** API key, to be used to access a valueset API for downloading any missing valuesets */
+  vsAPIKey?: string;
 }
 
 /**

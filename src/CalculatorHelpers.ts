@@ -3,7 +3,6 @@ import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, Strati
 import * as MeasureHelpers from './MeasureHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ResultsHelpers';
 import { ELM, ELMStatement } from './types/ELMTypes';
-import moment from 'moment';
 import { PopulationType } from './types/Enums';
 import * as cql from './types/CQLTypes';
 
@@ -411,70 +410,6 @@ export function setValueSetVersionsToUndefined(elm: ELM[]): ELM[] {
     }
   });
   return elm;
-}
-
-// Create Date from UTC string date and time using momentJS
-export function parseTimeStringAsUTC(timeValue: string): Date {
-  return moment.utc(timeValue, 'YYYYMDDHHmm').toDate();
-}
-
-// Create Date from UTC string date and time using momentJS, shifting to 11:59:59 of the given year
-export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Date {
-  return moment.utc(timeValue, 'YYYYMDDHHmm').add(1, 'years').subtract(1, 'seconds').toDate();
-}
-
-/**
- * Collates dependent valuesets from a measure by going through all of the measure bundle's libraries' dataCriteria's codeFilters' valueset.
- * Then finds all valuesets that are not already contained in the measure bundle.
- *
- * @param {R4.IBundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
- * @returns {string[]} An array of all dependent valueset urls in the measure that are used by the measure's libraries but not contained in the measure bundle
- */
-export function getMissingDependentValuesets(measureBundle: R4.IBundle): string[] {
-  if (!measureBundle.entry) {
-    throw new Error('Expected measure bundle to contain entries');
-  }
-  const libraryEntries = measureBundle.entry?.filter(
-    e => e.resource?.resourceType === 'Library' && e.resource.dataRequirement
-  );
-
-  // create an array of valueset urls
-  const vsURLs: string[] = libraryEntries.reduce((acc, lib) => {
-    const libraryResource = lib.resource as R4.ILibrary;
-    if (!libraryResource || !libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
-      throw new Error('Expected library entry to have resource with dataRequirements that have codeFilters');
-    }
-    // pull all valuset urls out of this library's dataRequirements
-    const libraryVSURL: string[] = libraryResource.dataRequirement.reduce((accumulator, dr) => {
-      if (dr.codeFilter && dr.codeFilter.length > 0) {
-        // get each valueset url for each codeFilter (if valueset url exists)
-        const vs: string[] = dr.codeFilter
-          .filter(cf => cf.valueSet)
-          .map(cf => {
-            return cf.valueSet as string;
-          });
-        return accumulator.concat(vs);
-      } else {
-        return accumulator;
-      }
-    }, [] as string[]);
-    return acc.concat(libraryVSURL as string[]);
-  }, [] as string[]);
-
-  // unique-ify
-  const uniqueVS = vsURLs.filter((value, index, self) => self.indexOf(value) === index);
-
-  // filter to any valueset urls that cannot be found
-  return uniqueVS.filter(url => {
-    // if the url can't be found in the bundle entries, filter test returns !(undefined)
-    return !measureBundle.entry?.find(e => {
-      if (e.resource?.resourceType === 'ValueSet') {
-        const vsResource = e.resource as R4.IValueSet;
-        return vsResource.url === url;
-      }
-      return false;
-    });
-  });
 }
 
 /**
