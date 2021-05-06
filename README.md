@@ -41,20 +41,20 @@ npm install -g https://github.com/projecttacoma/fqm-execution.git
 ``` JavaScript
 import { Calculator } from 'fqm-execution';
 
-const rawResults = Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const detailedResults = Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const measureReports = Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
-const gapsInCare = Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
 ```
 
 #### Require
 ``` JavaScript
 const { Calculator } = require('fqm-execution');
 
-const rawResults = Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const detailedResults = Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const measureReports = Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
-const gapsInCare = Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
 ```
 
 #### Calculation Options
