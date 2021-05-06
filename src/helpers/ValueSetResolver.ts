@@ -23,25 +23,21 @@ export class ValueSetResolver {
   }
 
   async getExpansionForValuesetUrls(urls: string[]): Promise<[R4.IValueSet[], string[]]> {
-    // Make the actual requests. We use 'allSettled' here because we want all the results,
-    // whether the requests succeed or fail.
-    const results = await Promise.allSettled(
-      urls.map(url => {
-        return this.instance.get<R4.IValueSet>(`${url}/$expand`);
-      })
-    );
-
     const valuesets: R4.IValueSet[] = [];
     const errors: string[] = [];
-    // Go through the results and find any that failed.
-    // If there are failures, build an error string
-    results.forEach(r => {
-      if (r.status == 'fulfilled') {
-        valuesets.push(r.value.data);
-      } else {
-        errors.push(`Valueset with URL ${r.reason.config.url} could not be retrieved. Reason: ${r.reason.message}`);
+
+    // Make the actual requests. We use 'for.. of' here because we want to send requests individually
+    // to avoid 500 errors on VSAC
+    for (const url of urls) {
+      // Go through the results and find any that failed.
+      // If there are failures, build an error string
+      try {
+        const res = await this.instance.get<R4.IValueSet>(`${url}/$expand`);
+        valuesets.push(res.data);
+      } catch (e) {
+        errors.push(`Valueset with URL ${url} could not be retrieved. Reason: ${e.message}`);
       }
-    });
+    }
 
     // If we couldn't retrieve any valuesets, return and let the user know
     if (errors.length > 0) {

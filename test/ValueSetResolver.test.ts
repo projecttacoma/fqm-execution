@@ -56,7 +56,7 @@ describe('ValueSetResolver', () => {
       ]);
       expect(expansions).toEqual(expect.arrayContaining(exampleVSArray));
       // Error message should contain the valueset url
-      expect(errors).toEqual(expect.arrayContaining([expect.stringContaining('http://no.valueset/url/$expand')]));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringContaining('http://no.valueset/url')]));
       // Error message should contain the status code for the failed GET
       expect(errors).toEqual(expect.arrayContaining([expect.stringContaining('404')]));
     });
