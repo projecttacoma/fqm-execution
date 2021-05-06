@@ -12,7 +12,6 @@
   ],
   "dependencies": {
     "@ahryman40k/ts-fhir-types": "^4.0.32",
-    "@types/axios": "^0.14.0",
     "atob": "^2.1.2",
     "axios": "^0.19.2",
     "commander": "^6.1.0",

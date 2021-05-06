@@ -12,7 +12,8 @@ export class ValueSetResolver {
         Accept: 'application/fhir+json',
         Authorization: `Basic ${this.authHeaderValue()}`
       },
-      timeout: 60,
+      // Timeout is in ms, not seconds
+      timeout: 60_000, 
       withCredentials: true
     });
   }

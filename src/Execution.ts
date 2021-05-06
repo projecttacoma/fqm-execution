@@ -40,7 +40,7 @@ export async function execute(
 
     if (errorMessages.length > 0) {
       return {
-        errorMessage: errorMessages.join()
+        errorMessage: errorMessages.join('\n')
       };
     }
     valueSets = expansions;
