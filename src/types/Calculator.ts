@@ -224,7 +224,7 @@ export interface NearMissInfo {
   /** whether or not the query is a near miss */
   isNearMiss: boolean;
   /** codes that represent the causes of the near miss */
-  reasonCodes?: CareGapReasonCode[];
+  reasonCodes: CareGapReasonCode[];
 }
 
 /**

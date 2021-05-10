@@ -397,6 +397,7 @@ export function calculateNearMisses(
 
             if (duringFilter.valuePeriod.interval && resources) {
               const path = duringFilter.attribute.split('.');
+              const interval = duringFilter.valuePeriod.interval;
 
               // Access desired property of FHIRObject
               resources.raw.forEach((r: any) => {
@@ -410,16 +411,17 @@ export function calculateNearMisses(
                 });
 
                 // Use DateOutOfRange code if data point is outside of the desired interval
-                const isAttrContainedInInterval = duringFilter.valuePeriod.interval?.contains(desiredAttr.value);
+                const isAttrContainedInInterval = interval.contains(desiredAttr.value);
 
                 if (isAttrContainedInInterval === false) {
-                  nearMissInfo.reasonCodes?.push(CareGapReasonCode.DATEOUTOFRANGE);
+                  nearMissInfo.reasonCodes.push(CareGapReasonCode.DATEOUTOFRANGE);
                 }
               });
             }
           } else {
             // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
             // For non-during filters, look up clause result by localId
+            // Ideally we can look to modify cql-execution to help us with this flaw
             const clauseResult = detailedResult.clauseResults?.find(
               cr => cr.libraryName === r.libraryName && cr.localId === f.localId
             );
@@ -428,7 +430,7 @@ export function calculateNearMisses(
             if (clauseResult && clauseResult.final === FinalResult.FALSE) {
               const code = getGapReasonCode(f);
               if (code !== null) {
-                nearMissInfo.reasonCodes?.push(code);
+                nearMissInfo.reasonCodes.push(code);
               }
             }
           }
@@ -436,13 +438,14 @@ export function calculateNearMisses(
       }
 
       // If no specific near miss reasons found, default is missing
-      if (nearMissInfo.isNearMiss && nearMissInfo.reasonCodes?.length === 0) {
+      if (nearMissInfo.isNearMiss && nearMissInfo.reasonCodes.length === 0) {
         nearMissInfo.reasonCodes = [CareGapReasonCode.MISSING];
       }
     } else {
       // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
       nearMissInfo = {
-        isNearMiss: false
+        isNearMiss: false,
+        reasonCodes: []
       };
     }
     return { ...r, nearMissInfo };
