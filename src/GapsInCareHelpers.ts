@@ -1,10 +1,10 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
-import { DataTypeQuery, DetailedPopulationGroupResult, ExpressionStackEntry } from './types/Calculator';
+import { DataTypeQuery, DetailedPopulationGroupResult, ExpressionStackEntry, NearMissInfo } from './types/Calculator';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
 import { flattenFilters, generateDetailedCodeFilter, generateDetailedDateFilter } from './DataRequirementHelpers';
-import { EqualsFilter, InFilter, DuringFilter } from './types/QueryFilterTypes';
+import { EqualsFilter, InFilter, DuringFilter, AnyFilter } from './types/QueryFilterTypes';
 
 /**
  * Get all data types, and codes/valuesets used in Retrieve ELM expressions
@@ -232,23 +232,36 @@ export function generateGuidanceResponses(
       ];
     }
 
+    let gapCoding: R4.ICoding[];
+
     // TODO: update system to be full URL once defined
-    // TODO: include logic for other codes based on results of parsed queries
-    const gapCoding: R4.ICoding =
-      improvementNotation === ImprovementNotation.POSITIVE
-        ? {
-            system: 'CareGapReasonCodeSystem',
-            code: CareGapReasonCode.MISSING,
-            display: CareGapReasonCodeDisplay[CareGapReasonCode.MISSING]
-          }
-        : {
-            system: 'CareGapReasonCodeSystem',
-            code: CareGapReasonCode.PRESENT,
-            display: CareGapReasonCodeDisplay[CareGapReasonCode.PRESENT]
-          };
+    if (q.nearMissInfo?.isNearMiss && q.nearMissInfo.reasonCodes) {
+      gapCoding = q.nearMissInfo.reasonCodes.map(c => ({
+        system: 'CareGapReasonCodeSystem',
+        code: c,
+        display: CareGapReasonCodeDisplay[c]
+      }));
+    } else {
+      gapCoding =
+        improvementNotation === ImprovementNotation.POSITIVE
+          ? [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.MISSING,
+                display: CareGapReasonCodeDisplay[CareGapReasonCode.MISSING]
+              }
+            ]
+          : [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.PRESENT,
+                display: CareGapReasonCodeDisplay[CareGapReasonCode.PRESENT]
+              }
+            ];
+    }
 
     const gapStatus: R4.ICodeableConcept = {
-      coding: [gapCoding]
+      coding: gapCoding
     };
 
     const dataRequirement: R4.IDataRequirement = {
@@ -355,16 +368,99 @@ export function generateGapsInCareBundle(
  *
  * @param retrieves numerator queries from a call to findRetrieves
  * @param improvementNotation string indicating positive or negative improvement notation for the measure being used
+ * @param detailedResult result from calculation to look up clause values
+ * @return mapped list of queries with near miss info if relevant
  */
-export function calculateNearMisses(retrieves: DataTypeQuery[], improvementNotation: string): DataTypeQuery[] {
+export function calculateNearMisses(
+  retrieves: DataTypeQuery[],
+  improvementNotation: string,
+  detailedResult?: DetailedPopulationGroupResult
+): DataTypeQuery[] {
   return retrieves.map(r => {
-    let isNearMiss;
+    let nearMissInfo: NearMissInfo;
     if (improvementNotation === ImprovementNotation.POSITIVE) {
-      isNearMiss = r.retrieveHasResult && !r.parentQueryHasResult;
+      nearMissInfo = {
+        isNearMiss: r.retrieveHasResult === true && r.parentQueryHasResult === false,
+        reasonCodes: []
+      };
+
+      if (nearMissInfo.isNearMiss && r.queryInfo && detailedResult?.clauseResults) {
+        const flattenedFilters = flattenFilters(r.queryInfo.filter);
+
+        flattenedFilters.forEach(f => {
+          // Separate interval handling for 'during' filters
+          if (f.type === 'during') {
+            const duringFilter = f as DuringFilter;
+            const resources = detailedResult.clauseResults?.find(
+              cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
+            );
+
+            if (duringFilter.valuePeriod.interval && resources) {
+              const path = duringFilter.attribute.split('.');
+              const interval = duringFilter.valuePeriod.interval;
+
+              // Access desired property of FHIRObject
+              resources.raw.forEach((r: any) => {
+                let desiredAttr = r;
+                path.forEach(key => {
+                  if (desiredAttr.value?.isDateTime) {
+                    return;
+                  }
+
+                  desiredAttr = desiredAttr[key];
+                });
+
+                // Use DateOutOfRange code if data point is outside of the desired interval
+                const isAttrContainedInInterval = interval.contains(desiredAttr.value);
+
+                if (isAttrContainedInInterval === false) {
+                  nearMissInfo.reasonCodes.push(CareGapReasonCode.DATEOUTOFRANGE);
+                }
+              });
+            }
+          } else {
+            // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
+            // For non-during filters, look up clause result by localId
+            // Ideally we can look to modify cql-execution to help us with this flaw
+            const clauseResult = detailedResult.clauseResults?.find(
+              cr => cr.libraryName === r.libraryName && cr.localId === f.localId
+            );
+
+            // False clause means this specific filter was falsy
+            if (clauseResult && clauseResult.final === FinalResult.FALSE) {
+              const code = getGapReasonCode(f);
+              if (code !== null) {
+                nearMissInfo.reasonCodes.push(code);
+              }
+            }
+          }
+        });
+      }
+
+      // If no specific near miss reasons found, default is missing
+      if (nearMissInfo.isNearMiss && nearMissInfo.reasonCodes.length === 0) {
+        nearMissInfo.reasonCodes = [CareGapReasonCode.MISSING];
+      }
     } else {
       // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
-      isNearMiss = false;
+      nearMissInfo = {
+        isNearMiss: false,
+        reasonCodes: []
+      };
     }
-    return { ...r, isNearMiss };
+    return { ...r, nearMissInfo };
   });
+}
+
+function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | null {
+  switch (filter.type) {
+    case 'equals':
+    case 'in':
+      return CareGapReasonCode.INVALIDATTRIBUTE;
+    case 'during':
+      return CareGapReasonCode.DATEOUTOFRANGE;
+    default:
+      console.warn(`unknown reasonCode mapping for filter type ${filter.type}`);
+      return null;
+  }
 }

@@ -64,6 +64,6 @@ export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter): R4.
 export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequirement_DateFilter {
   return {
     path: filter.attribute,
-    valuePeriod: filter.valuePeriod
+    valuePeriod: { start: filter.valuePeriod.start, end: filter.valuePeriod.end }
   };
 }

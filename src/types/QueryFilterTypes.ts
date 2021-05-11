@@ -1,4 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import * as cql from 'cql-execution';
 
 /** Any type of query filter. */
 export type AnyFilter =
@@ -82,6 +83,7 @@ export interface DuringFilter extends AttributeFilter {
   valuePeriod: {
     start?: string;
     end?: string;
+    interval?: cql.Interval;
   };
 }
 

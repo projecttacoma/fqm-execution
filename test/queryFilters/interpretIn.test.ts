@@ -300,6 +300,9 @@ const FUNCTION_REF_IN_INTERVAL = {
 describe('interpretIn', () => {
   test('Property starts during two years before end of MP', () => {
     const filter = QueryFilter.interpretIn(IN_STARTS_CALC_AGAINST_MP, complexQueryELM, EXEC_PARAMS) as DuringFilter;
+    if (filter.valuePeriod.interval) {
+      delete filter.valuePeriod.interval;
+    }
     expect(filter.type).toEqual('during');
     expect(filter.valuePeriod).toEqual({
       start: '2017-12-31T23:59:59.999Z',

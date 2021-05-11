@@ -1,7 +1,8 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import { parseQueryInfo } from '../../src/QueryFilterHelpers';
 import * as cql from 'cql-execution';
-import { QueryInfo } from '../../src/types/QueryFilterTypes';
+import { QueryInfo, DuringFilter, AndFilter } from '../../src/types/QueryFilterTypes';
+import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
@@ -221,6 +222,16 @@ describe('Parse Query Info', () => {
     }
     const queryLocalId = statement.expression.localId;
     const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
+
+    const filter = queryInfo.filter as AndFilter;
+
+    filter.children = filter.children.map(f => {
+      if (f.type === 'during') {
+        return removeIntervalFromFilter(f as DuringFilter);
+      }
+      return f;
+    });
+
     expect(queryInfo).toEqual(EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP);
   });
 

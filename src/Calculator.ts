@@ -317,7 +317,7 @@ export async function calculateGapsInCare(
           }
         });
 
-        retrieves = GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation);
+        retrieves = GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation, dr);
 
         const detectedIssues = GapsInCareHelpers.generateDetectedIssueResources(
           retrieves,
