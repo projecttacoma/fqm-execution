@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import * as MeasureReportBuilder from '../src/MeasureReportBuilder';
+import MeasureReportBuilder from '../src/MeasureReportBuilder';
 import { getJSONFixture } from './helpers/testHelpers';
 import { ExecutionResult, CalculationOptions } from '../src/types/Calculator';
 import { PopulationType } from '../src/types/Enums';
@@ -13,6 +13,7 @@ const patient2 = getJSONFixture('EXM111-9.1.000/Armando772_Almanza534_08fc9439-b
 
 // ids from fixture patients
 const patient1Id = '3413754c-73f0-4559-9f67-df8e593ce7e1';
+const patient2Id = '08fc9439-b7ff-4309-b409-4d143388594c';
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as R4.IMeasure;
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as R4.IMeasure;
@@ -59,6 +60,48 @@ const executionResults: ExecutionResult[] = [
           },
           {
             populationType: PopulationType.DENEX,
+            result: false
+          }
+        ],
+        html: 'example-html'
+      }
+    ],
+    supplementalData: [
+      {
+        name: 'sde-code',
+        rawResult: {
+          isCode: true,
+          code: 'example',
+          system: 'http://example.com',
+          display: 'Example'
+        }
+      }
+    ]
+  }
+];
+
+const cvExecutionResults: ExecutionResult[] = [
+  {
+    patientId: patient2Id,
+    detailedResults: [
+      {
+        groupId: 'group-1',
+        statementResults: [],
+        populationResults: [
+          {
+            populationType: PopulationType.MSRPOPL,
+            result: false
+          },
+          {
+            populationType: PopulationType.MSRPOPLEX,
+            result: true
+          },
+          {
+            populationType: PopulationType.IPP,
+            result: true
+          },
+          {
+            populationType: PopulationType.OBSERV,
             result: false
           }
         ],
@@ -174,10 +217,11 @@ describe('MeasureReportBuilder', () => {
   describe('CV stratifier Measure Report', () => {
     let measureReports: R4.IMeasureReport[];
     beforeAll(() => {
+      debugger;
       measureReports = MeasureReportBuilder.buildMeasureReports(
         cvMeasureBundle,
         [patient2],
-        executionResults,
+        cvExecutionResults,
         calculationOptions
       );
     });
