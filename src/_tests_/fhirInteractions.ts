@@ -1,4 +1,4 @@
-import { calculateMeasureReports } from '../Calculator';
+import { calculateIndividualMeasureReports } from '../Calculator';
 import { CalculationOptions } from '../types/Calculator';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import fs from 'fs';
@@ -37,7 +37,7 @@ const PERIOD_END = '2019-12-31';
 export async function getMeasureReport(measureId: string, measureBundle: R4.IBundle, patientBundle: R4.IBundle) {
   // Start a timer
   const calcOptions: CalculationOptions = setupCalcOptions();
-  const report = await calculateMeasureReports(measureBundle, [patientBundle], calcOptions);
+  const report = await calculateIndividualMeasureReports(measureBundle, [patientBundle], calcOptions);
 
   return report.results[0];
 }

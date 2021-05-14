@@ -30,6 +30,8 @@ export interface CalculationOptions {
   returnELM?: boolean;
   /** API key, to be used to access a valueset API for downloading any missing valuesets */
   vsAPIKey?: string;
+  /** The type of report to return, will default to individual. */
+  reportType?: 'individual' | 'subject-list' | 'summary';
 }
 
 /**

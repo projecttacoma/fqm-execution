@@ -6,7 +6,7 @@ import * as Execution from './Execution';
 import * as CalculatorHelpers from './CalculatorHelpers';
 import { extractMeasurementPeriod } from './MeasureHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
-import * as MeasureReportBuilder from './MeasureReportBuilder';
+import MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from './GapsInCareHelpers';
 import { generateHTML } from './HTMLGenerator';
 import { ELM } from './types/ELMTypes';
@@ -175,18 +175,39 @@ export async function calculate(
 }
 
 /**
- * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
+ * Calculate measure against a set of patients. Returning individual or summary MeasureReports based on options
+ *
+ * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param patientBundles List of bundles of patients to be executed.
+ * @param options Options for calculation.
+ * @returns MeasureReport resource(s) for each patient or entire population according to standard https://www.hl7.org/fhir/measurereport.html
+ */
+export async function calculateMeasureReports(
+  measureBundle: R4.IBundle,
+  patientBundles: R4.IBundle[],
+  options: CalculationOptions
+): Promise<{ results: R4.IMeasureReport | R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
+  return options.reportType === 'summary'
+    ? calculateAggregateMeasureReport(measureBundle, patientBundles, options)
+    : calculateIndividualMeasureReports(measureBundle, patientBundles, options);
+}
+
+/**
+ * Calculate measure against a set of patients. Returning measure reports for each patient.
  *
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
  * @returns MeasureReport resource for each patient according to standard https://www.hl7.org/fhir/measurereport.html
  */
-export async function calculateMeasureReports(
+export async function calculateIndividualMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
 ): Promise<{ results: R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
+  if (options.reportType && options.reportType !== 'individual') {
+    throw new Error('calculateMeasureReports only supports reportType "individual".');
+  }
   // options should be updated by this call if measurementPeriod wasn't initially passed in
   const { results, debugOutput } = await calculate(measureBundle, patientBundles, options);
 
@@ -197,6 +218,57 @@ export async function calculateMeasureReports(
   }
 
   return { results: reports, debugOutput };
+}
+
+/**
+ * Calculate measure against a set of patients. Returning a single MeasureReport for aggregated results.
+ *
+ * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param patientBundles List of bundles of patients to be executed.
+ * @param options Options for calculation.
+ * @returns MeasureReport resource summary according to standard https://www.hl7.org/fhir/measurereport.html
+ */
+export async function calculateAggregateMeasureReport(
+  measureBundle: R4.IBundle,
+  patientBundles: R4.IBundle[],
+  options: CalculationOptions
+): Promise<{ results: R4.IMeasureReport; debugOutput?: DebugOutput }> {
+  if (options.reportType && options.reportType === 'individual') {
+    throw new Error('calculateAggregateMeasureReports only supports reportType "summary".');
+  }
+  // options should be updated by this call if measurementPeriod wasn't initially passed in
+  const { results, debugOutput } = await calculate(measureBundle, patientBundles, options);
+
+  const builder = new MeasureReportBuilder(measureBundle, options);
+
+  results.forEach(result => {
+    // find this patient's bundle
+    const patientBundle = patientBundles.find(patientBundle => {
+      const patientEntry = patientBundle.entry?.find(bundleEntry => {
+        return bundleEntry.resource?.resourceType === 'Patient';
+      });
+      if (patientEntry && patientEntry.resource) {
+        return patientEntry.resource.id === result.patientId;
+      } else {
+        return false;
+      }
+    });
+    // if the patient bundle was found add their information to the subject
+    if (patientBundle) {
+      const patient = patientBundle.entry?.find(bundleEntry => {
+        return bundleEntry.resource?.resourceType === 'Patient';
+      })?.resource as R4.IPatient;
+      builder.addPatientResults(patient, result);
+    }
+  });
+
+  const report = builder.getReport();
+
+  if (debugOutput && options.enableDebugOutput) {
+    debugOutput.measureReports = [report];
+  }
+
+  return { results: report, debugOutput };
 }
 
 export async function calculateRaw(

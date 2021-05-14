@@ -4,13 +4,14 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import { calculate, calculateGapsInCare, calculateMeasureReports, calculateRaw } from './Calculator';
+import { calculate, calculateMeasureReports, calculateGapsInCare, calculateRaw } from './Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
 import { CalculationOptions } from './types/Calculator';
 
 program
   .option('-d, --debug', 'enable debug output', false)
   .option('-o, --output-type <type>', 'type of output, "raw", "detailed", "reports", "gaps"', 'detailed')
+  .option('-r, --report-type <report-type>', 'type of report, "individual", "summary", "subject-list"')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
   .requiredOption('-p, --patient-bundles <patient-bundles...>', 'paths to patient bundle')
   .option(
@@ -46,6 +47,7 @@ async function calc(
   } else if (program.outputType === 'detailed') {
     result = await calculate(measureBundle, patientBundles, calcOptions);
   } else if (program.outputType === 'reports') {
+    calcOptions.reportType = program.reportType || 'individual';
     result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions);
   } else if (program.outputType === 'gaps') {
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions);
@@ -62,7 +64,7 @@ const calcOptions: CalculationOptions = {
   vsAPIKey: program.vsApiKey
 };
 
-// Override the measurement period start/end in the options only if the user specfied them
+// Override the measurement period start/end in the options only if the user specified them
 if (program.measurementPeriodStart) {
   calcOptions.measurementPeriodStart = program.measurementPeriodStart;
 }
@@ -121,3 +123,7 @@ calc(measureBundle, patientBundles, calcOptions)
   .catch(error => {
     console.error(error.message);
   });
+if (program.outputType !== 'reports' && program.reportType) {
+  console.error('Report type was specified when not asking for reports.');
+  program.help();
+}
