@@ -69,6 +69,7 @@ The options that we support for calculation are as follows:
 | measurementPeriodStart | string  |    yes    |                                                       Start of measurement period. |
 | measurementPeriodEnd   | string  |    yes    |                                                         End of measurement period. |
 | patientSource          |   any   |    yes    |        PatientSource to use. If provided, the patientBundles will not be required. |
+| reportType             | string  |    yes    |                      Type of MeasureReport to generate: "summary" or "individual". |
 | calculateSDEs          | boolean |    yes    |              Include Supplemental Data Elements in calculation. Defaults to false. |
 | calculateHTML          | boolean |    yes    |                        Include HTML structure for highlighting. Defaults to false. |
 | vsAPIKey               | string  |    yes    | API key, to be used to access a valueset API for downloading any missing valuesets |
@@ -83,6 +84,7 @@ Usage: fqm-execution [options]
 Options:
   -d, --debug                                 enable debug output (default: false)
   -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps" (default: "detailed")
+  -r, --report-type <type>                    type of MeasureReport (only for output type "reports"): "summary" or "individual" (default: "individual")
   -m, --measure-bundle <measure-bundle>       path to measure bundle
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle
   -s, --measurement-period-start <date>       start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)
