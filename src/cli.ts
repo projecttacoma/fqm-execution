@@ -4,13 +4,7 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import {
-  calculate,
-  calculateAggregateMeasureReport,
-  calculateGapsInCare,
-  calculateMeasureReports,
-  calculateRaw
-} from './Calculator';
+import { calculate, calculateMeasureReports, calculateGapsInCare, calculateRaw } from './Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
 import { CalculationOptions } from './types/Calculator';
 
@@ -54,11 +48,7 @@ async function calc(
     result = await calculate(measureBundle, patientBundles, calcOptions);
   } else if (program.outputType === 'reports') {
     calcOptions.reportType = program.reportType || 'individual';
-    if (calcOptions.reportType !== 'individual') {
-      result = await calculateAggregateMeasureReport(measureBundle, patientBundles, calcOptions);
-    } else {
-      result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions);
-    }
+    result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions);
   } else if (program.outputType === 'gaps') {
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions);
   }

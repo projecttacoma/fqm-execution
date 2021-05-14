@@ -175,6 +175,24 @@ export async function calculate(
 }
 
 /**
+ * Calculate measure against a set of patients. Returning individual or summary MeasureReports based on options
+ *
+ * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param patientBundles List of bundles of patients to be executed.
+ * @param options Options for calculation.
+ * @returns MeasureReport resource(s) for each patient or entire population according to standard https://www.hl7.org/fhir/measurereport.html
+ */
+export async function calculateMeasureReports(
+  measureBundle: R4.IBundle,
+  patientBundles: R4.IBundle[],
+  options: CalculationOptions
+): Promise<{ results: R4.IMeasureReport | R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
+  return options.reportType === 'summary'
+    ? calculateAggregateMeasureReport(measureBundle, patientBundles, options)
+    : calculateIndividualMeasureReports(measureBundle, patientBundles, options);
+}
+
+/**
  * Calculate measure against a set of patients. Returning measure reports for each patient.
  *
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
@@ -182,7 +200,7 @@ export async function calculate(
  * @param options Options for calculation.
  * @returns MeasureReport resource for each patient according to standard https://www.hl7.org/fhir/measurereport.html
  */
-export async function calculateMeasureReports(
+export async function calculateIndividualMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions

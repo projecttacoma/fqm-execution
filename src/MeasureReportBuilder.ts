@@ -7,12 +7,6 @@ import {
 } from './types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  IMeasureReport_Group,
-  IMeasureReport_Population1,
-  IMeasureReport_Stratum
-} from '@ahryman40k/ts-fhir-types/lib/R4';
-import { group } from 'console';
 
 export default class MeasureReportBuilder {
   report: R4.IMeasureReport;
@@ -138,16 +132,14 @@ export default class MeasureReportBuilder {
 
     // if we are creating an individual report create the patient reference.
     if (this.isIndividual) {
-      const patId = `Patient/${patient?.id}`;
+      const patId = `Patient/${patient.id}`;
       const subjectReference: R4.IReference = {
         reference: patId
       };
       this.report.subject = subjectReference;
     }
 
-    for (let i = 0; i < results.detailedResults.length; i++) {
-      const groupResults: DetailedPopulationGroupResult = results.detailedResults[i];
-
+    results.detailedResults.forEach(groupResults => {
       if (this.isIndividual) {
         // add narrative for relevant clauses
         if (this.report.text && groupResults.html) {
@@ -241,7 +233,7 @@ export default class MeasureReportBuilder {
           });
         }
       }
-    }
+    });
     if (this.calculateSDEs) {
       this.addSDE(results);
     }
@@ -260,7 +252,7 @@ export default class MeasureReportBuilder {
     this.patientCount++;
   }
 
-  private incrementPopulationInStratum(stratum: IMeasureReport_Stratum, pr: PopulationResult) {
+  private incrementPopulationInStratum(stratum: R4.IMeasureReport_Stratum, pr: PopulationResult) {
     const pop = stratum.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
     if (pop) {
       // add to pop count creating it if not already created.
@@ -271,7 +263,7 @@ export default class MeasureReportBuilder {
     }
   }
 
-  private incrementPopulationInGroup(group: IMeasureReport_Group, pr: PopulationResult) {
+  private incrementPopulationInGroup(group: R4.IMeasureReport_Group, pr: PopulationResult) {
     const pop = group.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
     if (pop) {
       // add to pop count creating it if not already created.
@@ -423,7 +415,6 @@ export default class MeasureReportBuilder {
 
     // Note: unit not currently available in data, so not included in this quantity (should be inferable from measure to whoever's using the score)
     // Score also captured in evaluated resource observation
-    debugger;
     return {
       value: this.aggregate(aggregation, observations) //|| 0 TODO: set to alternative value if null (no relevant episodes)?
     };

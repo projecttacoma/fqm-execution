@@ -129,7 +129,7 @@ const calculationOptions: CalculationOptions = {
   calculateSDEs: true
 };
 
-describe('MeasureReportBuilder', () => {
+describe('MeasureReportBuilder Static', () => {
   describe('Simple Measure Report', () => {
     let measureReports: R4.IMeasureReport[];
     beforeAll(() => {
@@ -217,7 +217,6 @@ describe('MeasureReportBuilder', () => {
   describe('CV stratifier Measure Report', () => {
     let measureReports: R4.IMeasureReport[];
     beforeAll(() => {
-      debugger;
       measureReports = MeasureReportBuilder.buildMeasureReports(
         cvMeasureBundle,
         [patient2],
@@ -254,6 +253,136 @@ describe('MeasureReportBuilder', () => {
       mr.group?.forEach(g => {
         expect(g.stratifier).toBeDefined();
       });
+    });
+  });
+});
+
+describe('MeasureReportBuilder Class', () => {
+  let measureBundle: R4.IBundle;
+  let patientResource: R4.IPatient;
+  beforeAll(() => {
+    measureBundle = {
+      resourceType: 'Bundle',
+      entry: [{ resource: simpleMeasure }]
+    };
+
+    patientResource = patient1.entry[0].resource;
+  });
+
+  test('should properly recognize individual propery', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'individual'
+    });
+
+    expect(builder.isIndividual).toBe(true);
+  });
+
+  test('should properly recognize summary propery', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'summary'
+    });
+
+    expect(builder.isIndividual).toBe(false);
+  });
+
+  test('should persist calculateSDEs for individual reports', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'individual',
+      calculateSDEs: true
+    });
+
+    expect(builder.calculateSDEs).toBe(true);
+  });
+
+  test('should not calculateSDEs for summary reports', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'summary',
+      calculateSDEs: true
+    });
+
+    expect(builder.calculateSDEs).toBe(false);
+  });
+
+  test('should add basic individual metadata', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'individual',
+      calculateSDEs: true,
+      calculateHTML: true,
+      measurementPeriodStart: '2021-01-01',
+      measurementPeriodEnd: '2021-12-31'
+    });
+
+    const { report } = builder;
+
+    expect(report.period).toEqual({
+      start: '2021-01-01',
+      end: '2021-12-31'
+    });
+
+    expect(report.status).toEqual(R4.MeasureReportStatusKind._complete);
+    expect(report.type).toEqual(R4.MeasureReportTypeKind._individual);
+
+    expect(report.measure).toEqual(simpleMeasure.url);
+
+    // Text should be defined when calculateHTML is true
+    expect(report.text).toBeDefined();
+  });
+
+  test('should add basic summary metadata', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'summary',
+      calculateSDEs: true,
+      calculateHTML: true,
+      measurementPeriodStart: '2021-01-01',
+      measurementPeriodEnd: '2021-12-31'
+    });
+
+    const { report } = builder;
+
+    expect(report.period).toEqual({
+      start: '2021-01-01',
+      end: '2021-12-31'
+    });
+
+    expect(report.status).toEqual(R4.MeasureReportStatusKind._complete);
+    expect(report.type).toEqual(R4.MeasureReportTypeKind._summary);
+
+    expect(report.measure).toEqual(simpleMeasure.url);
+
+    // Text should be undefined for summary reports
+    expect(report.text).toBeUndefined();
+  });
+
+  test('no detailed results should throw error', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'individual',
+      measurementPeriodStart: '2021-01-01',
+      measurementPeriodEnd: '2021-12-31'
+    });
+
+    expect(() =>
+      builder.addPatientResults(patientResource, {
+        patientId: patient1Id
+      })
+    ).toThrowError();
+  });
+
+  test('should add subject for individual report', () => {
+    const builder = new MeasureReportBuilder(measureBundle, {
+      reportType: 'individual',
+      measurementPeriodStart: '2021-01-01',
+      measurementPeriodEnd: '2021-12-31'
+    });
+
+    builder.addPatientResults(patientResource, {
+      patientId: patient1Id,
+      detailedResults: []
+    });
+
+    const report = builder.getReport();
+
+    expect(report.subject).toEqual({
+      reference: `Patient/${patient1Id}`
     });
   });
 });
