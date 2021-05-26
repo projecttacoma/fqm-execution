@@ -22,7 +22,8 @@ import {
   ELMIsNull,
   ELMUnaryExpression,
   ELMInterval,
-  ELMCodeSystem
+  ELMCodeSystem,
+  ELMGreaterOrEqual
 } from './types/ELMTypes';
 import {
   AndFilter,
@@ -176,6 +177,8 @@ export function interpretExpression(expression: ELMExpression, library: ELM, par
       return interpretIn(expression as ELMIn, library, parameters);
     case 'Not':
       return interpretNot(expression as ELMNot);
+    case 'GreaterOrEqual':
+      return interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters);
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
       // Look for a property (source attribute) usage in the expression tree. This can denote an
@@ -644,4 +647,22 @@ export function executeIntervalELM(
   } else {
     return null;
   }
+}
+
+export function interpretGreaterOrEqual(
+  greaterOrEqualExpr: ELMGreaterOrEqual,
+  library: ELM,
+  parameters: any
+): AnyFilter {
+  // look at first param if it is function ref to calendar age in years at.
+  if (greaterOrEqualExpr.operand[0].type === 'FunctionRef') {
+    const functionRef = greaterOrEqualExpr.operand[0] as ELMFunctionRef;
+    if (functionRef.name === 'CalendarAgeInYearsAt' && functionRef.libraryName === 'Global') {
+    }
+  }
+  //    check if the parameters are sensical and determine the resource attribute. handle start/end of
+  //    look at patient data and second param to determine date that would satisfy the inequality.
+  //    return DuringInterval with one side open
+
+  return { type: 'unknown' };
 }

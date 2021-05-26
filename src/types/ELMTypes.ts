@@ -176,6 +176,7 @@ export type AnyELMExpression =
   | ELMQuery
   | ELMAs
   | ELMEqual
+  | ELMGreaterOrEqual
   | ELMEquivalent
   | ELMAnd
   | ELMOr
@@ -273,6 +274,10 @@ export interface ELMUnaryExpression extends ELMExpression {
 
 export interface ELMEqual extends ELMBinaryExpression {
   type: 'Equal';
+}
+
+export interface ELMGreaterOrEqual extends ELMBinaryExpression {
+  type: 'GreaterOrEqual';
 }
 
 export interface ELMEquivalent extends ELMBinaryExpression {
