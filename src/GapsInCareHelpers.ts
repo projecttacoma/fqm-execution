@@ -1,126 +1,48 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
-import { DataTypeQuery, DetailedPopulationGroupResult, ExpressionStackEntry, NearMissInfo } from './types/Calculator';
-import { ELM, ELMStatement } from './types/ELMTypes';
+import {
+  DataTypeQuery,
+  DetailedPopulationGroupResult,
+  ExpressionStackEntry,
+  GapsDataTypeQuery,
+  ReasonDetail
+} from './types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
 import { flattenFilters, generateDetailedCodeFilter, generateDetailedDateFilter } from './DataRequirementHelpers';
 import { EqualsFilter, InFilter, DuringFilter, AnyFilter } from './types/QueryFilterTypes';
 
 /**
- * Get all data types, and codes/valuesets used in Retrieve ELM expressions
+ * Iterate through base queries and add clause results for parent query and retrieve
  *
- * @param elm main ELM library with expressions to traverse
- * @param deps list of any dependent ELM libraries included in the main ELM
- * @param expr expression to find queries under (usually numerator for gaps in care)
- * @param detailedResult detailed results from execution
- * @param queryLocalId keeps track of latest id of query statements for lookup later
+ * @param queries base queries parsed from ELM
+ * @param detailedResult execution results for this patient
+ * @returns same query info but with info about clause results for query and retrieve
  */
-export function findRetrieves(
-  elm: ELM,
-  deps: ELM[],
-  expr: ELMStatement,
-  detailedResult: DetailedPopulationGroupResult,
-  queryLocalId?: string,
-  expressionStack: ExpressionStackEntry[] = []
-) {
-  const results: DataTypeQuery[] = [];
-
-  // Push this expression onto the stack of processed expressions
-  if (expr.localId && expr.type) {
-    expressionStack.push({
-      libraryName: elm.library.identifier.id,
-      localId: expr.localId,
-      type: expr.type
-    });
-  }
-
-  // Base case, get data type and code/valueset off the expression
-  if (expr.type === 'Retrieve' && expr.dataType) {
+export function processQueriesForGaps(
+  queries: DataTypeQuery[],
+  detailedResult: DetailedPopulationGroupResult
+): GapsDataTypeQuery[] {
+  return queries.map(q => {
     // Determine satisfaction of parent query and leaf node retrieve
     const parentQueryResult = detailedResult.clauseResults?.find(
-      cr => cr.libraryName === elm.library.identifier.id && cr.localId === queryLocalId
+      cr => cr.libraryName === q.libraryName && cr.localId === q.queryLocalId
     );
+
     const retrieveResult = detailedResult.clauseResults?.find(
-      cr => cr.libraryName === elm.library.identifier.id && cr.localId === expr.localId
+      cr => cr.libraryName === q.libraryName && cr.localId === q.retrieveLocalId
     );
+
     const parentQueryHasResult = parentQueryResult?.final === FinalResult.TRUE;
     const retrieveHasResult = retrieveResult?.final === FinalResult.TRUE;
 
-    // If present, strip off HL7 prefix to data type
-    const dataType = expr.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+    const gapQuery: GapsDataTypeQuery = {
+      ...q,
+      parentQueryHasResult,
+      retrieveHasResult
+    };
 
-    if (expr.codes?.type === 'ValueSetRef') {
-      const valueSet = elm.library.valueSets?.def.find(v => v.name === expr.codes.name);
-      if (valueSet) {
-        results.push({
-          dataType,
-          valueSet: valueSet.id,
-          parentQueryHasResult,
-          retrieveHasResult,
-          queryLocalId,
-          retrieveLocalId: expr.localId,
-          libraryName: elm.library.identifier.id,
-          expressionStack: [...expressionStack]
-        });
-      }
-    } else if (
-      expr.codes.type === 'CodeRef' ||
-      (expr.codes.type === 'ToList' && expr.codes.operand?.type === 'CodeRef')
-    ) {
-      // ToList promotions have the CodeRef on the operand
-      const codeName = expr.codes.type === 'CodeRef' ? expr.codes.name : expr.codes.operand.name;
-      const code = elm.library.codes?.def.find(c => c.name === codeName);
-      if (code) {
-        results.push({
-          dataType,
-          code: {
-            system: code.codeSystem.name,
-            code: code.id
-          },
-          parentQueryHasResult,
-          retrieveHasResult,
-          queryLocalId,
-          retrieveLocalId: expr.localId,
-          libraryName: elm.library.identifier.id,
-          expressionStack: [...expressionStack]
-        });
-      }
-    }
-  } else if (expr.type === 'Query') {
-    // Queries have the source array containing the expressions
-    expr.source?.forEach(s => {
-      results.push(...findRetrieves(elm, deps, s.expression, detailedResult, expr.localId, [...expressionStack]));
-    });
-  } else if (expr.type === 'ExpressionRef') {
-    // Find expression in dependent library
-    if (expr.libraryName) {
-      const matchingLib = deps.find(d => d.library.identifier.id === expr.libraryName);
-      const exprRef = matchingLib?.library.statements.def.find(e => e.name === expr.name);
-      if (matchingLib && exprRef) {
-        results.push(
-          ...findRetrieves(matchingLib, deps, exprRef.expression, detailedResult, queryLocalId, [...expressionStack])
-        );
-      }
-    } else {
-      // Find expression in current library
-      const exprRef = elm.library.statements.def.find(d => d.name === expr.name);
-      if (exprRef) {
-        results.push(
-          ...findRetrieves(elm, deps, exprRef.expression, detailedResult, queryLocalId, [...expressionStack])
-        );
-      }
-    }
-  } else if (expr.operand) {
-    // Operand can be array or object. Recurse on either
-    if (Array.isArray(expr.operand)) {
-      expr.operand.forEach(e => {
-        results.push(...findRetrieves(elm, deps, e, detailedResult, queryLocalId, [...expressionStack]));
-      });
-    } else {
-      results.push(...findRetrieves(elm, deps, expr.operand, detailedResult, queryLocalId, [...expressionStack]));
-    }
-  }
-  return results;
+    return gapQuery;
+  });
 }
 
 /**
@@ -130,7 +52,7 @@ export function findRetrieves(
  * @param measureReport FHIR MeasureReport to be referenced by the issue
  */
 export function generateDetectedIssueResources(
-  queries: DataTypeQuery[],
+  queries: GapsDataTypeQuery[],
   measureReport: R4.IMeasureReport,
   improvementNotation: string
 ): R4.IDetectedIssue[] {
@@ -174,9 +96,9 @@ export function generateDetectedIssueResources(
  * @param queries list of queries from the execution engine.
  * @returns an array of arrays of type DataTypeQuery
  */
-export function groupGapQueries(queries: DataTypeQuery[]): DataTypeQuery[][] {
-  const queryGroups = new Map<string, DataTypeQuery[]>();
-  const ungroupedQueries: DataTypeQuery[][] = [];
+export function groupGapQueries(queries: GapsDataTypeQuery[]): GapsDataTypeQuery[][] {
+  const queryGroups = new Map<string, GapsDataTypeQuery[]>();
+  const ungroupedQueries: GapsDataTypeQuery[][] = [];
 
   queries.forEach((q): void => {
     const stackEntry = q.expressionStack ? q.expressionStack[0] : undefined;
@@ -212,7 +134,7 @@ function stackEntryString(entry: ExpressionStackEntry): string {
  * @returns list of FHIR GuidanceResponse resources with detailed gaps information
  */
 export function generateGuidanceResponses(
-  queries: DataTypeQuery[],
+  queries: GapsDataTypeQuery[],
   measureURL: string,
   improvementNotation: string
 ): R4.IGuidanceResponse[] {
@@ -235,8 +157,8 @@ export function generateGuidanceResponses(
     let gapCoding: R4.ICoding[];
 
     // TODO: update system to be full URL once defined
-    if (q.nearMissInfo?.isNearMiss && q.nearMissInfo.reasonCodes) {
-      gapCoding = q.nearMissInfo.reasonCodes.map(c => ({
+    if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasonCodes) {
+      gapCoding = q.reasonDetail.reasonCodes.map(c => ({
         system: 'CareGapReasonCodeSystem',
         code: c,
         display: CareGapReasonCodeDisplay[c]
@@ -371,20 +293,20 @@ export function generateGapsInCareBundle(
  * @param detailedResult result from calculation to look up clause values
  * @return mapped list of queries with near miss info if relevant
  */
-export function calculateNearMisses(
-  retrieves: DataTypeQuery[],
+export function calculateReasonDetail(
+  retrieves: GapsDataTypeQuery[],
   improvementNotation: string,
   detailedResult?: DetailedPopulationGroupResult
-): DataTypeQuery[] {
+): GapsDataTypeQuery[] {
   return retrieves.map(r => {
-    let nearMissInfo: NearMissInfo;
+    let reasonDetail: ReasonDetail;
     if (improvementNotation === ImprovementNotation.POSITIVE) {
-      nearMissInfo = {
-        isNearMiss: r.retrieveHasResult === true && r.parentQueryHasResult === false,
+      reasonDetail = {
+        hasReasonDetail: r.retrieveHasResult === true && r.parentQueryHasResult === false,
         reasonCodes: []
       };
 
-      if (nearMissInfo.isNearMiss && r.queryInfo && detailedResult?.clauseResults) {
+      if (reasonDetail.hasReasonDetail && r.queryInfo && detailedResult?.clauseResults) {
         const flattenedFilters = flattenFilters(r.queryInfo.filter);
 
         flattenedFilters.forEach(f => {
@@ -414,7 +336,7 @@ export function calculateNearMisses(
                 const isAttrContainedInInterval = interval.contains(desiredAttr.value);
 
                 if (isAttrContainedInInterval === false) {
-                  nearMissInfo.reasonCodes.push(CareGapReasonCode.DATEOUTOFRANGE);
+                  reasonDetail.reasonCodes.push(CareGapReasonCode.DATEOUTOFRANGE);
                 }
               });
             }
@@ -430,7 +352,7 @@ export function calculateNearMisses(
             if (clauseResult && clauseResult.final === FinalResult.FALSE) {
               const code = getGapReasonCode(f);
               if (code !== null) {
-                nearMissInfo.reasonCodes.push(code);
+                reasonDetail.reasonCodes.push(code);
               }
             }
           }
@@ -438,17 +360,17 @@ export function calculateNearMisses(
       }
 
       // If no specific near miss reasons found, default is missing
-      if (nearMissInfo.isNearMiss && nearMissInfo.reasonCodes.length === 0) {
-        nearMissInfo.reasonCodes = [CareGapReasonCode.MISSING];
+      if (reasonDetail.hasReasonDetail && reasonDetail.reasonCodes.length === 0) {
+        reasonDetail.reasonCodes = [CareGapReasonCode.MISSING];
       }
     } else {
       // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
-      nearMissInfo = {
-        isNearMiss: false,
+      reasonDetail = {
+        hasReasonDetail: false,
         reasonCodes: []
       };
     }
-    return { ...r, nearMissInfo };
+    return { ...r, reasonDetail };
   });
 }
 

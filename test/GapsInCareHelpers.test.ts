@@ -1,31 +1,26 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import * as cql from 'cql-execution';
 import {
-  findRetrieves,
+  processQueriesForGaps,
   generateDetectedIssueResources,
   generateGapsInCareBundle,
-  calculateNearMisses,
+  calculateReasonDetail,
   groupGapQueries,
   generateGuidanceResponses
 } from '../src/GapsInCareHelpers';
-import { DataTypeQuery, DetailedPopulationGroupResult, ClauseResult } from '../src/types/Calculator';
+import { DataTypeQuery, DetailedPopulationGroupResult, ClauseResult, GapsDataTypeQuery } from '../src/types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode } from '../src/types/Enums';
-import { getELMFixture, getJSONFixture } from './helpers/testHelpers';
+import { getJSONFixture } from './helpers/testHelpers';
 
 type DetailedResultWithClause = DetailedPopulationGroupResult & {
   clauseResults: ClauseResult[];
 };
 
-const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
-const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
-
-const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
+const BASE_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs',
-    retrieveHasResult: false,
     retrieveLocalId: '14',
-    parentQueryHasResult: false,
     queryLocalId: undefined,
     libraryName: 'SimpleQueries',
     expressionStack: [
@@ -38,13 +33,11 @@ const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
   }
 ];
 
-const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
+const BASE_VS_QUERY_RESULT: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs',
-    retrieveHasResult: false,
     retrieveLocalId: '18',
-    parentQueryHasResult: false,
     queryLocalId: '24',
     libraryName: 'SimpleQueries',
     expressionStack: [
@@ -62,16 +55,14 @@ const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
   }
 ];
 
-const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
+const BASE_CODE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Procedure',
     code: {
       system: 'EXAMPLE',
       code: 'test'
     },
-    retrieveHasResult: true,
     retrieveLocalId: '16',
-    parentQueryHasResult: false,
     queryLocalId: undefined,
     libraryName: 'SimpleQueries',
     expressionStack: [
@@ -84,13 +75,11 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
   }
 ];
 
-const EXPECTED_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
+const BASE_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs',
-    retrieveHasResult: false,
     retrieveLocalId: '14',
-    parentQueryHasResult: false,
     queryLocalId: undefined,
     libraryName: 'SimpleQueries',
     expressionStack: [
@@ -108,13 +97,11 @@ const EXPECTED_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
   }
 ];
 
-const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
+const BASE_DEPENDENCY_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
     valueSet: 'http://example.com/test-vs-2',
-    retrieveHasResult: false,
     retrieveLocalId: '4',
-    parentQueryHasResult: false,
     queryLocalId: undefined,
     libraryName: 'SimpleDep',
     expressionStack: [
@@ -132,7 +119,7 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
   }
 ];
 
-const OR_GROUP_QUERIES: DataTypeQuery[] = [
+const OR_GROUP_QUERIES: GapsDataTypeQuery[] = [
   {
     dataType: 'Procedure',
     valueSet: 'http://example.com/test-vs-2',
@@ -264,60 +251,60 @@ const SIMPLE_MEASURE_REPORT: R4.IMeasureReport = {
   }
 };
 
-describe('Find Numerator Queries', () => {
-  test('simple valueset lookup', () => {
-    const valueSetExpr = simpleQueryELM.library.statements.def[0]; // expression for valueset lookup
-    const results = findRetrieves(
-      simpleQueryELM,
-      [simpleQueryELMDependency],
-      valueSetExpr.expression,
-      EXAMPLE_DETAILED_RESULTS
-    );
-    expect(results).toEqual(EXPECTED_VS_RETRIEVE_RESULTS);
+describe('Process detailed queries', () => {
+  test('valueset expr should have false/false retrieve/query', () => {
+    const results = processQueriesForGaps(BASE_VS_RETRIEVE_RESULTS, EXAMPLE_DETAILED_RESULTS);
+
+    expect(results).toHaveLength(1);
+
+    const [res] = results;
+
+    expect(res.retrieveHasResult).toBe(false);
+    expect(res.parentQueryHasResult).toBe(false);
   });
 
-  test('simple code lookup', () => {
-    const codeExpr = simpleQueryELM.library.statements.def[1]; // expression for code lookup
-    const results = findRetrieves(
-      simpleQueryELM,
-      [simpleQueryELMDependency],
-      codeExpr.expression,
-      EXAMPLE_DETAILED_RESULTS
-    );
-    expect(results).toEqual(EXPECTED_CODE_RESULTS);
+  test('aliased valueset expr should have false/false retrieve/query', () => {
+    const results = processQueriesForGaps(BASE_VS_QUERY_RESULT, EXAMPLE_DETAILED_RESULTS);
+
+    expect(results).toHaveLength(1);
+
+    const [res] = results;
+
+    expect(res.retrieveHasResult).toBe(false);
+    expect(res.parentQueryHasResult).toBe(false);
   });
 
-  test('simple aliased query', () => {
-    const queryExpr = simpleQueryELM.library.statements.def[2]; // expression with aliased query
-    const results = findRetrieves(
-      simpleQueryELM,
-      [simpleQueryELMDependency],
-      queryExpr.expression,
-      EXAMPLE_DETAILED_RESULTS
-    );
-    expect(results).toEqual(EXPECTED_VS_QUERY_RESULTS);
+  test('code expr should have true/false retrieve/query', () => {
+    const results = processQueriesForGaps(BASE_CODE_RESULTS, EXAMPLE_DETAILED_RESULTS);
+
+    expect(results).toHaveLength(1);
+
+    const [res] = results;
+
+    expect(res.retrieveHasResult).toBe(true);
+    expect(res.parentQueryHasResult).toBe(false);
   });
 
-  test('simple expression ref', () => {
-    const expressionRef = simpleQueryELM.library.statements.def[3]; // expression with local expression ref
-    const results = findRetrieves(
-      simpleQueryELM,
-      [simpleQueryELMDependency],
-      expressionRef.expression,
-      EXAMPLE_DETAILED_RESULTS
-    );
-    expect(results).toEqual(EXPECTED_EXPRESSIONREF_RESULTS);
+  test('simple expr ref should have false/false retrieve/query', () => {
+    const results = processQueriesForGaps(BASE_EXPRESSIONREF_RESULTS, EXAMPLE_DETAILED_RESULTS);
+
+    expect(results).toHaveLength(1);
+
+    const [res] = results;
+
+    expect(res.retrieveHasResult).toBe(false);
+    expect(res.parentQueryHasResult).toBe(false);
   });
 
-  test('dependent library expression ref', () => {
-    const expressionRefDependency = simpleQueryELM.library.statements.def[4]; // expression with expression ref in dependent library
-    const results = findRetrieves(
-      simpleQueryELM,
-      [simpleQueryELMDependency],
-      expressionRefDependency.expression,
-      EXAMPLE_DETAILED_RESULTS
-    );
-    expect(results).toEqual(EXPECTED_DEPENDENCY_RESULTS);
+  test('dependent expr ref should have false/false retrieve/query', () => {
+    const results = processQueriesForGaps(BASE_DEPENDENCY_RESULTS, EXAMPLE_DETAILED_RESULTS);
+
+    expect(results).toHaveLength(1);
+
+    const [res] = results;
+
+    expect(res.retrieveHasResult).toBe(false);
+    expect(res.parentQueryHasResult).toBe(false);
   });
 });
 
@@ -325,10 +312,10 @@ const EXAMPLE_DETECTED_ISSUE = getJSONFixture('gaps/example-detected-issue.json'
 describe('Generate DetectedIssue Resource', () => {
   test('generates proper data requirements', () => {
     const queries: DataTypeQuery[] = [
-      ...EXPECTED_VS_RETRIEVE_RESULTS,
-      ...EXPECTED_VS_QUERY_RESULTS,
-      ...EXPECTED_CODE_RESULTS,
-      ...EXPECTED_DEPENDENCY_RESULTS
+      ...BASE_VS_RETRIEVE_RESULTS,
+      ...BASE_VS_QUERY_RESULT,
+      ...BASE_CODE_RESULTS,
+      ...BASE_DEPENDENCY_RESULTS
     ];
 
     const resources = generateDetectedIssueResources(queries, SIMPLE_MEASURE_REPORT, ImprovementNotation.POSITIVE);
@@ -352,7 +339,7 @@ describe('Generate DetectedIssue Resource', () => {
 
   test('positive improvement retrieves with truthy parent query results should be filtered out', () => {
     // Parent query is truthy, should be ignored from DetectedIssue
-    const queries: DataTypeQuery[] = [
+    const queries: GapsDataTypeQuery[] = [
       {
         dataType: 'Condition',
         valueSet: 'http://example.com/test-vs',
@@ -369,7 +356,7 @@ describe('Generate DetectedIssue Resource', () => {
   });
 
   test('negative improvement retrieves with truthy parent query results not be filtered out', () => {
-    const queries: DataTypeQuery[] = [
+    const queries: GapsDataTypeQuery[] = [
       {
         dataType: 'Condition',
         valueSet: 'http://example.com/test-vs',
@@ -399,23 +386,29 @@ describe('Find grouped queries', () => {
 
 describe('Find Near Misses', () => {
   test('simple query/retrieve discrepancy near miss', () => {
-    const retrieves = calculateNearMisses(EXPECTED_CODE_RESULTS, ImprovementNotation.POSITIVE);
+    const gapQuery: GapsDataTypeQuery[] = BASE_CODE_RESULTS.map(q => ({
+      ...q,
+      parentQueryHasResult: false,
+      retrieveHasResult: true
+    }));
+
+    const retrieves = calculateReasonDetail(gapQuery, ImprovementNotation.POSITIVE);
     retrieves.forEach(r => {
-      expect(r.nearMissInfo).toBeDefined();
-      expect(r.nearMissInfo?.isNearMiss).toBeTruthy();
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBeTruthy();
     });
   });
 
   test('retrieve false, not a near miss', () => {
-    const retrieves = calculateNearMisses(EXPECTED_VS_RETRIEVE_RESULTS, ImprovementNotation.POSITIVE);
+    const retrieves = calculateReasonDetail(BASE_VS_RETRIEVE_RESULTS, ImprovementNotation.POSITIVE);
     retrieves.forEach(r => {
-      expect(r.nearMissInfo).toBeDefined();
-      expect(r.nearMissInfo?.isNearMiss).toBeFalsy();
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBeFalsy();
     });
   });
 
   describe('Near Miss Reasons', () => {
-    const baseQuery: DataTypeQuery = {
+    const baseQuery: GapsDataTypeQuery = {
       dataType: 'Procedure',
       valueSet: 'http://example.com/test-vs',
       retrieveHasResult: true,
@@ -460,7 +453,7 @@ describe('Find Near Misses', () => {
     };
 
     test('retrieve with false attribute filter should be code INVALIDATTRIBUTE', () => {
-      const q: DataTypeQuery = {
+      const q: GapsDataTypeQuery = {
         ...baseQuery,
         queryInfo: {
           sources: [
@@ -480,18 +473,18 @@ describe('Find Near Misses', () => {
         }
       };
 
-      const [r] = calculateNearMisses([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
 
-      expect(r.nearMissInfo).toBeDefined();
-      expect(r.nearMissInfo?.isNearMiss).toBe(true);
-      expect(r.nearMissInfo?.reasonCodes).toEqual([CareGapReasonCode.INVALIDATTRIBUTE]);
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.INVALIDATTRIBUTE]);
     });
 
     test('retrieve with false date filter should be code DATEOUTOFRANGE', () => {
       const intervalStart = '2009-12-31';
       const intervalEnd = '2019-12-31';
 
-      const q: DataTypeQuery = {
+      const q: GapsDataTypeQuery = {
         ...baseQuery,
         queryInfo: {
           sources: [
@@ -514,18 +507,18 @@ describe('Find Near Misses', () => {
         }
       };
 
-      const [r] = calculateNearMisses([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
 
-      expect(r.nearMissInfo).toBeDefined();
-      expect(r.nearMissInfo?.isNearMiss).toBe(true);
-      expect(r.nearMissInfo?.reasonCodes).toEqual([CareGapReasonCode.DATEOUTOFRANGE]);
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.DATEOUTOFRANGE]);
     });
 
     test('retrieve with both false date and attribute filters should be code both INVALIDATTRIBUTE and DATEOUTOFRANGE', () => {
       const intervalStart = '2009-12-31';
       const intervalEnd = '2019-12-31';
 
-      const q: DataTypeQuery = {
+      const q: GapsDataTypeQuery = {
         ...baseQuery,
         queryInfo: {
           sources: [
@@ -560,11 +553,11 @@ describe('Find Near Misses', () => {
         }
       };
 
-      const [r] = calculateNearMisses([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
 
-      expect(r.nearMissInfo).toBeDefined();
-      expect(r.nearMissInfo?.isNearMiss).toBe(true);
-      expect(r.nearMissInfo?.reasonCodes?.sort()).toEqual(
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasonCodes?.sort()).toEqual(
         [CareGapReasonCode.INVALIDATTRIBUTE, CareGapReasonCode.DATEOUTOFRANGE].sort()
       );
     });
@@ -635,7 +628,7 @@ describe('FHIR Bundle Generation', () => {
 });
 
 describe('Guidance Response', () => {
-  const baseQuery: DataTypeQuery = {
+  const baseQuery: GapsDataTypeQuery = {
     dataType: 'Procedure',
     valueSet: 'http://example.com/test-vs',
     retrieveHasResult: true,
@@ -663,7 +656,7 @@ describe('Guidance Response', () => {
       }
     ];
 
-    const query: DataTypeQuery = {
+    const query: GapsDataTypeQuery = {
       ...baseQuery,
       queryInfo: {
         sources: [
@@ -714,7 +707,7 @@ describe('Guidance Response', () => {
       }
     ];
 
-    const query: DataTypeQuery = {
+    const query: GapsDataTypeQuery = {
       ...baseQuery,
       queryInfo: {
         sources: [
@@ -767,7 +760,7 @@ describe('Guidance Response', () => {
       }
     ];
 
-    const query: DataTypeQuery = {
+    const query: GapsDataTypeQuery = {
       ...baseQuery,
       queryInfo: {
         sources: [
@@ -825,7 +818,7 @@ describe('Guidance Response', () => {
       }
     ];
 
-    const query: DataTypeQuery = {
+    const query: GapsDataTypeQuery = {
       ...baseQuery,
       queryInfo: {
         sources: [
@@ -885,7 +878,7 @@ describe('Guidance Response', () => {
       }
     ];
 
-    const query: DataTypeQuery = {
+    const query: GapsDataTypeQuery = {
       ...baseQuery,
       queryInfo: {
         sources: [
