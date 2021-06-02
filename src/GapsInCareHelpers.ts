@@ -286,7 +286,7 @@ export function generateGapsInCareBundle(
 }
 
 /**
- * Add near miss data to each DataTypeQuery passed in
+ * Add reason detail data to each DataTypeQuery passed in
  *
  * @param retrieves numerator queries from a call to findRetrieves
  * @param improvementNotation string indicating positive or negative improvement notation for the measure being used
