@@ -11,6 +11,7 @@ import * as GapsInCareHelpers from './GapsInCareHelpers';
 import { generateHTML } from './HTMLGenerator';
 import { ELM } from './types/ELMTypes';
 import { parseQueryInfo } from './QueryFilterHelpers';
+import * as RetrievesHelper from './helpers/RetrievesHelper';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -371,14 +372,17 @@ export async function calculateGapsInCare(
           throw new Error(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
         }
 
-        let retrieves = GapsInCareHelpers.findRetrieves(
+        // Parse ELM for basic info about queries
+        const baseRetrieves = RetrievesHelper.findRetrieves(
           mainLibraryELM,
           elmLibraries,
-          numerELMExpression.expression,
-          dr
+          numerELMExpression.expression
         );
 
-        retrieves.forEach(retrieve => {
+        // Add detailed info to queries based on clause results
+        let detailedGapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
+
+        detailedGapsRetrieves.forEach(retrieve => {
           // If the retrieves have a localId for the query and a known library name, we can get more info
           // on how the query filters the sources.
           if (retrieve.queryLocalId && retrieve.libraryName) {
@@ -389,10 +393,10 @@ export async function calculateGapsInCare(
           }
         });
 
-        retrieves = GapsInCareHelpers.calculateNearMisses(retrieves, improvementNotation, dr);
+        detailedGapsRetrieves = GapsInCareHelpers.calculateReasonDetail(detailedGapsRetrieves, improvementNotation, dr);
 
         const detectedIssues = GapsInCareHelpers.generateDetectedIssueResources(
-          retrieves,
+          detailedGapsRetrieves,
           matchingMeasureReport,
           improvementNotation
         );
@@ -419,7 +423,7 @@ export async function calculateGapsInCare(
 
         if (debugOutput && options.enableDebugOutput) {
           debugOutput.gaps = {
-            retrieves,
+            retrieves: detailedGapsRetrieves,
             bundle: result
           };
         }

@@ -201,10 +201,6 @@ export interface DataTypeQuery {
     system: string;
     code: string;
   };
-  /** whether or not the retrieve was truthy */
-  retrieveHasResult?: boolean;
-  /** whether or not the entire query was truthy */
-  parentQueryHasResult?: boolean;
   /** localId in ELM for the retrieve statement */
   retrieveLocalId?: string;
   /** localId in ELM for the query statement */
@@ -213,19 +209,26 @@ export interface DataTypeQuery {
   libraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
+}
+
+export interface GapsDataTypeQuery extends DataTypeQuery {
+  /** whether or not the retrieve was truthy */
+  retrieveHasResult?: boolean;
+  /** whether or not the entire query was truthy */
+  parentQueryHasResult?: boolean;
   /** Info about query and how it is filtered. */
   queryInfo?: QueryInfo;
-  /** Info about the near miss query */
-  nearMissInfo?: NearMissInfo;
+  /** Info about the reason detail query */
+  reasonDetail?: ReasonDetail;
 }
 
 /**
- * Detailed information about a near-miss query
+ * Detailed information about a reason detail query
  */
-export interface NearMissInfo {
-  /** whether or not the query is a near miss */
-  isNearMiss: boolean;
-  /** codes that represent the causes of the near miss */
+export interface ReasonDetail {
+  /** whether or not the query has a reason detail */
+  hasReasonDetail: boolean;
+  /** codes that represent the causes of the reason detail */
   reasonCodes: CareGapReasonCode[];
 }
 
