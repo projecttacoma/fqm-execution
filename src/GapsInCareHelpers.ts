@@ -291,7 +291,7 @@ export function generateGapsInCareBundle(
  * @param retrieves numerator queries from a call to findRetrieves
  * @param improvementNotation string indicating positive or negative improvement notation for the measure being used
  * @param detailedResult result from calculation to look up clause values
- * @return mapped list of queries with near miss info if relevant
+ * @return mapped list of queries with reason detail info if relevant
  */
 export function calculateReasonDetail(
   retrieves: GapsDataTypeQuery[],
@@ -359,7 +359,7 @@ export function calculateReasonDetail(
         });
       }
 
-      // If no specific near miss reasons found, default is missing
+      // If no specific reason details found, default is missing
       if (reasonDetail.hasReasonDetail && reasonDetail.reasonCodes.length === 0) {
         reasonDetail.reasonCodes = [CareGapReasonCode.MISSING];
       }

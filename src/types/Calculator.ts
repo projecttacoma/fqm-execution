@@ -218,17 +218,17 @@ export interface GapsDataTypeQuery extends DataTypeQuery {
   parentQueryHasResult?: boolean;
   /** Info about query and how it is filtered. */
   queryInfo?: QueryInfo;
-  /** Info about the near miss query */
+  /** Info about the reason detail query */
   reasonDetail?: ReasonDetail;
 }
 
 /**
- * Detailed information about a near-miss query
+ * Detailed information about a reason detail query
  */
 export interface ReasonDetail {
-  /** whether or not the query is a near miss */
+  /** whether or not the query has a reason detail */
   hasReasonDetail: boolean;
-  /** codes that represent the causes of the near miss */
+  /** codes that represent the causes of the reason detail */
   reasonCodes: CareGapReasonCode[];
 }
 
