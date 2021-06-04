@@ -3,6 +3,7 @@ import { parseQueryInfo } from '../../src/QueryFilterHelpers';
 import * as cql from 'cql-execution';
 import { QueryInfo, DuringFilter, AndFilter } from '../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
+import { R4 } from '@ahryman40k/ts-fhir-types';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
@@ -178,16 +179,21 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
   }
 };
 
+const PATIENT: R4.IPatient = {
+  resourceType: 'Patient',
+  birthDate: '1988-09-08'
+};
+
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, PARAMETERS);
+    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
   test('simple valueset with id check with no parameters passed in', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId);
+    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -197,7 +203,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_AND_STARTS_DURING_MP);
   });
 
@@ -209,7 +215,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
   });
 
@@ -221,7 +227,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
 
     const filter = queryInfo.filter as AndFilter;
 
@@ -243,13 +249,13 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS);
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL);
   });
 
   test('incorrect localid should throw error', () => {
     expect(() => {
-      parseQueryInfo(simpleQueryELM, '360', PARAMETERS);
+      parseQueryInfo(simpleQueryELM, '360', PARAMETERS, PATIENT);
     }).toThrow('Clause 360 in SimpleQueries was not a Query or not found.');
   });
 });

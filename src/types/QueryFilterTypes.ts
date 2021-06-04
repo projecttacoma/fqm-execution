@@ -39,6 +39,7 @@ export interface SourceInfo {
 export interface Filter {
   type: string;
   localId?: string;
+  notes?: string;
 }
 
 /**

@@ -23,7 +23,10 @@ import {
   ELMUnaryExpression,
   ELMInterval,
   ELMCodeSystem,
-  ELMGreaterOrEqual
+  ELMGreaterOrEqual,
+  ELMToDateTime,
+  ELMStart,
+  ELMEnd
 } from './types/ELMTypes';
 import {
   AndFilter,
@@ -48,17 +51,18 @@ import {
  * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
  *                    "Measurement Period" is the only supported parameter at the moment as it is the only parameter
  *                    seen in eCQMs.
+ * @param patient The patient resource.
  * @returns Information about the query and how it is filtered.
  */
 export function parseQueryInfo(
   library: ELM,
-  queryLocalId?: string,
-  parameters: { [key: string]: any } = {}
+  queryLocalId: string | undefined,
+  parameters: { [key: string]: any } = {},
+  patient: R4.IPatient
 ): QueryInfo {
   if (!queryLocalId) {
     throw new Error('QueryLocalId was not provided');
   }
-
   const expression = findClauseInLibrary(library, queryLocalId);
   if (expression?.type == 'Query') {
     const query = expression as ELMQuery;
@@ -68,7 +72,7 @@ export function parseQueryInfo(
       filter: { type: 'truth' }
     };
     if (query.where) {
-      const whereInfo = interpretExpression(query.where, library, parameters);
+      const whereInfo = interpretExpression(query.where, library, parameters, patient);
       queryInfo.filter = whereInfo;
     }
     return queryInfo;
@@ -159,18 +163,24 @@ function parseDataType(retrieve: ELMRetrieve): string {
  * @param expression The ELM expression/clause to attempt to interpret into a filter.
  * @param library The ELM library, in case it is needed for calculating intervals.
  * @param parameters The parameters used for calculation.
+ * @param patient The patient resource.
  * @returns The simpler Filter representation of this clause.
  */
-export function interpretExpression(expression: ELMExpression, library: ELM, parameters: any): AnyFilter {
+export function interpretExpression(
+  expression: ELMExpression,
+  library: ELM,
+  parameters: any,
+  patient: R4.IPatient
+): AnyFilter {
   switch (expression.type) {
     case 'Equal':
       return interpretEqual(expression as ELMEqual);
     case 'Equivalent':
       return interpretEquivalent(expression as ELMEquivalent, library);
     case 'And':
-      return interpretAnd(expression as ELMAnd, library, parameters);
+      return interpretAnd(expression as ELMAnd, library, parameters, patient);
     case 'Or':
-      return interpretOr(expression as ELMOr, library, parameters);
+      return interpretOr(expression as ELMOr, library, parameters, patient);
     case 'IncludedIn':
       return interpretIncludedIn(expression as ELMIncludedIn, library, parameters);
     case 'In':
@@ -178,7 +188,7 @@ export function interpretExpression(expression: ELMExpression, library: ELM, par
     case 'Not':
       return interpretNot(expression as ELMNot);
     case 'GreaterOrEqual':
-      return interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters);
+      return interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
       // Look for a property (source attribute) usage in the expression tree. This can denote an
@@ -233,19 +243,20 @@ export function findPropertyUsage(expression: any, unknownLocalId?: string): Unk
  * @param andExpression The and expression to interpret.
  * @param library The library the elm is in.
  * @param parameters The original calculation parameters.
+ * @param patient The patient resource.
  * @returns The filter tree for this and expression.
  */
-export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any): AndFilter {
+export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient: R4.IPatient): AndFilter {
   const andInfo: AndFilter = { type: 'and', children: [] };
   if (andExpression.operand[0].type == 'And') {
-    andInfo.children.push(...interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters).children);
+    andInfo.children.push(...interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters, patient).children);
   } else {
-    andInfo.children.push(interpretExpression(andExpression.operand[0], library, parameters));
+    andInfo.children.push(interpretExpression(andExpression.operand[0], library, parameters, patient));
   }
   if (andExpression.operand[1].type == 'And') {
-    andInfo.children.push(...interpretAnd(andExpression.operand[1] as ELMAnd, library, parameters).children);
+    andInfo.children.push(...interpretAnd(andExpression.operand[1] as ELMAnd, library, parameters, patient).children);
   } else {
-    andInfo.children.push(interpretExpression(andExpression.operand[1], library, parameters));
+    andInfo.children.push(interpretExpression(andExpression.operand[1], library, parameters, patient));
   }
   andInfo.children = andInfo.children.filter(filter => filter?.type !== 'truth');
   return andInfo;
@@ -257,19 +268,20 @@ export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: an
  * @param orExpression The or expression to interpret.
  * @param library The library the elm is in.
  * @param parameters The original calculation parameters.
+ * @param patient The patient resource.
  * @returns The filter tree for this or expression.
  */
-export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any): OrFilter {
+export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient: R4.IPatient): OrFilter {
   const orInfo: OrFilter = { type: 'or', children: [] };
   if (orExpression.operand[0].type == 'Or') {
-    orInfo.children.push(...interpretOr(orExpression.operand[0] as ELMOr, library, parameters).children);
+    orInfo.children.push(...interpretOr(orExpression.operand[0] as ELMOr, library, parameters, patient).children);
   } else {
-    orInfo.children.push(interpretExpression(orExpression.operand[0], library, parameters));
+    orInfo.children.push(interpretExpression(orExpression.operand[0], library, parameters, patient));
   }
   if (orExpression.operand[1].type == 'Or') {
-    orInfo.children.push(...interpretOr(orExpression.operand[1] as ELMOr, library, parameters).children);
+    orInfo.children.push(...interpretOr(orExpression.operand[1] as ELMOr, library, parameters, patient).children);
   } else {
-    orInfo.children.push(interpretExpression(orExpression.operand[1], library, parameters));
+    orInfo.children.push(interpretExpression(orExpression.operand[1], library, parameters, patient));
   }
   orInfo.children = orInfo.children.filter(filter => filter?.type !== 'truth');
   return orInfo;
@@ -649,15 +661,104 @@ export function executeIntervalELM(
   }
 }
 
+interface CalendarAgeInYearsAtRef extends ELMFunctionRef {
+  name: 'CalendarAgeInYearsAt';
+  libraryName: 'Global';
+  operand: [CalendarAgeInYearsDateTime, ELMFunctionRef | ELMProperty | ELMStart | ELMEnd];
+}
+
+interface CalendarAgeInYearsDateTime extends ELMToDateTime {
+  operand: ELMFunctionRef;
+}
+
 export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
   library: ELM,
-  parameters: any
+  parameters: any,
+  patient: R4.IPatient
 ): AnyFilter {
   // look at first param if it is function ref to calendar age in years at.
   if (greaterOrEqualExpr.operand[0].type === 'FunctionRef') {
     const functionRef = greaterOrEqualExpr.operand[0] as ELMFunctionRef;
     if (functionRef.name === 'CalendarAgeInYearsAt' && functionRef.libraryName === 'Global') {
+      const calAgeRef = functionRef as CalendarAgeInYearsAtRef;
+      // ensure the first operand is the patient birthdate.
+      if (
+        calAgeRef.operand[0].type === 'ToDateTime' &&
+        calAgeRef.operand[0].operand.type === 'FunctionRef' &&
+        calAgeRef.operand[0].operand.name === 'ToDate' &&
+        calAgeRef.operand[0].operand.operand[0].type === 'Property' &&
+        (calAgeRef.operand[0].operand.operand[0] as ELMProperty).path === 'birthDate'
+      ) {
+        // figure out what the attribute on the property is
+        const attrExpr = calAgeRef.operand[1];
+        let propRef: ELMProperty | null = null;
+        if (attrExpr.type === 'FunctionRef') {
+          propRef = interpretFunctionRef(attrExpr as ELMFunctionRef);
+        } else if (attrExpr.type === 'Property') {
+          propRef = attrExpr;
+        } else if (attrExpr.type === 'Start' || attrExpr.type === 'End') {
+          const suffix = attrExpr.type === 'End' ? '.end' : '.start';
+          if (attrExpr.operand.type == 'FunctionRef') {
+            propRef = interpretFunctionRef(attrExpr.operand as ELMFunctionRef);
+          } else if (attrExpr.operand.type == 'Property') {
+            propRef = attrExpr.operand as ELMProperty;
+          }
+          if (propRef) {
+            propRef = {
+              type: 'Property',
+              path: propRef?.path + suffix,
+              scope: propRef?.scope,
+              localId: propRef?.localId,
+              locator: propRef?.locator,
+              source: propRef?.source
+            };
+          }
+        }
+
+        // if propRef is defined that means we found the attribute on the source resource
+        if (propRef == null) {
+          console.warn('Could not resolve the property referenced in CalendarAgeInYearsAt');
+          return { type: 'unknown' };
+        }
+
+        if (greaterOrEqualExpr.operand[1].type === 'Literal') {
+          const years = (greaterOrEqualExpr.operand[1] as ELMLiteral).value as number;
+          if (patient.birthDate) {
+            // parse birthdate and wipe out hours, minutes, seconds, and miliseconds and add
+            // the number of years.
+            const birthDate = cql.DateTime.parse(patient.birthDate);
+            birthDate.hour = 0;
+            birthDate.minute = 0;
+            birthDate.second = 0;
+            birthDate.millisecond = 0;
+            birthDate.timezoneOffset = 0;
+            const birthDateOffset = birthDate.add(years, cql.DateTime.Unit.YEAR);
+            const period = {
+              start: birthDateOffset.toString().replace('+00:00', 'Z'),
+              interval: new cql.Interval(birthDateOffset, null, true, false)
+            };
+            return {
+              type: 'during',
+              alias: propRef.scope as string,
+              attribute: propRef.path,
+              valuePeriod: period,
+              localId: greaterOrEqualExpr.localId,
+              notes: `Compares against the patient's birthDate (${years} years)`
+            };
+          } else {
+            console.warn('Patient data had no birthDate');
+            return {
+              type: 'unknown',
+              alias: propRef.scope,
+              attribute: propRef.path,
+              localId: greaterOrEqualExpr.localId
+            };
+          }
+        }
+      }
+    } else {
+      return interpretFunctionRef(functionRef);
     }
   }
   //    check if the parameters are sensical and determine the resource attribute. handle start/end of

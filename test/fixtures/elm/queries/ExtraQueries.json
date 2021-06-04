@@ -20,7 +20,7 @@
       {
         "type": "Annotation",
         "s": {
-          "r": "135",
+          "r": "152",
           "s": [
             {
               "value": [
@@ -1347,7 +1347,7 @@
         },
         {
           "localId": "63",
-          "locator": "69:1-70:17",
+          "locator": "72:1-73:17",
           "name": "A Function",
           "context": "Patient",
           "accessLevel": "Public",
@@ -1429,11 +1429,11 @@
           ],
           "expression": {
             "localId": "62",
-            "locator": "70:3-70:17",
+            "locator": "73:3-73:17",
             "type": "Start",
             "operand": {
               "localId": "61",
-              "locator": "70:12-70:17",
+              "locator": "73:12-73:17",
               "name": "period",
               "type": "OperandRef"
             }
@@ -1443,11 +1443,11 @@
               "name": "period",
               "operandTypeSpecifier": {
                 "localId": "60",
-                "locator": "69:37-69:54",
+                "locator": "72:37-72:54",
                 "type": "IntervalTypeSpecifier",
                 "pointType": {
                   "localId": "59",
-                  "locator": "69:46-69:53",
+                  "locator": "72:46-72:53",
                   "name": "{urn:hl7-org:elm-types:r1}DateTime",
                   "type": "NamedTypeSpecifier"
                 }
@@ -1717,7 +1717,7 @@
         },
         {
           "localId": "75",
-          "locator": "72:1-73:6",
+          "locator": "75:1-76:6",
           "name": "Passthrough",
           "context": "Patient",
           "accessLevel": "Public",
@@ -1774,7 +1774,7 @@
           ],
           "expression": {
             "localId": "74",
-            "locator": "73:3-73:6",
+            "locator": "76:3-76:6",
             "name": "cond",
             "type": "OperandRef"
           },
@@ -1783,7 +1783,7 @@
               "name": "cond",
               "operandTypeSpecifier": {
                 "localId": "73",
-                "locator": "72:36-72:44",
+                "locator": "75:36-75:44",
                 "name": "{http://hl7.org/fhir}Condition",
                 "type": "NamedTypeSpecifier"
               }
@@ -2904,7 +2904,7 @@
         },
         {
           "localId": "121",
-          "locator": "75:1-76:37",
+          "locator": "78:1-79:37",
           "name": "Interval From Period",
           "context": "Patient",
           "accessLevel": "Public",
@@ -2999,7 +2999,7 @@
           ],
           "expression": {
             "localId": "120",
-            "locator": "76:3-76:37",
+            "locator": "79:3-79:37",
             "name": "Normalize Interval",
             "libraryName": "Global",
             "type": "FunctionRef",
@@ -3008,7 +3008,7 @@
                 "type": "As",
                 "operand": {
                   "localId": "119",
-                  "locator": "76:31-76:36",
+                  "locator": "79:31-79:36",
                   "name": "period",
                   "type": "OperandRef"
                 },
@@ -3053,7 +3053,7 @@
               "name": "period",
               "operandTypeSpecifier": {
                 "localId": "117",
-                "locator": "75:47-75:57",
+                "locator": "78:47-78:57",
                 "name": "{http://hl7.org/fhir}Period",
                 "type": "NamedTypeSpecifier"
               }
@@ -3356,6 +3356,388 @@
                       }
                     }
                   }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "145",
+          "locator": "68:1-70:140",
+          "name": "GreaterThanOrEqual Birthdate at start of Observation",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "145",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"GreaterThanOrEqual Birthdate at start of Observation\"",
+                      ":\n\t"
+                    ]
+                  },
+                  {
+                    "r": "144",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "130",
+                            "s": [
+                              {
+                                "r": "129",
+                                "s": [
+                                  {
+                                    "r": "129",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Observation",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "HPVTest"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "143",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "143",
+                            "s": [
+                              {
+                                "r": "141",
+                                "s": [
+                                  {
+                                    "r": "131",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "141",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"CalendarAgeInYearsAt\"",
+                                          "("
+                                        ]
+                                      },
+                                      {
+                                        "r": "135",
+                                        "s": [
+                                          {
+                                            "r": "132",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "FHIRHelpers"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "135",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "ToDate",
+                                                  "("
+                                                ]
+                                              },
+                                              {
+                                                "r": "134",
+                                                "s": [
+                                                  {
+                                                    "r": "133",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "Patient"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "."
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "134",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "birthDate"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  ")"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ", "
+                                        ]
+                                      },
+                                      {
+                                        "r": "140",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "start of "
+                                            ]
+                                          },
+                                          {
+                                            "r": "139",
+                                            "s": [
+                                              {
+                                                "r": "136",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "Global"
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "."
+                                                ]
+                                              },
+                                              {
+                                                "r": "139",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "\"Normalize Interval\"",
+                                                      "("
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "138",
+                                                    "s": [
+                                                      {
+                                                        "r": "137",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "HPVTest"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          "."
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "138",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "effective"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      ")"
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ")"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "142",
+                                "value": [
+                                  ">=",
+                                  " ",
+                                  "30"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "144",
+            "locator": "69:2-70:140",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "130",
+                "locator": "69:2-69:33",
+                "alias": "HPVTest",
+                "expression": {
+                  "localId": "129",
+                  "locator": "69:2-69:25",
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "69:16-69:24",
+                    "name": "test-vs",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "localId": "143",
+              "locator": "70:5-70:140",
+              "type": "GreaterOrEqual",
+              "operand": [
+                {
+                  "localId": "141",
+                  "locator": "70:11-70:135",
+                  "name": "CalendarAgeInYearsAt",
+                  "libraryName": "Global",
+                  "type": "FunctionRef",
+                  "operand": [
+                    {
+                      "type": "ToDateTime",
+                      "operand": {
+                        "localId": "135",
+                        "locator": "70:41-70:77",
+                        "name": "ToDate",
+                        "libraryName": "FHIRHelpers",
+                        "type": "FunctionRef",
+                        "operand": [
+                          {
+                            "localId": "134",
+                            "locator": "70:60-70:76",
+                            "path": "birthDate",
+                            "type": "Property",
+                            "source": {
+                              "localId": "133",
+                              "locator": "70:60-70:66",
+                              "name": "Patient",
+                              "type": "ExpressionRef"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "localId": "140",
+                      "locator": "70:80-70:134",
+                      "type": "Start",
+                      "operand": {
+                        "localId": "139",
+                        "locator": "70:89-70:134",
+                        "name": "Normalize Interval",
+                        "libraryName": "Global",
+                        "type": "FunctionRef",
+                        "operand": [
+                          {
+                            "localId": "138",
+                            "locator": "70:117-70:133",
+                            "path": "effective",
+                            "scope": "HPVTest",
+                            "type": "Property"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "142",
+                  "locator": "70:139-70:140",
+                  "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                  "value": "30",
+                  "type": "Literal"
                 }
               ]
             }

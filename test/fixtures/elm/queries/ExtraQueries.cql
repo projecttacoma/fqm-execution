@@ -65,6 +65,9 @@ define "Function call in Interval":
   [Encounter: "test-vs"] Enc
     where "Interval From Period"(Enc.period) in Interval[@2019-01-01T00:00:00.0, @2020-01-01T00:00:00.0)
 
+define "GreaterThanOrEqual Birthdate at start of Observation":
+	[Observation: "test-vs"] HPVTest
+    where Global."CalendarAgeInYearsAt"(FHIRHelpers.ToDate(Patient.birthDate), start of Global."Normalize Interval"(HPVTest.effective))>= 30
 
 define function "A Function"(period Interval<DateTime>):
   start of period
