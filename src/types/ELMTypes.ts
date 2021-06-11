@@ -194,6 +194,7 @@ export type AnyELMExpression =
   | ELMAliasRef
   | ELMConceptRef
   | ELMLiteral
+  | ELMQuantity
   | ELMInterval
   | ELMList
   | ELMTuple;
@@ -364,6 +365,12 @@ export interface ELMLiteral extends ELMExpression {
   type: 'Literal';
   valueType: string;
   value?: string | number;
+}
+
+export interface ELMQuantity extends ELMExpression {
+  type: 'Quantity';
+  unit?: string;
+  value?: number;
 }
 
 export interface ELMInterval extends ELMExpression {

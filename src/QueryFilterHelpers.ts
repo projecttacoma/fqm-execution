@@ -752,18 +752,16 @@ export function interpretGreaterOrEqual(
               type: 'unknown',
               alias: propRef.scope,
               attribute: propRef.path,
-              localId: greaterOrEqualExpr.localId
+              localId: greaterOrEqualExpr.localId,
+              notes: "Compares against the patient's birthDate. But patient did not have birthDate."
             };
           }
         }
       }
     } else {
-      return interpretFunctionRef(functionRef);
+      return { type: 'unknown' };
     }
   }
-  //    check if the parameters are sensical and determine the resource attribute. handle start/end of
-  //    look at patient data and second param to determine date that would satisfy the inequality.
-  //    return DuringInterval with one side open
 
   return { type: 'unknown' };
 }

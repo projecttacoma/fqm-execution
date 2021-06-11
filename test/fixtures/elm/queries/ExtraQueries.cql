@@ -69,6 +69,10 @@ define "GreaterThanOrEqual Birthdate at start of Observation":
 	[Observation: "test-vs"] HPVTest
     where Global."CalendarAgeInYearsAt"(FHIRHelpers.ToDate(Patient.birthDate), start of Global."Normalize Interval"(HPVTest.effective))>= 30
 
+define "GreaterThanOrEqual Observation Value":
+  [Observation: "test-vs"] Test
+    where Test.value >= 2 'mg'
+
 define function "A Function"(period Interval<DateTime>):
   start of period
 

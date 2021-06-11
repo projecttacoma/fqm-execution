@@ -20,7 +20,7 @@
       {
         "type": "Annotation",
         "s": {
-          "r": "152",
+          "r": "160",
           "s": [
             {
               "value": [
@@ -1347,7 +1347,7 @@
         },
         {
           "localId": "63",
-          "locator": "72:1-73:17",
+          "locator": "76:1-77:17",
           "name": "A Function",
           "context": "Patient",
           "accessLevel": "Public",
@@ -1429,11 +1429,11 @@
           ],
           "expression": {
             "localId": "62",
-            "locator": "73:3-73:17",
+            "locator": "77:3-77:17",
             "type": "Start",
             "operand": {
               "localId": "61",
-              "locator": "73:12-73:17",
+              "locator": "77:12-77:17",
               "name": "period",
               "type": "OperandRef"
             }
@@ -1443,11 +1443,11 @@
               "name": "period",
               "operandTypeSpecifier": {
                 "localId": "60",
-                "locator": "72:37-72:54",
+                "locator": "76:37-76:54",
                 "type": "IntervalTypeSpecifier",
                 "pointType": {
                   "localId": "59",
-                  "locator": "72:46-72:53",
+                  "locator": "76:46-76:53",
                   "name": "{urn:hl7-org:elm-types:r1}DateTime",
                   "type": "NamedTypeSpecifier"
                 }
@@ -1717,7 +1717,7 @@
         },
         {
           "localId": "75",
-          "locator": "75:1-76:6",
+          "locator": "79:1-80:6",
           "name": "Passthrough",
           "context": "Patient",
           "accessLevel": "Public",
@@ -1774,7 +1774,7 @@
           ],
           "expression": {
             "localId": "74",
-            "locator": "76:3-76:6",
+            "locator": "80:3-80:6",
             "name": "cond",
             "type": "OperandRef"
           },
@@ -1783,7 +1783,7 @@
               "name": "cond",
               "operandTypeSpecifier": {
                 "localId": "73",
-                "locator": "75:36-75:44",
+                "locator": "79:36-79:44",
                 "name": "{http://hl7.org/fhir}Condition",
                 "type": "NamedTypeSpecifier"
               }
@@ -2904,7 +2904,7 @@
         },
         {
           "localId": "121",
-          "locator": "78:1-79:37",
+          "locator": "82:1-83:37",
           "name": "Interval From Period",
           "context": "Patient",
           "accessLevel": "Public",
@@ -2999,7 +2999,7 @@
           ],
           "expression": {
             "localId": "120",
-            "locator": "79:3-79:37",
+            "locator": "83:3-83:37",
             "name": "Normalize Interval",
             "libraryName": "Global",
             "type": "FunctionRef",
@@ -3008,7 +3008,7 @@
                 "type": "As",
                 "operand": {
                   "localId": "119",
-                  "locator": "79:31-79:36",
+                  "locator": "83:31-83:36",
                   "name": "period",
                   "type": "OperandRef"
                 },
@@ -3053,7 +3053,7 @@
               "name": "period",
               "operandTypeSpecifier": {
                 "localId": "117",
-                "locator": "78:47-78:57",
+                "locator": "82:47-82:57",
                 "name": "{http://hl7.org/fhir}Period",
                 "type": "NamedTypeSpecifier"
               }
@@ -3738,6 +3738,209 @@
                   "valueType": "{urn:hl7-org:elm-types:r1}Integer",
                   "value": "30",
                   "type": "Literal"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "153",
+          "locator": "72:1-74:30",
+          "name": "GreaterThanOrEqual Observation Value",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "153",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"GreaterThanOrEqual Observation Value\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "152",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "147",
+                            "s": [
+                              {
+                                "r": "146",
+                                "s": [
+                                  {
+                                    "r": "146",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Observation",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Test"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "151",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "151",
+                            "s": [
+                              {
+                                "r": "149",
+                                "s": [
+                                  {
+                                    "r": "148",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Test"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "149",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "value"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  ">=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "150",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "2 ",
+                                      "'mg'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "152",
+            "locator": "73:3-74:30",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "147",
+                "locator": "73:3-73:31",
+                "alias": "Test",
+                "expression": {
+                  "localId": "146",
+                  "locator": "73:3-73:26",
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "73:17-73:25",
+                    "name": "test-vs",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "localId": "151",
+              "locator": "74:5-74:30",
+              "type": "GreaterOrEqual",
+              "operand": [
+                {
+                  "name": "ToQuantity",
+                  "libraryName": "FHIRHelpers",
+                  "type": "FunctionRef",
+                  "operand": [
+                    {
+                      "asType": "{http://hl7.org/fhir}Quantity",
+                      "type": "As",
+                      "operand": {
+                        "localId": "149",
+                        "locator": "74:11-74:20",
+                        "path": "value",
+                        "scope": "Test",
+                        "type": "Property"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "150",
+                  "locator": "74:25-74:30",
+                  "value": 2,
+                  "unit": "mg",
+                  "type": "Quantity"
                 }
               ]
             }
