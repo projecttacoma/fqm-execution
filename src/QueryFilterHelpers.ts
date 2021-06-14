@@ -51,7 +51,7 @@ import {
  * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
  *                    "Measurement Period" is the only supported parameter at the moment as it is the only parameter
  *                    seen in eCQMs.
- * @param patient The patient resource.
+ * @param patient The patient resource being calculated for.
  * @returns Information about the query and how it is filtered.
  */
 export function parseQueryInfo(
@@ -661,16 +661,29 @@ export function executeIntervalELM(
   }
 }
 
+/* Interface to aid in parsing when we know "CalendarAgeInYearsAt" is the referenced function */
 interface CalendarAgeInYearsAtRef extends ELMFunctionRef {
   name: 'CalendarAgeInYearsAt';
   libraryName: 'Global';
   operand: [CalendarAgeInYearsDateTime, ELMFunctionRef | ELMProperty | ELMStart | ELMEnd];
 }
 
+/* Interface to aid in parsing when we know "CalendarAgeInYearsAt" is the referenced function. This is for the first operand. */
 interface CalendarAgeInYearsDateTime extends ELMToDateTime {
   operand: ELMFunctionRef;
 }
 
+/**
+ * Parses a `GreaterOrEqual` expression. This can handle one situation at the moment.
+ *  - A time on a source attribute is expected to happen after the patient's Nth birthDate.
+ *     ex: Global."CalendarAgeInYearsAt"(FHIRHelpers.ToDate(Patient.birthDate), start of Global."Normalize Interval"(HPVTest.effective)) >= 30
+ *
+ * @param greaterOrEqualExpr The GreaterOrEqual expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @param parameters The execution parameters.
+ * @param patient The patient we are executing for. This is where the birthDate is fetched if referenced.
+ * @returns Filter representation of the GreaterOrEqual clause. This will be Unknown or During depending on if it can be parsed or not.
+ */
 export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
   library: ELM,
@@ -680,6 +693,7 @@ export function interpretGreaterOrEqual(
   // look at first param if it is function ref to calendar age in years at.
   if (greaterOrEqualExpr.operand[0].type === 'FunctionRef') {
     const functionRef = greaterOrEqualExpr.operand[0] as ELMFunctionRef;
+    // Check if it is "Global.CalendarAgeInYearsAt"
     if (functionRef.name === 'CalendarAgeInYearsAt' && functionRef.libraryName === 'Global') {
       const calAgeRef = functionRef as CalendarAgeInYearsAtRef;
       // ensure the first operand is the patient birthdate.
@@ -722,10 +736,12 @@ export function interpretGreaterOrEqual(
           return { type: 'unknown' };
         }
 
+        // If the second operand in the GreaterOrEqual expression is a literal then we can move forward using the literal
+        // as the number of years to add to the birthDate.
         if (greaterOrEqualExpr.operand[1].type === 'Literal') {
           const years = (greaterOrEqualExpr.operand[1] as ELMLiteral).value as number;
           if (patient.birthDate) {
-            // parse birthdate and wipe out hours, minutes, seconds, and miliseconds and add
+            // parse birthDate into cql-execution DateTime. and wipe out hours, minutes, seconds, and miliseconds. Then add
             // the number of years.
             const birthDate = cql.DateTime.parse(patient.birthDate);
             birthDate.hour = 0;
@@ -734,10 +750,12 @@ export function interpretGreaterOrEqual(
             birthDate.millisecond = 0;
             birthDate.timezoneOffset = 0;
             const birthDateOffset = birthDate.add(years, cql.DateTime.Unit.YEAR);
+            // create an interval with this offset as the start and no end date.
             const period = {
               start: birthDateOffset.toString().replace('+00:00', 'Z'),
               interval: new cql.Interval(birthDateOffset, null, true, false)
             };
+            // build the DuringFilter to return.
             return {
               type: 'during',
               alias: propRef.scope as string,
@@ -759,9 +777,11 @@ export function interpretGreaterOrEqual(
         }
       }
     } else {
+      // If the function referenced is not "CalendarAgeInYearsAt".
       return { type: 'unknown' };
     }
   }
 
+  // Fallback if the first operand cannot be parsed or parsing falls through.
   return { type: 'unknown' };
 }
