@@ -256,7 +256,7 @@ export interface DebugOutput {
   detailedResults?: ExecutionResult[];
   measureReports?: R4.IMeasureReport[];
   gaps?: {
-    retrieves: DataTypeQuery[];
-    bundle: R4.IBundle;
+    retrieves?: DataTypeQuery[];
+    bundle?: R4.IBundle;
   };
 }

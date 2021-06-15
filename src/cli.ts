@@ -4,16 +4,26 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
-import { calculate, calculateMeasureReports, calculateGapsInCare, calculateRaw } from './Calculator';
+import {
+  calculate,
+  calculateMeasureReports,
+  calculateGapsInCare,
+  calculateRaw,
+  calculateDataRequirements
+} from './Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
 import { CalculationOptions } from './types/Calculator';
 
 program
   .option('-d, --debug', 'enable debug output', false)
-  .option('-o, --output-type <type>', 'type of output, "raw", "detailed", "reports", "gaps"', 'detailed')
+  .option(
+    '-o, --output-type <type>',
+    'type of output, "raw", "detailed", "reports", "gaps", "dataRequirements"',
+    'detailed'
+  )
   .option('-r, --report-type <report-type>', 'type of report, "individual", "summary", "subject-list"')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
-  .requiredOption('-p, --patient-bundles <patient-bundles...>', 'paths to patient bundle')
+  .option('-p, --patient-bundles <patient-bundles...>', 'paths to patient bundles. Required unless output type is dataRequirements')
   .option(
     '-s, --measurement-period-start <date>',
     'start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)',
@@ -51,13 +61,27 @@ async function calc(
     result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions);
   } else if (program.outputType === 'gaps') {
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions);
+  } else if (program.outputType === 'dataRequirements') {
+    // CalculateDataRequirements doesn't make use of the calcOptions object at this point
+    result = calculateDataRequirements(measureBundle);
   }
   return result;
 }
 
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
-const patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+let patientBundles: R4.IBundle[];
+if (program.outputType !== 'dataRequirements') {
+  // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before 
+  if (!program.patientBundles) {
+    console.error(`Patient bundle is a required option when output type is "${program.outputType}"`);
+    program.help();
+  }
+  patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+} else {
+  // data requirements doesn't care about patient bundles, so just pass an empty array if we're using that report type
+  patientBundles = [];
+}
 
 const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,

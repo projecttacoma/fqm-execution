@@ -1,4 +1,4 @@
-import * as MeasureHelpers from './MeasureHelpers';
+import * as MeasureHelpers from './helpers/MeasureHelpers';
 import * as ELMDependencyHelper from './ELMDependencyHelper';
 import { ELM, LibraryDependencyInfo } from './types/ELMTypes';
 import * as cql from './types/CQLTypes';

@@ -1,4 +1,4 @@
-import * as MeasureHelpers from '../src/MeasureHelpers';
+import * as MeasureHelpers from '../src/helpers/MeasureHelpers';
 import { ELM } from '../src/types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType } from '../src/types/Enums';
@@ -294,6 +294,100 @@ describe('MeasureHelpers', () => {
     test('returns false if it is not  a valid url ', () => {
       const ret = MeasureHelpers.isValidLibraryURL('Library/example');
       expect(ret).toBeFalsy();
+    });
+  });
+
+  describe('extractMeasureFromBundle', () => {
+    test('returns measure object if one exists', () => {
+      const measureBundleFixture: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Measure',
+              library: []
+            }
+          },
+          {
+            resource: {
+              resourceType: 'Library',
+              type: { coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
+            }
+          }
+        ]
+      };
+
+      const ret = MeasureHelpers.extractMeasureFromBundle(measureBundleFixture);
+      expect(ret.resourceType).toBe('Measure');
+    });
+
+    test('throws an error if the Library is not present', () => {
+      const measureBundleFixture: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Measure'
+            }
+          }
+        ]
+      };
+
+      expect(() => MeasureHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
+    });
+
+    test('throws an error if the Measure is not present', () => {
+      const measureBundleFixture: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Patient'
+            }
+          }
+        ]
+      };
+
+      expect(() => MeasureHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
+    });
+  });
+
+  describe('extractLibrariesFromBundle', () => {
+    test('properly gets library from EXM130, and identifies the root library', () => {
+      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as R4.IBundle;
+      const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
+
+      expect(rootLibIdentifier).toStrictEqual({ id: 'EXM130', system: 'http://fhir.org/guides/dbcg/connectathon', version: '7.3.000'});
+      // The EXM130 test bundle has 7 libraries, including the root one
+      // BUT one of them is the FHIR model info file, which we ignore
+      expect(cqls).toHaveLength(6);
+      expect(elmJSONs).toHaveLength(6);
+    });
+
+    test('throws an error if there is no root Library resource on Measure', () => {
+      const measureBundle: R4.IBundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Library',
+              type: { coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
+              url: 'http://example.com/root-library'
+            }
+          },
+          {
+            resource: {
+              resourceType: 'Measure',
+              library: [
+                // Library array doesn't contain the root lib ID
+                'http://example.com/other-library'
+              ]
+            }
+          }
+        ]
+      }
+
+      expect(() => MeasureHelpers.extractLibrariesFromBundle(measureBundle)).toThrow('No Root Library could be identified in provided measure bundle');
     });
   });
 });
