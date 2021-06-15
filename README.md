@@ -45,6 +45,7 @@ const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, 
 const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const dataRequirements = Calculator.calculateGapsInCare(measureBundle); // Get data requirements for a given measure (in a bundle)
 ```
 
 #### Require
@@ -55,6 +56,7 @@ const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, 
 const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const dataRequirements = Calculator.calculateGapsInCare(measureBundle); // Get data requirements for a given measure (in a bundle)
 ```
 
 #### Calculation Options
@@ -83,7 +85,7 @@ Usage: fqm-execution [options]
 
 Options:
   -d, --debug                                 enable debug output (default: false)
-  -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps" (default: "detailed")
+  -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps", "dataRequirements" (default: "detailed")
   -r, --report-type <type>                    type of MeasureReport (only for output type "reports"): "summary" or "individual" (default: "individual")
   -m, --measure-bundle <measure-bundle>       path to measure bundle
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle
