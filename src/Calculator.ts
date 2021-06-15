@@ -456,7 +456,7 @@ export function calculateDataRequirements(
   const uniqueRetrieves = uniqWith(allRetrieves, isEqual);
   const results: R4.ILibrary = { 
     resourceType: 'Library',
-    type: { coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
+    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
     dataRequirement: []
   };
 
