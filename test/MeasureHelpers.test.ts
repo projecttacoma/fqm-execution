@@ -385,7 +385,7 @@ describe('MeasureHelpers', () => {
             }
           }
         ]
-      }
+      };
 
       expect(() => MeasureHelpers.extractLibrariesFromBundle(measureBundle)).toThrow('No Root Library could be identified in provided measure bundle');
     });
