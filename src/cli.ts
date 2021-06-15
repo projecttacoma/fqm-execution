@@ -23,7 +23,10 @@ program
   )
   .option('-r, --report-type <report-type>', 'type of report, "individual", "summary", "subject-list"')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
-  .option('-p, --patient-bundles <patient-bundles...>', 'paths to patient bundles. Required unless output type is dataRequirements')
+  .option(
+    '-p, --patient-bundles <patient-bundles...>',
+    'paths to patient bundles. Required unless output type is dataRequirements'
+  )
   .option(
     '-s, --measurement-period-start <date>',
     'start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)',
@@ -72,7 +75,7 @@ const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
 let patientBundles: R4.IBundle[];
 if (program.outputType !== 'dataRequirements') {
-  // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before 
+  // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
   if (!program.patientBundles) {
     console.error(`Patient bundle is a required option when output type is "${program.outputType}"`);
     program.help();

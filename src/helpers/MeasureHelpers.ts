@@ -400,10 +400,12 @@ export function extractMeasurementPeriod(measureBundle: R4.IBundle): Calculation
   };
 }
 
-export function extractLibrariesFromBundle(measureBundle: R4.IBundle): {
-  cqls: { name: string; cql: string }[],
-  rootLibIdentifier: ELMIdentifier,
-  elmJSONs: ELM[]
+export function extractLibrariesFromBundle(
+  measureBundle: R4.IBundle
+): {
+  cqls: { name: string; cql: string }[];
+  rootLibIdentifier: ELMIdentifier;
+  elmJSONs: ELM[];
 } {
   const measure = extractMeasureFromBundle(measureBundle);
   const rootLibRef = measure.library[0];
@@ -479,17 +481,17 @@ export function isValidLibraryURL(libraryName: string) {
   return r.test(libraryName);
 }
 
-export type MeasureWithLibrary = R4.IMeasure & { library: string[]}
+export type MeasureWithLibrary = R4.IMeasure & { library: string[] };
 
 export function extractMeasureFromBundle(measureBundle: R4.IBundle): MeasureWithLibrary {
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
-  
+
   if (!measureEntry) {
     throw new Error('Measure resource does not exist in provided measure bundle');
   }
 
   const measure = measureEntry.resource as MeasureWithLibrary;
-  
+
   if (!measure.library) {
     throw new Error('Measure resource must specify a "library"');
   }

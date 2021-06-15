@@ -430,10 +430,10 @@ export async function calculateGapsInCare(
 
 export function calculateDataRequirements(
   measureBundle: R4.IBundle
-): { results: R4.ILibrary; debugOutput?: DebugOutput }  {
+): { results: R4.ILibrary; debugOutput?: DebugOutput } {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
-  const rootLib = elmJSONs.find( ej => ej.library.identifier == rootLibIdentifier);
+  const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
 
   // We need a root library to run dataRequirements properly. If we don't have one, error out.
   if (!rootLib?.library) {
@@ -441,26 +441,22 @@ export function calculateDataRequirements(
   }
 
   // get the retrieves for every statement in the root library
-  const allRetrieves = rootLib.library.statements.def.flatMap((statement) => {
+  const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
     if (statement.expression && statement.name != 'Patient') {
-      const retrieves = RetrievesHelper.findRetrieves(
-        rootLib,
-        elmJSONs,
-        statement.expression
-      );
+      const retrieves = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
       return retrieves;
     } else {
       return [];
     }
   });
   const uniqueRetrieves = uniqWith(allRetrieves, isEqual);
-  const results: R4.ILibrary = { 
+  const results: R4.ILibrary = {
     resourceType: 'Library',
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
     dataRequirement: []
   };
 
-  uniqueRetrieves.forEach((retrieve) => {
+  uniqueRetrieves.forEach(retrieve => {
     results.dataRequirement?.push({
       type: retrieve.dataType,
       codeFilter: [
@@ -471,8 +467,8 @@ export function calculateDataRequirements(
     });
   });
 
-  return { 
-    results: results, 
+  return {
+    results: results,
     debugOutput: {
       cql: cqls,
       elm: elmJSONs,

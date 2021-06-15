@@ -311,7 +311,9 @@ describe('MeasureHelpers', () => {
           {
             resource: {
               resourceType: 'Library',
-              type: { coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
+              type: {
+                coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
+              }
             }
           }
         ]
@@ -357,7 +359,11 @@ describe('MeasureHelpers', () => {
       const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as R4.IBundle;
       const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
 
-      expect(rootLibIdentifier).toStrictEqual({ id: 'EXM130', system: 'http://fhir.org/guides/dbcg/connectathon', version: '7.3.000'});
+      expect(rootLibIdentifier).toStrictEqual({
+        id: 'EXM130',
+        system: 'http://fhir.org/guides/dbcg/connectathon',
+        version: '7.3.000'
+      });
       // The EXM130 test bundle has 7 libraries, including the root one
       // BUT one of them is the FHIR model info file, which we ignore
       expect(cqls).toHaveLength(6);
@@ -371,7 +377,9 @@ describe('MeasureHelpers', () => {
           {
             resource: {
               resourceType: 'Library',
-              type: { coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
+              type: {
+                coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
+              },
               url: 'http://example.com/root-library'
             }
           },
@@ -387,7 +395,9 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      expect(() => MeasureHelpers.extractLibrariesFromBundle(measureBundle)).toThrow('No Root Library could be identified in provided measure bundle');
+      expect(() => MeasureHelpers.extractLibrariesFromBundle(measureBundle)).toThrow(
+        'No Root Library could be identified in provided measure bundle'
+      );
     });
   });
 });
