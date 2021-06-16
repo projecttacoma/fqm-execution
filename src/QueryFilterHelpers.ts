@@ -48,7 +48,15 @@ import {
  *                    seen in eCQMs.
  * @returns Information about the query and how it is filtered.
  */
-export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: { [key: string]: any } = {}): QueryInfo {
+export function parseQueryInfo(
+  library: ELM,
+  queryLocalId?: string,
+  parameters: { [key: string]: any } = {}
+): QueryInfo {
+  if (!queryLocalId) {
+    throw new Error('QueryLocalId was not provided');
+  }
+
   const expression = findClauseInLibrary(library, queryLocalId);
   if (expression?.type == 'Query') {
     const query = expression as ELMQuery;
