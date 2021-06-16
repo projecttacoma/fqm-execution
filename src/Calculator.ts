@@ -461,6 +461,7 @@ export function calculateDataRequirements(
       type: retrieve.dataType,
       codeFilter: [
         {
+          path: retrieve.path,
           valueSet: retrieve.valueSet
         }
       ]
