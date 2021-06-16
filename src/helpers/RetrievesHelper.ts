@@ -53,7 +53,8 @@ export function findRetrieves(
           queryLocalId,
           retrieveLocalId: exprRet.localId,
           libraryName: elm.library.identifier.id,
-          expressionStack: [...expressionStack]
+          expressionStack: [...expressionStack],
+          path: exprRet.codeProperty
         });
       }
     } else if (
@@ -76,7 +77,8 @@ export function findRetrieves(
           queryLocalId,
           retrieveLocalId: exprRet.localId,
           libraryName: elm.library.identifier.id,
-          expressionStack: [...expressionStack]
+          expressionStack: [...expressionStack],
+          path: exprRet.codeProperty
         });
       }
     }

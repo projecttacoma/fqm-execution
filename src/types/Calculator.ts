@@ -209,6 +209,8 @@ export interface DataTypeQuery {
   libraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
+  /** path that the code or valueset object refers to */
+  path?: string;
 }
 
 export interface GapsDataTypeQuery extends DataTypeQuery {
