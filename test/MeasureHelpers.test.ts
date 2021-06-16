@@ -378,7 +378,7 @@ describe('MeasureHelpers', () => {
             resource: {
               resourceType: 'Library',
               type: {
-                coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
+                coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
               },
               url: 'http://example.com/root-library'
             }
