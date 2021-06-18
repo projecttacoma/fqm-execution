@@ -24,7 +24,9 @@ export interface ELMLibrary {
   /** Parameters for this ELM Library. ex. Measurement Period */
   parameters?: any;
   /** Code Systems defined for local use. */
-  codeSystems?: any;
+  codeSystems?: {
+    def: ELMCodeSystem[];
+  };
   /** ValueSet definitions in the ELM Library. */
   valueSets?: {
     /** List of valueset statement definitions. */
@@ -128,9 +130,21 @@ export interface ELMCode {
   id: string;
   name: string;
   accessLevel: string;
+  display?: string;
   codeSystem: {
     name: string;
   };
+}
+
+export interface ELMCodeSystem {
+  /** CodeSystem id */
+  id: string;
+  /** The name of the codesystem taht is used to locally reference this codesystem */
+  name: string;
+  /** versioned name of the codesystem */
+  version?: string;
+  /** The access level of this valueset. Usually 'Public'. */
+  accessLevel?: string;
 }
 
 export interface ELMConcept {

@@ -200,6 +200,8 @@ export interface DataTypeQuery {
   code?: {
     system: string;
     code: string;
+    version?: string;
+    display?: string;
   };
   /** localId in ELM for the retrieve statement */
   retrieveLocalId?: string;

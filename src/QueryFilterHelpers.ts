@@ -21,7 +21,8 @@ import {
   ELMNot,
   ELMIsNull,
   ELMUnaryExpression,
-  ELMInterval
+  ELMInterval,
+  ELMCodeSystem
 } from './types/ELMTypes';
 import {
   AndFilter,
@@ -416,7 +417,9 @@ export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
       if (code) {
         codes.push({
           code: code?.id,
-          system: library.library.codeSystems.def.find((systemRef: any) => code?.codeSystem.name === systemRef.name).id
+          system: library.library.codeSystems?.def.find(
+            (systemRef: ELMCodeSystem) => code?.codeSystem.name === systemRef.name
+          )?.id
         });
       }
     });

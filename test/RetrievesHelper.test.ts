@@ -50,7 +50,7 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Procedure',
     code: {
-      system: 'EXAMPLE',
+      system: 'http://example.com',
       code: 'test'
     },
     retrieveLocalId: '16',

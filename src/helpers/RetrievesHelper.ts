@@ -68,10 +68,13 @@ export function findRetrieves(
           : ((exprRet.codes as ELMToList).operand as ELMCodeRef).name;
       const code = elm.library.codes?.def.find(c => c.name === codeName);
       if (code) {
+        const cs = elm.library.codeSystems?.def.find(cs => cs.name == code.codeSystem.name);
         results.push({
           dataType,
           code: {
-            system: code.codeSystem.name,
+            system: cs?.id || code.codeSystem.name,
+            version: cs?.version,
+            display: code.display,
             code: code.id
           },
           queryLocalId,
