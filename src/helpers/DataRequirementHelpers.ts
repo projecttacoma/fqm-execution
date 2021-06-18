@@ -1,5 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { EqualsFilter, InFilter, DuringFilter, AndFilter, AnyFilter } from './types/QueryFilterTypes';
+import { DataTypeQuery } from '../types/Calculator';
+import { EqualsFilter, InFilter, DuringFilter, AndFilter, AnyFilter } from '../types/QueryFilterTypes';
 
 /**
  * Take any nesting of base filters and AND filters and flatten into one list
@@ -66,4 +67,39 @@ export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequir
     path: filter.attribute,
     valuePeriod: { start: filter.valuePeriod.start, end: filter.valuePeriod.end }
   };
+}
+
+/**
+ * Given a DataTypeQuery object, create a DataRequirement object that represents the data
+ * that would be requested from a FHIR server for that query.
+ * Currently supports
+ * @param retrieve a DataTypeQuery that represents a retrieve for a FHIR Resource with certain attributes
+ * @returns R4.IDataRequirement with as much attribute data as we can add
+ */
+export function generateDataRequirement(retrieve: DataTypeQuery): R4.IDataRequirement {
+  if (retrieve.valueSet) {
+    return {
+      type: retrieve.dataType,
+      codeFilter: [
+        {
+          path: retrieve.path,
+          valueSet: retrieve.valueSet
+        }
+      ]
+    };
+  } else if (retrieve.code) {
+    return {
+      type: retrieve.dataType,
+      codeFilter: [
+        {
+          path: retrieve.path,
+          code: [retrieve.code as R4.ICoding]
+        }
+      ]
+    };
+  } else {
+    return {
+      type: retrieve.dataType
+    };
+  }
 }

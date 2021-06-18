@@ -8,7 +8,11 @@ import {
   ReasonDetail
 } from './types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
-import { flattenFilters, generateDetailedCodeFilter, generateDetailedDateFilter } from './DataRequirementHelpers';
+import {
+  flattenFilters,
+  generateDetailedCodeFilter,
+  generateDetailedDateFilter
+} from './helpers/DataRequirementHelpers';
 import { EqualsFilter, InFilter, DuringFilter, AnyFilter } from './types/QueryFilterTypes';
 
 /**

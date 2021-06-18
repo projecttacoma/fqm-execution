@@ -13,7 +13,8 @@ import { ELM } from './types/ELMTypes';
 import { parseQueryInfo } from './QueryFilterHelpers';
 import * as RetrievesHelper from './helpers/RetrievesHelper';
 import * as MeasureHelpers from './helpers/MeasureHelpers';
-import { isEqual, uniqWith } from 'lodash';
+import { uniqBy } from 'lodash';
+import { generateDataRequirement } from './helpers/DataRequirementHelpers';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -449,24 +450,19 @@ export function calculateDataRequirements(
       return [];
     }
   });
-  const uniqueRetrieves = uniqWith(allRetrieves, isEqual);
+
+  // Only use "unique" retrieves
+  // The array of strings specifies the set of prop values to use in stringification
+  const uniqueRetrieves = uniqBy(allRetrieves, retrieve => {
+    return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
+  });
+
   const results: R4.ILibrary = {
     resourceType: 'Library',
-    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
-    dataRequirement: []
+    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] }
   };
 
-  uniqueRetrieves.forEach(retrieve => {
-    results.dataRequirement?.push({
-      type: retrieve.dataType,
-      codeFilter: [
-        {
-          path: retrieve.path,
-          valueSet: retrieve.valueSet
-        }
-      ]
-    });
-  });
+  results.dataRequirement = uniqueRetrieves.map(retrieve => generateDataRequirement(retrieve));
 
   return {
     results: results,
