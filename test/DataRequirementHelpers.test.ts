@@ -232,5 +232,18 @@ describe('DataRequirementHelpers', () => {
 
       expect(DataRequirementHelpers.generateDataRequirement(dtq)).toEqual(expectedDataReq);
     });
+
+    test('can create DataRequirement with out vs or code filters', () => {
+      const dtq: DataTypeQuery = {
+        dataType: 'fhir_type',
+        path: 'a.path',
+      };
+
+      const expectedDataReq: R4.IDataRequirement = {
+        type: dtq.dataType,
+      };
+
+      expect(DataRequirementHelpers.generateDataRequirement(dtq)).toEqual(expectedDataReq);
+    });
   });
 });
