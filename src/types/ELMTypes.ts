@@ -176,6 +176,7 @@ export type AnyELMExpression =
   | ELMQuery
   | ELMAs
   | ELMEqual
+  | ELMGreaterOrEqual
   | ELMEquivalent
   | ELMAnd
   | ELMOr
@@ -185,6 +186,7 @@ export type AnyELMExpression =
   | ELMIn
   | ELMEnd
   | ELMStart
+  | ELMToDateTime
   | ELMExpressionRef
   | ELMFunctionRef
   | ELMParameterRef
@@ -192,6 +194,7 @@ export type AnyELMExpression =
   | ELMAliasRef
   | ELMConceptRef
   | ELMLiteral
+  | ELMQuantity
   | ELMInterval
   | ELMList
   | ELMTuple;
@@ -275,6 +278,10 @@ export interface ELMEqual extends ELMBinaryExpression {
   type: 'Equal';
 }
 
+export interface ELMGreaterOrEqual extends ELMBinaryExpression {
+  type: 'GreaterOrEqual';
+}
+
 export interface ELMEquivalent extends ELMBinaryExpression {
   type: 'Equivalent';
 }
@@ -314,6 +321,10 @@ export interface ELMStart extends ELMUnaryExpression {
   type: 'Start';
 }
 
+export interface ELMToDateTime extends ELMUnaryExpression {
+  type: 'ToDateTime';
+}
+
 interface ELMIExpressionRef extends ELMExpression {
   name: string;
   libraryName?: string;
@@ -326,7 +337,7 @@ export interface ELMExpressionRef extends ELMIExpressionRef {
 export interface ELMFunctionRef extends ELMIExpressionRef {
   type: 'FunctionRef';
   signature?: [any];
-  operand: [AnyELMExpression];
+  operand: AnyELMExpression[];
 }
 
 export interface ELMParameterRef extends ELMIExpressionRef {
@@ -354,6 +365,12 @@ export interface ELMLiteral extends ELMExpression {
   type: 'Literal';
   valueType: string;
   value?: string | number;
+}
+
+export interface ELMQuantity extends ELMExpression {
+  type: 'Quantity';
+  unit?: string;
+  value?: number;
 }
 
 export interface ELMInterval extends ELMExpression {

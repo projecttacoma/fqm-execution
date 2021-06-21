@@ -374,28 +374,6 @@ export async function calculateGapsInCare(
           numerELMExpression.expression
         );
 
-        // Add detailed info to queries based on clause results
-        let detailedGapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
-
-        detailedGapsRetrieves.forEach(retrieve => {
-          // If the retrieves have a localId for the query and a known library name, we can get more info
-          // on how the query filters the sources.
-          if (retrieve.queryLocalId && retrieve.libraryName) {
-            const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.libraryName);
-            if (library) {
-              retrieve.queryInfo = parseQueryInfo(library, retrieve.queryLocalId, parameters);
-            }
-          }
-        });
-
-        detailedGapsRetrieves = GapsInCareHelpers.calculateReasonDetail(detailedGapsRetrieves, improvementNotation, dr);
-
-        const detectedIssues = GapsInCareHelpers.generateDetectedIssueResources(
-          detailedGapsRetrieves,
-          matchingMeasureReport,
-          improvementNotation
-        );
-
         // find this patient's bundle
         const patientBundle = patientBundles.find(patientBundle => {
           const patientEntry = patientBundle.entry?.find(
@@ -409,6 +387,33 @@ export async function calculateGapsInCare(
         if (!patientEntry) {
           throw new Error(`Could not find Patient ${res.patientId} in patientBundles`);
         }
+
+        // Add detailed info to queries based on clause results
+        let detailedGapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
+
+        detailedGapsRetrieves.forEach(retrieve => {
+          // If the retrieves have a localId for the query and a known library name, we can get more info
+          // on how the query filters the sources.
+          if (retrieve.queryLocalId && retrieve.libraryName) {
+            const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.libraryName);
+            if (library) {
+              retrieve.queryInfo = parseQueryInfo(
+                library,
+                retrieve.queryLocalId,
+                parameters,
+                patientEntry.resource as R4.IPatient
+              );
+            }
+          }
+        });
+
+        detailedGapsRetrieves = GapsInCareHelpers.calculateReasonDetail(detailedGapsRetrieves, improvementNotation, dr);
+
+        const detectedIssues = GapsInCareHelpers.generateDetectedIssueResources(
+          detailedGapsRetrieves,
+          matchingMeasureReport,
+          improvementNotation
+        );
 
         result = GapsInCareHelpers.generateGapsInCareBundle(
           detectedIssues,

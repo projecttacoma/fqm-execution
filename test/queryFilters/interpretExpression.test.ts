@@ -1,9 +1,15 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import * as QueryFilter from '../../src/QueryFilterHelpers';
 import { ELMFunctionRef } from '../../src/types/ELMTypes';
+import { R4 } from '@ahryman40k/ts-fhir-types';
 
 // to use as a library parameter for tests
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
+
+const PATIENT: R4.IPatient = {
+  resourceType: 'Patient',
+  birthDate: '1988-09-08'
+};
 
 describe('interpretExpression', () => {
   test('unknown expression type with property ref', () => {
@@ -27,7 +33,7 @@ describe('interpretExpression', () => {
       ]
     };
 
-    expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {})).toEqual({
+    expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
       type: 'unknown',
       attribute: 'onset',
       alias: 'C'
@@ -54,7 +60,7 @@ describe('interpretExpression', () => {
       ]
     };
 
-    expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {})).toEqual({
+    expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
       type: 'unknown'
     });
   });
