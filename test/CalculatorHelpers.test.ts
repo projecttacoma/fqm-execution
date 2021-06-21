@@ -4,6 +4,7 @@ import { getJSONFixture } from './helpers/testHelpers';
 import { PopulationType } from '../src/types/Enums';
 import { StatementResults } from '../src/types/CQLTypes';
 import { PopulationResult } from '../src/types/Calculator';
+import { ELMExpressionRef, ELMQuery, ELMTuple } from '../src/types/ELMTypes';
 
 type MeasureWithGroup = R4.IMeasure & {
   group: R4.IMeasure_Group[];
@@ -188,10 +189,10 @@ describe('CalculatorHelpers', () => {
       const fn = CalculatorHelpers.generateELMJSONFunction(exampleFunctionName, exampleParameterName);
 
       expect(fn.name).toEqual(`obs_func_${exampleFunctionName}_${exampleParameterName}`);
-      expect(fn.expression.source[0].expression.name).toEqual(exampleParameterName);
-      expect(fn.expression.return).toBeDefined();
-      expect(fn.expression.return.expression.type).toEqual('Tuple');
-      expect(fn.expression.return.expression.element).toEqual(
+      expect(((fn.expression as ELMQuery).source[0].expression as ELMExpressionRef).name).toEqual(exampleParameterName);
+      expect((fn.expression as ELMQuery).return).toBeDefined();
+      expect((fn.expression as ELMQuery).return?.expression?.type).toEqual('Tuple');
+      expect(((fn.expression as ELMQuery).return?.expression as ELMTuple).element).toEqual(
         expect.arrayContaining([
           {
             name: 'observation',

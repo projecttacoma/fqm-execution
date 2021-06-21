@@ -7,6 +7,7 @@ import {
 } from './types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
 import { v4 as uuidv4 } from 'uuid';
+import * as MeasureHelpers from './helpers/MeasureHelpers';
 
 export default class MeasureReportBuilder {
   report: R4.IMeasureReport;
@@ -24,8 +25,7 @@ export default class MeasureReportBuilder {
       resourceType: 'MeasureReport'
     };
     this.measureBundle = measureBundle;
-    const measureEntry = this.measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
-    this.measure = measureEntry?.resource as R4.IMeasure;
+    this.measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
     this.scoringCode =
       this.measure.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')?.code || '';
     this.options = options;

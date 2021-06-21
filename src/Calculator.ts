@@ -4,7 +4,7 @@ import { PopulationType, MeasureScoreType, ImprovementNotation } from './types/E
 import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
 import * as CalculatorHelpers from './CalculatorHelpers';
-import { extractMeasurementPeriod } from './MeasureHelpers';
+import { extractMeasurementPeriod } from './helpers/MeasureHelpers';
 import * as ResultsHelpers from './ResultsHelpers';
 import MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from './GapsInCareHelpers';
@@ -12,6 +12,9 @@ import { generateHTML } from './HTMLGenerator';
 import { ELM } from './types/ELMTypes';
 import { parseQueryInfo } from './QueryFilterHelpers';
 import * as RetrievesHelper from './helpers/RetrievesHelper';
+import * as MeasureHelpers from './helpers/MeasureHelpers';
+import { uniqBy } from 'lodash';
+import { generateDataRequirement } from './helpers/DataRequirementHelpers';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -43,11 +46,7 @@ export async function calculate(
   options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
   options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
 
-  const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
-  if (!measureEntry || !measureEntry.resource) {
-    throw new Error('Measure resource was not found in provided measure bundle');
-  }
-  const measure = measureEntry.resource as R4.IMeasure;
+  const measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
   const executionResults: ExecutionResult[] = [];
 
   const results = await Execution.execute(measureBundle, patientBundles, options, debugObject);
@@ -310,13 +309,9 @@ export async function calculateGapsInCare(
     }
 
     res.detailedResults?.forEach(dr => {
-      const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
-      if (!measureEntry || !measureEntry.resource) {
-        throw new Error('Argument measureBundle must include a Measure resource');
-      }
+      const measureResource = MeasureHelpers.extractMeasureFromBundle(measureBundle);
 
       // Gaps only supported for proportion/ratio measures
-      const measureResource = measureEntry.resource as R4.IMeasure;
       const scoringCode = measureResource.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')
         ?.code;
 
@@ -432,4 +427,51 @@ export async function calculateGapsInCare(
   });
 
   return { results: result, debugOutput };
+}
+
+export function calculateDataRequirements(
+  measureBundle: R4.IBundle
+): { results: R4.ILibrary; debugOutput?: DebugOutput } {
+  // Extract the library ELM, and the id of the root library, from the measure bundle
+  const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
+  const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
+
+  // We need a root library to run dataRequirements properly. If we don't have one, error out.
+  if (!rootLib?.library) {
+    throw new Error("root library doesn't contain a library object");
+  }
+
+  // get the retrieves for every statement in the root library
+  const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
+    if (statement.expression && statement.name != 'Patient') {
+      const retrieves = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
+      return retrieves;
+    } else {
+      return [];
+    }
+  });
+
+  // Only use "unique" retrieves
+  // The array of strings specifies the set of prop values to use in stringification
+  const uniqueRetrieves = uniqBy(allRetrieves, retrieve => {
+    return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
+  });
+
+  const results: R4.ILibrary = {
+    resourceType: 'Library',
+    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] }
+  };
+
+  results.dataRequirement = uniqueRetrieves.map(retrieve => generateDataRequirement(retrieve));
+
+  return {
+    results: results,
+    debugOutput: {
+      cql: cqls,
+      elm: elmJSONs,
+      gaps: {
+        retrieves: uniqueRetrieves
+      }
+    }
+  };
 }

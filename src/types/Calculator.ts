@@ -200,6 +200,8 @@ export interface DataTypeQuery {
   code?: {
     system: string;
     code: string;
+    version?: string;
+    display?: string;
   };
   /** localId in ELM for the retrieve statement */
   retrieveLocalId?: string;
@@ -209,6 +211,8 @@ export interface DataTypeQuery {
   libraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
+  /** path that the code or valueset object refers to */
+  path?: string;
 }
 
 export interface GapsDataTypeQuery extends DataTypeQuery {
@@ -256,7 +260,7 @@ export interface DebugOutput {
   detailedResults?: ExecutionResult[];
   measureReports?: R4.IMeasureReport[];
   gaps?: {
-    retrieves: DataTypeQuery[];
-    bundle: R4.IBundle;
+    retrieves?: DataTypeQuery[];
+    bundle?: R4.IBundle;
   };
 }

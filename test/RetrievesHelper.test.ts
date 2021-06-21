@@ -18,7 +18,8 @@ const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
         libraryName: 'SimpleQueries',
         type: 'Retrieve'
       }
-    ]
+    ],
+    path: 'code'
   }
 ];
 
@@ -40,7 +41,8 @@ const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
         libraryName: 'SimpleQueries',
         type: 'Retrieve'
       }
-    ]
+    ],
+    path: 'code'
   }
 ];
 
@@ -48,7 +50,7 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Procedure',
     code: {
-      system: 'EXAMPLE',
+      system: 'http://example.com',
       code: 'test'
     },
     retrieveLocalId: '16',
@@ -60,7 +62,8 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
         libraryName: 'SimpleQueries',
         type: 'Retrieve'
       }
-    ]
+    ],
+    path: 'code'
   }
 ];
 
@@ -82,7 +85,8 @@ const EXPECTED_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
         libraryName: 'SimpleQueries',
         type: 'Retrieve'
       }
-    ]
+    ],
+    path: 'code'
   }
 ];
 
@@ -104,7 +108,8 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
         libraryName: 'SimpleDep',
         type: 'Retrieve'
       }
-    ]
+    ],
+    path: 'code'
   }
 ];
 

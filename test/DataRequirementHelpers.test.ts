@@ -1,6 +1,7 @@
-import * as DataRequirementHelpers from '../src/DataRequirementHelpers';
+import * as DataRequirementHelpers from '../src/helpers/DataRequirementHelpers';
 import { AndFilter, EqualsFilter, DuringFilter, InFilter } from '../src/types/QueryFilterTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
+import { DataTypeQuery } from '../src/types/Calculator';
 
 describe('DataRequirementHelpers', () => {
   describe('Flatten Filters', () => {
@@ -188,6 +189,61 @@ describe('DataRequirementHelpers', () => {
       };
 
       expect(DataRequirementHelpers.generateDetailedDateFilter(df)).toEqual(expectedDateFilter);
+    });
+  });
+
+  describe('generateDataRequirement', () => {
+    test('can create DataRequirement with valueSet filter', () => {
+      const dtq: DataTypeQuery = {
+        dataType: 'fhir_type',
+        path: 'a.path',
+        valueSet: 'http://example.com/valueset'
+      };
+
+      const expectedDataReq: R4.IDataRequirement = {
+        type: dtq.dataType,
+        codeFilter: [
+          {
+            path: dtq.path,
+            valueSet: dtq.valueSet
+          }
+        ]
+      };
+
+      expect(DataRequirementHelpers.generateDataRequirement(dtq)).toEqual(expectedDataReq);
+    });
+
+    test('can create DataRequirement with code filter', () => {
+      const dtq: DataTypeQuery = {
+        dataType: 'fhir_type',
+        path: 'a.path',
+        code: { code: 'a_code', system: 'http://example.com/system' }
+      };
+
+      const expectedDataReq: R4.IDataRequirement = {
+        type: dtq.dataType,
+        codeFilter: [
+          {
+            path: dtq.path,
+            code: [dtq.code as R4.ICoding]
+          }
+        ]
+      };
+
+      expect(DataRequirementHelpers.generateDataRequirement(dtq)).toEqual(expectedDataReq);
+    });
+
+    test('can create DataRequirement with out vs or code filters', () => {
+      const dtq: DataTypeQuery = {
+        dataType: 'fhir_type',
+        path: 'a.path'
+      };
+
+      const expectedDataReq: R4.IDataRequirement = {
+        type: dtq.dataType
+      };
+
+      expect(DataRequirementHelpers.generateDataRequirement(dtq)).toEqual(expectedDataReq);
     });
   });
 });

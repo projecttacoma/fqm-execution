@@ -21,7 +21,8 @@ import {
   ELMNot,
   ELMIsNull,
   ELMUnaryExpression,
-  ELMInterval
+  ELMInterval,
+  ELMCodeSystem
 } from './types/ELMTypes';
 import {
   AndFilter,
@@ -48,7 +49,15 @@ import {
  *                    seen in eCQMs.
  * @returns Information about the query and how it is filtered.
  */
-export function parseQueryInfo(library: ELM, queryLocalId: string, parameters: { [key: string]: any } = {}): QueryInfo {
+export function parseQueryInfo(
+  library: ELM,
+  queryLocalId?: string,
+  parameters: { [key: string]: any } = {}
+): QueryInfo {
+  if (!queryLocalId) {
+    throw new Error('QueryLocalId was not provided');
+  }
+
   const expression = findClauseInLibrary(library, queryLocalId);
   if (expression?.type == 'Query') {
     const query = expression as ELMQuery;
@@ -408,7 +417,9 @@ export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
       if (code) {
         codes.push({
           code: code?.id,
-          system: library.library.codeSystems.def.find((systemRef: any) => code?.codeSystem.name === systemRef.name).id
+          system: library.library.codeSystems?.def.find(
+            (systemRef: ELMCodeSystem) => code?.codeSystem.name === systemRef.name
+          )?.id
         });
       }
     });

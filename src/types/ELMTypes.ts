@@ -24,7 +24,9 @@ export interface ELMLibrary {
   /** Parameters for this ELM Library. ex. Measurement Period */
   parameters?: any;
   /** Code Systems defined for local use. */
-  codeSystems?: any;
+  codeSystems?: {
+    def: ELMCodeSystem[];
+  };
   /** ValueSet definitions in the ELM Library. */
   valueSets?: {
     /** List of valueset statement definitions. */
@@ -88,7 +90,7 @@ export interface ELMStatement {
    */
   annotation?: Annotation[];
   /** The executable expression for this statement. */
-  expression?: any;
+  expression: AnyELMExpression;
   /** Type of this statement. Will be 'FunctionDef' if it is a function. */
   type?: string;
   /** Definition function parameters if this is a function. */
@@ -128,9 +130,21 @@ export interface ELMCode {
   id: string;
   name: string;
   accessLevel: string;
+  display?: string;
   codeSystem: {
     name: string;
   };
+}
+
+export interface ELMCodeSystem {
+  /** CodeSystem id */
+  id: string;
+  /** The name of the codesystem taht is used to locally reference this codesystem */
+  name: string;
+  /** versioned name of the codesystem */
+  version?: string;
+  /** The access level of this valueset. Usually 'Public'. */
+  accessLevel?: string;
 }
 
 export interface ELMConcept {
@@ -158,6 +172,7 @@ export type AnyELMExpression =
   | ELMExpression
   | ELMRetrieve
   | ELMValueSetRef
+  | ELMCodeRef
   | ELMQuery
   | ELMAs
   | ELMEqual
@@ -165,6 +180,7 @@ export type AnyELMExpression =
   | ELMAnd
   | ELMOr
   | ELMIsNull
+  | ELMToList
   | ELMIncludedIn
   | ELMIn
   | ELMEnd
@@ -177,7 +193,8 @@ export type AnyELMExpression =
   | ELMConceptRef
   | ELMLiteral
   | ELMInterval
-  | ELMList;
+  | ELMList
+  | ELMTuple;
 
 export interface ELMRetrieve extends ELMExpression {
   type: 'Retrieve';
@@ -191,14 +208,19 @@ export interface ELMValueSetRef extends ELMExpression {
   type: 'ValueSetRef';
   name: string;
   libraryName?: string;
-  locator?: string;
+}
+
+export interface ELMCodeRef extends ELMExpression {
+  type: 'CodeRef';
+  name: string;
+  libraryName?: string;
 }
 
 export interface ELMQuery extends ELMExpression {
   type: 'Query';
-  source: [ELMAliasedQuerySource];
-  let: [ELMLetClause];
-  relationship: [ELMRelationshipClause];
+  source: ELMAliasedQuerySource[];
+  let: ELMLetClause[];
+  relationship: ELMRelationshipClause[];
   where?: AnyELMExpression;
   return?: ELMReturnClause;
   sort?: any;
@@ -232,7 +254,7 @@ export interface ELMLetClause {
 
 export interface ELMReturnClause {
   expression: AnyELMExpression;
-  distinct?: string;
+  distinct?: boolean;
 }
 
 export interface ELMAs extends ELMExpression {
@@ -273,6 +295,9 @@ export interface ELMIsNull extends ELMUnaryExpression {
   type: 'IsNull';
 }
 
+export interface ELMToList extends ELMUnaryExpression {
+  type: 'ToList';
+}
 export interface ELMIncludedIn extends ELMBinaryExpression {
   type: 'IncludedIn';
 }
@@ -294,7 +319,7 @@ interface ELMIExpressionRef extends ELMExpression {
   libraryName?: string;
 }
 
-export interface ELMExpressionRef extends ELMExpression {
+export interface ELMExpressionRef extends ELMIExpressionRef {
   type: 'ExpressionRef';
 }
 
@@ -344,6 +369,15 @@ export interface ELMList extends ELMExpression {
   element: ELMLiteral[];
 }
 
+export interface ELMTuple extends ELMExpression {
+  type: 'Tuple';
+  element: ELMTupleElement[];
+}
+
+export interface ELMTupleElement {
+  name: string;
+  value: AnyELMExpression;
+}
 export interface LibraryDependencyInfo {
   /** The library id */
   libraryId: string;

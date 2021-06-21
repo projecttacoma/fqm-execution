@@ -1,6 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from './types/Calculator';
-import * as MeasureHelpers from './MeasureHelpers';
+import * as MeasureHelpers from './helpers/MeasureHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ResultsHelpers';
 import { ELM, ELMStatement } from './types/ELMTypes';
 import { PopulationType } from './types/Enums';

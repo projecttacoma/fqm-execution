@@ -1,7 +1,7 @@
-import { ELM, ELMStatement } from './types/ELMTypes';
+import { ELM, ELMIdentifier, ELMStatement } from '../types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { PopulationType } from './types/Enums';
-import { CalculationOptions } from './types/Calculator';
+import { PopulationType } from '../types/Enums';
+import { CalculationOptions } from '../types/Calculator';
 
 /**
  * Finds all localIds in a statement by it's library and statement name.
@@ -13,7 +13,7 @@ import { CalculationOptions } from './types/Calculator';
 export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName: string): any {
   // create place for aliases and their usages to be placed to be filled in later. Aliases and their usages (aka scope)
   // and returns do not have localIds in the elm but do in elm_annotations at a consistent calculable offset.
-  // BE WEARY of this calaculable offset.
+  // BE WARY of this calaculable offset.
   const emptyResultClauses: any[] = [];
   const statement = libraryElm.library.statements.def.find(stat => stat.name === statementName);
   const libraryName = libraryElm.library.identifier.id;
@@ -400,6 +400,72 @@ export function extractMeasurementPeriod(measureBundle: R4.IBundle): Calculation
   };
 }
 
+export function extractLibrariesFromBundle(
+  measureBundle: R4.IBundle
+): {
+  cqls: { name: string; cql: string }[];
+  rootLibIdentifier: ELMIdentifier;
+  elmJSONs: ELM[];
+} {
+  const measure = extractMeasureFromBundle(measureBundle);
+  const rootLibRef = measure.library[0];
+  let rootLibId: string;
+  if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
+  else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
+
+  const libraries: R4.ILibrary[] = [];
+  const elmJSONs: ELM[] = [];
+  const cqls: { name: string; cql: string }[] = [];
+  let rootLibIdentifier: ELMIdentifier = {
+    id: '',
+    version: ''
+  };
+  measureBundle.entry?.forEach(e => {
+    if (e.resource?.resourceType == 'Library') {
+      const library = e.resource as R4.ILibrary;
+      libraries.push(library);
+      const elmsEncoded = library.content?.filter(a => a.contentType === 'application/elm+json');
+      elmsEncoded?.forEach(elmEncoded => {
+        if (elmEncoded.data) {
+          const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
+          const elm = JSON.parse(decoded) as ELM;
+          if (library.url == rootLibId) {
+            rootLibIdentifier = elm.library.identifier;
+          } else if (library.id === rootLibId) {
+            rootLibIdentifier = elm.library.identifier;
+          }
+          if (elm.library?.includes?.def) {
+            elm.library.includes.def = elm.library.includes.def.map(def => {
+              def.path = def.path.substring(def.path.lastIndexOf('/') + 1);
+
+              return def;
+            });
+          }
+          elmJSONs.push(elm);
+        }
+      });
+
+      const cqlsEncoded = library.content?.filter(a => a.contentType === 'text/cql');
+      cqlsEncoded?.forEach(elmEncoded => {
+        if (elmEncoded.data) {
+          const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
+          const cql = {
+            name: library.name || library.id || 'unknown library',
+            cql: decoded
+          };
+          cqls.push(cql);
+        }
+      });
+    }
+  });
+
+  if (rootLibIdentifier.id === '') {
+    throw new Error('No Root Library could be identified in provided measure bundle');
+  }
+
+  return { cqls, rootLibIdentifier, elmJSONs };
+}
+
 function __guard__(value: any, transform: any) {
   return typeof value !== 'undefined' && value !== null ? transform(value) : undefined;
 }
@@ -413,4 +479,22 @@ export function isValidLibraryURL(libraryName: string) {
   const urlFormat = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
   const r = new RegExp(urlFormat);
   return r.test(libraryName);
+}
+
+export type MeasureWithLibrary = R4.IMeasure & { library: string[] };
+
+export function extractMeasureFromBundle(measureBundle: R4.IBundle): MeasureWithLibrary {
+  const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
+
+  if (!measureEntry) {
+    throw new Error('Measure resource does not exist in provided measure bundle');
+  }
+
+  const measure = measureEntry.resource as MeasureWithLibrary;
+
+  if (!measure.library) {
+    throw new Error('Measure resource must specify a "library"');
+  }
+
+  return measure;
 }

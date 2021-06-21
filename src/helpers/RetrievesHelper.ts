@@ -1,4 +1,14 @@
-import { ELM, ELMStatement } from '../types/ELMTypes';
+import {
+  AnyELMExpression,
+  ELM,
+  ELMCodeRef,
+  ELMExpressionRef,
+  ELMQuery,
+  ELMRetrieve,
+  ELMStatement,
+  ELMToList,
+  ELMValueSetRef
+} from '../types/ELMTypes';
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 
 /**
@@ -13,7 +23,7 @@ import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 export function findRetrieves(
   elm: ELM,
   deps: ELM[],
-  expr: ELMStatement,
+  expr: ELMStatement | AnyELMExpression,
   queryLocalId?: string,
   expressionStack: ExpressionStackEntry[] = []
 ) {
@@ -29,71 +39,81 @@ export function findRetrieves(
   }
 
   // Base case, get data type and code/valueset off the expression
-  if (expr.type === 'Retrieve' && expr.dataType) {
+  if (expr.type === 'Retrieve' && (expr as ELMRetrieve).dataType) {
+    const exprRet = expr as ELMRetrieve;
     // If present, strip off HL7 prefix to data type
-    const dataType = expr.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+    const dataType = exprRet.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 
-    if (expr.codes?.type === 'ValueSetRef') {
-      const valueSet = elm.library.valueSets?.def.find(v => v.name === expr.codes.name);
+    if (exprRet.codes?.type === 'ValueSetRef') {
+      const valueSet = elm.library.valueSets?.def.find(v => v.name === (exprRet.codes as ELMValueSetRef).name);
       if (valueSet) {
         results.push({
           dataType,
           valueSet: valueSet.id,
           queryLocalId,
-          retrieveLocalId: expr.localId,
+          retrieveLocalId: exprRet.localId,
           libraryName: elm.library.identifier.id,
-          expressionStack: [...expressionStack]
+          expressionStack: [...expressionStack],
+          path: exprRet.codeProperty
         });
       }
     } else if (
-      expr.codes.type === 'CodeRef' ||
-      (expr.codes.type === 'ToList' && expr.codes.operand?.type === 'CodeRef')
+      exprRet.codes?.type === 'CodeRef' ||
+      (exprRet.codes?.type === 'ToList' && (exprRet.codes as ELMToList).operand?.type === 'CodeRef')
     ) {
       // ToList promotions have the CodeRef on the operand
-      const codeName = expr.codes.type === 'CodeRef' ? expr.codes.name : expr.codes.operand.name;
+      const codeName =
+        exprRet.codes.type === 'CodeRef'
+          ? (exprRet.codes as ELMCodeRef).name
+          : ((exprRet.codes as ELMToList).operand as ELMCodeRef).name;
       const code = elm.library.codes?.def.find(c => c.name === codeName);
       if (code) {
+        const cs = elm.library.codeSystems?.def.find(cs => cs.name == code.codeSystem.name);
         results.push({
           dataType,
           code: {
-            system: code.codeSystem.name,
+            system: cs?.id || code.codeSystem.name,
+            version: cs?.version,
+            display: code.display,
             code: code.id
           },
           queryLocalId,
-          retrieveLocalId: expr.localId,
+          retrieveLocalId: exprRet.localId,
           libraryName: elm.library.identifier.id,
-          expressionStack: [...expressionStack]
+          expressionStack: [...expressionStack],
+          path: exprRet.codeProperty
         });
       }
     }
   } else if (expr.type === 'Query') {
     // Queries have the source array containing the expressions
-    expr.source?.forEach(s => {
-      results.push(...findRetrieves(elm, deps, s.expression, expr.localId, [...expressionStack]));
+    (expr as ELMQuery).source?.forEach(s => {
+      results.push(...findRetrieves(elm, deps, s.expression, (expr as ELMQuery).localId, [...expressionStack]));
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
-    if (expr.libraryName) {
-      const matchingLib = deps.find(d => d.library.identifier.id === expr.libraryName);
-      const exprRef = matchingLib?.library.statements.def.find(e => e.name === expr.name);
+    if ((expr as ELMExpressionRef).libraryName) {
+      const matchingLib = deps.find(d => d.library.identifier.id === (expr as ELMExpressionRef).libraryName);
+      const exprRef = matchingLib?.library.statements.def.find(e => e.name === (expr as ELMExpressionRef).name);
       if (matchingLib && exprRef) {
         results.push(...findRetrieves(matchingLib, deps, exprRef.expression, queryLocalId, [...expressionStack]));
       }
     } else {
       // Find expression in current library
-      const exprRef = elm.library.statements.def.find(d => d.name === expr.name);
+      const exprRef = elm.library.statements.def.find(d => d.name === (expr as ELMExpressionRef).name);
       if (exprRef) {
         results.push(...findRetrieves(elm, deps, exprRef.expression, queryLocalId, [...expressionStack]));
       }
     }
-  } else if (expr.operand) {
+  } else if ((expr as any).operand) {
     // Operand can be array or object. Recurse on either
-    if (Array.isArray(expr.operand)) {
-      expr.operand.forEach(e => {
+    const anyExpr = expr as any;
+    if (Array.isArray(anyExpr.operand)) {
+      anyExpr.operand.forEach((e: any) => {
         results.push(...findRetrieves(elm, deps, e, queryLocalId, [...expressionStack]));
       });
     } else {
-      results.push(...findRetrieves(elm, deps, expr.operand, queryLocalId, [...expressionStack]));
+      results.push(...findRetrieves(elm, deps, anyExpr.operand, queryLocalId, [...expressionStack]));
     }
   }
   return results;
