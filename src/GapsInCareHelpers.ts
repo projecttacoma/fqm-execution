@@ -14,7 +14,7 @@ import {
   generateDetailedDateFilter,
   generateDetailedValueFilter
 } from './helpers/DataRequirementHelpers';
-import { EqualsFilter, InFilter, DuringFilter, AnyFilter, NotNullFilter } from './types/QueryFilterTypes';
+import { EqualsFilter, InFilter, DuringFilter, AnyFilter } from './types/QueryFilterTypes';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
