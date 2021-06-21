@@ -11,9 +11,10 @@ import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeD
 import {
   flattenFilters,
   generateDetailedCodeFilter,
-  generateDetailedDateFilter
+  generateDetailedDateFilter,
+  generateDetailedValueFilter
 } from './helpers/DataRequirementHelpers';
-import { EqualsFilter, InFilter, DuringFilter, AnyFilter } from './types/QueryFilterTypes';
+import { EqualsFilter, InFilter, DuringFilter, AnyFilter, NotNullFilter } from './types/QueryFilterTypes';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -212,6 +213,13 @@ export function generateGuidanceResponses(
           } else {
             dataRequirement.dateFilter = [dateFilter];
           }
+        } else if (df.type === 'notnull') {
+          const valueFilter = generateDetailedValueFilter(df);
+          if (dataRequirement.extension) {
+            dataRequirement.extension.push(valueFilter);
+          } else {
+            dataRequirement.extension = [valueFilter];
+          }
         }
       });
     }
@@ -344,6 +352,8 @@ export function calculateReasonDetail(
                 }
               });
             }
+          } else if (f.type === 'notnull') {
+            reasonDetail.reasonCodes.push(CareGapReasonCode.VALUEMISSING);
           } else {
             // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
             // For non-during filters, look up clause result by localId

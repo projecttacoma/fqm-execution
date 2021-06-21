@@ -1,5 +1,5 @@
 import * as DataRequirementHelpers from '../src/helpers/DataRequirementHelpers';
-import { AndFilter, EqualsFilter, DuringFilter, InFilter } from '../src/types/QueryFilterTypes';
+import { AndFilter, EqualsFilter, DuringFilter, InFilter, NotNullFilter } from '../src/types/QueryFilterTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../src/types/Calculator';
 
@@ -189,6 +189,26 @@ describe('DataRequirementHelpers', () => {
       };
 
       expect(DataRequirementHelpers.generateDetailedDateFilter(df)).toEqual(expectedDateFilter);
+    });
+  });
+
+  describe('Value Filters', () => {
+    test('not null filter should create value filter', () => {
+      const nnf: NotNullFilter = {
+        type: 'notnull',
+        alias: 'R',
+        attribute: 'attr-1'
+      };
+
+      const expectedDetailFilter: R4.IExtension = {
+        url: 'http://example.com/dr-value',
+        extension: [
+          { url: 'dr-value-attribute', valueString: 'attr-1' },
+          { url: 'dr-value-filter', valueString: 'not null' }
+        ]
+      };
+
+      expect(DataRequirementHelpers.generateDetailedValueFilter(nnf)).toEqual(expectedDetailFilter);
     });
   });
 
