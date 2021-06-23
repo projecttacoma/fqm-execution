@@ -357,12 +357,12 @@ export function calculateReasonDetail(
             const resources = detailedResult.clauseResults?.find(
               cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
             );
-            const attr_path = notNullFilter.attribute.split('.');
+            const attrPath = notNullFilter.attribute.split('.');
             if (resources) {
               // Access desired property of FHIRObject
               resources.raw.forEach((r: any) => {
                 let desiredAttr = r;
-                attr_path.forEach(key => {
+                attrPath.forEach(key => {
                   desiredAttr = desiredAttr[key];
                 });
 
