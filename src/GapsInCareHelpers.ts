@@ -14,7 +14,7 @@ import {
   generateDetailedDateFilter,
   generateDetailedValueFilter
 } from './helpers/DataRequirementHelpers';
-import { EqualsFilter, InFilter, DuringFilter, AnyFilter } from './types/QueryFilterTypes';
+import { EqualsFilter, InFilter, DuringFilter, AnyFilter, NotNullFilter } from './types/QueryFilterTypes';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -353,7 +353,25 @@ export function calculateReasonDetail(
               });
             }
           } else if (f.type === 'notnull') {
-            reasonDetail.reasonCodes.push(CareGapReasonCode.VALUEMISSING);
+            const notNullFilter = f as NotNullFilter;
+            const resources = detailedResult.clauseResults?.find(
+              cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
+            );
+            const attr_path = notNullFilter.attribute.split('.');
+            if (resources) {
+              // Access desired property of FHIRObject
+              resources.raw.forEach((r: any) => {
+                let desiredAttr = r;
+                attr_path.forEach(key => {
+                  desiredAttr = desiredAttr[key];
+                });
+
+                // Use VALUEMISSING code if data is null
+                if (desiredAttr === null || desiredAttr === undefined) {
+                  reasonDetail.reasonCodes.push(CareGapReasonCode.VALUEMISSING);
+                }
+              });
+            }
           } else {
             // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
             // For non-during filters, look up clause result by localId
