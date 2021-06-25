@@ -99,6 +99,7 @@ export enum CareGapReasonCode {
   INVALIDATTRIBUTE = 'InvalidAttribute',
   DATEOUTOFRANGE = 'DateOutOfRange',
   VALUEOUTOFRANGE = 'ValueOutOfRange',
+  VALUEMISSING = 'ValueMissing',
   COUNTOUTOFRANGE = 'CountOutOfRange'
 }
 
@@ -108,8 +109,9 @@ export enum CareGapReasonCode {
 export const CareGapReasonCodeDisplay = {
   [CareGapReasonCode.MISSING]: 'No Data Element found from Value Set',
   [CareGapReasonCode.PRESENT]: 'Data element was found',
+  [CareGapReasonCode.INVALIDATTRIBUTE]: 'Attribute on the data element did not equal desired value',
   [CareGapReasonCode.DATEOUTOFRANGE]: 'Key date was not in the expected range',
   [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value was not in the expected range',
-  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range',
-  [CareGapReasonCode.INVALIDATTRIBUTE]: 'Attribute on the data element did not equal desired value'
+  [CareGapReasonCode.VALUEMISSING]: 'Value was missing or null',
+  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range'
 };

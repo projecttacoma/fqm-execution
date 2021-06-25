@@ -447,6 +447,17 @@ describe('Find Near Misses', () => {
               }
             }
           ]
+        },
+        {
+          localId: 'observation',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            {
+              value: false
+            }
+          ]
         }
       ],
       statementResults: []
@@ -512,6 +523,63 @@ describe('Find Near Misses', () => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.DATEOUTOFRANGE]);
+    });
+
+    test('retrieve with false not null filter should be code VALUEMISSING', () => {
+      const q: GapsDataTypeQuery = {
+        ...baseQuery,
+        queryInfo: {
+          sources: [
+            {
+              alias: 'P',
+              resourceType: 'Procedure',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter: {
+            type: 'notnull',
+            alias: 'P',
+            attribute: 'result'
+          }
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.VALUEMISSING]);
+    });
+
+    test('retrieve with true not null filter should have default reason detail', () => {
+      const q: GapsDataTypeQuery = {
+        dataType: 'Observation',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: true,
+        parentQueryHasResult: false,
+        libraryName: 'example',
+        retrieveLocalId: 'observation',
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter: {
+            type: 'notnull',
+            alias: 'O',
+            attribute: 'value'
+          }
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.reasonDetail).toBeDefined();
+      // If no specific reason details found, default is missing
+      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.MISSING]);
     });
 
     test('retrieve with both false date and attribute filters should be code both INVALIDATTRIBUTE and DATEOUTOFRANGE', () => {
@@ -846,6 +914,63 @@ describe('Guidance Response', () => {
     const [gr] = grs;
 
     expect(gr.dataRequirement).toEqual(drWithDate);
+  });
+
+  test('should generate data requirement with valueFilter for not-null filter', () => {
+    const drWithValue: R4.IDataRequirement[] = [
+      {
+        type: 'Observation',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          }
+        ],
+        extension: [
+          {
+            url: 'http://example.com/dr-value',
+            extension: [
+              {
+                url: 'dr-value-attribute',
+                valueString: 'value'
+              },
+              {
+                url: 'dr-value-filter',
+                valueString: 'not null'
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const query: GapsDataTypeQuery = {
+      dataType: 'Observation',
+      valueSet: 'http://example.com/test-vs',
+      retrieveHasResult: true,
+      parentQueryHasResult: false,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'O',
+            resourceType: 'Observation'
+          }
+        ],
+        filter: {
+          type: 'notnull',
+          alias: 'O',
+          attribute: 'value'
+        }
+      }
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithValue);
   });
 
   test('should generate combo data requirement with codeFilter and dateFilter', () => {

@@ -1,6 +1,14 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../types/Calculator';
-import { EqualsFilter, InFilter, DuringFilter, AndFilter, AnyFilter } from '../types/QueryFilterTypes';
+import {
+  EqualsFilter,
+  InFilter,
+  DuringFilter,
+  AndFilter,
+  AnyFilter,
+  Filter,
+  NotNullFilter
+} from '../types/QueryFilterTypes';
 
 /**
  * Take any nesting of base filters and AND filters and flatten into one list
@@ -67,6 +75,28 @@ export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequir
     path: filter.attribute,
     valuePeriod: { start: filter.valuePeriod.start, end: filter.valuePeriod.end }
   };
+}
+
+/**
+ * Map a filter into a FHIR DataRequirement valueFilter extension
+ *
+ * @param filter the filter to map
+ * @returns extension for the valueFilter list of dataRequirement
+ */
+export function generateDetailedValueFilter(filter: Filter): R4.IExtension | null {
+  if (filter.type === 'notnull') {
+    const notnullFilter = filter as NotNullFilter;
+    return {
+      url: 'http://example.com/dr-value',
+      extension: [
+        { url: 'dr-value-attribute', valueString: notnullFilter.attribute },
+        { url: 'dr-value-filter', valueString: 'not null' }
+      ]
+    };
+  } else {
+    console.error(`Detailed value filter is not yet supported for filter type ${filter.type}`);
+    return null;
+  }
 }
 
 /**

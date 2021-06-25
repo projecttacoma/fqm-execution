@@ -11,9 +11,10 @@ import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeD
 import {
   flattenFilters,
   generateDetailedCodeFilter,
-  generateDetailedDateFilter
+  generateDetailedDateFilter,
+  generateDetailedValueFilter
 } from './helpers/DataRequirementHelpers';
-import { EqualsFilter, InFilter, DuringFilter, AnyFilter } from './types/QueryFilterTypes';
+import { EqualsFilter, InFilter, DuringFilter, AnyFilter, NotNullFilter } from './types/QueryFilterTypes';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -212,6 +213,15 @@ export function generateGuidanceResponses(
           } else {
             dataRequirement.dateFilter = [dateFilter];
           }
+        } else {
+          const valueFilter = generateDetailedValueFilter(df);
+          if (valueFilter) {
+            if (dataRequirement.extension) {
+              dataRequirement.extension.push(valueFilter);
+            } else {
+              dataRequirement.extension = [valueFilter];
+            }
+          }
         }
       });
     }
@@ -341,6 +351,26 @@ export function calculateReasonDetail(
 
                 if (isAttrContainedInInterval === false) {
                   reasonDetail.reasonCodes.push(CareGapReasonCode.DATEOUTOFRANGE);
+                }
+              });
+            }
+          } else if (f.type === 'notnull') {
+            const notNullFilter = f as NotNullFilter;
+            const resources = detailedResult.clauseResults?.find(
+              cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
+            );
+            const attrPath = notNullFilter.attribute.split('.');
+            if (resources) {
+              // Access desired property of FHIRObject
+              resources.raw.forEach((r: any) => {
+                let desiredAttr = r;
+                attrPath.forEach(key => {
+                  desiredAttr = desiredAttr[key];
+                });
+
+                // Use VALUEMISSING code if data is null
+                if (desiredAttr === null || desiredAttr === undefined) {
+                  reasonDetail.reasonCodes.push(CareGapReasonCode.VALUEMISSING);
                 }
               });
             }
