@@ -447,6 +447,17 @@ describe('Find Near Misses', () => {
               }
             }
           ]
+        },
+        {
+          localId: 'observation',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            {
+              value: false
+            }
+          ]
         }
       ],
       statementResults: []
@@ -512,6 +523,63 @@ describe('Find Near Misses', () => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.DATEOUTOFRANGE]);
+    });
+
+    test('retrieve with false not null filter should be code VALUEMISSING', () => {
+      const q: GapsDataTypeQuery = {
+        ...baseQuery,
+        queryInfo: {
+          sources: [
+            {
+              alias: 'P',
+              resourceType: 'Procedure',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter: {
+            type: 'notnull',
+            alias: 'P',
+            attribute: 'result'
+          }
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.VALUEMISSING]);
+    });
+
+    test('retrieve with true not null filter should have default reason detail', () => {
+      const q: GapsDataTypeQuery = {
+        dataType: 'Observation',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: true,
+        parentQueryHasResult: false,
+        libraryName: 'example',
+        retrieveLocalId: 'observation',
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter: {
+            type: 'notnull',
+            alias: 'O',
+            attribute: 'value'
+          }
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.reasonDetail).toBeDefined();
+      // If no specific reason details found, default is missing
+      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.MISSING]);
     });
 
     test('retrieve with both false date and attribute filters should be code both INVALIDATTRIBUTE and DATEOUTOFRANGE', () => {
