@@ -83,7 +83,7 @@ export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequir
  * @param filter the filter to map
  * @returns extension for the valueFilter list of dataRequirement
  */
-export function generateDetailedValueFilter(filter: Filter): R4.IExtension {
+export function generateDetailedValueFilter(filter: Filter): R4.IExtension | null {
   if (filter.type === 'notnull') {
     const notnullFilter = filter as NotNullFilter;
     return {
@@ -94,8 +94,8 @@ export function generateDetailedValueFilter(filter: Filter): R4.IExtension {
       ]
     };
   } else {
-    console.warn(`Detailed value filter is not yet supported for filter type ${filter.type}`);
-    return {};
+    console.error(`Detailed value filter is not yet supported for filter type ${filter.type}`);
+    return null;
   }
 }
 

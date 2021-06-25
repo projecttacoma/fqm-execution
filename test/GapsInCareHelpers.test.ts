@@ -916,6 +916,63 @@ describe('Guidance Response', () => {
     expect(gr.dataRequirement).toEqual(drWithDate);
   });
 
+  test('should generate data requirement with valueFilter for not-null filter', () => {
+    const drWithValue: R4.IDataRequirement[] = [
+      {
+        type: 'Observation',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          }
+        ],
+        extension: [
+          {
+            url: 'http://example.com/dr-value',
+            extension: [
+              {
+                url: 'dr-value-attribute',
+                valueString: 'value'
+              },
+              {
+                url: 'dr-value-filter',
+                valueString: 'not null'
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    const query: GapsDataTypeQuery = {
+      dataType: 'Observation',
+      valueSet: 'http://example.com/test-vs',
+      retrieveHasResult: true,
+      parentQueryHasResult: false,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'O',
+            resourceType: 'Observation'
+          }
+        ],
+        filter: {
+          type: 'notnull',
+          alias: 'O',
+          attribute: 'value'
+        }
+      }
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithValue);
+  });
+
   test('should generate combo data requirement with codeFilter and dateFilter', () => {
     const drWithDateAndCode: R4.IDataRequirement[] = [
       {

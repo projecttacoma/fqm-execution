@@ -213,12 +213,14 @@ export function generateGuidanceResponses(
           } else {
             dataRequirement.dateFilter = [dateFilter];
           }
-        } else if (df.type === 'notnull') {
+        } else {
           const valueFilter = generateDetailedValueFilter(df);
-          if (dataRequirement.extension) {
-            dataRequirement.extension.push(valueFilter);
-          } else {
-            dataRequirement.extension = [valueFilter];
+          if (valueFilter) {
+            if (dataRequirement.extension) {
+              dataRequirement.extension.push(valueFilter);
+            } else {
+              dataRequirement.extension = [valueFilter];
+            }
           }
         }
       });

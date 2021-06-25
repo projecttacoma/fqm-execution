@@ -1,5 +1,12 @@
 import * as DataRequirementHelpers from '../src/helpers/DataRequirementHelpers';
-import { AndFilter, EqualsFilter, DuringFilter, InFilter, NotNullFilter } from '../src/types/QueryFilterTypes';
+import {
+  AndFilter,
+  EqualsFilter,
+  DuringFilter,
+  InFilter,
+  NotNullFilter,
+  UnknownFilter
+} from '../src/types/QueryFilterTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../src/types/Calculator';
 
@@ -209,6 +216,16 @@ describe('DataRequirementHelpers', () => {
       };
 
       expect(DataRequirementHelpers.generateDetailedValueFilter(nnf)).toEqual(expectedDetailFilter);
+    });
+
+    test('unknown filter should create a null for filter creation', () => {
+      const uf: UnknownFilter = {
+        type: 'unknown',
+        alias: 'R',
+        attribute: 'attr-1'
+      };
+
+      expect(DataRequirementHelpers.generateDetailedValueFilter(uf)).toBeNull();
     });
   });
 
