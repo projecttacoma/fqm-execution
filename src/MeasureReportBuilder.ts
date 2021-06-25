@@ -27,7 +27,11 @@ export default class MeasureReportBuilder {
     this.measureBundle = measureBundle;
     this.measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
     this.scoringCode =
-      this.measure.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')?.code || '';
+      this.measure.scoring?.coding?.find(
+        c =>
+          c.system === 'http://hl7.org/fhir/measure-scoring' ||
+          c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
+      )?.code || '';
     this.options = options;
     // if report type is specified use it, otherwise default to individual report.
     if (this.options.reportType) {

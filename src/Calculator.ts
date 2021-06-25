@@ -312,8 +312,11 @@ export async function calculateGapsInCare(
       const measureResource = MeasureHelpers.extractMeasureFromBundle(measureBundle);
 
       // Gaps only supported for proportion/ratio measures
-      const scoringCode = measureResource.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')
-        ?.code;
+      const scoringCode = measureResource.scoring?.coding?.find(
+        c =>
+          c.system === 'http://hl7.org/fhir/measure-scoring' ||
+          c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
+      )?.code;
 
       if (scoringCode !== MeasureScoreType.PROP) {
         throw new Error(`Gaps in care not supported for measure scoring type ${scoringCode}`);
