@@ -182,11 +182,11 @@ export function generateGuidanceResponses(
     let gapCoding: R4.ICoding[];
 
     // TODO: update system to be full URL once defined
-    if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasonCodes) {
-      gapCoding = q.reasonDetail.reasonCodes.map(c => ({
+    if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasons.length > 0) {
+      gapCoding = q.reasonDetail.reasons.map(r => ({
         system: 'CareGapReasonCodeSystem',
-        code: c,
-        display: CareGapReasonCodeDisplay[c]
+        code: r.code,
+        display: CareGapReasonCodeDisplay[r.code]
       }));
     } else {
       gapCoding =
@@ -337,7 +337,7 @@ export function calculateReasonDetail(
     if (improvementNotation === ImprovementNotation.POSITIVE) {
       reasonDetail = {
         hasReasonDetail: r.retrieveHasResult === true && r.parentQueryHasResult === false,
-        reasonCodes: []
+        reasons: []
       };
 
       if (reasonDetail.hasReasonDetail && r.queryInfo && detailedResult?.clauseResults) {
@@ -370,7 +370,7 @@ export function calculateReasonDetail(
                 const isAttrContainedInInterval = interval.contains(desiredAttr.value);
 
                 if (isAttrContainedInInterval === false) {
-                  reasonDetail.reasonCodes.push(CareGapReasonCode.DATEOUTOFRANGE);
+                  reasonDetail.reasons.push({ code: CareGapReasonCode.DATEOUTOFRANGE });
                 }
               });
             }
@@ -390,7 +390,7 @@ export function calculateReasonDetail(
 
                 // Use VALUEMISSING code if data is null
                 if (desiredAttr === null || desiredAttr === undefined) {
-                  reasonDetail.reasonCodes.push(CareGapReasonCode.VALUEMISSING);
+                  reasonDetail.reasons.push({ code: CareGapReasonCode.VALUEMISSING });
                 }
               });
             }
@@ -406,7 +406,7 @@ export function calculateReasonDetail(
             if (clauseResult && clauseResult.final === FinalResult.FALSE) {
               const code = getGapReasonCode(f);
               if (code !== null) {
-                reasonDetail.reasonCodes.push(code);
+                reasonDetail.reasons.push({ code });
               }
             }
           }
@@ -414,14 +414,14 @@ export function calculateReasonDetail(
       }
 
       // If no specific reason details found, default is missing
-      if (reasonDetail.hasReasonDetail && reasonDetail.reasonCodes.length === 0) {
-        reasonDetail.reasonCodes = [CareGapReasonCode.MISSING];
+      if (reasonDetail.hasReasonDetail && reasonDetail.reasons.length === 0) {
+        reasonDetail.reasons = [{ code: CareGapReasonCode.MISSING }];
       }
     } else {
       // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
       reasonDetail = {
         hasReasonDetail: false,
-        reasonCodes: []
+        reasons: []
       };
     }
     return { ...r, reasonDetail };
