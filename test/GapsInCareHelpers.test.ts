@@ -488,7 +488,7 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.INVALIDATTRIBUTE]);
+      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.INVALIDATTRIBUTE }]);
     });
 
     test('retrieve with false date filter should be code DATEOUTOFRANGE', () => {
@@ -522,7 +522,7 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.DATEOUTOFRANGE]);
+      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.DATEOUTOFRANGE }]);
     });
 
     test('retrieve with false not null filter should be code VALUEMISSING', () => {
@@ -548,7 +548,7 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.VALUEMISSING]);
+      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.VALUEMISSING }]);
     });
 
     test('retrieve with true not null filter should have default reason detail', () => {
@@ -579,7 +579,7 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       // If no specific reason details found, default is missing
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.MISSING]);
+      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.MISSING }]);
     });
 
     test('retrieve with both false date and attribute filters should be code both INVALIDATTRIBUTE and DATEOUTOFRANGE', () => {
@@ -625,8 +625,8 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes?.sort()).toEqual(
-        [CareGapReasonCode.INVALIDATTRIBUTE, CareGapReasonCode.DATEOUTOFRANGE].sort()
+      expect(r.reasonDetail?.reasons?.sort()).toEqual(
+        [{ code: CareGapReasonCode.INVALIDATTRIBUTE }, { code: CareGapReasonCode.DATEOUTOFRANGE }].sort()
       );
     });
   });
