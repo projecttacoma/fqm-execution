@@ -350,7 +350,11 @@ export function calculateReasonDetail(
                 const isAttrContainedInInterval = interval.contains(desiredAttr.value);
 
                 if (isAttrContainedInInterval === false) {
-                  reasonDetail.reasons.push({ code: CareGapReasonCode.DATEOUTOFRANGE });
+                  reasonDetail.reasons.push({
+                    code: CareGapReasonCode.DATEOUTOFRANGE,
+                    path: duringFilter.attribute,
+                    reference: `${r.resourceType}/${r.id}`
+                  });
                 }
               });
             }
@@ -370,7 +374,11 @@ export function calculateReasonDetail(
 
                 // Use VALUEMISSING code if data is null
                 if (desiredAttr === null || desiredAttr === undefined) {
-                  reasonDetail.reasons.push({ code: CareGapReasonCode.VALUEMISSING });
+                  reasonDetail.reasons.push({
+                    code: CareGapReasonCode.VALUEMISSING,
+                    path: notNullFilter.attribute,
+                    reference: `${r.resourceType}/${r.id}`
+                  });
                 }
               });
             }
