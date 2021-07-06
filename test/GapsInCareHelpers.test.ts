@@ -441,6 +441,8 @@ describe('Find Near Misses', () => {
           final: FinalResult.TRUE,
           raw: [
             {
+              resourceType: 'Procedure',
+              id: 'proc23',
               performed: {
                 start: { value: '2000-01-01' },
                 end: { value: '2000-01-02' } // out of range of desired interval
@@ -455,6 +457,8 @@ describe('Find Near Misses', () => {
           final: FinalResult.TRUE,
           raw: [
             {
+              resourceType: 'Observation',
+              id: 'obs12',
               value: false
             }
           ]
@@ -522,7 +526,9 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.DATEOUTOFRANGE }]);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.DATEOUTOFRANGE, path: 'performed.end', reference: 'Procedure/proc23' }
+      ]);
     });
 
     test('retrieve with false not null filter should be code VALUEMISSING', () => {
@@ -548,7 +554,9 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.VALUEMISSING }]);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEMISSING, path: 'result', reference: 'Procedure/proc23' }
+      ]);
     });
 
     test('retrieve with true not null filter should have default reason detail', () => {
@@ -626,7 +634,10 @@ describe('Find Near Misses', () => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasons?.sort()).toEqual(
-        [{ code: CareGapReasonCode.INVALIDATTRIBUTE }, { code: CareGapReasonCode.DATEOUTOFRANGE }].sort()
+        [
+          { code: CareGapReasonCode.INVALIDATTRIBUTE },
+          { code: CareGapReasonCode.DATEOUTOFRANGE, path: 'performed.end', reference: 'Procedure/proc23' }
+        ].sort()
       );
     });
   });
