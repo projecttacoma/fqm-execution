@@ -344,7 +344,7 @@ export default class MeasureReportBuilder {
   }
 
   private median(observations: number[]) {
-    const sorted = observations.sort(function(a, b) {
+    const sorted = observations.sort((a, b) => {
       return a - b;
     });
     const centerIndex = Math.floor(sorted.length / 2);
