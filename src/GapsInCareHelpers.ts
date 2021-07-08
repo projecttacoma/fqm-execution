@@ -14,7 +14,14 @@ import {
   generateDetailedDateFilter,
   generateDetailedValueFilter
 } from './helpers/DataRequirementHelpers';
-import { EqualsFilter, InFilter, DuringFilter, AnyFilter, NotNullFilter } from './types/QueryFilterTypes';
+import {
+  EqualsFilter,
+  InFilter,
+  DuringFilter,
+  AnyFilter,
+  NotNullFilter,
+  AttributeFilter
+} from './types/QueryFilterTypes';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -334,60 +341,62 @@ export function calculateReasonDetail(
 ): GapsDataTypeQuery[] {
   return retrieves.map(r => {
     let reasonDetail: ReasonDetail;
+    // If this is a positive improvement notation then results
     if (improvementNotation === ImprovementNotation.POSITIVE) {
+      // Create the initial reasonDetail information. There will be detail if the retrieve has a result but the query
+      // that filters on the retrieve.
       reasonDetail = {
         hasReasonDetail: r.retrieveHasResult === true && r.parentQueryHasResult === false,
         reasons: []
       };
 
+      // If there are results for this clause and we have queryInfo then we can look at the
       if (reasonDetail.hasReasonDetail && r.queryInfo && detailedResult?.clauseResults) {
         const flattenedFilters = flattenFilters(r.queryInfo.filter);
+        const resources = detailedResult.clauseResults?.find(
+          cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
+        );
 
-        flattenedFilters.forEach(f => {
-          // Separate interval handling for 'during' filters
-          if (f.type === 'during') {
-            const duringFilter = f as DuringFilter;
-            const resources = detailedResult.clauseResults?.find(
-              cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
-            );
+        if (resources) {
+          // loop through resources from the results
+          resources.raw.forEach((resource: any) => {
+            // loop through each filter
+            flattenedFilters.forEach(f => {
+              // Separate interval handling for 'during' filters
+              if (f.type === 'during') {
+                const duringFilter = f as DuringFilter;
 
-            if (duringFilter.valuePeriod.interval && resources) {
-              const path = duringFilter.attribute.split('.');
-              const interval = duringFilter.valuePeriod.interval;
+                if (duringFilter.valuePeriod.interval) {
+                  const path = duringFilter.attribute.split('.');
+                  const interval = duringFilter.valuePeriod.interval;
 
-              // Access desired property of FHIRObject
-              resources.raw.forEach((r: any) => {
-                let desiredAttr = r;
-                path.forEach(key => {
-                  if (desiredAttr.value?.isDateTime) {
-                    return;
-                  }
+                  // Access desired property of FHIRObject
+                  let desiredAttr = resource;
+                  path.forEach(key => {
+                    if (desiredAttr.value?.isDateTime) {
+                      return;
+                    }
 
-                  desiredAttr = desiredAttr[key];
-                });
-
-                // Use DateOutOfRange code if data point is outside of the desired interval
-                const isAttrContainedInInterval = interval.contains(desiredAttr.value);
-
-                if (isAttrContainedInInterval === false) {
-                  reasonDetail.reasons.push({
-                    code: CareGapReasonCode.DATEOUTOFRANGE,
-                    path: duringFilter.attribute,
-                    reference: `${r.resourceType}/${r.id}`
+                    desiredAttr = desiredAttr[key];
                   });
+
+                  // Use DateOutOfRange code if data point is outside of the desired interval
+                  const isAttrContainedInInterval = interval.contains(desiredAttr.value);
+
+                  if (isAttrContainedInInterval === false) {
+                    reasonDetail.reasons.push({
+                      code: CareGapReasonCode.DATEOUTOFRANGE,
+                      path: duringFilter.attribute,
+                      reference: `${resource.resourceType}/${resource.id}`
+                    });
+                  }
                 }
-              });
-            }
-          } else if (f.type === 'notnull') {
-            const notNullFilter = f as NotNullFilter;
-            const resources = detailedResult.clauseResults?.find(
-              cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
-            );
-            const attrPath = notNullFilter.attribute.split('.');
-            if (resources) {
-              // Access desired property of FHIRObject
-              resources.raw.forEach((r: any) => {
-                let desiredAttr = r;
+              } else if (f.type === 'notnull') {
+                const notNullFilter = f as NotNullFilter;
+                const attrPath = notNullFilter.attribute.split('.');
+
+                // Access desired property of FHIRObject
+                let desiredAttr = resource;
                 attrPath.forEach(key => {
                   desiredAttr = desiredAttr[key];
                 });
@@ -397,28 +406,38 @@ export function calculateReasonDetail(
                   reasonDetail.reasons.push({
                     code: CareGapReasonCode.VALUEMISSING,
                     path: notNullFilter.attribute,
-                    reference: `${r.resourceType}/${r.id}`
+                    reference: `${resource.resourceType}/${resource.id}`
                   });
                 }
-              });
-            }
-          } else {
-            // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
-            // For non-during filters, look up clause result by localId
-            // Ideally we can look to modify cql-execution to help us with this flaw
-            const clauseResult = detailedResult.clauseResults?.find(
-              cr => cr.libraryName === r.libraryName && cr.localId === f.localId
-            );
+              } else {
+                // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
+                // For non-during filters, look up clause result by localId
+                // Ideally we can look to modify cql-execution to help us with this flaw
+                const clauseResult = detailedResult.clauseResults?.find(
+                  cr => cr.libraryName === r.libraryName && cr.localId === f.localId
+                );
 
-            // False clause means this specific filter was falsy
-            if (clauseResult && clauseResult.final === FinalResult.FALSE) {
-              const code = getGapReasonCode(f);
-              if (code !== null) {
-                reasonDetail.reasons.push({ code });
+                // False clause means this specific filter was falsy
+                if (clauseResult && clauseResult.final === FinalResult.FALSE) {
+                  const code = getGapReasonCode(f);
+                  if (code !== null) {
+                    // if this filter is filtering on an attribute of a resource then include info about the path to the
+                    // attribute and reference the patient
+                    if ((f as AttributeFilter).attribute) {
+                      reasonDetail.reasons.push({
+                        code: code,
+                        path: (f as AttributeFilter).attribute,
+                        reference: `${resource.resourceType}/${resource.id}`
+                      });
+                    } else {
+                      reasonDetail.reasons.push({ code: code });
+                    }
+                  }
+                }
               }
-            }
-          }
-        });
+            });
+          });
+        }
       }
 
       // If no specific reason details found, default is missing
@@ -426,12 +445,14 @@ export function calculateReasonDetail(
         reasonDetail.reasons = [{ code: CareGapReasonCode.MISSING }];
       }
     } else {
+      // Handle negative improvement notation cases.
       // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
       reasonDetail = {
         hasReasonDetail: false,
         reasons: []
       };
     }
+    // add the reason detail we calculated to the query info and retrieve and return it
     return { ...r, reasonDetail };
   });
 }

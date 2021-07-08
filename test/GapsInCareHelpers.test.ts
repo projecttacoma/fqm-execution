@@ -492,7 +492,9 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.INVALIDATTRIBUTE }]);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.INVALIDATTRIBUTE, path: 'status', reference: 'Procedure/proc23' }
+      ]);
     });
 
     test('retrieve with false date filter should be code DATEOUTOFRANGE', () => {
@@ -635,7 +637,7 @@ describe('Find Near Misses', () => {
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasons?.sort()).toEqual(
         [
-          { code: CareGapReasonCode.INVALIDATTRIBUTE },
+          { code: CareGapReasonCode.INVALIDATTRIBUTE, path: 'status', reference: 'Procedure/proc23' },
           { code: CareGapReasonCode.DATEOUTOFRANGE, path: 'performed.end', reference: 'Procedure/proc23' }
         ].sort()
       );
