@@ -308,12 +308,15 @@ export async function calculateGapsInCare(
       throw new Error(`No MeasureReport generated during gaps in care for ${res.patientId}`);
     }
 
-    res.detailedResults?.forEach(dr => {
+    res.detailedResults?.forEach((dr, i) => {
       const measureResource = MeasureHelpers.extractMeasureFromBundle(measureBundle);
 
       // Gaps only supported for proportion/ratio measures
-      const scoringCode = measureResource.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')
-        ?.code;
+      const scoringCode = measureResource.scoring?.coding?.find(
+        c =>
+          c.system === 'http://hl7.org/fhir/measure-scoring' ||
+          c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
+      )?.code;
 
       if (scoringCode !== MeasureScoreType.PROP) {
         throw new Error(`Gaps in care not supported for measure scoring type ${scoringCode}`);
@@ -341,7 +344,7 @@ export async function calculateGapsInCare(
         (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
 
       if (populationCriteria) {
-        const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId);
+        const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId) || measureResource.group?.[i];
 
         if (!matchingGroup) {
           throw new Error(`Could not find group with id ${dr.groupId} in measure resource`);

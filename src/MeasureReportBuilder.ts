@@ -27,7 +27,11 @@ export default class MeasureReportBuilder {
     this.measureBundle = measureBundle;
     this.measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
     this.scoringCode =
-      this.measure.scoring?.coding?.find(c => c.system === 'http://hl7.org/fhir/measure-scoring')?.code || '';
+      this.measure.scoring?.coding?.find(
+        c =>
+          c.system === 'http://hl7.org/fhir/measure-scoring' ||
+          c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
+      )?.code || '';
     this.options = options;
     // if report type is specified use it, otherwise default to individual report.
     if (this.options.reportType) {
@@ -74,7 +78,10 @@ export default class MeasureReportBuilder {
     // build population groups from measure resource
     this.measure.group?.forEach(measureGroup => {
       const group = <R4.IMeasureReport_Group>{};
-      group.id = measureGroup.id;
+      if (measureGroup.id) {
+        group.id = measureGroup.id;
+      }
+
       group.population = [];
 
       // build each population group with 0 for initial value
@@ -139,7 +146,7 @@ export default class MeasureReportBuilder {
       this.report.subject = subjectReference;
     }
 
-    results.detailedResults.forEach(groupResults => {
+    results.detailedResults.forEach((groupResults, i) => {
       if (this.isIndividual) {
         // add narrative for relevant clauses
         if (this.report.text && groupResults.html) {
@@ -148,7 +155,8 @@ export default class MeasureReportBuilder {
       }
 
       // find corresponding group in report
-      const group = this.report.group?.find(g => g.id == groupResults.groupId);
+      // default to index if group is missing an ID
+      const group = this.report.group?.find(g => g.id == groupResults.groupId) || this.report.group?.[i];
       if (!group) {
         throw new Error(`Group ${groupResults.groupId} not found in measure report`);
       }
@@ -336,7 +344,7 @@ export default class MeasureReportBuilder {
   }
 
   private median(observations: number[]) {
-    const sorted = observations.sort(function (a, b) {
+    const sorted = observations.sort((a, b) => {
       return a - b;
     });
     const centerIndex = Math.floor(sorted.length / 2);
