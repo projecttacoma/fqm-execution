@@ -22,18 +22,21 @@ import { generateDataRequirement } from './helpers/DataRequirementHelpers';
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
  * @returns Detailed execution results. One for each patient.
  */
 export async function calculate(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<{
   results: ExecutionResult[];
   debugOutput?: DebugOutput;
   elmLibraries?: ELM[];
   mainLibraryName?: string;
   parameters?: { [key: string]: any };
+  valueSetCache?: R4.IValueSet[];
 }> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
@@ -49,7 +52,7 @@ export async function calculate(
   const measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
   const executionResults: ExecutionResult[] = [];
 
-  const results = await Execution.execute(measureBundle, patientBundles, options, debugObject);
+  const results = await Execution.execute(measureBundle, patientBundles, options, valueSetCache, debugObject);
   if (!results.rawResults) {
     throw new Error(results.errorMessage ?? 'something happened with no error message');
   }
@@ -167,10 +170,15 @@ export async function calculate(
       debugOutput: debugObject,
       elmLibraries: results.elmLibraries,
       mainLibraryName: results.mainLibraryName,
-      parameters: results.parameters
+      parameters: results.parameters,
+      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache })
     };
   } else {
-    return { results: executionResults, debugOutput: debugObject };
+    return {
+      results: executionResults,
+      debugOutput: debugObject,
+      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache })
+    };
   }
 }
 
@@ -180,16 +188,22 @@ export async function calculate(
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
  * @returns MeasureReport resource(s) for each patient or entire population according to standard https://www.hl7.org/fhir/measurereport.html
  */
 export async function calculateMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
-): Promise<{ results: R4.IMeasureReport | R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
+): Promise<{
+  results: R4.IMeasureReport | R4.IMeasureReport[];
+  debugOutput?: DebugOutput;
+  valueSetCache?: R4.IValueSet[];
+}> {
   return options.reportType === 'summary'
-    ? calculateAggregateMeasureReport(measureBundle, patientBundles, options)
-    : calculateIndividualMeasureReports(measureBundle, patientBundles, options);
+    ? calculateAggregateMeasureReport(measureBundle, patientBundles, options, valueSetCache)
+    : calculateIndividualMeasureReports(measureBundle, patientBundles, options, valueSetCache);
 }
 
 /**
@@ -198,18 +212,21 @@ export async function calculateMeasureReports(
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
  * @returns MeasureReport resource for each patient according to standard https://www.hl7.org/fhir/measurereport.html
  */
 export async function calculateIndividualMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
-): Promise<{ results: R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
+): Promise<{ results: R4.IMeasureReport[]; debugOutput?: DebugOutput; valueSetCache?: R4.IValueSet[] }> {
   if (options.reportType && options.reportType !== 'individual') {
     throw new Error('calculateMeasureReports only supports reportType "individual".');
   }
   // options should be updated by this call if measurementPeriod wasn't initially passed in
-  const { results, debugOutput } = await calculate(measureBundle, patientBundles, options);
+  const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
+  const { results, debugOutput } = calculationResults;
 
   const reports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
 
@@ -217,7 +234,7 @@ export async function calculateIndividualMeasureReports(
     debugOutput.measureReports = reports;
   }
 
-  return { results: reports, debugOutput };
+  return { results: reports, debugOutput, valueSetCache: calculationResults.valueSetCache };
 }
 
 /**
@@ -226,18 +243,21 @@ export async function calculateIndividualMeasureReports(
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
  * @returns MeasureReport resource summary according to standard https://www.hl7.org/fhir/measurereport.html
  */
 export async function calculateAggregateMeasureReport(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
-): Promise<{ results: R4.IMeasureReport; debugOutput?: DebugOutput }> {
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
+): Promise<{ results: R4.IMeasureReport; debugOutput?: DebugOutput; valueSetCache?: R4.IValueSet[] }> {
   if (options.reportType && options.reportType === 'individual') {
     throw new Error('calculateAggregateMeasureReports only supports reportType "summary".');
   }
   // options should be updated by this call if measurementPeriod wasn't initially passed in
-  const { results, debugOutput } = await calculate(measureBundle, patientBundles, options);
+  const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
+  const { results, debugOutput } = calculationResults;
 
   const builder = new MeasureReportBuilder(measureBundle, options);
 
@@ -268,35 +288,54 @@ export async function calculateAggregateMeasureReport(
     debugOutput.measureReports = [report];
   }
 
-  return { results: report, debugOutput };
+  return { results: report, debugOutput, valueSetCache: calculationResults.valueSetCache };
 }
 
+/**
+ * Get raw results from cql-execution
+ *
+ * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param patientBundles List of bundles of patients to be executed.
+ * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
+ * @returns pass through of raw calculation results from the engine
+ */
 export async function calculateRaw(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
-): Promise<{ results: cql.Results | string; debugOutput?: DebugOutput }> {
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
+): Promise<{ results: cql.Results | string; debugOutput?: DebugOutput; valueSetCache?: R4.IValueSet[] }> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
-  const results = await Execution.execute(measureBundle, patientBundles, options, debugObject);
+  const results = await Execution.execute(measureBundle, patientBundles, options, valueSetCache, debugObject);
   if (results.rawResults) {
-    return { results: results.rawResults, debugOutput: debugObject };
+    return { results: results.rawResults, debugOutput: debugObject, valueSetCache: results.valueSetCache };
   } else {
     return { results: results.errorMessage ?? 'something happened with no error message', debugOutput: debugObject };
   }
 }
 
+/**
+ * Get any gaps in care for the patients
+ *
+ * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param patientBundles List of bundles of patients to be executed.
+ * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
+ * @returns gaps bundle of DetectedIssues and GuidanceResponses
+ */
 export async function calculateGapsInCare(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
-): Promise<{ results: R4.IBundle; debugOutput?: DebugOutput }> {
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
+): Promise<{ results: R4.IBundle; debugOutput?: DebugOutput; valueSetCache?: R4.IValueSet[] }> {
   // Detailed results for populations get ELM content back
   options.returnELM = true;
-  const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = await calculate(
-    measureBundle,
-    patientBundles,
-    options
-  );
+
+  const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
+
+  const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = calculationResults;
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
 
   let result: R4.IBundle = <R4.IBundle>{};
@@ -435,9 +474,15 @@ export async function calculateGapsInCare(
     });
   });
 
-  return { results: result, debugOutput };
+  return { results: result, debugOutput, valueSetCache: calculationResults.valueSetCache };
 }
 
+/**
+ * Get data requirements for this measure
+ *
+ * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @returns FHIR Library of data requirements
+ */
 export function calculateDataRequirements(
   measureBundle: R4.IBundle
 ): { results: R4.ILibrary; debugOutput?: DebugOutput } {

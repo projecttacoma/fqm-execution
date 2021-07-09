@@ -2,34 +2,36 @@
 
 Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
 
-*   [Installation](#installation)
+- [Installation](#installation)
 
-*   [Usage](#usage)
-    *   [Module](#module)
-    *   [Calculation Options](#calculation-options)
-    *   [CLI](#cli)
-    *   [TypeScript](#typescript)
+- [Usage](#usage)
 
-*   [Local Development](#local-development)
-    *   [Prerequisites](#prerequisites)
-    *   [Local Installation/Usage](#local-installation%2Fusage)
-    *   [Debugging in VS Code](#debugging-in-vs-code)
-    *   [Testing](#testing)
-    *   [Checks](#checks)
+  - [Module](#module)
+  - [Calculation Options](#calculation-options)
+  - [CLI](#cli)
+  - [TypeScript](#typescript)
 
-*   [License](#license)
+- [Local Development](#local-development)
+
+  - [Prerequisites](#prerequisites)
+  - [Local Installation/Usage](#local-installation%2Fusage)
+  - [Debugging in VS Code](#debugging-in-vs-code)
+  - [Testing](#testing)
+  - [Checks](#checks)
+
+- [License](#license)
 
 ## Installation
 
 `fqm-execution` can be installed into your project with npm:
 
-``` bash
+```bash
 npm install --save https://github.com/projecttacoma/fqm-execution.git
 ```
 
 To install the global command line interface (CLI), use npm global installation:
 
-``` bash
+```bash
 npm install -g https://github.com/projecttacoma/fqm-execution.git
 ```
 
@@ -38,49 +40,59 @@ npm install -g https://github.com/projecttacoma/fqm-execution.git
 ### Module
 
 #### ES6
-``` JavaScript
+
+```JavaScript
 import { Calculator } from 'fqm-execution';
 
-const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
-const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
 ```
 
 #### Require
-``` JavaScript
+
+```JavaScript
 const { Calculator } = require('fqm-execution');
 
-const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
-const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
 ```
+
+#### Arguments
+
+- `measureBundle`: Bundle containing a FHIR Measure and its dependendent Libraries. FHIR ValueSets may be included as well
+- `patientBundles`: Array of FHIR Bundles containing patient data
+- `options` (optional): Object of calculation options (see below)
+- `valueSetCache` (optional): Array of FHIR ValueSet resources to use for calculation
 
 #### Calculation Options
 
 The options that we support for calculation are as follows:
-| option                 |  type   | optional? | description                                                                        |
+| option | type | optional? | description |
 | :--------------------- | :-----: | :-------: | :--------------------------------------------------------------------------------- |
-| enableDebugOutput      | boolean |    yes    |                        Enable debug output from function calls. Defaults to false. |
-| includeClauseResults   | boolean |    yes    |                               Option to include clause results. Defaults to false. |
-| includePrettyResults   | boolean |    yes    |          Option to include pretty results on statement results. Defaults to false. |
-| includeHighlighting    | boolean |    yes    |                Include highlighting in MeasureReport narrative. Defaults to false. |
-| measurementPeriodStart | string  |    yes    |                                                       Start of measurement period. |
-| measurementPeriodEnd   | string  |    yes    |                                                         End of measurement period. |
-| patientSource          |   any   |    yes    |        PatientSource to use. If provided, the patientBundles will not be required. |
-| reportType             | string  |    yes    |                      Type of MeasureReport to generate: "summary" or "individual". |
-| calculateSDEs          | boolean |    yes    |              Include Supplemental Data Elements in calculation. Defaults to false. |
-| calculateHTML          | boolean |    yes    |                        Include HTML structure for highlighting. Defaults to false. |
-| vsAPIKey               | string  |    yes    | API key, to be used to access a valueset API for downloading any missing valuesets |
+| enableDebugOutput | boolean | yes | Enable debug output from function calls. Defaults to false. |
+| includeClauseResults | boolean | yes | Option to include clause results. Defaults to false. |
+| includePrettyResults | boolean | yes | Option to include pretty results on statement results. Defaults to false. |
+| includeHighlighting | boolean | yes | Include highlighting in MeasureReport narrative. Defaults to false. |
+| measurementPeriodStart | string | yes | Start of measurement period. |
+| measurementPeriodEnd | string | yes | End of measurement period. |
+| patientSource | any | yes | PatientSource to use. If provided, the patientBundles will not be required. |
+| reportType | string | yes | Type of MeasureReport to generate: "summary" or "individual". |
+| calculateSDEs | boolean | yes | Include Supplemental Data Elements in calculation. Defaults to false. |
+| calculateHTML | boolean | yes | Include HTML structure for highlighting. Defaults to false. |
+| vsAPIKey | string | yes | API key, to be used to access a valueset API for downloading any missing valuesets |
+| useValueSetCaching | boolean | yes | Whether to cache valuesets obtained by an API on the filesystem |
 
 ### CLI
 
 To run the globally installed CLI (see above), use the global `fqm-execution command`
 
-``` bash
+```bash
 Usage: fqm-execution [options]
 
 Options:
@@ -91,13 +103,14 @@ Options:
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle
   -s, --measurement-period-start <date>       start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)
   -e, --measurement-period-end <date>         end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)
-  -h, --help                                  display help for command
   -a, --vs-api-key <key>                      API key, to authenticate against the valueset service to be used for resolving missing valuesets
+  -c, --cache-valuesets                       Whether or not to cache ValueSets retrieved from the ValueSet service (default: false)
+  -h, --help                                  display help for command
 ```
 
 E.g.
 
-``` bash
+```bash
 fqm-execution -o reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json > reports.json
 ```
 
@@ -115,38 +128,38 @@ To find your VSAC API key, sign into [the UTS homepage](https://uts.nlm.nih.gov/
 
 ### Prerequisites
 
-*   [Node.js >=10.15.1](https://nodejs.org/en/)
-*   [Git](https://git-scm.com/)
+- [Node.js >=10.15.1](https://nodejs.org/en/)
+- [Git](https://git-scm.com/)
 
 ### Local Installation/Usage
 
 Clone the source code:
 
-``` bash
+```bash
 git clone https://github.com/projecttacoma/fqm-execution.git
 ```
 
 Install dependencies:
 
-``` bash
+```bash
 npm install
 ```
 
 Optionally, you can install the `ts-node` utility globally to execute the TypeScript files directly instead of running the build script:
 
-``` bash
+```bash
 npm install -g ts-node
 ```
 
 Run the CLI with ts-node:
 
-``` bash
+```bash
 ts-node --files src/cli.ts [options]
 ```
 
 Or using the built JavaScript:
 
-``` bash
+```bash
 npm run build
 node build/cli.js [options]
 ```
@@ -161,7 +174,7 @@ To attach a debugger to the TypeScript files for deeper inspection of the tool's
 
 Add the following contents to `.vscode/launch.json` in the root of the project directory:
 
-``` JavaScript
+```JavaScript
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -194,7 +207,7 @@ This will allow you to run the CLI from the `Run` tab in VS Code, and will halt 
 
 We use [Jest](https://jestjs.io/en/) for unit-testing `fqm-execution`. Tests can be running using the `test` script in package.json:
 
-``` bash
+```bash
 npm test
 ```
 
@@ -202,16 +215,17 @@ npm test
 
 When contributing new code, ensure that all tests, lint, and prettier checks pass with the following command:
 
-``` bash
+```bash
 npm run check
 ```
+
 ### Architecture Overview
+
 ![Overview](doc/FQM.png)
 
-A visual representation of the  calculate sequence of the application can be seen below:
+A visual representation of the calculate sequence of the application can be seen below:
 
 ![Calculate](doc/calculate_Sequence.png)
-
 
 ## License
 
@@ -219,7 +233,7 @@ Copyright 2020 The MITRE Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-``` bash
+```bash
 http://www.apache.org/licenses/LICENSE-2.0
 ```
 
