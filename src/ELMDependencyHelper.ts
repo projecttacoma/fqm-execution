@@ -1,4 +1,12 @@
-import { ELM, LibraryDependencyInfo, StatementDependency, StatementReference } from './types/ELMTypes';
+import {
+  ELM,
+  ELMStatement,
+  LibraryDependencyInfo,
+  StatementDependency,
+  StatementReference,
+  ELMValueSetRef,
+  ELMValueSet
+} from './types/ELMTypes';
 
 /**
  * Build the dependency maps for all libraries. This creates a listing of which statements and functions
@@ -49,7 +57,12 @@ function makeStatementDependenciesForELM(elm: ELM): StatementDependency[] {
   const statementDependencies: StatementDependency[] = [];
   const libAliasMap = makeLibraryAliasToPathHash(elm);
 
-  elm.library.statements.def.forEach(statement => {
+  // TODO: This is a workaround to not require statements in ELM
+  // Current 130 bundle uses a standalone library of valuesets
+  // our interface should be updated to make this optional, which will require a bunch of other changes
+  const statements = elm.library.statements as any;
+
+  statements?.def.forEach((statement: ELMStatement) => {
     // skip "Patient" statement since this is a cql-to-elm addition
     if (statement.name === 'Patient') {
       return;
@@ -110,4 +123,27 @@ function findStatementReferencesForExpression(
     }
   }
   return references;
+}
+
+export function findLibraryReference(mainELM: ELM, allELM: ELM[], localIdentifier: string): ELM | null {
+  const matchingInclude = mainELM.library.includes?.def.find(d => d.localIdentifier === localIdentifier);
+
+  if (matchingInclude) {
+    return allELM.find(e => e.library.identifier.id === matchingInclude.path) || null;
+  }
+
+  return null;
+}
+
+export function findValueSetReference(mainELM: ELM, allELM: ELM[], valueSetRef: ELMValueSetRef): ELMValueSet | null {
+  // ValueSet exists in other lib
+  // lookup localId to find matching lib
+  let matchingLib: ELM | null = null;
+  if (valueSetRef.libraryName) {
+    matchingLib = findLibraryReference(mainELM, allELM, valueSetRef.libraryName);
+  } else {
+    matchingLib = mainELM;
+  }
+
+  return matchingLib?.library.valueSets?.def.find(v => v.name === valueSetRef.name) || null;
 }

@@ -10,6 +10,7 @@ import {
   ELMValueSetRef
 } from '../types/ELMTypes';
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
+import { findLibraryReference, findValueSetReference } from '../ELMDependencyHelper';
 
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions
@@ -45,7 +46,10 @@ export function findRetrieves(
     const dataType = exprRet.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 
     if (exprRet.codes?.type === 'ValueSetRef') {
-      const valueSet = elm.library.valueSets?.def.find(v => v.name === (exprRet.codes as ELMValueSetRef).name);
+      const codes = exprRet.codes as ELMValueSetRef;
+
+      const valueSet = findValueSetReference(elm, deps, codes);
+
       if (valueSet) {
         results.push({
           dataType,
@@ -93,7 +97,7 @@ export function findRetrieves(
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
     if ((expr as ELMExpressionRef).libraryName) {
-      const matchingLib = deps.find(d => d.library.identifier.id === (expr as ELMExpressionRef).libraryName);
+      const matchingLib = findLibraryReference(elm, deps, (expr as ELMExpressionRef).libraryName || '');
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === (expr as ELMExpressionRef).name);
       if (matchingLib && exprRef) {
         results.push(...findRetrieves(matchingLib, deps, exprRef.expression, queryLocalId, [...expressionStack]));

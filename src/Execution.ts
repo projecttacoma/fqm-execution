@@ -10,6 +10,7 @@ import { PopulationType } from './types/Enums';
 import { generateELMJSONFunction } from './CalculatorHelpers';
 import { ValueSetResolver } from './helpers/ValueSetResolver';
 import * as MeasureHelpers from './helpers/MeasureHelpers';
+import { clearDebugFolder, dumpELMJSONs, dumpCQLs, dumpVSMap } from './DebugHelper';
 
 export async function execute(
   measureBundle: R4.IBundle,
@@ -104,6 +105,25 @@ export async function execute(
         }
       });
   });
+
+  const rootELM = elmJSONs.find(e => e.library.identifier.id === rootLibIdentifier.id);
+
+  /* TODO: remove me */
+  if (rootELM?.library.includes) {
+    rootELM.library.includes.def[1] = {
+      localId: '3',
+      locator: '7:1-7:43',
+      localIdentifier: 'CCE',
+      path: 'ColorectalCancerElements',
+      version: '0.1.0'
+    };
+  }
+
+  clearDebugFolder();
+  dumpELMJSONs(elmJSONs);
+  dumpCQLs(cqls);
+  dumpVSMap(vsMap);
+  /* --------------------- */
 
   const codeService = new cql.CodeService(vsMap);
   const parameters = { 'Measurement Period': new cql.Interval(startCql, endCql) };
