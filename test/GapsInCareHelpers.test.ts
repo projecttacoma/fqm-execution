@@ -1,5 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import * as cql from 'cql-execution';
+import { FHIRWrapper } from 'cql-exec-fhir';
 import {
   processQueriesForGaps,
   generateDetectedIssueResources,
@@ -440,14 +441,14 @@ describe('Find Near Misses', () => {
           statementName: '',
           final: FinalResult.TRUE,
           raw: [
-            {
+            FHIRWrapper.FHIRv401().wrap({
               resourceType: 'Procedure',
               id: 'proc23',
               performed: {
                 start: { value: '2000-01-01' },
                 end: { value: '2000-01-02' } // out of range of desired interval
               }
-            }
+            })
           ]
         },
         {
@@ -456,11 +457,11 @@ describe('Find Near Misses', () => {
           statementName: '',
           final: FinalResult.TRUE,
           raw: [
-            {
+            FHIRWrapper.FHIRv401().wrap({
               resourceType: 'Observation',
               id: 'obs12',
               value: false
-            }
+            })
           ]
         }
       ],
