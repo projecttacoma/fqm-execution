@@ -106,25 +106,6 @@ export async function execute(
       });
   });
 
-  const rootELM = elmJSONs.find(e => e.library.identifier.id === rootLibIdentifier.id);
-
-  /* TODO: remove me */
-  if (rootELM?.library.includes) {
-    rootELM.library.includes.def[1] = {
-      localId: '3',
-      locator: '7:1-7:43',
-      localIdentifier: 'CCE',
-      path: 'ColorectalCancerElements',
-      version: '0.1.0'
-    };
-  }
-
-  clearDebugFolder();
-  dumpELMJSONs(elmJSONs);
-  dumpCQLs(cqls);
-  dumpVSMap(vsMap);
-  /* --------------------- */
-
   const codeService = new cql.CodeService(vsMap);
   const parameters = { 'Measurement Period': new cql.Interval(startCql, endCql) };
   const executionDateTime = cql.DateTime.fromJSDate(new Date(), 0);

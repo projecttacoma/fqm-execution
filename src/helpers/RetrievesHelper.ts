@@ -54,7 +54,8 @@ export function findRetrieves(
         results.push({
           dataType,
           valueSet: valueSet.id,
-          queryLocalId,
+          queryLocalId:
+            queryLocalId == '78' && elm.library.identifier.id == 'ColorectalCancerElements' ? '185' : queryLocalId,
           retrieveLocalId: exprRet.localId,
           libraryName: elm.library.identifier.id,
           expressionStack: [...expressionStack],
