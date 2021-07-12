@@ -1,7 +1,14 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { EqualsFilter, InFilter, DuringFilter, AndFilter, AnyFilter } from './types/QueryFilterTypes';
-
-// matt was here
+import { DataTypeQuery } from '../types/Calculator';
+import {
+  EqualsFilter,
+  InFilter,
+  DuringFilter,
+  AndFilter,
+  AnyFilter,
+  Filter,
+  NotNullFilter
+} from '../types/QueryFilterTypes';
 
 /**
  * Take any nesting of base filters and AND filters and flatten into one list
@@ -29,6 +36,7 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
  * @returns codeFilter to be put on the DataRequirement
  */
 export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter): R4.IDataRequirement_CodeFilter | null {
+  // matt was here
   if (filter.type === 'equals') {
     const equalsFilter = filter as EqualsFilter;
     if (typeof equalsFilter.value === 'string')
@@ -68,4 +76,61 @@ export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequir
     path: filter.attribute,
     valuePeriod: { start: filter.valuePeriod.start, end: filter.valuePeriod.end }
   };
+}
+
+/**
+ * Map a filter into a FHIR DataRequirement valueFilter extension
+ *
+ * @param filter the filter to map
+ * @returns extension for the valueFilter list of dataRequirement
+ */
+export function generateDetailedValueFilter(filter: Filter): R4.IExtension | null {
+  if (filter.type === 'notnull') {
+    const notnullFilter = filter as NotNullFilter;
+    return {
+      url: 'http://example.com/dr-value',
+      extension: [
+        { url: 'dr-value-attribute', valueString: notnullFilter.attribute },
+        { url: 'dr-value-filter', valueString: 'not null' }
+      ]
+    };
+  } else {
+    console.error(`Detailed value filter is not yet supported for filter type ${filter.type}`);
+    return null;
+  }
+}
+
+/**
+ * Given a DataTypeQuery object, create a DataRequirement object that represents the data
+ * that would be requested from a FHIR server for that query.
+ * Currently supports
+ * @param retrieve a DataTypeQuery that represents a retrieve for a FHIR Resource with certain attributes
+ * @returns R4.IDataRequirement with as much attribute data as we can add
+ */
+export function generateDataRequirement(retrieve: DataTypeQuery): R4.IDataRequirement {
+  if (retrieve.valueSet) {
+    return {
+      type: retrieve.dataType,
+      codeFilter: [
+        {
+          path: retrieve.path,
+          valueSet: retrieve.valueSet
+        }
+      ]
+    };
+  } else if (retrieve.code) {
+    return {
+      type: retrieve.dataType,
+      codeFilter: [
+        {
+          path: retrieve.path,
+          code: [retrieve.code as R4.ICoding]
+        }
+      ]
+    };
+  } else {
+    return {
+      type: retrieve.dataType
+    };
+  }
 }
