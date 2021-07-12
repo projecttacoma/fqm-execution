@@ -41,6 +41,7 @@ import {
   TautologyFilter,
   UnknownFilter
 } from './types/QueryFilterTypes';
+import { findLibraryReferenceId } from './ELMDependencyHelper';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
@@ -174,7 +175,7 @@ export function interpretExpression(
 ): AnyFilter {
   switch (expression.type) {
     case 'Equal':
-      return interpretEqual(expression as ELMEqual);
+      return interpretEqual(expression as ELMEqual, library);
     case 'Equivalent':
       return interpretEquivalent(expression as ELMEquivalent, library);
     case 'And':
@@ -294,29 +295,34 @@ export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, 
  * @param functionRef The function ref to look at.
  * @returns Usually an ELMProperty expression for the operand if it can be considered a passthrough.
  */
-export function interpretFunctionRef(functionRef: ELMFunctionRef): any {
-  // from fhir helpers or MAT Global
-  if (functionRef.libraryName == 'FHIRHelpers' || functionRef.libraryName == 'Global') {
-    switch (functionRef.name) {
-      case 'ToString':
-      case 'ToConcept':
-      case 'ToInterval':
-      case 'Normalize Interval':
-        // Act as pass through
-        if (functionRef.operand[0].type == 'Property') {
-          return functionRef.operand[0] as ELMProperty;
-        } else if (
-          functionRef.operand[0].type === 'As' &&
-          (functionRef.operand[0] as ELMAs).operand.type == 'Property'
-        ) {
-          return (functionRef.operand[0] as ELMAs).operand as ELMProperty;
-        }
-        break;
-      default:
-        break;
+export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM): any {
+
+  if (functionRef.libraryName) {
+    const libraryId = findLibraryReferenceId(library, functionRef.libraryName);
+
+    // from fhir helpers or MAT Global or fhir common
+    if (libraryId === 'FHIRHelpers' || libraryId === 'MATGlobalCommonFunctions' || libraryId === 'FHIRCommon') {
+      switch (functionRef.name) {
+        case 'ToString':
+        case 'ToConcept':
+        case 'ToInterval':
+        case 'Normalize Interval':
+          // Act as pass through
+          if (functionRef.operand[0].type == 'Property') {
+            return functionRef.operand[0] as ELMProperty;
+          } else if (
+            functionRef.operand[0].type === 'As' &&
+            (functionRef.operand[0] as ELMAs).operand.type == 'Property'
+          ) {
+            return (functionRef.operand[0] as ELMAs).operand as ELMProperty;
+          }
+          break;
+        default:
+          break;
+      }
+    } else {
+      console.warn(`do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`);
     }
-  } else {
-    console.warn(`do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`);
   }
 }
 
@@ -371,7 +377,7 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
 export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
   }
@@ -449,10 +455,10 @@ export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
  * @param equal The equal expression to be parsed.
  * @returns Filter representing the equal filter.
  */
-export function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
+export function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
   }
@@ -492,7 +498,7 @@ export function interpretIncludedIn(
 ): DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (includedIn.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
   } else if (includedIn.operand[0].type == 'Property') {
     propRef = includedIn.operand[0] as ELMProperty;
   }
@@ -545,14 +551,14 @@ export function interpretIncludedIn(
 export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (inExpr.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {
     propRef = inExpr.operand[0] as ELMProperty;
   } else if (inExpr.operand[0].type == 'End' || inExpr.operand[0].type == 'Start') {
     const startOrEnd = inExpr.operand[0] as ELMUnaryExpression;
     const suffix = startOrEnd.type === 'End' ? '.end' : '.start';
     if (startOrEnd.operand.type == 'FunctionRef') {
-      propRef = interpretFunctionRef(startOrEnd.operand as ELMFunctionRef);
+      propRef = interpretFunctionRef(startOrEnd.operand as ELMFunctionRef, library);
     } else if (startOrEnd.operand.type == 'Property') {
       propRef = startOrEnd.operand as ELMProperty;
     }
@@ -708,13 +714,13 @@ export function interpretGreaterOrEqual(
         const attrExpr = calAgeRef.operand[1];
         let propRef: ELMProperty | null = null;
         if (attrExpr.type === 'FunctionRef') {
-          propRef = interpretFunctionRef(attrExpr as ELMFunctionRef);
+          propRef = interpretFunctionRef(attrExpr as ELMFunctionRef, library);
         } else if (attrExpr.type === 'Property') {
           propRef = attrExpr;
         } else if (attrExpr.type === 'Start' || attrExpr.type === 'End') {
           const suffix = attrExpr.type === 'End' ? '.end' : '.start';
           if (attrExpr.operand.type == 'FunctionRef') {
-            propRef = interpretFunctionRef(attrExpr.operand as ELMFunctionRef);
+            propRef = interpretFunctionRef(attrExpr.operand as ELMFunctionRef, library);
           } else if (attrExpr.operand.type == 'Property') {
             propRef = attrExpr.operand as ELMProperty;
           }

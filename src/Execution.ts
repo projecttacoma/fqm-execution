@@ -10,7 +10,6 @@ import { PopulationType } from './types/Enums';
 import { generateELMJSONFunction } from './CalculatorHelpers';
 import { ValueSetResolver } from './helpers/ValueSetResolver';
 import * as MeasureHelpers from './helpers/MeasureHelpers';
-import { clearDebugFolder, dumpELMJSONs, dumpCQLs, dumpVSMap } from './DebugHelper';
 
 export async function execute(
   measureBundle: R4.IBundle,

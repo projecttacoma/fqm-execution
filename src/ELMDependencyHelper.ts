@@ -125,11 +125,17 @@ function findStatementReferencesForExpression(
   return references;
 }
 
-export function findLibraryReference(mainELM: ELM, allELM: ELM[], localIdentifier: string): ELM | null {
+export function findLibraryReferenceId(mainELM: ELM, localIdentifier: string): string | null {
   const matchingInclude = mainELM.library.includes?.def.find(d => d.localIdentifier === localIdentifier);
 
+  return matchingInclude ? matchingInclude.path : null;
+}
+
+export function findLibraryReference(mainELM: ELM, allELM: ELM[], localIdentifier: string): ELM | null {
+  const matchingInclude = findLibraryReferenceId(mainELM, localIdentifier);
+
   if (matchingInclude) {
-    return allELM.find(e => e.library.identifier.id === matchingInclude.path) || null;
+    return allELM.find(e => e.library.identifier.id === matchingInclude) || null;
   }
 
   return null;
