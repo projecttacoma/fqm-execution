@@ -263,6 +263,7 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
         case 'ToString':
         case 'ToConcept':
         case 'ToInterval':
+        case 'ToDateTime':
         case 'Normalize Interval':
           // Act as pass through
           if (functionRef.operand[0].type == 'Property') {

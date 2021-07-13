@@ -11,6 +11,7 @@ import {
 } from '../types/ELMTypes';
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 import { findLibraryReference, findValueSetReference } from '../ELMDependencyHelper';
+import { findClauseInLibrary } from './ELMHelpers';
 
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions
@@ -45,6 +46,34 @@ export function findRetrieves(
     // If present, strip off HL7 prefix to data type
     const dataType = exprRet.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 
+    // We need to detect if this query/retrieve is used as the source of another query directly. This is an indication
+    // that the retrieve is filtered by two separate queries and we need to actually look at the 'outermost' query closest
+    // to the numerator.
+    // This looks like the expressionStack ends with the following types ['Query', 'ExpressionRef', 'Query', 'Retrieve']
+    if (expressionStack.length >= 4) {
+      // Grab the last 4 in the stack and see if they match the case we are looking for
+      const bottomExprs = expressionStack.slice(-4);
+      if (
+        bottomExprs[0].type === 'Query' &&
+        bottomExprs[1].type === 'ExpressionRef' &&
+        bottomExprs[2].type === 'Query'
+      ) {
+        // check if the outer query is indeed referencing the inner one in the source.
+        const outerQuery = findClauseInLibrary(elm, bottomExprs[0].localId) as ELMQuery;
+        if (
+          outerQuery.source[0].expression.localId === bottomExprs[1].localId &&
+          outerQuery.source[0].expression.type === 'ExpressionRef'
+        ) {
+          // Change the queryLocalId to the outer query.
+          queryLocalId = bottomExprs[0].localId;
+        } else {
+          console.warn(
+            'Query is referenced in another query but not as a single source. Gaps output may be incomplete.'
+          );
+        }
+      }
+    }
+
     if (exprRet.codes?.type === 'ValueSetRef') {
       const codes = exprRet.codes as ELMValueSetRef;
 
@@ -54,8 +83,7 @@ export function findRetrieves(
         results.push({
           dataType,
           valueSet: valueSet.id,
-          queryLocalId:
-            queryLocalId == '78' && elm.library.identifier.id == 'ColorectalCancerElements' ? '185' : queryLocalId,
+          queryLocalId,
           retrieveLocalId: exprRet.localId,
           libraryName: elm.library.identifier.id,
           expressionStack: [...expressionStack],
