@@ -296,7 +296,6 @@ export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, 
  * @returns Usually an ELMProperty expression for the operand if it can be considered a passthrough.
  */
 export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM): any {
-
   if (functionRef.libraryName) {
     const libraryId = findLibraryReferenceId(library, functionRef.libraryName);
 
