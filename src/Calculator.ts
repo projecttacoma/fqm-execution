@@ -307,8 +307,9 @@ export async function calculateGapsInCare(
     if (!matchingMeasureReport) {
       throw new Error(`No MeasureReport generated during gaps in care for ${res.patientId}`);
     }
-
+    
     res.detailedResults?.forEach((dr, i) => {
+
       const measureResource = MeasureHelpers.extractMeasureFromBundle(measureBundle);
 
       // Gaps only supported for proportion/ratio measures
@@ -339,10 +340,11 @@ export async function calculateGapsInCare(
       // If positive improvement measure, consider patients in denominator but not numerator for gaps
       // If negative improvement measure, consider patients in numerator for gaps
       // For either case, ignore patient if numerator isn't relevant
+
       const populationCriteria =
         numerRelevance &&
         (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
-
+      
       if (populationCriteria) {
         const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId) || measureResource.group?.[i];
 
@@ -411,7 +413,8 @@ export async function calculateGapsInCare(
         });
 
         detailedGapsRetrieves = GapsInCareHelpers.calculateReasonDetail(detailedGapsRetrieves, improvementNotation, dr);
-
+        
+        
         const detectedIssues = GapsInCareHelpers.generateDetectedIssueResources(
           detailedGapsRetrieves,
           matchingMeasureReport,

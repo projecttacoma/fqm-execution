@@ -9,6 +9,10 @@ import {
   Filter,
   NotNullFilter
 } from '../types/QueryFilterTypes';
+import { GapsDataTypeQuery } from '../types/Calculator';
+import { ICoding } from '@ahryman40k/ts-fhir-types/lib/R4';
+import { equal } from 'assert';
+
 
 /**
  * Take any nesting of base filters and AND filters and flatten into one list
@@ -35,14 +39,73 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
  * @param filter the filter to translate
  * @returns codeFilter to be put on the DataRequirement
  */
-export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter): R4.IDataRequirement_CodeFilter | null {
+export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter, dataType: string): R4.IDataRequirement_CodeFilter | null {
+
+
+  const codeLookup = (dataType: string, attribute: string): (string | undefined) => {
+
+    const validDataTypes : string[] = ["Observation", "Procedure", "Encounter", "MedicationRequest"];
+    
+    if (!(validDataTypes.includes(dataType))) {
+      return undefined;
+    }
+
+    else if (dataType === "Observation" && attribute === "status") {
+      return "http://hl7.org/fhir/observation-status";
+    }
+    
+    else if (dataType === "Procedure" && attribute === "status") {
+      return "http://hl7.org/fhir/event-status";
+    }
+
+    else if (dataType === "Encounter" && attribute === "status") {
+      return 'http://hl7.org/fhir/encounter-status';
+    }
+
+    else if (dataType === 'MedicationRequest'){
+      
+      switch(attribute){
+        case 'status':
+          return "http://hl7.org/fhir/CodeSystem/medicationrequest-status";
+          
+        case 'intent':
+          return "http://hl7.org/fhir/CodeSystem/medicationrequest-intent";
+            
+        case 'priority':
+          return "http://hl7.org/fhir/request-priority";
+          
+        default:
+          return undefined;
+      }
+    }
+    return undefined;
+    
+  }
+  let system : string | undefined = codeLookup(dataType, filter.attribute);
   if (filter.type === 'equals') {
     const equalsFilter = filter as EqualsFilter;
-    if (typeof equalsFilter.value === 'string')
+    if (typeof equalsFilter.value === 'string'){
+      // console.log(`dataType: ${dataType}`);
+      // console.log(`attribute: ${equalsFilter.attribute}`);
+      // console.log(`code lookup: ${codeLookup(dataType, equalsFilter.attribute)}`);
+      // console.log(codeLookup("MedicationRequest", "status"));
+      // console.log(codeLookup("MedicationRequest", "intent"));
+      // console.log(codeLookup("MedicationRequest", "priority"));
+      // console.log(codeLookup("MedicationRequest", "nonsense"));
+      // console.log(codeLookup("Encounter", "status"));
+      // console.log(codeLookup("Encounter", "nothing"));
+      // console.log(codeLookup("Observation", "status"));
+      // console.log(codeLookup("Observation", "nothing"));
+      // console.log(codeLookup("Procedure", "nothing"));
+
       return {
         path: equalsFilter.attribute,
-        code: [{ code: equalsFilter.value }]
+        code: [{ 
+          code: equalsFilter.value,
+          system: system
+         }]
       };
+    }
   } else if (filter.type === 'in') {
     const inFilter = filter as InFilter;
 
@@ -50,7 +113,8 @@ export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter): R4.
       return {
         path: inFilter.attribute,
         code: inFilter.valueList.map(v => ({
-          code: v as string
+          code: v as string,
+          system: system
         }))
       };
     } else if (filter.valueCodingList) {

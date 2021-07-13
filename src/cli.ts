@@ -64,6 +64,7 @@ async function calc(
     result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions);
   } else if (program.outputType === 'gaps') {
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions);
+    
   } else if (program.outputType === 'dataRequirements') {
     // CalculateDataRequirements doesn't make use of the calcOptions object at this point
     result = calculateDataRequirements(measureBundle);
@@ -146,6 +147,7 @@ calc(measureBundle, patientBundles, calcOptions)
     }
 
     console.log(JSON.stringify(result?.results, null, 2));
+
   })
   .catch(error => {
     console.error(error.message);
