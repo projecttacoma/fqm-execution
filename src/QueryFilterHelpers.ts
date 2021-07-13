@@ -26,11 +26,13 @@ import {
   ELMGreaterOrEqual,
   ELMToDateTime,
   ELMStart,
-  ELMEnd
+  ELMEnd,
+  ELMExpressionRef
 } from './types/ELMTypes';
 import {
   AndFilter,
   AnyFilter,
+  AttributeFilter,
   DuringFilter,
   EqualsFilter,
   InFilter,
@@ -73,13 +75,87 @@ export function parseQueryInfo(
       sources: parseSources(query),
       filter: { type: 'truth' }
     };
+
     if (query.where) {
       const whereInfo = interpretExpression(query.where, library, parameters, patient);
       queryInfo.filter = whereInfo;
     }
+
+    // If this query's source is a reference to an expression that is a query then we should parse it and include
+    // the filters from it.
+    if (query.source[0].expression.type === 'ExpressionRef') {
+      const exprRef = query.source[0].expression as ELMExpressionRef;
+      const statement = library.library.statements.def.find(s => s.name === exprRef.name);
+      // if we find the statement and it is a query we can move forward.
+      if (statement) {
+        if (statement.expression.type === 'Query') {
+          const innerQuery = statement.expression as ELMQuery;
+          const innerQueryInfo = parseQueryInfo(library, innerQuery.localId, parameters, patient);
+
+          // use sources from inner query
+          queryInfo.sources = innerQueryInfo.sources;
+
+          // replace the filters for this query to match the inner source
+          replaceAliasesInFilters(queryInfo.filter, query.source[0].alias, innerQuery.source[0].alias);
+
+          // combine filters from inner query by 'AND'ing it with the outer statement and replacing filter info
+          if (innerQuery.where) {
+            // make new combined and filter
+            const combinedAnd: AndFilter = {
+              type: 'and',
+              children: [],
+              notes: 'Combination of multiple queries'
+            };
+
+            // Add inner query info. merge to the combined 'and' if it is an 'and' itself
+            if (innerQueryInfo.filter.type === 'and') {
+              combinedAnd.children.push(...(innerQueryInfo.filter as AndFilter).children);
+            } else {
+              combinedAnd.children.push(innerQueryInfo.filter);
+            }
+
+            // Add this query info. merge to the combined 'and' if it is an 'and' itself
+            if (queryInfo.filter.type === 'and') {
+              combinedAnd.children.push(...(queryInfo.filter as AndFilter).children);
+            } else {
+              combinedAnd.children.push(queryInfo.filter);
+            }
+
+            // replace the filter info with the combined and
+            queryInfo.filter = combinedAnd;
+          }
+        } else {
+          console.error(
+            `query source referenced a statement that is not a query. ${query.localId} in ${library.library.identifier.id}`
+          );
+        }
+      } else {
+        console.error(
+          `query source referenced a statement that could not be found. ${query.localId} in ${library.library.identifier.id}`
+        );
+      }
+    }
+
     return queryInfo;
   } else {
     throw new Error(`Clause ${queryLocalId} in ${library.library.identifier.id} was not a Query or not found.`);
+  }
+}
+
+/**
+ * Replace the aliases in a tree of filters.
+ *
+ * @param filter The root filter.
+ * @param match The alias to look to replace.
+ * @param replace The replacement.
+ */
+function replaceAliasesInFilters(filter: AnyFilter, match: string, replace: string) {
+  if (filter.type === 'and' || filter.type === 'or') {
+    (filter as AndFilter).children.forEach(filter => {
+      replaceAliasesInFilters(filter, match, replace);
+    });
+  } else if ((filter as AttributeFilter).alias === match) {
+    (filter as AttributeFilter).alias = replace;
   }
 }
 

@@ -179,6 +179,78 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
   }
 };
 
+const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
+  localId: '46',
+  sources: [
+    {
+      retrieveLocalId: '33',
+      sourceLocalId: '34',
+      alias: 'P',
+      resourceType: 'Procedure'
+    }
+  ],
+  filter: {
+    type: 'and',
+    notes: 'Combination of multiple queries',
+    children: [
+      {
+        type: 'equals',
+        alias: 'P',
+        attribute: 'status',
+        value: 'completed',
+        localId: '38'
+      },
+      {
+        type: 'notnull',
+        alias: 'P',
+        attribute: 'outcome',
+        localId: '45'
+      }
+    ]
+  }
+};
+
+const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
+  localId: '120',
+  sources: [
+    {
+      retrieveLocalId: '96',
+      sourceLocalId: '97',
+      alias: 'Obs',
+      resourceType: 'Observation'
+    }
+  ],
+  filter: {
+    type: 'and',
+    notes: 'Combination of multiple queries',
+    children: [
+      {
+        type: 'in',
+        alias: 'Obs',
+        attribute: 'status',
+        valueList: ['final', 'amended', 'corrected', 'preliminary'],
+        localId: '105'
+      },
+      {
+        type: 'notnull',
+        alias: 'Obs',
+        attribute: 'value',
+        localId: '108'
+      },
+      {
+        type: 'during',
+        alias: 'Obs',
+        attribute: 'effective',
+        valuePeriod: {
+          start: '2019-01-01T00:00:00.000Z',
+          end: '2019-12-31T23:59:59.999Z'
+        },
+        localId: '119'
+      }
+    ]
+  }
+};
+
 const PATIENT: R4.IPatient = {
   resourceType: 'Patient',
   birthDate: '1988-09-08'
@@ -257,5 +329,17 @@ describe('Parse Query Info', () => {
     expect(() => {
       parseQueryInfo(simpleQueryELM, '360', PARAMETERS, PATIENT);
     }).toThrow('Clause 360 in SimpleQueries was not a Query or not found.');
+  });
+
+  test('simple - query references query, combines filters', () => {
+    const queryLocalId = simpleQueryELM.library.statements.def[7].expression.localId; // query that references another query
+    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, undefined, PATIENT);
+    expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY);
+  });
+
+  test('complex - query references query, combines filters', () => {
+    const queryLocalId = complexQueryELM.library.statements.def[6].expression.localId; // query that references another query
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
   });
 });
