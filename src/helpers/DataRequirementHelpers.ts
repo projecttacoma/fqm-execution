@@ -9,9 +9,7 @@ import {
   Filter,
   NotNullFilter
 } from '../types/QueryFilterTypes';
-import { GapsDataTypeQuery } from '../types/Calculator';
-import { ICoding } from '@ahryman40k/ts-fhir-types/lib/R4';
-import { equal } from 'assert';
+
 
 
 /**
