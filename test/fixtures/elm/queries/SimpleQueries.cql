@@ -33,3 +33,13 @@ define "DepExpressionRef":
 define "SimpleConceptRetrieve":
   [Procedure: "test-concept"]
 
+define "Use Further Filtering":
+  exists "Further Filtering Query"
+
+define "Further Filtering Query":
+  "Retrieve Query" P
+    where P.outcome is not null
+
+define "Retrieve Query":
+  [Procedure: "test-vs"] P
+    where P.status = 'completed'
