@@ -1,10 +1,10 @@
-const VSAC_REXEG = /http:\/\/cts\.nlm\.nih\.gov.*ValueSet/;
+const VSAC_REGEX = /http:\/\/cts\.nlm\.nih\.gov.*ValueSet/;
 const OID_REGEX = /([0-9]+\.)+[0-9]+/;
 
 export const VSAC_BASE = 'http://cts.nlm.nih.gov/fhir/r4/ValueSet';
 
 export function isVSACUrl(url: string): boolean {
-  return VSAC_REXEG.test(url);
+  return VSAC_REGEX.test(url);
 }
 
 export function getOIDFromValueSet(url: string): string | null {
