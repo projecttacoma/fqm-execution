@@ -9,6 +9,7 @@ import {
 } from '../src/types/QueryFilterTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../src/types/Calculator';
+import exp from 'constants';
 
 describe('DataRequirementHelpers', () => {
   describe('Flatten Filters', () => {
@@ -88,7 +89,6 @@ describe('DataRequirementHelpers', () => {
 
       expect(DataRequirementHelpers.generateDetailedCodeFilter(ef)).toBeNull();
     });
-
     test('equals filter should pull off attribute', () => {
       const ef: EqualsFilter = {
         type: 'equals',
@@ -159,7 +159,6 @@ describe('DataRequirementHelpers', () => {
           }
         ]
       };
-
       const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
         path: 'attr-1',
         code: [
@@ -172,6 +171,95 @@ describe('DataRequirementHelpers', () => {
       };
 
       expect(DataRequirementHelpers.generateDetailedCodeFilter(inf)).toEqual(expectedCodeFilter);
+    });
+
+    test('Equals filter should not add system attribute to output object for inappropriate dataType', () => {
+      const ef: EqualsFilter = {
+        type: 'equals',
+        alias: 'R',
+        attribute: 'status',
+        value: 'value1'
+      };
+
+      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+        path: 'status',
+        code: [
+          {
+            code: 'value1'
+          }
+        ]
+      };
+      expect(DataRequirementHelpers.generateDetailedCodeFilter(ef, 'inappropriateDataType')).toEqual(
+        expectedCodeFilter
+      );
+    });
+
+    test('Equals filter should add system attribute to output object', () => {
+      const ef: EqualsFilter = {
+        type: 'equals',
+        alias: 'R',
+        attribute: 'status',
+        value: 'value1'
+      };
+
+      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+        path: 'status',
+        code: [
+          {
+            code: 'value1',
+            system: 'http://hl7.org/fhir/encounter-status'
+          }
+        ]
+      };
+      expect(DataRequirementHelpers.generateDetailedCodeFilter(ef, 'Encounter')).toEqual(expectedCodeFilter);
+    });
+
+    test('IN filter should add system attribute to output object', () => {
+      const inf: InFilter = {
+        type: 'in',
+        alias: 'R',
+        attribute: 'status',
+        valueList: ['value-1', 'value-2', 'value-3']
+      };
+
+      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+        path: 'status',
+        code: [
+          {
+            code: 'value-1',
+            system: 'http://hl7.org/fhir/encounter-status'
+          },
+          {
+            code: 'value-2',
+            system: 'http://hl7.org/fhir/encounter-status'
+          },
+          {
+            code: 'value-3',
+            system: 'http://hl7.org/fhir/encounter-status'
+          }
+        ]
+      };
+      expect(DataRequirementHelpers.generateDetailedCodeFilter(inf, 'Encounter')).toEqual(expectedCodeFilter);
+    });
+    test('In filter should not add system attribute to output object for inappropriate dataType', () => {
+      const inf: InFilter = {
+        type: 'in',
+        alias: 'R',
+        attribute: 'status',
+        valueList: ['value1']
+      };
+
+      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+        path: 'status',
+        code: [
+          {
+            code: 'value1'
+          }
+        ]
+      };
+      expect(DataRequirementHelpers.generateDetailedCodeFilter(inf, 'inappropriateDataType')).toEqual(
+        expectedCodeFilter
+      );
     });
   });
 
@@ -281,6 +369,51 @@ describe('DataRequirementHelpers', () => {
       };
 
       expect(DataRequirementHelpers.generateDataRequirement(dtq)).toEqual(expectedDataReq);
+    });
+  });
+
+  describe('codeLookup', () => {
+    test('dataType is invalid', () => {
+      expect(DataRequirementHelpers.codeLookup('invalid', 'invalid')).toBeNull();
+    });
+    test('retireves correct system url for dataType: MedicationRequest and attribute: status', () => {
+      expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'status')).toEqual(
+        'http://hl7.org/fhir/CodeSystem/medicationrequest-status'
+      );
+    });
+    test('retireves correct system url for dataType: MedicationRequest and attribute: intent', () => {
+      expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'intent')).toEqual(
+        'http://hl7.org/fhir/CodeSystem/medicationrequest-intent'
+      );
+    });
+    test('retireves correct system url for dataType: MedicationRequest and attribute: priority', () => {
+      expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'priority')).toEqual(
+        'http://hl7.org/fhir/request-priority'
+      );
+    });
+    test('retireves correct system url for dataType: MedicationRequest and invalid attribute', () => {
+      expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'nonsense')).toBeNull();
+    });
+    test('retireves correct system url for dataType: Encounter and attribute: status', () => {
+      expect(DataRequirementHelpers.codeLookup('Encounter', 'status')).toEqual('http://hl7.org/fhir/encounter-status');
+    });
+    test('retireves correct system url for dataType: Encounter and invalid attribute', () => {
+      expect(DataRequirementHelpers.codeLookup('Encounter', 'nonsense')).toBeNull();
+    });
+
+    test('retrieves correct system url when dataType is Observation and attribute is status', () => {
+      expect(DataRequirementHelpers.codeLookup('Observation', 'status')).toEqual(
+        'http://hl7.org/fhir/observation-status'
+      );
+    });
+    test('retrieves correct system url when dataType is Observation and attribute is invalid', () => {
+      expect(DataRequirementHelpers.codeLookup('Observation', 'nonsense')).toBeNull();
+    });
+    test('retrieves correct system url when dataType is Procedure and attribute is status', () => {
+      expect(DataRequirementHelpers.codeLookup('Procedure', 'status')).toEqual('http://hl7.org/fhir/event-status');
+    });
+    test('retrieves correct system url when dataType is Procedure and attribute is invalid', () => {
+      expect(DataRequirementHelpers.codeLookup('Procedure', 'nonsense')).toBeNull();
     });
   });
 });

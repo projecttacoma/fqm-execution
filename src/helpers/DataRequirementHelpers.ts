@@ -37,59 +37,18 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
  */
 export function generateDetailedCodeFilter(
   filter: EqualsFilter | InFilter,
-  dataType: string
+  dataType?: string
 ): R4.IDataRequirement_CodeFilter | null {
-  const codeLookup = (dataType: string, attribute: string): string | undefined => {
-    const validDataTypes: string[] = ['Observation', 'Procedure', 'Encounter', 'MedicationRequest'];
-
-    if (!validDataTypes.includes(dataType)) {
-      return undefined;
-    } else if (dataType === 'Observation' && attribute === 'status') {
-      return 'http://hl7.org/fhir/observation-status';
-    } else if (dataType === 'Procedure' && attribute === 'status') {
-      return 'http://hl7.org/fhir/event-status';
-    } else if (dataType === 'Encounter' && attribute === 'status') {
-      return 'http://hl7.org/fhir/encounter-status';
-    } else if (dataType === 'MedicationRequest') {
-      switch (attribute) {
-        case 'status':
-          return 'http://hl7.org/fhir/CodeSystem/medicationrequest-status';
-
-        case 'intent':
-          return 'http://hl7.org/fhir/CodeSystem/medicationrequest-intent';
-
-        case 'priority':
-          return 'http://hl7.org/fhir/request-priority';
-
-        default:
-          return undefined;
-      }
-    }
-    return undefined;
-  };
-  const system: string | undefined = codeLookup(dataType, filter.attribute);
+  const system: string | null = dataType ? codeLookup(dataType, filter.attribute) : null;
   if (filter.type === 'equals') {
     const equalsFilter = filter as EqualsFilter;
     if (typeof equalsFilter.value === 'string') {
-      // console.log(`dataType: ${dataType}`);
-      // console.log(`attribute: ${equalsFilter.attribute}`);
-      // console.log(`code lookup: ${codeLookup(dataType, equalsFilter.attribute)}`);
-      // console.log(codeLookup("MedicationRequest", "status"));
-      // console.log(codeLookup("MedicationRequest", "intent"));
-      // console.log(codeLookup("MedicationRequest", "priority"));
-      // console.log(codeLookup("MedicationRequest", "nonsense"));
-      // console.log(codeLookup("Encounter", "status"));
-      // console.log(codeLookup("Encounter", "nothing"));
-      // console.log(codeLookup("Observation", "status"));
-      // console.log(codeLookup("Observation", "nothing"));
-      // console.log(codeLookup("Procedure", "nothing"));
-
       return {
         path: equalsFilter.attribute,
         code: [
           {
             code: equalsFilter.value,
-            system: system
+            ...(system && { system: system })
           }
         ]
       };
@@ -102,7 +61,7 @@ export function generateDetailedCodeFilter(
         path: inFilter.attribute,
         code: inFilter.valueList.map(v => ({
           code: v as string,
-          system: system
+          ...(system && { system: system })
         }))
       };
     } else if (filter.valueCodingList) {
@@ -184,4 +143,39 @@ export function generateDataRequirement(retrieve: DataTypeQuery): R4.IDataRequir
       type: retrieve.dataType
     };
   }
+}
+/**
+ * Given a fhir dataType as a string and an attribute as a string, returns the url which outlines
+ * the code system used to define the valid inputs for the given attribute for the given dataType
+ * @param dataType
+ * @param attribute
+ * @returns string url for code system
+ */
+export function codeLookup(dataType: string, attribute: string): string | null {
+  const validDataTypes: string[] = ['Observation', 'Procedure', 'Encounter', 'MedicationRequest'];
+
+  if (!validDataTypes.includes(dataType)) {
+    return null;
+  } else if (dataType === 'Observation' && attribute === 'status') {
+    return 'http://hl7.org/fhir/observation-status';
+  } else if (dataType === 'Procedure' && attribute === 'status') {
+    return 'http://hl7.org/fhir/event-status';
+  } else if (dataType === 'Encounter' && attribute === 'status') {
+    return 'http://hl7.org/fhir/encounter-status';
+  } else if (dataType === 'MedicationRequest') {
+    switch (attribute) {
+      case 'status':
+        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-status';
+
+      case 'intent':
+        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-intent';
+
+      case 'priority':
+        return 'http://hl7.org/fhir/request-priority';
+
+      default:
+        return null;
+    }
+  }
+  return null;
 }
