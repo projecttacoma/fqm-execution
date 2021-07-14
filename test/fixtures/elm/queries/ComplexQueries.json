@@ -8,7 +8,7 @@
       {
         "type": "Annotation",
         "s": {
-          "r": "121",
+          "r": "135",
           "s": [
             {
               "value": [
@@ -2935,6 +2935,290 @@
                   "locator": "58:59-58:78",
                   "name": "Measurement Period",
                   "type": "ParameterRef"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "135",
+          "locator": "60:1-63:32",
+          "name": "Further Refine Observation With During MP and bodySite",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "135",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Further Refine Observation With During MP and bodySite\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "134",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "123",
+                            "s": [
+                              {
+                                "r": "122",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Observation Status and Value\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "O"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "133",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "133",
+                            "s": [
+                              {
+                                "r": "129",
+                                "s": [
+                                  {
+                                    "r": "127",
+                                    "s": [
+                                      {
+                                        "r": "124",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Global"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "127",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Normalize Interval\"",
+                                              "("
+                                            ]
+                                          },
+                                          {
+                                            "r": "126",
+                                            "s": [
+                                              {
+                                                "r": "125",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "O"
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "."
+                                                ]
+                                              },
+                                              {
+                                                "r": "126",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "effective"
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              ")"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "r": "129",
+                                    "value": [
+                                      " ",
+                                      "during",
+                                      " "
+                                    ]
+                                  },
+                                  {
+                                    "r": "128",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Measurement Period\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "\n      and "
+                                ]
+                              },
+                              {
+                                "r": "132",
+                                "s": [
+                                  {
+                                    "r": "131",
+                                    "s": [
+                                      {
+                                        "r": "130",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "O"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "131",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "bodySite"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " is not null"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "134",
+            "locator": "61:3-63:32",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "123",
+                "locator": "61:3-61:34",
+                "alias": "O",
+                "expression": {
+                  "localId": "122",
+                  "locator": "61:3-61:32",
+                  "name": "Observation Status and Value",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "localId": "133",
+              "locator": "62:5-63:32",
+              "type": "And",
+              "operand": [
+                {
+                  "localId": "129",
+                  "locator": "62:11-62:78",
+                  "type": "IncludedIn",
+                  "operand": [
+                    {
+                      "localId": "127",
+                      "locator": "62:11-62:50",
+                      "name": "Normalize Interval",
+                      "libraryName": "Global",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "localId": "126",
+                          "locator": "62:39-62:49",
+                          "path": "effective",
+                          "scope": "O",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "128",
+                      "locator": "62:59-62:78",
+                      "name": "Measurement Period",
+                      "type": "ParameterRef"
+                    }
+                  ]
+                },
+                {
+                  "localId": "132",
+                  "locator": "63:11-63:32",
+                  "type": "Not",
+                  "operand": {
+                    "locator": "63:11-63:32",
+                    "type": "IsNull",
+                    "operand": {
+                      "localId": "131",
+                      "locator": "63:11-63:20",
+                      "path": "bodySite",
+                      "scope": "O",
+                      "type": "Property"
+                    }
+                  }
                 }
               ]
             }

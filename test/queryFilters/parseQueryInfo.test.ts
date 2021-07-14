@@ -251,6 +251,53 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
   }
 };
 
+const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
+  localId: '134',
+  sources: [
+    {
+      retrieveLocalId: '96',
+      sourceLocalId: '97',
+      alias: 'Obs',
+      resourceType: 'Observation'
+    }
+  ],
+  filter: {
+    type: 'and',
+    notes: 'Combination of multiple queries',
+    children: [
+      {
+        type: 'in',
+        alias: 'Obs',
+        attribute: 'status',
+        valueList: ['final', 'amended', 'corrected', 'preliminary'],
+        localId: '105'
+      },
+      {
+        type: 'notnull',
+        alias: 'Obs',
+        attribute: 'value',
+        localId: '108'
+      },
+      {
+        type: 'during',
+        alias: 'Obs',
+        attribute: 'effective',
+        valuePeriod: {
+          start: '2019-01-01T00:00:00.000Z',
+          end: '2019-12-31T23:59:59.999Z'
+        },
+        localId: '129'
+      },
+      {
+        type: 'notnull',
+        alias: 'Obs',
+        attribute: 'bodySite',
+        localId: '132'
+      }
+    ]
+  }
+};
+
 const PATIENT: R4.IPatient = {
   resourceType: 'Patient',
   birthDate: '1988-09-08'
@@ -341,5 +388,11 @@ describe('Parse Query Info', () => {
     const queryLocalId = complexQueryELM.library.statements.def[6].expression.localId; // query that references another query
     const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
+  });
+
+  test('complex - query references query, combines filters with ands in both filters and differing alias names', () => {
+    const queryLocalId = complexQueryELM.library.statements.def[7].expression.localId; // query that references another query
+    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH);
   });
 });

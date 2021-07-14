@@ -56,3 +56,8 @@ define "Observation Status and Value":
 define "Further Refine Observation With During MP":
   "Observation Status and Value" O
     where Global."Normalize Interval"(O.effective) during "Measurement Period"
+
+define "Further Refine Observation With During MP and bodySite":
+  "Observation Status and Value" O
+    where Global."Normalize Interval"(O.effective) during "Measurement Period"
+      and O.bodySite is not null
