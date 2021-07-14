@@ -9,7 +9,6 @@ import {
 } from '../src/types/QueryFilterTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../src/types/Calculator';
-import exp from 'constants';
 
 describe('DataRequirementHelpers', () => {
   describe('Flatten Filters', () => {
