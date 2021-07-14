@@ -716,7 +716,8 @@ describe('Guidance Response', () => {
             path: 'status',
             code: [
               {
-                code: 'completed'
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
               }
             ]
           }
@@ -764,10 +765,12 @@ describe('Guidance Response', () => {
             path: 'status',
             code: [
               {
-                code: 'completed'
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
               },
               {
-                code: 'amended'
+                code: 'amended',
+                system: 'http://hl7.org/fhir/event-status'
               }
             ]
           }
@@ -986,7 +989,8 @@ describe('Guidance Response', () => {
             path: 'status',
             code: [
               {
-                code: 'completed'
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
               }
             ]
           }

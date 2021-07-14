@@ -201,7 +201,7 @@ export function generateGuidanceResponses(
 
       detailedFilters.forEach(df => {
         if (df.type === 'equals' || df.type === 'in') {
-          const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter);
+          const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter, q.dataType);
 
           if (cf !== null) {
             dataRequirement.codeFilter?.push(cf);

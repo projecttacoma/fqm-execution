@@ -35,14 +35,24 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
  * @param filter the filter to translate
  * @returns codeFilter to be put on the DataRequirement
  */
-export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter): R4.IDataRequirement_CodeFilter | null {
+export function generateDetailedCodeFilter(
+  filter: EqualsFilter | InFilter,
+  dataType?: string
+): R4.IDataRequirement_CodeFilter | null {
+  const system: string | null = dataType ? codeLookup(dataType, filter.attribute) : null;
   if (filter.type === 'equals') {
     const equalsFilter = filter as EqualsFilter;
-    if (typeof equalsFilter.value === 'string')
+    if (typeof equalsFilter.value === 'string') {
       return {
         path: equalsFilter.attribute,
-        code: [{ code: equalsFilter.value }]
+        code: [
+          {
+            code: equalsFilter.value,
+            ...(system && { system: system })
+          }
+        ]
       };
+    }
   } else if (filter.type === 'in') {
     const inFilter = filter as InFilter;
 
@@ -50,7 +60,8 @@ export function generateDetailedCodeFilter(filter: EqualsFilter | InFilter): R4.
       return {
         path: inFilter.attribute,
         code: inFilter.valueList.map(v => ({
-          code: v as string
+          code: v as string,
+          ...(system && { system: system })
         }))
       };
     } else if (filter.valueCodingList) {
@@ -132,4 +143,39 @@ export function generateDataRequirement(retrieve: DataTypeQuery): R4.IDataRequir
       type: retrieve.dataType
     };
   }
+}
+/**
+ * Given a fhir dataType as a string and an attribute as a string, returns the url which outlines
+ * the code system used to define the valid inputs for the given attribute for the given dataType
+ * @param dataType
+ * @param attribute
+ * @returns string url for code system
+ */
+export function codeLookup(dataType: string, attribute: string): string | null {
+  const validDataTypes: string[] = ['Observation', 'Procedure', 'Encounter', 'MedicationRequest'];
+
+  if (!validDataTypes.includes(dataType)) {
+    return null;
+  } else if (dataType === 'Observation' && attribute === 'status') {
+    return 'http://hl7.org/fhir/observation-status';
+  } else if (dataType === 'Procedure' && attribute === 'status') {
+    return 'http://hl7.org/fhir/event-status';
+  } else if (dataType === 'Encounter' && attribute === 'status') {
+    return 'http://hl7.org/fhir/encounter-status';
+  } else if (dataType === 'MedicationRequest') {
+    switch (attribute) {
+      case 'status':
+        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-status';
+
+      case 'intent':
+        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-intent';
+
+      case 'priority':
+        return 'http://hl7.org/fhir/request-priority';
+
+      default:
+        return null;
+    }
+  }
+  return null;
 }
