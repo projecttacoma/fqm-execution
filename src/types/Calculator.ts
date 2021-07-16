@@ -278,6 +278,7 @@ export interface CalculatorFunctionOutput {
     | R4.IBundle
     | R4.ILibrary;
   debugOutput?: DebugOutput;
+  valueSetCache?: R4.IValueSet[];
 }
 
 /**
@@ -328,6 +329,6 @@ export interface GICCalculationOutput extends CalculatorFunctionOutput {
 /**
  * dataType for calculateDataRequirements() function
  */
-export interface DRCalculationOutput extends CalculatorFunctionOutput {
+export interface DRCalculationOutput extends Omit<CalculatorFunctionOutput, 'valueSetCache'> {
   results: R4.ILibrary;
 }
