@@ -37,9 +37,9 @@ import { generateDataRequirement } from './helpers/DataRequirementHelpers';
 export async function calculate(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<CalculationOutput> {
-
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
   // Ensure the CalculationOptions have sane defaults, only if they're not set
@@ -196,9 +196,9 @@ export async function calculate(
 export async function calculateMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<MRCalculationOutput> {
-
   return options.reportType === 'summary'
     ? calculateAggregateMeasureReport(measureBundle, patientBundles, options, valueSetCache)
     : calculateIndividualMeasureReports(measureBundle, patientBundles, options, valueSetCache);
@@ -216,9 +216,9 @@ export async function calculateMeasureReports(
 export async function calculateIndividualMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<IMRCalculationOutput> {
-
   if (options.reportType && options.reportType !== 'individual') {
     throw new Error('calculateMeasureReports only supports reportType "individual".');
   }
@@ -247,9 +247,9 @@ export async function calculateIndividualMeasureReports(
 export async function calculateAggregateMeasureReport(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<AMRCalculationOutput> {
-
   if (options.reportType && options.reportType === 'individual') {
     throw new Error('calculateAggregateMeasureReports only supports reportType "summary".');
   }
@@ -301,7 +301,8 @@ export async function calculateAggregateMeasureReport(
 export async function calculateRaw(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<RCalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
   const results = await Execution.execute(measureBundle, patientBundles, options, valueSetCache, debugObject);
@@ -324,9 +325,9 @@ export async function calculateRaw(
 export async function calculateGapsInCare(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  options: CalculationOptions
+  options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<GICCalculationOutput> {
-
   // Detailed results for populations get ELM content back
   options.returnELM = true;
 
@@ -482,7 +483,6 @@ export async function calculateGapsInCare(
  */
 
 export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculationOutput {
-
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);

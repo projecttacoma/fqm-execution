@@ -61,9 +61,9 @@ function getCachedValueSets(cacheDir: string): R4.IValueSet[] {
 async function calc(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  calcOptions: CalculationOptions
-): Promise<CalculatorFunctionOutput | undefined> {
-
+  calcOptions: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
+): Promise<CalculatorFunctionOutput> {
   let result;
   if (program.outputType === 'raw') {
     result = await calculateRaw(measureBundle, patientBundles, calcOptions, valueSetCache);
@@ -77,6 +77,9 @@ async function calc(
   } else if (program.outputType === 'dataRequirements') {
     // CalculateDataRequirements doesn't make use of the calcOptions object at this point
     result = calculateDataRequirements(measureBundle);
+  }
+  if (!result) {
+    throw new Error('Result is not defined');
   }
   return result;
 }
