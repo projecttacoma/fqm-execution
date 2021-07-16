@@ -15,14 +15,19 @@ export async function execute(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = [],
   debugObject?: DebugOutput
 ): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
   const measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
 
   // check for any missing valuesets
-  let valueSets: R4.IValueSet[] = [];
-  const missingVS = getMissingDependentValuesets(measureBundle);
+  const valueSets: R4.IValueSet[] = [];
+  const newCache: R4.IValueSet[] = [];
+
+  // Pass in existing cache to attempt any missing resolutions
+  const missingVS = getMissingDependentValuesets(measureBundle, [...valueSetCache]);
+
   if (missingVS.length > 0) {
     if (!options.vsAPIKey || options.vsAPIKey.length == 0) {
       return {
@@ -39,7 +44,13 @@ export async function execute(
         errorMessage: errorMessages.join('\n')
       };
     }
-    valueSets = expansions;
+
+    valueSets.push(...expansions);
+
+    // Update cache to include new expansions
+    if (options.useValueSetCaching) {
+      newCache.push(...expansions);
+    }
   }
 
   measureBundle.entry?.forEach(e => {
@@ -47,6 +58,11 @@ export async function execute(
       valueSets.push(e.resource as R4.IValueSet);
     }
   });
+
+  // Include provided ValueSets in code service
+  // These can be provided directly as an argument or via the caching behavior
+  valueSets.push(...valueSetCache);
+
   const vsMap = valueSetsForCodeService(valueSets);
 
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
@@ -109,5 +125,11 @@ export async function execute(
     debugObject.rawResults = results;
   }
 
-  return { rawResults: results, elmLibraries: elmJSONs, mainLibraryName: rootLibIdentifier.id, parameters: parameters };
+  return {
+    rawResults: results,
+    elmLibraries: elmJSONs,
+    mainLibraryName: rootLibIdentifier.id,
+    parameters: parameters,
+    ...(options.useValueSetCaching && { valueSetCache: newCache })
+  };
 }

@@ -1,5 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import axios, { AxiosInstance } from 'axios';
+import { isVSACUrl, normalizeCanonical } from './VSACHelper';
 
 export class ValueSetResolver {
   protected apiKey: string;
@@ -31,11 +32,17 @@ export class ValueSetResolver {
     for (const url of urls) {
       // Go through the results and find any that failed.
       // If there are failures, build an error string
+      let normalizedUrl = url;
       try {
-        const res = await this.instance.get<R4.IValueSet>(`${url}/$expand`);
+        // Use known good base for VSAC urls
+        if (isVSACUrl(url)) {
+          normalizedUrl = normalizeCanonical(url) || url;
+        }
+
+        const res = await this.instance.get<R4.IValueSet>(`${normalizedUrl}/$expand`);
         valuesets.push(res.data);
       } catch (e) {
-        errors.push(`Valueset with URL ${url} could not be retrieved. Reason: ${e.message}`);
+        errors.push(`Valueset with URL ${normalizedUrl} could not be retrieved. Reason: ${e.message}`);
       }
     }
 

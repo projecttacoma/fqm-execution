@@ -38,49 +38,59 @@ npm install -g https://github.com/projecttacoma/fqm-execution.git
 ### Module
 
 #### ES6
-``` JavaScript
+
+```JavaScript
 import { Calculator } from 'fqm-execution';
 
-const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
-const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
 ```
 
 #### Require
-``` JavaScript
+
+```JavaScript
 const { Calculator } = require('fqm-execution');
 
-const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options); // Get raw results from CQL engine for each patient
-const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options); // Get detailed population results for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options); // Get individual FHIR MeasureReports for each patient
-const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options); // Get gaps in care for each patient, if present
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
 ```
+
+#### Arguments
+
+*   `measureBundle`: Bundle containing a FHIR Measure and its dependendent Libraries. FHIR ValueSets may be included as well
+*   `patientBundles`: Array of FHIR Bundles containing patient data
+*   `options` (optional): Object of calculation options (see below)
+*   `valueSetCache` (optional): Array of FHIR ValueSet resources to use for calculation
 
 #### Calculation Options
 
 The options that we support for calculation are as follows:
-| option                 |  type   | optional? | description                                                                        |
+| option | type | optional? | description |
 | :--------------------- | :-----: | :-------: | :--------------------------------------------------------------------------------- |
-| enableDebugOutput      | boolean |    yes    |                        Enable debug output from function calls. Defaults to false. |
-| includeClauseResults   | boolean |    yes    |                               Option to include clause results. Defaults to false. |
-| includePrettyResults   | boolean |    yes    |          Option to include pretty results on statement results. Defaults to false. |
-| includeHighlighting    | boolean |    yes    |                Include highlighting in MeasureReport narrative. Defaults to false. |
-| measurementPeriodStart | string  |    yes    |                                                       Start of measurement period. |
-| measurementPeriodEnd   | string  |    yes    |                                                         End of measurement period. |
-| patientSource          |   any   |    yes    |        PatientSource to use. If provided, the patientBundles will not be required. |
-| reportType             | string  |    yes    |                      Type of MeasureReport to generate: "summary" or "individual". |
-| calculateSDEs          | boolean |    yes    |              Include Supplemental Data Elements in calculation. Defaults to false. |
-| calculateHTML          | boolean |    yes    |                        Include HTML structure for highlighting. Defaults to false. |
-| vsAPIKey               | string  |    yes    | API key, to be used to access a valueset API for downloading any missing valuesets |
+| enableDebugOutput | boolean | yes | Enable debug output from function calls. Defaults to false. |
+| includeClauseResults | boolean | yes | Option to include clause results. Defaults to false. |
+| includePrettyResults | boolean | yes | Option to include pretty results on statement results. Defaults to false. |
+| includeHighlighting | boolean | yes | Include highlighting in MeasureReport narrative. Defaults to false. |
+| measurementPeriodStart | string | yes | Start of measurement period. |
+| measurementPeriodEnd | string | yes | End of measurement period. |
+| patientSource | any | yes | PatientSource to use. If provided, the patientBundles will not be required. |
+| reportType | string | yes | Type of MeasureReport to generate: "summary" or "individual". |
+| calculateSDEs | boolean | yes | Include Supplemental Data Elements in calculation. Defaults to false. |
+| calculateHTML | boolean | yes | Include HTML structure for highlighting. Defaults to false. |
+| vsAPIKey | string | yes | API key, to be used to access a valueset API for downloading any missing valuesets |
+| useValueSetCaching | boolean | yes | Whether to cache valuesets obtained by an API on the filesystem |
 
 ### CLI
 
 To run the globally installed CLI (see above), use the global `fqm-execution command`
 
-``` bash
+```bash
 Usage: fqm-execution [options]
 
 Options:
@@ -91,8 +101,9 @@ Options:
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle
   -s, --measurement-period-start <date>       start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)
   -e, --measurement-period-end <date>         end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)
-  -h, --help                                  display help for command
   -a, --vs-api-key <key>                      API key, to authenticate against the valueset service to be used for resolving missing valuesets
+  -c, --cache-valuesets                       Whether or not to cache ValueSets retrieved from the ValueSet service (default: false)
+  -h, --help                                  display help for command
 ```
 
 E.g.
