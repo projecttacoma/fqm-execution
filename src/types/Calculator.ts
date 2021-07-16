@@ -32,6 +32,8 @@ export interface CalculationOptions {
   vsAPIKey?: string;
   /** The type of report to return, will default to individual. */
   reportType?: 'individual' | 'subject-list' | 'summary';
+  /** If true, ValueSets retrieved from VSAC will be cached and used in subsequent runs where this is also true */
+  useValueSetCaching?: boolean;
 }
 
 /**
@@ -50,6 +52,8 @@ export interface RawExecutionData {
   parameters?: {
     [key: string]: any;
   };
+  /** Cache of VSAC ValueSets */
+  valueSetCache?: R4.IValueSet[];
 }
 
 /**

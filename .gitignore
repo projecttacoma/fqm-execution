@@ -8,3 +8,4 @@ test/fixtures/elm/queries/.start-translator
 connectathon/
 fhir-patient-generator/
 coverage
+cache

@@ -42,6 +42,7 @@ program
     'API key, to authenticate against the valueset service to be used for resolving missing valuesets',
     undefined
   )
+  .option('-c, --cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service', false)
   .parse(process.argv);
 
 function parseBundle(filePath: string): R4.IBundle {
@@ -49,21 +50,30 @@ function parseBundle(filePath: string): R4.IBundle {
   return JSON.parse(contents) as R4.IBundle;
 }
 
+function getCachedValueSets(cacheDir: string): R4.IValueSet[] {
+  if (fs.existsSync(cacheDir)) {
+    return fs.readdirSync(cacheDir).map(vs => JSON.parse(fs.readFileSync(path.join(cacheDir, vs), 'utf8')));
+  }
+
+  return [];
+}
+
 async function calc(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
-  calcOptions: CalculationOptions
+  calcOptions: CalculationOptions,
+  valueSetCache: R4.IValueSet[] = []
 ): Promise<any> {
   let result;
   if (program.outputType === 'raw') {
-    result = await calculateRaw(measureBundle, patientBundles, calcOptions);
+    result = await calculateRaw(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'detailed') {
-    result = await calculate(measureBundle, patientBundles, calcOptions);
+    result = await calculate(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'reports') {
     calcOptions.reportType = program.reportType || 'individual';
-    result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions);
+    result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'gaps') {
-    result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions);
+    result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'dataRequirements') {
     // CalculateDataRequirements doesn't make use of the calcOptions object at this point
     result = calculateDataRequirements(measureBundle);
@@ -86,9 +96,18 @@ if (program.outputType !== 'dataRequirements') {
   patientBundles = [];
 }
 
+// Only cache valuesets retreived from service
+if (program.cacheValuesets && !program.vsApiKey) {
+  console.error('ValueSet caching only supported when an API key is provided');
+  program.help();
+}
+
+const cacheDirectory = 'cache/terminology';
+
 const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,
-  vsAPIKey: program.vsApiKey
+  vsAPIKey: program.vsApiKey,
+  useValueSetCaching: program.cacheValuesets
 };
 
 // Override the measurement period start/end in the options only if the user specified them
@@ -100,7 +119,12 @@ if (program.measurementPeriodEnd) {
 }
 
 // Calculation is now async, so we have to do a callback here
-calc(measureBundle, patientBundles, calcOptions)
+calc(
+  measureBundle,
+  patientBundles,
+  calcOptions,
+  calcOptions.useValueSetCaching ? getCachedValueSets(cacheDirectory) : []
+)
   .then(result => {
     if (program.debug) {
       clearDebugFolder();
@@ -143,6 +167,16 @@ calc(measureBundle, patientBundles, calcOptions)
       if (debugOutput?.html) {
         dumpHTMLs(debugOutput.html);
       }
+    }
+
+    // Update cache
+    if (program.cacheValuesets && result.valueSetCache) {
+      if (!fs.existsSync('./cache/terminology')) {
+        fs.mkdirSync('./cache/terminology/', { recursive: true });
+      }
+      (result.valueSetCache as R4.IValueSet[]).forEach(vs => {
+        fs.writeFileSync(`./cache/terminology/${vs.id}.json`, JSON.stringify(vs), 'utf8');
+      });
     }
 
     console.log(JSON.stringify(result?.results, null, 2));
