@@ -264,3 +264,70 @@ export interface DebugOutput {
     bundle?: R4.IBundle;
   };
 }
+
+/*
+ * Parent dataType for output of calculate functions
+ */
+export interface CalculatorFunctionOutput {
+  results:
+    | ExecutionResult[]
+    | R4.IMeasureReport
+    | R4.IMeasureReport[]
+    | cql.Results
+    | string
+    | R4.IBundle
+    | R4.ILibrary;
+  debugOutput?: DebugOutput;
+}
+
+/**
+ * dataType for calculate() function
+ */
+export interface CalculationOutput extends CalculatorFunctionOutput {
+  results: ExecutionResult[];
+  elmLibraries?: ELM[];
+  mainLibraryName?: string;
+  parameters?: { [key: string]: any };
+}
+
+/**
+ * dataType for calculateMeasureReports() function
+ */
+export interface MRCalculationOutput extends CalculatorFunctionOutput {
+  results: R4.IMeasureReport | R4.IMeasureReport[];
+}
+
+/**
+ * dataType for calculateAggregateMeasureReports() function
+ */
+export interface AMRCalculationOutput extends MRCalculationOutput {
+  results: R4.IMeasureReport;
+}
+
+/**
+ * dataType for calculateIndividualMeasureReports() function
+ */
+export interface IMRCalculationOutput extends MRCalculationOutput {
+  results: R4.IMeasureReport[];
+}
+
+/**
+ * dataType for calculateRaw() function
+ */
+export interface RCalculationOutput extends CalculatorFunctionOutput {
+  results: cql.Results | string;
+}
+
+/**
+ * dataType for calculateGapsInCare() function
+ */
+export interface GICCalculationOutput extends CalculatorFunctionOutput {
+  results: R4.IBundle;
+}
+
+/**
+ * dataType for calculateDataRequirements() function
+ */
+export interface DRCalculationOutput extends CalculatorFunctionOutput {
+  results: R4.ILibrary;
+}

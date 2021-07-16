@@ -12,7 +12,7 @@ import {
   calculateDataRequirements
 } from './Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
-import { CalculationOptions } from './types/Calculator';
+import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
 
 program
   .option('-d, --debug', 'enable debug output', false)
@@ -53,7 +53,7 @@ async function calc(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   calcOptions: CalculationOptions
-): Promise<any> {
+): Promise<CalculatorFunctionOutput | undefined> {
   let result;
   if (program.outputType === 'raw') {
     result = await calculateRaw(measureBundle, patientBundles, calcOptions);

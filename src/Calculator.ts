@@ -1,7 +1,17 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ExecutionResult, CalculationOptions, DebugOutput } from './types/Calculator';
+import {
+  ExecutionResult,
+  CalculationOptions,
+  CalculationOutput,
+  MRCalculationOutput,
+  AMRCalculationOutput,
+  IMRCalculationOutput,
+  GICCalculationOutput,
+  RCalculationOutput,
+  DRCalculationOutput,
+  DebugOutput
+} from './types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from './types/Enums';
-import * as cql from './types/CQLTypes';
 import * as Execution from './Execution';
 import * as CalculatorHelpers from './CalculatorHelpers';
 import { extractMeasurementPeriod } from './helpers/MeasureHelpers';
@@ -9,7 +19,6 @@ import * as ResultsHelpers from './ResultsHelpers';
 import MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from './GapsInCareHelpers';
 import { generateHTML } from './HTMLGenerator';
-import { ELM } from './types/ELMTypes';
 import { parseQueryInfo } from './QueryFilterHelpers';
 import * as RetrievesHelper from './helpers/RetrievesHelper';
 import * as MeasureHelpers from './helpers/MeasureHelpers';
@@ -28,13 +37,7 @@ export async function calculate(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): Promise<{
-  results: ExecutionResult[];
-  debugOutput?: DebugOutput;
-  elmLibraries?: ELM[];
-  mainLibraryName?: string;
-  parameters?: { [key: string]: any };
-}> {
+): Promise<CalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
   // Ensure the CalculationOptions have sane defaults, only if they're not set
@@ -186,7 +189,7 @@ export async function calculateMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): Promise<{ results: R4.IMeasureReport | R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
+): Promise<MRCalculationOutput> {
   return options.reportType === 'summary'
     ? calculateAggregateMeasureReport(measureBundle, patientBundles, options)
     : calculateIndividualMeasureReports(measureBundle, patientBundles, options);
@@ -204,7 +207,7 @@ export async function calculateIndividualMeasureReports(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): Promise<{ results: R4.IMeasureReport[]; debugOutput?: DebugOutput }> {
+): Promise<IMRCalculationOutput> {
   if (options.reportType && options.reportType !== 'individual') {
     throw new Error('calculateMeasureReports only supports reportType "individual".');
   }
@@ -232,7 +235,7 @@ export async function calculateAggregateMeasureReport(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): Promise<{ results: R4.IMeasureReport; debugOutput?: DebugOutput }> {
+): Promise<AMRCalculationOutput> {
   if (options.reportType && options.reportType === 'individual') {
     throw new Error('calculateAggregateMeasureReports only supports reportType "summary".');
   }
@@ -275,7 +278,7 @@ export async function calculateRaw(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): Promise<{ results: cql.Results | string; debugOutput?: DebugOutput }> {
+): Promise<RCalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
   const results = await Execution.execute(measureBundle, patientBundles, options, debugObject);
   if (results.rawResults) {
@@ -289,7 +292,7 @@ export async function calculateGapsInCare(
   measureBundle: R4.IBundle,
   patientBundles: R4.IBundle[],
   options: CalculationOptions
-): Promise<{ results: R4.IBundle; debugOutput?: DebugOutput }> {
+): Promise<GICCalculationOutput> {
   // Detailed results for populations get ELM content back
   options.returnELM = true;
   const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = await calculate(
@@ -438,9 +441,7 @@ export async function calculateGapsInCare(
   return { results: result, debugOutput };
 }
 
-export function calculateDataRequirements(
-  measureBundle: R4.IBundle
-): { results: R4.ILibrary; debugOutput?: DebugOutput } {
+export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculationOutput {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
