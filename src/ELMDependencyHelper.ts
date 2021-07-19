@@ -125,12 +125,27 @@ function findStatementReferencesForExpression(
   return references;
 }
 
+/**
+ * Find the full identifier for a library given a local identifier.
+ *
+ * @param mainELM The library the local identifier is used in.
+ * @param localIdentifier The local identifier for a library.
+ * @returns The library identifier or 'null' if it couldn't be found.
+ */
 export function findLibraryReferenceId(mainELM: ELM, localIdentifier: string): string | null {
   const matchingInclude = mainELM.library.includes?.def.find(d => d.localIdentifier === localIdentifier);
 
   return matchingInclude ? matchingInclude.path : null;
 }
 
+/**
+ * Find the library for a given local identifier for a library.
+ *
+ * @param mainELM The library the local identifier is used in.
+ * @param allELM All ELM libraries loaded at the moment.
+ * @param localIdentifier The local identifer for the desired library.
+ * @returns The library referenced or 'null' if it couldn't be found.
+ */
 export function findLibraryReference(mainELM: ELM, allELM: ELM[], localIdentifier: string): ELM | null {
   const matchingInclude = findLibraryReferenceId(mainELM, localIdentifier);
 
@@ -141,10 +156,17 @@ export function findLibraryReference(mainELM: ELM, allELM: ELM[], localIdentifie
   return null;
 }
 
+/**
+ * Find the ValueSet definition for a given ValueSetRef.
+ *
+ * @param mainELM The library the ValueSetRef resides in.
+ * @param allELM All ELM libraries loaded at the moment.
+ * @param valueSetRef The ValueSetRef to resolve.
+ * @returns The ValueSet definition or 'null' if it couldn't be found.
+ */
 export function findValueSetReference(mainELM: ELM, allELM: ELM[], valueSetRef: ELMValueSetRef): ELMValueSet | null {
-  // ValueSet exists in other lib
-  // lookup localId to find matching lib
   let matchingLib: ELM | null = null;
+  // ValueSet exists in other lib, need to follow library reference first
   if (valueSetRef.libraryName) {
     matchingLib = findLibraryReference(mainELM, allELM, valueSetRef.libraryName);
   } else {

@@ -43,3 +43,7 @@ define "Further Filtering Query":
 define "Retrieve Query":
   [Procedure: "test-vs"] P
     where P.status = 'completed'
+
+define "Retrieve Using ValueSet In Dependency":
+  [Procedure: SimpleDep."test-vs-2"] P
+    where P.status = 'completed'

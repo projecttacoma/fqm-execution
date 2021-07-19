@@ -1,6 +1,6 @@
 import * as ELMDependencyHelper from '../src/ELMDependencyHelper';
 import { getELMFixture } from './helpers/testHelpers';
-import { ELM } from '../src/types/ELMTypes';
+import { ELM, ELMValueSet, ELMValueSetRef } from '../src/types/ELMTypes';
 
 describe('ELMDependencyHelper', () => {
   let elm: ELM;
@@ -49,6 +49,35 @@ describe('ELMDependencyHelper', () => {
 
       expect(libraryPath).toBeNull();
     });
+
+    test('should return null for library with no include structure', () => {
+      const includelessLibrary: ELM = {
+        library: {
+          identifier: {
+            id: 'Includeless',
+            version: '0.1.0'
+          },
+          statements: {
+            def: []
+          },
+          schemaIdentifier: {
+            id: 'urn:hl7-org:elm',
+            version: 'r1'
+          },
+          usings: {
+            def: [
+              {
+                localIdentifier: 'System',
+                uri: 'urn:hl7-org:elm-types:r1'
+              }
+            ]
+          }
+        }
+      };
+      const libraryPath = ELMDependencyHelper.findLibraryReferenceId(includelessLibrary, 'does-not-exist');
+
+      expect(libraryPath).toBeNull();
+    });
   });
 
   describe('findLibraryReference', () => {
@@ -70,6 +99,58 @@ describe('ELMDependencyHelper', () => {
       const matchingLib = ELMDependencyHelper.findLibraryReference(elm, [elm, dependency], 'does-not-exist');
 
       expect(matchingLib).toBeNull();
+    });
+
+    test('should return null when referenced library was not in list of loaded ELMs', () => {
+      const matchingLib = ELMDependencyHelper.findLibraryReference(elm, [elm], 'SimpleDep');
+
+      expect(matchingLib).toBeNull();
+    });
+  });
+
+  describe('findValueSetReference', () => {
+    let elm: ELM;
+    let dependency: ELM;
+    beforeAll(() => {
+      elm = getELMFixture('elm/queries/SimpleQueries.json');
+      dependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
+    });
+
+    test('it should be able to navigate a valueset reference to another library', () => {
+      const valueSetRef: ELMValueSetRef = {
+        name: 'test-vs-2',
+        libraryName: 'SimpleDep',
+        type: 'ValueSetRef'
+      };
+      const expectedValueSet: ELMValueSet = {
+        localId: '3',
+        locator: '7:1-7:52',
+        name: 'test-vs-2',
+        id: 'http://example.com/test-vs-2',
+        accessLevel: 'Public'
+      };
+      const vs = ELMDependencyHelper.findValueSetReference(elm, [elm, dependency], valueSetRef);
+      expect(vs).toEqual(expectedValueSet);
+    });
+
+    test('it should return null if valueset reference could not be found in library', () => {
+      const valueSetRef: ELMValueSetRef = {
+        name: 'does-not-exist',
+        libraryName: 'SimpleDep',
+        type: 'ValueSetRef'
+      };
+      const vs = ELMDependencyHelper.findValueSetReference(elm, [elm, dependency], valueSetRef);
+      expect(vs).toBeNull();
+    });
+
+    test('it should return null if library reference could not be found', () => {
+      const valueSetRef: ELMValueSetRef = {
+        name: 'test-vs-2',
+        libraryName: 'NopeLibrary',
+        type: 'ValueSetRef'
+      };
+      const vs = ELMDependencyHelper.findValueSetReference(elm, [elm, dependency], valueSetRef);
+      expect(vs).toBeNull();
     });
   });
 });
