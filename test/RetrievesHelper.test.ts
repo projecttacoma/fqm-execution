@@ -113,6 +113,49 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
   }
 ];
 
+const EXPECTED_QUERY_REFERENCING_QUERY_RESULTS: DataTypeQuery[] = [
+  {
+    dataType: 'Procedure',
+    valueSet: 'http://example.com/test-vs',
+    retrieveLocalId: '33',
+    queryLocalId: '46',
+    libraryName: 'SimpleQueries',
+    path: 'code',
+    expressionStack: [
+      {
+        localId: '49',
+        libraryName: 'SimpleQueries',
+        type: 'Exists'
+      },
+      {
+        localId: '48',
+        libraryName: 'SimpleQueries',
+        type: 'ExpressionRef'
+      },
+      {
+        localId: '46',
+        libraryName: 'SimpleQueries',
+        type: 'Query'
+      },
+      {
+        localId: '41',
+        libraryName: 'SimpleQueries',
+        type: 'ExpressionRef'
+      },
+      {
+        localId: '39',
+        libraryName: 'SimpleQueries',
+        type: 'Query'
+      },
+      {
+        localId: '33',
+        libraryName: 'SimpleQueries',
+        type: 'Retrieve'
+      }
+    ]
+  }
+];
+
 describe('Find Numerator Queries', () => {
   test('simple valueset lookup', () => {
     const valueSetExpr = simpleQueryELM.library.statements.def[0]; // expression for valueset lookup
@@ -142,5 +185,11 @@ describe('Find Numerator Queries', () => {
     const expressionRefDependency = simpleQueryELM.library.statements.def[4]; // expression with expression ref in dependent library
     const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRefDependency.expression);
     expect(results).toEqual(EXPECTED_DEPENDENCY_RESULTS);
+  });
+
+  test('query is further filtered by another query', () => {
+    const expressionRef = simpleQueryELM.library.statements.def[8];
+    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRef.expression);
+    expect(results).toEqual(EXPECTED_QUERY_REFERENCING_QUERY_RESULTS);
   });
 });

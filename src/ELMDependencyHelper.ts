@@ -1,4 +1,12 @@
-import { ELM, LibraryDependencyInfo, StatementDependency, StatementReference } from './types/ELMTypes';
+import {
+  ELM,
+  ELMStatement,
+  LibraryDependencyInfo,
+  StatementDependency,
+  StatementReference,
+  ELMValueSetRef,
+  ELMValueSet
+} from './types/ELMTypes';
 
 /**
  * Build the dependency maps for all libraries. This creates a listing of which statements and functions
@@ -49,7 +57,12 @@ function makeStatementDependenciesForELM(elm: ELM): StatementDependency[] {
   const statementDependencies: StatementDependency[] = [];
   const libAliasMap = makeLibraryAliasToPathHash(elm);
 
-  elm.library.statements.def.forEach(statement => {
+  // TODO: This is a workaround to not require statements in ELM
+  // Current 130 bundle uses a standalone library of valuesets
+  // our interface should be updated to make this optional, which will require a bunch of other changes
+  const statements = elm.library.statements as any;
+
+  statements?.def.forEach((statement: ELMStatement) => {
     // skip "Patient" statement since this is a cql-to-elm addition
     if (statement.name === 'Patient') {
       return;
@@ -110,4 +123,55 @@ function findStatementReferencesForExpression(
     }
   }
   return references;
+}
+
+/**
+ * Find the full identifier for a library given a local identifier.
+ *
+ * @param mainELM The library the local identifier is used in.
+ * @param localIdentifier The local identifier for a library.
+ * @returns The library identifier or 'null' if it couldn't be found.
+ */
+export function findLibraryReferenceId(mainELM: ELM, localIdentifier: string): string | null {
+  const matchingInclude = mainELM.library.includes?.def.find(d => d.localIdentifier === localIdentifier);
+
+  return matchingInclude ? matchingInclude.path : null;
+}
+
+/**
+ * Find the library for a given local identifier for a library.
+ *
+ * @param mainELM The library the local identifier is used in.
+ * @param allELM All ELM libraries loaded at the moment.
+ * @param localIdentifier The local identifer for the desired library.
+ * @returns The library referenced or 'null' if it couldn't be found.
+ */
+export function findLibraryReference(mainELM: ELM, allELM: ELM[], localIdentifier: string): ELM | null {
+  const matchingInclude = findLibraryReferenceId(mainELM, localIdentifier);
+
+  if (matchingInclude) {
+    return allELM.find(e => e.library.identifier.id === matchingInclude) || null;
+  }
+
+  return null;
+}
+
+/**
+ * Find the ValueSet definition for a given ValueSetRef.
+ *
+ * @param mainELM The library the ValueSetRef resides in.
+ * @param allELM All ELM libraries loaded at the moment.
+ * @param valueSetRef The ValueSetRef to resolve.
+ * @returns The ValueSet definition or 'null' if it couldn't be found.
+ */
+export function findValueSetReference(mainELM: ELM, allELM: ELM[], valueSetRef: ELMValueSetRef): ELMValueSet | null {
+  let matchingLib: ELM | null = null;
+  // ValueSet exists in other lib, need to follow library reference first
+  if (valueSetRef.libraryName) {
+    matchingLib = findLibraryReference(mainELM, allELM, valueSetRef.libraryName);
+  } else {
+    matchingLib = mainELM;
+  }
+
+  return matchingLib?.library.valueSets?.def.find(v => v.name === valueSetRef.name) || null;
 }

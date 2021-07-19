@@ -61,7 +61,7 @@ export interface OrFilter extends Filter {
 /**
  * "Abstract" interface for a filter that checks the value of an attribute of a source resource.
  */
-interface AttributeFilter extends Filter {
+export interface AttributeFilter extends Filter {
   alias: string;
   attribute: string;
 }

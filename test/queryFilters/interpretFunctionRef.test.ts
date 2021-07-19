@@ -1,5 +1,8 @@
 import * as QueryFilter from '../../src/QueryFilterHelpers';
 import { ELMFunctionRef } from '../../src/types/ELMTypes';
+import { getELMFixture } from '../helpers/testHelpers';
+
+const extraQueriesELM = getELMFixture('elm/queries/ExtraQueries.json');
 
 /** From ExtraQueries.cql "FunctionRef In Same library": */
 const FUNCTIONREF_IN_SAME_LIBRARY: ELMFunctionRef = {
@@ -60,13 +63,13 @@ const FUNCTIONREF_WITH_PARAM_COMPLEXITY: ELMFunctionRef = {
 
 describe('interpretFunctionRef', () => {
   test('FunctionRef in same library not supported', () => {
-    const functionRefRes = QueryFilter.interpretFunctionRef(FUNCTIONREF_IN_SAME_LIBRARY);
+    const functionRefRes = QueryFilter.interpretFunctionRef(FUNCTIONREF_IN_SAME_LIBRARY, extraQueriesELM);
     expect(functionRefRes).toBeUndefined();
   });
 
   /** This is more complicated than originally expected and needs some further work to handle this unexpected scenario. */
   test.skip('FunctionRef with complexity in param of known function not supported', () => {
-    const functionRefRes = QueryFilter.interpretFunctionRef(FUNCTIONREF_WITH_PARAM_COMPLEXITY);
+    const functionRefRes = QueryFilter.interpretFunctionRef(FUNCTIONREF_WITH_PARAM_COMPLEXITY, extraQueriesELM);
     expect(functionRefRes).toBeUndefined();
   });
 });
