@@ -79,7 +79,7 @@ async function calc(
     result = calculateDataRequirements(measureBundle);
   }
   if (!result) {
-    throw new Error('Result is not defined');
+    throw new Error(`Could not obtain result based on outputType ${program.outputType}`);
   }
   return result;
 }
