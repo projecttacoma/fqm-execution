@@ -47,3 +47,17 @@ define "Code Active Or Starts During MP Or Abatement is not null":
     where C.clinicalStatus ~ "Condition Active"
       or C.onset during "Measurement Period"
       or C.abatement is not null
+
+define "Observation Status and Value":
+  [Observation: "test-vs"] Obs
+    where Obs.status in {'final', 'amended', 'corrected', 'preliminary'}
+      and Obs.value is not null
+
+define "Further Refine Observation With During MP":
+  "Observation Status and Value" O
+    where Global."Normalize Interval"(O.effective) during "Measurement Period"
+
+define "Further Refine Observation With During MP and bodySite":
+  "Observation Status and Value" O
+    where Global."Normalize Interval"(O.effective) during "Measurement Period"
+      and O.bodySite is not null

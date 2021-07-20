@@ -26,11 +26,13 @@ import {
   ELMGreaterOrEqual,
   ELMToDateTime,
   ELMStart,
-  ELMEnd
+  ELMEnd,
+  ELMExpressionRef
 } from './types/ELMTypes';
 import {
   AndFilter,
   AnyFilter,
+  AttributeFilter,
   DuringFilter,
   EqualsFilter,
   InFilter,
@@ -41,6 +43,8 @@ import {
   TautologyFilter,
   UnknownFilter
 } from './types/QueryFilterTypes';
+import { findLibraryReferenceId } from './ELMDependencyHelper';
+import { findClauseInLibrary } from './helpers/ELMHelpers';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
@@ -71,10 +75,67 @@ export function parseQueryInfo(
       sources: parseSources(query),
       filter: { type: 'truth' }
     };
+
     if (query.where) {
       const whereInfo = interpretExpression(query.where, library, parameters, patient);
       queryInfo.filter = whereInfo;
     }
+
+    // If this query's source is a reference to an expression that is a query then we should parse it and include
+    // the filters from it.
+    if (query.source[0].expression.type === 'ExpressionRef') {
+      const exprRef = query.source[0].expression as ELMExpressionRef;
+      const statement = library.library.statements.def.find(s => s.name === exprRef.name);
+      // if we find the statement and it is a query we can move forward.
+      if (statement) {
+        if (statement.expression.type === 'Query') {
+          const innerQuery = statement.expression as ELMQuery;
+          const innerQueryInfo = parseQueryInfo(library, innerQuery.localId, parameters, patient);
+
+          // use sources from inner query
+          queryInfo.sources = innerQueryInfo.sources;
+
+          // replace the filters for this query to match the inner source
+          replaceAliasesInFilters(queryInfo.filter, query.source[0].alias, innerQuery.source[0].alias);
+
+          // combine filters from inner query by 'AND'ing it with the outer statement and replacing filter info
+          if (innerQuery.where) {
+            // make new combined and filter
+            const combinedAnd: AndFilter = {
+              type: 'and',
+              children: [],
+              notes: 'Combination of multiple queries'
+            };
+
+            // Add inner query info. merge to the combined 'and' if it is an 'and' itself
+            if (innerQueryInfo.filter.type === 'and') {
+              combinedAnd.children.push(...(innerQueryInfo.filter as AndFilter).children);
+            } else {
+              combinedAnd.children.push(innerQueryInfo.filter);
+            }
+
+            // Add this query info. merge to the combined 'and' if it is an 'and' itself
+            if (queryInfo.filter.type === 'and') {
+              combinedAnd.children.push(...(queryInfo.filter as AndFilter).children);
+            } else {
+              combinedAnd.children.push(queryInfo.filter);
+            }
+
+            // replace the filter info with the combined and
+            queryInfo.filter = combinedAnd;
+          }
+        } else {
+          console.error(
+            `query source referenced a statement that is not a query. ${query.localId} in ${library.library.identifier.id}`
+          );
+        }
+      } else {
+        console.error(
+          `query source referenced a statement that could not be found. ${query.localId} in ${library.library.identifier.id}`
+        );
+      }
+    }
+
     return queryInfo;
   } else {
     throw new Error(`Clause ${queryLocalId} in ${library.library.identifier.id} was not a Query or not found.`);
@@ -82,45 +143,19 @@ export function parseQueryInfo(
 }
 
 /**
- * Find an ELM clause by localId in a given library.
+ * Replace the aliases in a tree of filters.
  *
- * @param library The library to search in.
- * @param localId The localId to look for.
- * @returns The expression if found or null.
+ * @param filter The root filter.
+ * @param match The alias to look to replace.
+ * @param replace The replacement.
  */
-function findClauseInLibrary(library: ELM, localId: string): ELMExpression | null {
-  for (let i = 0; i < library.library.statements.def.length; i++) {
-    const statement = library.library.statements.def[i];
-    const expression = findClauseInExpression(statement.expression, localId);
-    if (expression) {
-      return expression;
-    }
-  }
-  return null;
-}
-
-/**
- * Recursively search an ELM tree for an expression (clause) with a given localId.
- *
- * @param expression The expression tree to search for the clause in.
- * @param localId The localId to look for.
- * @returns The expression if found or null.
- */
-function findClauseInExpression(expression: any, localId: string): ELMExpression | null {
-  if (typeof expression === 'string' || typeof expression === 'number' || typeof expression === 'boolean') {
-    return null;
-  } else if (Array.isArray(expression)) {
-    for (let i = 0; i < expression.length; i++) {
-      const memberExpression = findClauseInExpression(expression[i], localId);
-      if (memberExpression) {
-        return memberExpression as ELMExpression;
-      }
-    }
-    return null;
-  } else if (expression.localId == localId) {
-    return expression as ELMExpression;
-  } else {
-    return findClauseInExpression(Object.values(expression), localId);
+function replaceAliasesInFilters(filter: AnyFilter, match: string, replace: string) {
+  if (filter.type === 'and' || filter.type === 'or') {
+    (filter as AndFilter).children.forEach(filter => {
+      replaceAliasesInFilters(filter, match, replace);
+    });
+  } else if ((filter as AttributeFilter).alias === match) {
+    (filter as AttributeFilter).alias = replace;
   }
 }
 
@@ -174,7 +209,7 @@ export function interpretExpression(
 ): AnyFilter {
   switch (expression.type) {
     case 'Equal':
-      return interpretEqual(expression as ELMEqual);
+      return interpretEqual(expression as ELMEqual, library);
     case 'Equivalent':
       return interpretEquivalent(expression as ELMEquivalent, library);
     case 'And':
@@ -294,29 +329,34 @@ export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, 
  * @param functionRef The function ref to look at.
  * @returns Usually an ELMProperty expression for the operand if it can be considered a passthrough.
  */
-export function interpretFunctionRef(functionRef: ELMFunctionRef): any {
-  // from fhir helpers or MAT Global
-  if (functionRef.libraryName == 'FHIRHelpers' || functionRef.libraryName == 'Global') {
-    switch (functionRef.name) {
-      case 'ToString':
-      case 'ToConcept':
-      case 'ToInterval':
-      case 'Normalize Interval':
-        // Act as pass through
-        if (functionRef.operand[0].type == 'Property') {
-          return functionRef.operand[0] as ELMProperty;
-        } else if (
-          functionRef.operand[0].type === 'As' &&
-          (functionRef.operand[0] as ELMAs).operand.type == 'Property'
-        ) {
-          return (functionRef.operand[0] as ELMAs).operand as ELMProperty;
-        }
-        break;
-      default:
-        break;
+export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM): any {
+  if (functionRef.libraryName) {
+    const libraryId = findLibraryReferenceId(library, functionRef.libraryName);
+
+    // from fhir helpers or MAT Global or fhir common
+    if (libraryId === 'FHIRHelpers' || libraryId === 'MATGlobalCommonFunctions' || libraryId === 'FHIRCommon') {
+      switch (functionRef.name) {
+        case 'ToString':
+        case 'ToConcept':
+        case 'ToInterval':
+        case 'ToDateTime':
+        case 'Normalize Interval':
+          // Act as pass through
+          if (functionRef.operand[0].type == 'Property') {
+            return functionRef.operand[0] as ELMProperty;
+          } else if (
+            functionRef.operand[0].type === 'As' &&
+            (functionRef.operand[0] as ELMAs).operand.type == 'Property'
+          ) {
+            return (functionRef.operand[0] as ELMAs).operand as ELMProperty;
+          }
+          break;
+        default:
+          break;
+      }
+    } else {
+      console.warn(`do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`);
     }
-  } else {
-    console.warn(`do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`);
   }
 }
 
@@ -371,7 +411,7 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
 export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
   }
@@ -449,10 +489,10 @@ export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
  * @param equal The equal expression to be parsed.
  * @returns Filter representing the equal filter.
  */
-export function interpretEqual(equal: ELMEqual): EqualsFilter | UnknownFilter {
+export function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
   }
@@ -492,7 +532,7 @@ export function interpretIncludedIn(
 ): DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (includedIn.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
   } else if (includedIn.operand[0].type == 'Property') {
     propRef = includedIn.operand[0] as ELMProperty;
   }
@@ -545,14 +585,14 @@ export function interpretIncludedIn(
 export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
   let propRef: ELMProperty | null = null;
   if (inExpr.operand[0].type == 'FunctionRef') {
-    propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef);
+    propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {
     propRef = inExpr.operand[0] as ELMProperty;
   } else if (inExpr.operand[0].type == 'End' || inExpr.operand[0].type == 'Start') {
     const startOrEnd = inExpr.operand[0] as ELMUnaryExpression;
     const suffix = startOrEnd.type === 'End' ? '.end' : '.start';
     if (startOrEnd.operand.type == 'FunctionRef') {
-      propRef = interpretFunctionRef(startOrEnd.operand as ELMFunctionRef);
+      propRef = interpretFunctionRef(startOrEnd.operand as ELMFunctionRef, library);
     } else if (startOrEnd.operand.type == 'Property') {
       propRef = startOrEnd.operand as ELMProperty;
     }
@@ -708,13 +748,13 @@ export function interpretGreaterOrEqual(
         const attrExpr = calAgeRef.operand[1];
         let propRef: ELMProperty | null = null;
         if (attrExpr.type === 'FunctionRef') {
-          propRef = interpretFunctionRef(attrExpr as ELMFunctionRef);
+          propRef = interpretFunctionRef(attrExpr as ELMFunctionRef, library);
         } else if (attrExpr.type === 'Property') {
           propRef = attrExpr;
         } else if (attrExpr.type === 'Start' || attrExpr.type === 'End') {
           const suffix = attrExpr.type === 'End' ? '.end' : '.start';
           if (attrExpr.operand.type == 'FunctionRef') {
-            propRef = interpretFunctionRef(attrExpr.operand as ELMFunctionRef);
+            propRef = interpretFunctionRef(attrExpr.operand as ELMFunctionRef, library);
           } else if (attrExpr.operand.type == 'Property') {
             propRef = attrExpr.operand as ELMProperty;
           }
