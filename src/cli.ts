@@ -12,7 +12,7 @@ import {
   calculateDataRequirements
 } from './Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
-import { CalculationOptions } from './types/Calculator';
+import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
 
 program
   .option('-d, --debug', 'enable debug output', false)
@@ -63,7 +63,7 @@ async function calc(
   patientBundles: R4.IBundle[],
   calcOptions: CalculationOptions,
   valueSetCache: R4.IValueSet[] = []
-): Promise<any> {
+): Promise<CalculatorFunctionOutput> {
   let result;
   if (program.outputType === 'raw') {
     result = await calculateRaw(measureBundle, patientBundles, calcOptions, valueSetCache);
@@ -77,6 +77,9 @@ async function calc(
   } else if (program.outputType === 'dataRequirements') {
     // CalculateDataRequirements doesn't make use of the calcOptions object at this point
     result = calculateDataRequirements(measureBundle);
+  }
+  if (!result) {
+    throw new Error(`Could not obtain result based on outputType ${program.outputType}`);
   }
   return result;
 }
