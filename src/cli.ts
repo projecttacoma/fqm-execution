@@ -186,6 +186,7 @@ calc(
   })
   .catch(error => {
     console.error(error.message);
+    console.error(error.stack);
   });
 if (program.outputType !== 'reports' && program.reportType) {
   console.error('Report type was specified when not asking for reports.');

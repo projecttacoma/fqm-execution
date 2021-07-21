@@ -106,16 +106,17 @@ export function groupGapQueries(queries: GapsDataTypeQuery[]): GapsDataTypeQuery
   const ungroupedQueries: GapsDataTypeQuery[][] = [];
 
   queries.forEach((q): void => {
-    const stackEntry = q.expressionStack ? q.expressionStack[0] : undefined;
     // Logic to determine grouped queries. Will likely get more complex
     // as query grouping evolves
-    if (stackEntry && stackEntry.type == 'Or') {
-      if (queryGroups.get(stackEntryString(stackEntry))) {
+    const stackOrEntry = getOrExpressionFromStack(q.expressionStack);
+
+    if (stackOrEntry) {
+      if (queryGroups.get(stackEntryString(stackOrEntry))) {
         // If we've already started a group for these queries, add to the group
-        queryGroups.get(stackEntryString(stackEntry))?.push(q);
+        queryGroups.get(stackEntryString(stackOrEntry))?.push(q);
       } else {
         // Otherwise, start a new group
-        queryGroups.set(stackEntryString(stackEntry), [q]);
+        queryGroups.set(stackEntryString(stackOrEntry), [q]);
       }
     } else {
       // collect queries that aren't part of a grouping
@@ -124,6 +125,25 @@ export function groupGapQueries(queries: GapsDataTypeQuery[]): GapsDataTypeQuery
   });
 
   return Array.from(queryGroups.values()).concat(ungroupedQueries);
+}
+
+/**
+ * Detects scenario in expressionStack where this query is part of an "Or"
+ * i.e. Either the first entry in the stack is an "Or," or it is an "ExpressionRef" right on top of an "Or"
+ *
+ * @param expressionStack the current expression stack for this query
+ * @returns Matching "Or", or null if not found
+ */
+export function getOrExpressionFromStack(expressionStack?: ExpressionStackEntry[]): ExpressionStackEntry | null {
+  if (expressionStack && expressionStack.length >= 2) {
+    if (expressionStack[0].type === 'ExpressionRef') {
+      return expressionStack[1].type === 'Or' ? expressionStack[1] : null;
+    }
+
+    return expressionStack[0].type === 'Or' ? expressionStack[0] : null;
+  }
+
+  return null;
 }
 
 function stackEntryString(entry: ExpressionStackEntry): string {
