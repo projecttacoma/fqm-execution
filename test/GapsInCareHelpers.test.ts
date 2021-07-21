@@ -444,9 +444,9 @@ describe('Find Near Misses', () => {
             FHIRWrapper.FHIRv401().wrap({
               resourceType: 'Procedure',
               id: 'proc23',
-              performed: {
-                start: { value: '2000-01-01' },
-                end: { value: '2000-01-02' } // out of range of desired interval
+              performedPeriod: {
+                start: '2000-01-01',
+                end: '2000-01-02' // out of range of desired interval
               }
             })
           ]

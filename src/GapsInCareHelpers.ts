@@ -387,7 +387,7 @@ export function calculateReasonDetail(
                     reasonDetail.reasons.push({
                       code: CareGapReasonCode.DATEOUTOFRANGE,
                       path: duringFilter.attribute,
-                      reference: `${resource.resourceType}/${resource.id}`
+                      reference: `${resource._json.resourceType}/${resource.id.value}`
                     });
                   }
                 }
@@ -406,7 +406,7 @@ export function calculateReasonDetail(
                   reasonDetail.reasons.push({
                     code: CareGapReasonCode.VALUEMISSING,
                     path: notNullFilter.attribute,
-                    reference: `${resource.resourceType}/${resource.id}`
+                    reference: `${resource._json.resourceType}/${resource.id.value}`
                   });
                 }
               } else {
@@ -427,7 +427,7 @@ export function calculateReasonDetail(
                       reasonDetail.reasons.push({
                         code: code,
                         path: (f as AttributeFilter).attribute,
-                        reference: `${resource.resourceType}/${resource.id}`
+                        reference: `${resource._json.resourceType}/${resource.id.value}`
                       });
                     } else {
                       reasonDetail.reasons.push({ code: code });
