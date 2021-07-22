@@ -22,7 +22,7 @@ const BASE_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs',
     retrieveLocalId: '14',
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '14',
@@ -39,7 +39,7 @@ const BASE_VS_QUERY_RESULT: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs',
     retrieveLocalId: '18',
     queryLocalId: '24',
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '24',
@@ -64,7 +64,7 @@ const BASE_CODE_RESULTS: DataTypeQuery[] = [
     },
     retrieveLocalId: '16',
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '16',
@@ -81,7 +81,7 @@ const BASE_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs',
     retrieveLocalId: '14',
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '26',
@@ -103,7 +103,7 @@ const BASE_DEPENDENCY_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs-2',
     retrieveLocalId: '4',
     queryLocalId: undefined,
-    libraryName: 'SimpleDep',
+    retrieveLibraryName: 'SimpleDep',
     expressionStack: [
       {
         localId: '29',
@@ -127,7 +127,7 @@ const OR_GROUP_QUERIES: GapsDataTypeQuery[] = [
     retrieveLocalId: '4',
     parentQueryHasResult: false,
     queryLocalId: undefined,
-    libraryName: 'SimpleDep',
+    retrieveLibraryName: 'SimpleDep',
     expressionStack: [
       {
         localId: '29',
@@ -148,7 +148,7 @@ const OR_GROUP_QUERIES: GapsDataTypeQuery[] = [
     retrieveLocalId: '5',
     parentQueryHasResult: false,
     queryLocalId: undefined,
-    libraryName: 'SimpleDep',
+    retrieveLibraryName: 'SimpleDep',
     expressionStack: [
       {
         localId: '29',
@@ -169,7 +169,7 @@ const OR_GROUP_QUERIES: GapsDataTypeQuery[] = [
     retrieveLocalId: '6',
     parentQueryHasResult: false,
     queryLocalId: undefined,
-    libraryName: 'SimpleDep',
+    retrieveLibraryName: 'SimpleDep',
     expressionStack: [
       {
         localId: '44',
@@ -345,7 +345,7 @@ describe('Generate DetectedIssue Resource', () => {
         valueSet: 'http://example.com/test-vs',
         retrieveHasResult: false,
         parentQueryHasResult: true,
-        libraryName: 'SimpleQueries'
+        retrieveLibraryName: 'SimpleQueries'
       }
     ];
 
@@ -362,7 +362,7 @@ describe('Generate DetectedIssue Resource', () => {
         valueSet: 'http://example.com/test-vs',
         retrieveHasResult: false,
         parentQueryHasResult: true,
-        libraryName: 'SimpleQueries'
+        retrieveLibraryName: 'SimpleQueries'
       }
     ];
 
@@ -413,7 +413,7 @@ describe('Find Near Misses', () => {
       valueSet: 'http://example.com/test-vs',
       retrieveHasResult: true,
       parentQueryHasResult: false,
-      libraryName: 'example',
+      retrieveLibraryName: 'example',
       retrieveLocalId: 'procedure'
     };
 
@@ -557,7 +557,7 @@ describe('Find Near Misses', () => {
         valueSet: 'http://example.com/test-vs',
         retrieveHasResult: true,
         parentQueryHasResult: false,
-        libraryName: 'example',
+        retrieveLibraryName: 'example',
         retrieveLocalId: 'observation',
         queryInfo: {
           sources: [

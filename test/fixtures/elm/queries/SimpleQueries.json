@@ -8,7 +8,7 @@
       {
         "type": "Annotation",
         "s": {
-          "r": "40",
+          "r": "66",
           "s": [
             {
               "value": [
@@ -1305,6 +1305,383 @@
               "locator": "37:10-37:34",
               "name": "Further Filtering Query",
               "type": "ExpressionRef"
+            }
+          }
+        },
+        {
+          "localId": "58",
+          "locator": "47:1-49:32",
+          "name": "Retrieve Using ValueSet In Dependency",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "58",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Retrieve Using ValueSet In Dependency\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "57",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "52",
+                            "s": [
+                              {
+                                "r": "51",
+                                "s": [
+                                  {
+                                    "r": "51",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Procedure",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "SimpleDep",
+                                              ".",
+                                              "\"test-vs-2\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "P"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "56",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "56",
+                            "s": [
+                              {
+                                "r": "54",
+                                "s": [
+                                  {
+                                    "r": "53",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "P"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "54",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "status"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "55",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "'completed'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "57",
+            "locator": "48:3-49:32",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "52",
+                "locator": "48:3-48:38",
+                "alias": "P",
+                "expression": {
+                  "localId": "51",
+                  "locator": "48:3-48:36",
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "48:15-48:35",
+                    "name": "test-vs-2",
+                    "libraryName": "SimpleDep",
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "localId": "56",
+              "locator": "49:5-49:32",
+              "type": "Equal",
+              "operand": [
+                {
+                  "name": "ToString",
+                  "libraryName": "FHIRHelpers",
+                  "type": "FunctionRef",
+                  "operand": [
+                    {
+                      "localId": "54",
+                      "locator": "49:11-49:18",
+                      "path": "status",
+                      "scope": "P",
+                      "type": "Property"
+                    }
+                  ]
+                },
+                {
+                  "localId": "55",
+                  "locator": "49:22-49:32",
+                  "valueType": "{urn:hl7-org:elm-types:r1}String",
+                  "value": "completed",
+                  "type": "Literal"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "66",
+          "locator": "51:1-53:32",
+          "name": "Nested Query From Another Library",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "66",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Nested Query From Another Library\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "65",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "60",
+                            "s": [
+                              {
+                                "r": "59",
+                                "s": [
+                                  {
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "SimpleDep",
+                                          ".",
+                                          "\"SimpleQuery\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "S"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "64",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "64",
+                            "s": [
+                              {
+                                "r": "62",
+                                "s": [
+                                  {
+                                    "r": "61",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "S"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "62",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "status"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "63",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "'completed'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "65",
+            "locator": "52:3-53:32",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "60",
+                "locator": "52:3-52:27",
+                "alias": "S",
+                "expression": {
+                  "localId": "59",
+                  "locator": "52:3-52:25",
+                  "name": "SimpleQuery",
+                  "libraryName": "SimpleDep",
+                  "type": "ExpressionRef"
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "localId": "64",
+              "locator": "53:5-53:32",
+              "type": "Equal",
+              "operand": [
+                {
+                  "name": "ToString",
+                  "libraryName": "FHIRHelpers",
+                  "type": "FunctionRef",
+                  "operand": [
+                    {
+                      "localId": "62",
+                      "locator": "53:11-53:18",
+                      "path": "status",
+                      "scope": "S",
+                      "type": "Property"
+                    }
+                  ]
+                },
+                {
+                  "localId": "63",
+                  "locator": "53:22-53:32",
+                  "valueType": "{urn:hl7-org:elm-types:r1}String",
+                  "value": "completed",
+                  "type": "Literal"
+                }
+              ]
             }
           }
         }

@@ -376,7 +376,6 @@ export async function calculateGapsInCare(
       // If positive improvement measure, consider patients in denominator but not numerator for gaps
       // If negative improvement measure, consider patients in numerator for gaps
       // For either case, ignore patient if numerator isn't relevant
-
       const populationCriteria =
         numerRelevance &&
         (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
@@ -435,8 +434,8 @@ export async function calculateGapsInCare(
         detailedGapsRetrieves.forEach(retrieve => {
           // If the retrieves have a localId for the query and a known library name, we can get more info
           // on how the query filters the sources.
-          if (retrieve.queryLocalId && retrieve.libraryName) {
-            const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.libraryName);
+          if (retrieve.queryLocalId && retrieve.queryLibraryName) {
+            const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
             if (library) {
               retrieve.queryInfo = parseQueryInfo(
                 library,

@@ -46,6 +46,8 @@ export function findRetrieves(
     // If present, strip off HL7 prefix to data type
     const dataType = exprRet.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 
+    const queryLibraryName = elm.library.identifier.id;
+
     // We need to detect if this query/retrieve is used as the source of another query directly. This is an indication
     // that the retrieve is filtered by two separate queries and we need to actually look at the 'outermost' query closest
     // to the numerator.
@@ -53,12 +55,17 @@ export function findRetrieves(
     if (expressionStack.length >= 4) {
       // Grab the last 4 in the stack and see if they match the case we are looking for
       const bottomExprs = expressionStack.slice(-4);
+
       if (
         bottomExprs[0].type === 'Query' &&
         bottomExprs[1].type === 'ExpressionRef' &&
         bottomExprs[2].type === 'Query'
       ) {
         // check if the outer query is indeed referencing the inner one in the source.
+        /**
+         * seems like here we will need to replace elm with the ELM object of
+         * the referenced library when necessary
+         */
         const outerQuery = findClauseInLibrary(elm, bottomExprs[0].localId) as ELMQuery;
         if (
           outerQuery.source[0].expression.localId === bottomExprs[1].localId &&
@@ -85,7 +92,8 @@ export function findRetrieves(
           valueSet: valueSet.id,
           queryLocalId,
           retrieveLocalId: exprRet.localId,
-          libraryName: elm.library.identifier.id,
+          retrieveLibraryName: elm.library.identifier.id,
+          queryLibraryName,
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
@@ -112,7 +120,8 @@ export function findRetrieves(
           },
           queryLocalId,
           retrieveLocalId: exprRet.localId,
-          libraryName: elm.library.identifier.id,
+          retrieveLibraryName: elm.library.identifier.id,
+          queryLibraryName,
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });

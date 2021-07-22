@@ -9,3 +9,8 @@ valueset "test-vs-2": 'http://example.com/test-vs-2'
 define "SimpleRetrieve":
   [Condition: "test-vs-2"]
 
+
+define "SimpleQuery":
+  [Procedure: "test-vs-2"] P
+    where P.id = 'test' 
+
