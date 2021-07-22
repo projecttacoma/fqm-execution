@@ -86,6 +86,14 @@ export function parseQueryInfo(
     if (query.source[0].expression.type === 'ExpressionRef') {
       const exprRef = query.source[0].expression as ELMExpressionRef;
       const statement = library.library.statements.def.find(s => s.name === exprRef.name);
+      /**
+       * Add support for library search in another library if necessary
+       * steps:
+       *  Determine if query.source[0] references a different library
+       *    is this possible or will we need to instead just search all accessible libraries for source??
+       *  Replace library.library with apropriate library
+       *  The rest of this function should be unchnaged??
+       */
       // if we find the statement and it is a query we can move forward.
       if (statement) {
         if (statement.expression.type === 'Query') {

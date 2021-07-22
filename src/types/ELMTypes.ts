@@ -121,6 +121,7 @@ export interface ELMValueSet {
   accessLevel?: string;
   /** Version of the valueset. Should not be used in eCQM land. */
   version?: string;
+  annotation?: Annotation[];
 }
 
 /**

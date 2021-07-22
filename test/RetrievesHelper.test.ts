@@ -11,7 +11,8 @@ const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs',
     retrieveLocalId: '14',
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
+    queryLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '14',
@@ -29,7 +30,8 @@ const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs',
     retrieveLocalId: '18',
     queryLocalId: '24',
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
+    queryLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '24',
@@ -55,7 +57,8 @@ const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
     },
     retrieveLocalId: '16',
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
+    queryLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '16',
@@ -73,7 +76,8 @@ const EXPECTED_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs',
     retrieveLocalId: '14',
     queryLocalId: undefined,
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
+    queryLibraryName: 'SimpleQueries',
     expressionStack: [
       {
         localId: '26',
@@ -96,7 +100,8 @@ const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs-2',
     retrieveLocalId: '4',
     queryLocalId: undefined,
-    libraryName: 'SimpleDep',
+    retrieveLibraryName: 'SimpleDep',
+    queryLibraryName: 'SimpleDep',
     expressionStack: [
       {
         localId: '29',
@@ -119,7 +124,8 @@ const EXPECTED_QUERY_REFERENCING_QUERY_RESULTS: DataTypeQuery[] = [
     valueSet: 'http://example.com/test-vs',
     retrieveLocalId: '33',
     queryLocalId: '46',
-    libraryName: 'SimpleQueries',
+    retrieveLibraryName: 'SimpleQueries',
+    queryLibraryName: 'SimpleQueries',
     path: 'code',
     expressionStack: [
       {
@@ -150,6 +156,40 @@ const EXPECTED_QUERY_REFERENCING_QUERY_RESULTS: DataTypeQuery[] = [
       {
         localId: '33',
         libraryName: 'SimpleQueries',
+        type: 'Retrieve'
+      }
+    ]
+  }
+];
+
+const EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS: DataTypeQuery[] = [
+  {
+    dataType: 'Procedure',
+    valueSet: 'http://example.com/test-vs-2',
+    retrieveLocalId: '6',
+    queryLocalId: '65',
+    retrieveLibraryName: 'SimpleQueries',
+    queryLibraryName: 'SimpleDep',
+    path: 'code',
+    expressionStack: [
+      {
+        localId: '65',
+        libraryName: 'SimpleQueries',
+        type: 'Query'
+      },
+      {
+        localId: '59',
+        libraryName: 'SimpleQueries',
+        type: 'ExpressionRef'
+      },
+      {
+        localId: '12',
+        libraryName: 'SimpleDep',
+        type: 'Query'
+      },
+      {
+        localId: '6',
+        libraryName: 'SimpleDep',
         type: 'Retrieve'
       }
     ]
@@ -191,5 +231,10 @@ describe('Find Numerator Queries', () => {
     const expressionRef = simpleQueryELM.library.statements.def[8];
     const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRef.expression);
     expect(results).toEqual(EXPECTED_QUERY_REFERENCING_QUERY_RESULTS);
+  });
+
+  test.skip('query is further filtered by another query from another library', () => {
+    const expressionRef = simpleQueryELM.library.statements.def[10];
+    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRef.expression);
   });
 });
