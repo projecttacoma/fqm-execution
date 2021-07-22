@@ -5,6 +5,8 @@ import { DataTypeQuery } from '../src/types/Calculator';
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
 
+const allELM = [simpleQueryELM, simpleQueryELMDependency];
+
 const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
   {
     dataType: 'Condition',
@@ -168,8 +170,8 @@ const EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS: DataTypeQuery
     valueSet: 'http://example.com/test-vs-2',
     retrieveLocalId: '6',
     queryLocalId: '65',
-    retrieveLibraryName: 'SimpleQueries',
-    queryLibraryName: 'SimpleDep',
+    retrieveLibraryName: 'SimpleDep',
+    queryLibraryName: 'SimpleQueries',
     path: 'code',
     expressionStack: [
       {
@@ -199,42 +201,43 @@ const EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS: DataTypeQuery
 describe('Find Numerator Queries', () => {
   test('simple valueset lookup', () => {
     const valueSetExpr = simpleQueryELM.library.statements.def[0]; // expression for valueset lookup
-    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], valueSetExpr.expression);
+    const results = findRetrieves(simpleQueryELM, allELM, valueSetExpr.expression);
     expect(results).toEqual(EXPECTED_VS_RETRIEVE_RESULTS);
   });
 
   test('simple code lookup', () => {
     const codeExpr = simpleQueryELM.library.statements.def[1]; // expression for code lookup
-    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], codeExpr.expression);
+    const results = findRetrieves(simpleQueryELM, allELM, codeExpr.expression);
     expect(results).toEqual(EXPECTED_CODE_RESULTS);
   });
 
   test('simple aliased query', () => {
     const queryExpr = simpleQueryELM.library.statements.def[2]; // expression with aliased query
-    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], queryExpr.expression);
+    const results = findRetrieves(simpleQueryELM, allELM, queryExpr.expression);
     expect(results).toEqual(EXPECTED_VS_QUERY_RESULTS);
   });
 
   test('simple expression ref', () => {
     const expressionRef = simpleQueryELM.library.statements.def[3]; // expression with local expression ref
-    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRef.expression);
+    const results = findRetrieves(simpleQueryELM, allELM, expressionRef.expression);
     expect(results).toEqual(EXPECTED_EXPRESSIONREF_RESULTS);
   });
 
   test('dependent library expression ref', () => {
     const expressionRefDependency = simpleQueryELM.library.statements.def[4]; // expression with expression ref in dependent library
-    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRefDependency.expression);
+    const results = findRetrieves(simpleQueryELM, allELM, expressionRefDependency.expression);
     expect(results).toEqual(EXPECTED_DEPENDENCY_RESULTS);
   });
 
   test('query is further filtered by another query', () => {
     const expressionRef = simpleQueryELM.library.statements.def[8];
-    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRef.expression);
+    const results = findRetrieves(simpleQueryELM, allELM, expressionRef.expression);
     expect(results).toEqual(EXPECTED_QUERY_REFERENCING_QUERY_RESULTS);
   });
 
-  test.skip('query is further filtered by another query from another library', () => {
+  test('query is further filtered by another query from another library', () => {
     const expressionRef = simpleQueryELM.library.statements.def[10];
-    const results = findRetrieves(simpleQueryELM, [simpleQueryELMDependency], expressionRef.expression);
+    const results = findRetrieves(simpleQueryELM, allELM, expressionRef.expression);
+    expect(results).toEqual(EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS);
   });
 });
