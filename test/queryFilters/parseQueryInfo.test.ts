@@ -7,6 +7,9 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
+const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
+
+const allELM = [simpleQueryELM, complexQueryELM, simpleQueryELMDependency];
 
 const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
 const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
@@ -298,6 +301,38 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
   }
 };
 
+const EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY: QueryInfo = {
+  localId: '65',
+  sources: [
+    {
+      retrieveLocalId: '6',
+      sourceLocalId: '7',
+      alias: 'P',
+      resourceType: 'Procedure'
+    }
+  ],
+  filter: {
+    type: 'and',
+    notes: 'Combination of multiple queries',
+    children: [
+      {
+        type: 'equals',
+        alias: 'P',
+        attribute: 'id',
+        value: 'test-2',
+        localId: '11'
+      },
+      {
+        type: 'equals',
+        alias: 'P',
+        attribute: 'status',
+        value: 'completed',
+        localId: '64'
+      }
+    ]
+  }
+};
+
 const PATIENT: R4.IPatient = {
   resourceType: 'Patient',
   birthDate: '1988-09-08'
@@ -306,13 +341,13 @@ const PATIENT: R4.IPatient = {
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
   test('simple valueset with id check with no parameters passed in', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -322,7 +357,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_AND_STARTS_DURING_MP);
   });
 
@@ -334,7 +369,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
   });
 
@@ -346,7 +381,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
 
     const filter = queryInfo.filter as AndFilter;
 
@@ -368,31 +403,37 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL);
   });
 
   test('incorrect localid should throw error', () => {
     expect(() => {
-      parseQueryInfo(simpleQueryELM, '360', PARAMETERS, PATIENT);
+      parseQueryInfo(simpleQueryELM, allELM, '360', PARAMETERS, PATIENT);
     }).toThrow('Clause 360 in SimpleQueries was not a Query or not found.');
   });
 
   test('simple - query references query, combines filters', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY);
   });
 
   test('complex - query references query, combines filters', () => {
     const queryLocalId = complexQueryELM.library.statements.def[6].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
   });
 
   test('complex - query references query, combines filters with ands in both filters and differing alias names', () => {
     const queryLocalId = complexQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH);
+  });
+
+  test('simple - query references query in another library, combines filters', () => {
+    const queryLocalId = simpleQueryELM.library.statements.def[10].expression.localId; // In simple queries "Nested Query From Another Library"
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY);
   });
 });

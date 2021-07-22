@@ -43,8 +43,9 @@ import {
   TautologyFilter,
   UnknownFilter
 } from './types/QueryFilterTypes';
-import { findLibraryReferenceId } from './ELMDependencyHelper';
+import { findLibraryReference, findLibraryReferenceId } from './ELMDependencyHelper';
 import { findClauseInLibrary } from './helpers/ELMHelpers';
+import exp from 'constants';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
@@ -60,6 +61,7 @@ import { findClauseInLibrary } from './helpers/ELMHelpers';
  */
 export function parseQueryInfo(
   library: ELM,
+  allELM: ELM[],
   queryLocalId: string | undefined,
   parameters: { [key: string]: any } = {},
   patient: R4.IPatient
@@ -85,7 +87,14 @@ export function parseQueryInfo(
     // the filters from it.
     if (query.source[0].expression.type === 'ExpressionRef') {
       const exprRef = query.source[0].expression as ELMExpressionRef;
-      const statement = library.library.statements.def.find(s => s.name === exprRef.name);
+      let queryLib: ELM | null = library;
+      if (exprRef.libraryName) {
+        queryLib = findLibraryReference(library, allELM, exprRef.libraryName);
+      }
+      if (!queryLib) {
+        throw new Error(`Cannot Find Referenced Library: ${exprRef.libraryName}`);
+      }
+      const statement = queryLib.library.statements.def.find(s => s.name === exprRef.name);
       /**
        * Add support for library search in another library if necessary
        * steps:
@@ -98,7 +107,7 @@ export function parseQueryInfo(
       if (statement) {
         if (statement.expression.type === 'Query') {
           const innerQuery = statement.expression as ELMQuery;
-          const innerQueryInfo = parseQueryInfo(library, innerQuery.localId, parameters, patient);
+          const innerQueryInfo = parseQueryInfo(queryLib, allELM, innerQuery.localId, parameters, patient);
 
           // use sources from inner query
           queryInfo.sources = innerQueryInfo.sources;

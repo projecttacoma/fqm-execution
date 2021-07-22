@@ -215,7 +215,7 @@
         },
         {
           "localId": "13",
-          "locator": "13:1-15:23",
+          "locator": "13:1-15:25",
           "name": "SimpleQuery",
           "context": "Patient",
           "accessLevel": "Public",
@@ -340,7 +340,7 @@
                                 "s": [
                                   {
                                     "value": [
-                                      "'test'"
+                                      "'test-2'"
                                     ]
                                   }
                                 ]
@@ -357,7 +357,7 @@
           ],
           "expression": {
             "localId": "12",
-            "locator": "14:3-15:23",
+            "locator": "14:3-15:25",
             "type": "Query",
             "source": [
               {
@@ -383,7 +383,7 @@
             "relationship": [],
             "where": {
               "localId": "11",
-              "locator": "15:5-15:23",
+              "locator": "15:5-15:25",
               "type": "Equal",
               "operand": [
                 {
@@ -402,9 +402,9 @@
                 },
                 {
                   "localId": "10",
-                  "locator": "15:18-15:23",
+                  "locator": "15:18-15:25",
                   "valueType": "{urn:hl7-org:elm-types:r1}String",
-                  "value": "test",
+                  "value": "test-2",
                   "type": "Literal"
                 }
               ]

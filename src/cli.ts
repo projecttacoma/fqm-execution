@@ -182,7 +182,7 @@ calc(
       });
     }
 
-    //console.log(JSON.stringify(result?.results, null, 2));
+    console.log(JSON.stringify(result?.results, null, 2));
   })
   .catch(error => {
     console.error(error.message);

@@ -439,6 +439,7 @@ export async function calculateGapsInCare(
             if (library) {
               retrieve.queryInfo = parseQueryInfo(
                 library,
+                elmLibraries,
                 retrieve.queryLocalId,
                 parameters,
                 patientEntry.resource as R4.IPatient

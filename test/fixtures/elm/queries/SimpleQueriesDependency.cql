@@ -12,5 +12,5 @@ define "SimpleRetrieve":
 
 define "SimpleQuery":
   [Procedure: "test-vs-2"] P
-    where P.id = 'test' 
+    where P.id = 'test-2' 
 
