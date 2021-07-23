@@ -45,13 +45,13 @@ import {
 } from './types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from './ELMDependencyHelper';
 import { findClauseInLibrary } from './helpers/ELMHelpers';
-import exp from 'constants';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
  * how the query is filtered.
  *
  * @param library The library ELM the query resides in.
+ * @param allELM An array of all the ELM libraries accessible to fqm-execution (includes library from library param)
  * @param queryLocalId The localId for the query we want to get information on.
  * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
  *                    "Measurement Period" is the only supported parameter at the moment as it is the only parameter
