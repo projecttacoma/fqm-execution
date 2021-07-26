@@ -1,15 +1,15 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { CalculationOptions, RawExecutionData, DebugOutput } from './types/Calculator';
+import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
 
 // import { PatientSource } from 'cql-exec-fhir';
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
-import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './helpers/ValueSetHelper';
-import { codeableConceptToPopulationType } from './helpers/MeasureHelpers';
-import { PopulationType } from './types/Enums';
-import { generateELMJSONFunction } from './CalculatorHelpers';
-import { ValueSetResolver } from './helpers/ValueSetResolver';
-import * as MeasureHelpers from './helpers/MeasureHelpers';
+import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './ValueSetHelper';
+import { codeableConceptToPopulationType } from '../calculation/ClauseResultsHelpers';
+import { PopulationType } from '../types/Enums';
+import { generateELMJSONFunction } from '../calculation/DetailedResultsBuilder';
+import { ValueSetResolver } from './ValueSetResolver';
+import * as MeasureHelpers from '../calculation/ClauseResultsHelpers';
 
 export async function execute(
   measureBundle: R4.IBundle,

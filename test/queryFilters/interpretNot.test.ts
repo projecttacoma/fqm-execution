@@ -1,4 +1,4 @@
-import * as QueryFilter from '../../src/QueryFilterHelpers';
+import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMNot } from '../../src/types/ELMTypes';
 import { UnknownFilter } from '../../src/types/QueryFilterTypes';
 

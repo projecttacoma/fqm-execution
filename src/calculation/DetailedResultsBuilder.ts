@@ -1,10 +1,10 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from './types/Calculator';
-import * as MeasureHelpers from './helpers/MeasureHelpers';
-import { getResult, hasResult, setResult, createOrSetResult } from './ResultsHelpers';
-import { ELM, ELMStatement } from './types/ELMTypes';
-import { PopulationType } from './types/Enums';
-import * as cql from './types/CQLTypes';
+import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from '../types/Calculator';
+import * as MeasureHelpers from './ClauseResultsHelpers';
+import { getResult, hasResult, setResult, createOrSetResult } from './ClauseResultsBuilder';
+import { ELM, ELMStatement } from '../types/ELMTypes';
+import { PopulationType } from '../types/Enums';
+import * as cql from '../types/CQLTypes';
 
 /**
  * Create population values (aka results) for all populations in the population group using the results from the

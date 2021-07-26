@@ -7,14 +7,14 @@ import {
   GapsDataTypeQuery,
   ReasonDetail,
   ReasonDetailData
-} from './types/Calculator';
-import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
+} from '../types/Calculator';
+import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from '../types/Enums';
 import {
   flattenFilters,
   generateDetailedCodeFilter,
   generateDetailedDateFilter,
   generateDetailedValueFilter
-} from './helpers/DataRequirementHelpers';
+} from '../helpers/DataRequirementHelpers';
 import {
   EqualsFilter,
   InFilter,
@@ -22,7 +22,7 @@ import {
   AnyFilter,
   NotNullFilter,
   AttributeFilter
-} from './types/QueryFilterTypes';
+} from '../types/QueryFilterTypes';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve

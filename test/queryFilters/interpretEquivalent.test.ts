@@ -1,5 +1,5 @@
 import { getELMFixture } from '../helpers/testHelpers';
-import * as QueryFilter from '../../src/QueryFilterHelpers';
+import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMEquivalent } from '../../src/types/ELMTypes';
 
 // to use as a library parameter for tests

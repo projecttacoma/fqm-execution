@@ -1,4 +1,4 @@
-import * as CalculatorHelpers from '../src/CalculatorHelpers';
+import * as DetailedResultsBuilder from '../src/calculation/DetailedResultsBuilder';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { getJSONFixture } from './helpers/testHelpers';
 import { PopulationType } from '../src/types/Enums';
@@ -15,7 +15,7 @@ const cvMeasure = getJSONFixture('measure/cv-measure.json') as MeasureWithGroup;
 const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
 
-describe('CalculatorHelpers', () => {
+describe('DetailedResultsBuilder', () => {
   describe('Population Values', () => {
     test('NUMER population not modified by inclusion in NUMEX', () => {
       const statementResults: StatementResults = {
@@ -34,7 +34,11 @@ describe('CalculatorHelpers', () => {
         { populationType: PopulationType.NUMEX, result: true }
       ];
 
-      const results = CalculatorHelpers.createPopulationValues(simpleMeasure, simpleMeasureGroup, statementResults);
+      const results = DetailedResultsBuilder.createPopulationValues(
+        simpleMeasure,
+        simpleMeasureGroup,
+        statementResults
+      );
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
@@ -58,7 +62,11 @@ describe('CalculatorHelpers', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const results = CalculatorHelpers.createPopulationValues(simpleMeasure, simpleMeasureGroup, statementResults);
+      const results = DetailedResultsBuilder.createPopulationValues(
+        simpleMeasure,
+        simpleMeasureGroup,
+        statementResults
+      );
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
@@ -82,7 +90,11 @@ describe('CalculatorHelpers', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const results = CalculatorHelpers.createPopulationValues(simpleMeasure, simpleMeasureGroup, statementResults);
+      const results = DetailedResultsBuilder.createPopulationValues(
+        simpleMeasure,
+        simpleMeasureGroup,
+        statementResults
+      );
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
@@ -106,7 +118,11 @@ describe('CalculatorHelpers', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const results = CalculatorHelpers.createPopulationValues(simpleMeasure, simpleMeasureGroup, statementResults);
+      const results = DetailedResultsBuilder.createPopulationValues(
+        simpleMeasure,
+        simpleMeasureGroup,
+        statementResults
+      );
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
@@ -130,7 +146,11 @@ describe('CalculatorHelpers', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const results = CalculatorHelpers.createPopulationValues(simpleMeasure, simpleMeasureGroup, statementResults);
+      const results = DetailedResultsBuilder.createPopulationValues(
+        simpleMeasure,
+        simpleMeasureGroup,
+        statementResults
+      );
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
@@ -152,7 +172,7 @@ describe('CalculatorHelpers', () => {
         { populationType: PopulationType.OBSERV, result: false }
       ];
 
-      const results = CalculatorHelpers.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
+      const results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
@@ -174,7 +194,7 @@ describe('CalculatorHelpers', () => {
         { populationType: PopulationType.OBSERV, result: false }
       ];
 
-      const results = CalculatorHelpers.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
+      const results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
@@ -186,7 +206,7 @@ describe('CalculatorHelpers', () => {
     test('should properly generate ELM JSON given name and parameter', () => {
       const exampleFunctionName = 'exampleFunction';
       const exampleParameterName = 'exampleParameter';
-      const fn = CalculatorHelpers.generateELMJSONFunction(exampleFunctionName, exampleParameterName);
+      const fn = DetailedResultsBuilder.generateELMJSONFunction(exampleFunctionName, exampleParameterName);
 
       expect(fn.name).toEqual(`obs_func_${exampleFunctionName}_${exampleParameterName}`);
       expect(((fn.expression as ELMQuery).source[0].expression as ELMExpressionRef).name).toEqual(exampleParameterName);

@@ -3,9 +3,9 @@ module.exports = {
   coveragePathIgnorePatterns: [
     'src/_tests_',
     'src/cli.ts',
-    'src/Calculator.ts',
-    'src/DebugHelper.ts',
-    'src/Execution.ts'
+    'src/calculation/Calculator.ts',
+    'src/helpers/DebugHelper.ts',
+    'src/execution/Execution.ts'
   ],
   globals: {
     'ts-jest': {

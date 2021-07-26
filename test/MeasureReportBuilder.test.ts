@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import MeasureReportBuilder from '../src/MeasureReportBuilder';
+import MeasureReportBuilder from '../src/calculation/MeasureReportBuilder';
 import { getJSONFixture } from './helpers/testHelpers';
 import { ExecutionResult, CalculationOptions } from '../src/types/Calculator';
 import { PopulationType } from '../src/types/Enums';

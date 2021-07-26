@@ -1,4 +1,4 @@
-import { calculateIndividualMeasureReports } from '../Calculator';
+import { calculateIndividualMeasureReports } from '../calculation/Calculator';
 import { CalculationOptions } from '../types/Calculator';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import fs from 'fs';

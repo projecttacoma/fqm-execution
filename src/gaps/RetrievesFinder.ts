@@ -10,8 +10,8 @@ import {
   ELMValueSetRef
 } from '../types/ELMTypes';
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
-import { findLibraryReference, findValueSetReference } from '../ELMDependencyHelper';
-import { findClauseInLibrary } from './ELMHelpers';
+import { findLibraryReference, findValueSetReference } from '../helpers/elm/ELMDependencyHelpers';
+import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
 
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions

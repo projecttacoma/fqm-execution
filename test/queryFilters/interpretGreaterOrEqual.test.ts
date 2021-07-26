@@ -1,5 +1,5 @@
 import { getELMFixture } from '../helpers/testHelpers';
-import * as QueryFilter from '../../src/QueryFilterHelpers';
+import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMGreaterOrEqual } from '../../src/types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DuringFilter, UnknownFilter } from '../../src/types/QueryFilterTypes';

@@ -1,4 +1,4 @@
-import * as ResultsHelpers from '../src/ResultsHelpers';
+import * as ClauseResultsBuilder from '../src/calculation/ClauseResultsBuilder';
 import { getJSONFixture, getELMFixture } from './helpers/testHelpers';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationResult, StatementResult } from '../src/types/Calculator';
@@ -104,7 +104,7 @@ const statementResults: StatementResult[] = [
 describe('ResultsHelper', () => {
   describe('Statement Maps', () => {
     test('should build statement relevance map', () => {
-      const map = ResultsHelpers.buildStatementRelevanceMap(
+      const map = ClauseResultsBuilder.buildStatementRelevanceMap(
         simpleMeasure,
         populationResults,
         mainLibraryId,
@@ -145,7 +145,7 @@ describe('ResultsHelper', () => {
     });
 
     test('should build statement and clause results', () => {
-      const results = ResultsHelpers.buildStatementAndClauseResults(
+      const results = ClauseResultsBuilder.buildStatementAndClauseResults(
         simpleMeasure,
         [exampleELM],
         localIdResults,
@@ -233,7 +233,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.NUMEX, result: true }
       ];
 
-      const results = ResultsHelpers.buildPopulationRelevanceForAllEpisodes(simpleMeasure.group[0], [
+      const results = ClauseResultsBuilder.buildPopulationRelevanceForAllEpisodes(simpleMeasure.group[0], [
         { episodeId: '1', populationResults: truePopulationResults },
         { episodeId: '2', populationResults: falsePopulationResults }
       ]);
@@ -247,14 +247,14 @@ describe('ResultsHelper', () => {
     test('should not destroy objects passed in', () => {
       const before: { [key: string]: any } = { a: 1, b: 2 };
       const beforeClone: { [key: string]: any } = { a: 1, b: 2 };
-      ResultsHelpers.prettyResult(before);
+      ClauseResultsBuilder.prettyResult(before);
       Object.entries(before).map(([key, value]) => expect(value).toEqual(beforeClone[key]));
     });
 
     test('should not destroy arrays passed in', () => {
       const before = [1, 2, 3];
       const beforeClone = [1, 2, 3];
-      ResultsHelpers.prettyResult(before);
+      ClauseResultsBuilder.prettyResult(before);
       Array.from(before).map((item, index) => expect(item).toEqual(beforeClone[index]));
     });
 
@@ -267,17 +267,17 @@ describe('ResultsHelper', () => {
       const prettyNestedObject =
         '{\n  one: "single item",\n  three: {\n    doubleNested: {\n      a: "1",\n      b: "2",\n      c: "3"\n    },\n    nested: "item"\n  },\n' +
         '  two: {\n    nested: "item",\n    nested2: "item"\n  }\n}';
-      expect(ResultsHelpers.prettyResult(nestedObject)).toEqual(prettyNestedObject);
+      expect(ClauseResultsBuilder.prettyResult(nestedObject)).toEqual(prettyNestedObject);
     });
 
     test('should properly indent a single array', () => {
       const singleArray = [1, 2, 3];
-      expect(ResultsHelpers.prettyResult(singleArray)).toEqual('[1,\n2,\n3]');
+      expect(ClauseResultsBuilder.prettyResult(singleArray)).toEqual('[1,\n2,\n3]');
     });
 
     test('should properly indent an array in an object', () => {
       const arrayObject = { array: [1, 2, 3] };
-      expect(ResultsHelpers.prettyResult(arrayObject)).toEqual('{\n  array: [1,\n         2,\n         3]\n}');
+      expect(ClauseResultsBuilder.prettyResult(arrayObject)).toEqual('{\n  array: [1,\n         2,\n         3]\n}');
     });
   });
 
@@ -300,7 +300,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const relevanceMap = ResultsHelpers.buildPopulationRelevanceMap(populationResults);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -322,7 +322,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const relevanceMap = ResultsHelpers.buildPopulationRelevanceMap(populationResults);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -344,7 +344,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const relevanceMap = ResultsHelpers.buildPopulationRelevanceMap(populationResults);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -366,7 +366,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.NUMEX, result: true }
       ];
 
-      const relevanceMap = ResultsHelpers.buildPopulationRelevanceMap(populationResults);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -388,7 +388,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.NUMEX, result: false }
       ];
 
-      const relevanceMap = ResultsHelpers.buildPopulationRelevanceMap(populationResults);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -404,7 +404,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.MSRPOPLEX, result: false }
       ];
 
-      const relevanceMap = ResultsHelpers.buildPopulationRelevanceMap(populationResults);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -420,7 +420,7 @@ describe('ResultsHelper', () => {
         { populationType: PopulationType.MSRPOPLEX, result: false }
       ];
 
-      const relevanceMap = ResultsHelpers.buildPopulationRelevanceMap(populationResults);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
   });

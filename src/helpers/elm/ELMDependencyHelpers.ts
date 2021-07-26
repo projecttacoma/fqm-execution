@@ -6,7 +6,7 @@ import {
   StatementReference,
   ELMValueSetRef,
   ELMValueSet
-} from './types/ELMTypes';
+} from '../../types/ELMTypes';
 
 /**
  * Build the dependency maps for all libraries. This creates a listing of which statements and functions

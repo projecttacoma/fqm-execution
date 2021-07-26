@@ -1,5 +1,5 @@
 import { getELMFixture } from '../helpers/testHelpers';
-import { parseQueryInfo } from '../../src/QueryFilterHelpers';
+import { parseQueryInfo } from '../../src/gaps/QueryFilterParser';
 import * as cql from 'cql-execution';
 import { QueryInfo, DuringFilter, AndFilter } from '../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';

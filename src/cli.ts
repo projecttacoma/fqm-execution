@@ -10,8 +10,8 @@ import {
   calculateGapsInCare,
   calculateRaw,
   calculateDataRequirements
-} from './Calculator';
-import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './DebugHelper';
+} from './calculation/Calculator';
+import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
 
 program

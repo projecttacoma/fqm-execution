@@ -1,4 +1,4 @@
-import { ELM, ELMExpression } from '../types/ELMTypes';
+import { ELM, ELMExpression } from '../../types/ELMTypes';
 
 /**
  * Find an ELM clause by localId in a given library.
