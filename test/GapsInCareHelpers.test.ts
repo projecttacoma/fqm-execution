@@ -385,7 +385,7 @@ describe('Find grouped queries', () => {
   });
 });
 
-describe('Find Near Misses', () => {
+describe('Find Reason Detail', () => {
   test('simple query/retrieve discrepancy near miss', () => {
     const gapQuery: GapsDataTypeQuery[] = BASE_CODE_RESULTS.map(q => ({
       ...q,

@@ -190,11 +190,36 @@ export function generateGuidanceResponses(
 
     // TODO: update system to be full URL once defined
     if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasons.length > 0) {
-      gapCoding = q.reasonDetail.reasons.map(r => ({
-        system: 'CareGapReasonCodeSystem',
-        code: r.code,
-        display: CareGapReasonCodeDisplay[r.code]
-      }));
+      gapCoding = q.reasonDetail.reasons.map(r => {
+        const reasonCoding: R4.ICoding = {
+          system: 'CareGapReasonCodeSystem',
+          code: r.code,
+          display: CareGapReasonCodeDisplay[r.code]
+        };
+
+        // If there is a referenced resource create and add the extension
+        if (r.reference) {
+          const detailExt: R4.IExtension = {
+            url: 'ReasonDetail',
+            extension: [
+              {
+                url: 'reference',
+                valueReference: {
+                  reference: r.reference
+                }
+              }
+            ]
+          };
+          if (r.path) {
+            detailExt.extension?.push({
+              url: 'path',
+              valueString: r.path
+            });
+          }
+          reasonCoding.extension = [detailExt];
+        }
+        return reasonCoding;
+      });
     } else {
       gapCoding =
         improvementNotation === ImprovementNotation.POSITIVE
