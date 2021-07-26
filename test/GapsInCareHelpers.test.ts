@@ -408,7 +408,7 @@ describe('Find Near Misses', () => {
     });
   });
 
-  describe('Near Miss Reasons', () => {
+  describe('Reason Details', () => {
     const baseQuery: GapsDataTypeQuery = {
       dataType: 'Procedure',
       valueSet: 'http://example.com/test-vs',
@@ -452,6 +452,18 @@ describe('Find Near Misses', () => {
           ]
         },
         {
+          localId: 'procedure-no-performed',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Procedure',
+              id: 'proc23'
+            })
+          ]
+        },
+        {
           localId: 'observation',
           libraryName: 'example',
           statementName: '',
@@ -460,7 +472,7 @@ describe('Find Near Misses', () => {
             FHIRWrapper.FHIRv401().wrap({
               resourceType: 'Observation',
               id: 'obs12',
-              value: false
+              valueBoolean: false
             })
           ]
         }
@@ -519,7 +531,7 @@ describe('Find Near Misses', () => {
             valuePeriod: {
               start: intervalStart,
               end: intervalEnd,
-              interval: new cql.Interval(intervalStart, intervalEnd)
+              interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
             }
           }
         }
@@ -531,6 +543,47 @@ describe('Find Near Misses', () => {
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasons).toEqual([
         { code: CareGapReasonCode.DATEOUTOFRANGE, path: 'performed.end', reference: 'Procedure/proc23' }
+      ]);
+    });
+
+    test('retrieve with during filter but missing attribute in resource should be code VALUEMISSING', () => {
+      const intervalStart = '2009-12-31';
+      const intervalEnd = '2019-12-31';
+
+      const q: GapsDataTypeQuery = {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: true,
+        parentQueryHasResult: false,
+        libraryName: 'example',
+        retrieveLocalId: 'procedure-no-performed',
+        queryInfo: {
+          sources: [
+            {
+              alias: 'P',
+              resourceType: 'Procedure',
+              retrieveLocalId: 'procedure-no-performed'
+            }
+          ],
+          filter: {
+            type: 'during',
+            alias: 'P',
+            attribute: 'performed.end',
+            valuePeriod: {
+              start: intervalStart,
+              end: intervalEnd,
+              interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
+            }
+          }
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEMISSING, path: 'performed.end', reference: 'Procedure/proc23' }
       ]);
     });
 
@@ -575,7 +628,7 @@ describe('Find Near Misses', () => {
             {
               alias: 'O',
               resourceType: 'Observation',
-              retrieveLocalId: 'true-clause'
+              retrieveLocalId: 'observation'
             }
           ],
           filter: {
@@ -624,7 +677,7 @@ describe('Find Near Misses', () => {
                 valuePeriod: {
                   start: intervalStart,
                   end: intervalEnd,
-                  interval: new cql.Interval(intervalStart, intervalEnd)
+                  interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
                 }
               }
             ]

@@ -373,19 +373,26 @@ export function calculateReasonDetail(
                   // Access desired property of FHIRObject
                   let desiredAttr = resource;
                   path.forEach(key => {
-                    if (desiredAttr.value?.isDateTime) {
-                      return;
+                    if (desiredAttr) {
+                      desiredAttr = desiredAttr[key];
                     }
-
-                    desiredAttr = desiredAttr[key];
                   });
 
                   // Use DateOutOfRange code if data point is outside of the desired interval
-                  const isAttrContainedInInterval = interval.contains(desiredAttr.value);
+                  if (desiredAttr?.value?.isDateTime) {
+                    const isAttrContainedInInterval = interval.contains(desiredAttr.value);
 
-                  if (isAttrContainedInInterval === false) {
+                    if (isAttrContainedInInterval === false) {
+                      reasonDetail.reasons.push({
+                        code: CareGapReasonCode.DATEOUTOFRANGE,
+                        path: duringFilter.attribute,
+                        reference: `${resource._json.resourceType}/${resource.id.value}`
+                      });
+                    }
+                  } else {
+                    // if the attribute wasn't found then we can consider it missing
                     reasonDetail.reasons.push({
-                      code: CareGapReasonCode.DATEOUTOFRANGE,
+                      code: CareGapReasonCode.VALUEMISSING,
                       path: duringFilter.attribute,
                       reference: `${resource._json.resourceType}/${resource.id.value}`
                     });
@@ -398,7 +405,9 @@ export function calculateReasonDetail(
                 // Access desired property of FHIRObject
                 let desiredAttr = resource;
                 attrPath.forEach(key => {
-                  desiredAttr = desiredAttr[key];
+                  if (desiredAttr) {
+                    desiredAttr = desiredAttr[key];
+                  }
                 });
 
                 // Use VALUEMISSING code if data is null
