@@ -5,7 +5,8 @@ import {
   DetailedPopulationGroupResult,
   ExpressionStackEntry,
   GapsDataTypeQuery,
-  ReasonDetail
+  ReasonDetail,
+  ReasonDetailData
 } from './types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
 import {
@@ -190,36 +191,7 @@ export function generateGuidanceResponses(
 
     // TODO: update system to be full URL once defined
     if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasons.length > 0) {
-      gapCoding = q.reasonDetail.reasons.map(r => {
-        const reasonCoding: R4.ICoding = {
-          system: 'CareGapReasonCodeSystem',
-          code: r.code,
-          display: CareGapReasonCodeDisplay[r.code]
-        };
-
-        // If there is a referenced resource create and add the extension
-        if (r.reference) {
-          const detailExt: R4.IExtension = {
-            url: 'ReasonDetail',
-            extension: [
-              {
-                url: 'reference',
-                valueReference: {
-                  reference: r.reference
-                }
-              }
-            ]
-          };
-          if (r.path) {
-            detailExt.extension?.push({
-              url: 'path',
-              valueString: r.path
-            });
-          }
-          reasonCoding.extension = [detailExt];
-        }
-        return reasonCoding;
-      });
+      gapCoding = q.reasonDetail.reasons.map(generateReasonCoding);
     } else {
       gapCoding =
         improvementNotation === ImprovementNotation.POSITIVE
@@ -289,6 +261,43 @@ export function generateGuidanceResponses(
     return guidanceResponse;
   });
   return guidanceResponses;
+}
+
+/**
+ * Creates a FHIR Coding object representing a reason detail for the GuidanceResponse resource.
+ *
+ * @param reason The reason detail data for a single reason.
+ * @returns The FHIR Coding object to add to the GuidanceResponse.reasonCode.coding field.
+ */
+export function generateReasonCoding(reason: ReasonDetailData): R4.ICoding {
+  const reasonCoding: R4.ICoding = {
+    system: 'CareGapReasonCodeSystem',
+    code: reason.code,
+    display: CareGapReasonCodeDisplay[reason.code]
+  };
+
+  // If there is a referenced resource create and add the extension
+  if (reason.reference) {
+    const detailExt: R4.IExtension = {
+      url: 'ReasonDetail',
+      extension: [
+        {
+          url: 'reference',
+          valueReference: {
+            reference: reason.reference
+          }
+        }
+      ]
+    };
+    if (reason.path) {
+      detailExt.extension?.push({
+        url: 'path',
+        valueString: reason.path
+      });
+    }
+    reasonCoding.extension = [detailExt];
+  }
+  return reasonCoding;
 }
 
 /**

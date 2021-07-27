@@ -7,9 +7,16 @@ import {
   generateGapsInCareBundle,
   calculateReasonDetail,
   groupGapQueries,
-  generateGuidanceResponses
+  generateGuidanceResponses,
+  generateReasonCoding
 } from '../src/GapsInCareHelpers';
-import { DataTypeQuery, DetailedPopulationGroupResult, ClauseResult, GapsDataTypeQuery } from '../src/types/Calculator';
+import {
+  DataTypeQuery,
+  DetailedPopulationGroupResult,
+  ClauseResult,
+  GapsDataTypeQuery,
+  ReasonDetailData
+} from '../src/types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode } from '../src/types/Enums';
 import { getJSONFixture } from './helpers/testHelpers';
 
@@ -1043,7 +1050,7 @@ describe('Guidance Response', () => {
     expect(gr.dataRequirement).toEqual(drWithValue);
   });
 
-  test('should generate combo data requirement with codeFilter and dateFilter', () => {
+  test('should generate combo data requirement with codeFilter and dateFilter. including reason detail', () => {
     const drWithDateAndCode: R4.IDataRequirement[] = [
       {
         type: 'Procedure',
@@ -1103,8 +1110,47 @@ describe('Guidance Response', () => {
             }
           ]
         }
+      },
+      reasonDetail: {
+        hasReasonDetail: true,
+        reasons: [
+          {
+            code: CareGapReasonCode.DATEOUTOFRANGE,
+            reference: 'Procedure/denom-EXM130-2',
+            path: 'performed.end'
+          }
+        ]
       }
     };
+
+    const expectedReasonCodeableConcept: R4.ICodeableConcept[] = [
+      {
+        coding: [
+          {
+            system: 'CareGapReasonCodeSystem',
+            code: 'DateOutOfRange',
+            display: 'Key date was not in the expected range',
+            extension: [
+              {
+                url: 'ReasonDetail',
+                extension: [
+                  {
+                    url: 'reference',
+                    valueReference: {
+                      reference: 'Procedure/denom-EXM130-2'
+                    }
+                  },
+                  {
+                    url: 'path',
+                    valueString: 'performed.end'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
 
     const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
 
@@ -1113,5 +1159,78 @@ describe('Guidance Response', () => {
     const [gr] = grs;
 
     expect(gr.dataRequirement).toEqual(drWithDateAndCode);
+    expect(gr.reasonCode).toBeDefined();
+    expect(gr.reasonCode).toEqual(expectedReasonCodeableConcept);
+  });
+});
+
+describe('Guidance Response ReasonCode Coding', () => {
+  test('should handle reason detail without reference', () => {
+    const reasonDetail: ReasonDetailData = {
+      code: CareGapReasonCode.MISSING
+    };
+    const expectedCoding: R4.ICoding = {
+      system: 'CareGapReasonCodeSystem',
+      code: 'Missing',
+      display: 'No Data Element found from Value Set'
+    };
+    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+  });
+
+  test('should handle reason detail with reference and no path', () => {
+    const reasonDetail: ReasonDetailData = {
+      code: CareGapReasonCode.PRESENT,
+      reference: 'Procedure/denom-EXM130-2'
+    };
+    const expectedCoding: R4.ICoding = {
+      system: 'CareGapReasonCodeSystem',
+      code: 'Present',
+      display: 'Data element was found',
+      extension: [
+        {
+          url: 'ReasonDetail',
+          extension: [
+            {
+              url: 'reference',
+              valueReference: {
+                reference: 'Procedure/denom-EXM130-2'
+              }
+            }
+          ]
+        }
+      ]
+    };
+    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+  });
+
+  test('should handle reason detail with reference and path', () => {
+    const reasonDetail: ReasonDetailData = {
+      code: CareGapReasonCode.DATEOUTOFRANGE,
+      reference: 'Procedure/denom-EXM130-2',
+      path: 'performed.end'
+    };
+    const expectedCoding: R4.ICoding = {
+      system: 'CareGapReasonCodeSystem',
+      code: 'DateOutOfRange',
+      display: 'Key date was not in the expected range',
+      extension: [
+        {
+          url: 'ReasonDetail',
+          extension: [
+            {
+              url: 'reference',
+              valueReference: {
+                reference: 'Procedure/denom-EXM130-2'
+              }
+            },
+            {
+              url: 'path',
+              valueString: 'performed.end'
+            }
+          ]
+        }
+      ]
+    };
+    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
   });
 });
