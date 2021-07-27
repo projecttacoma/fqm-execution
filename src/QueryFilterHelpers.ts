@@ -66,6 +66,7 @@ export function parseQueryInfo(
   parameters: { [key: string]: any } = {},
   patient: R4.IPatient
 ): QueryInfo {
+  console.log('reached');
   if (!queryLocalId) {
     throw new Error('QueryLocalId was not provided');
   }
@@ -75,7 +76,8 @@ export function parseQueryInfo(
     const queryInfo: QueryInfo = {
       localId: query?.localId,
       sources: parseSources(query),
-      filter: { type: 'truth' }
+      filter: { type: 'truth' },
+      libraryName: library.library.identifier.id
     };
 
     if (query.where) {
@@ -95,14 +97,6 @@ export function parseQueryInfo(
         throw new Error(`Cannot Find Referenced Library: ${exprRef.libraryName}`);
       }
       const statement = queryLib.library.statements.def.find(s => s.name === exprRef.name);
-      /**
-       * Add support for library search in another library if necessary
-       * steps:
-       *  Determine if query.source[0] references a different library
-       *    is this possible or will we need to instead just search all accessible libraries for source??
-       *  Replace library.library with apropriate library
-       *  The rest of this function should be unchnaged??
-       */
       // if we find the statement and it is a query we can move forward.
       if (statement) {
         if (statement.expression.type === 'Query') {
@@ -224,38 +218,58 @@ export function interpretExpression(
   parameters: any,
   patient: R4.IPatient
 ): AnyFilter {
+  let returnFilter: AnyFilter = {
+    type: ''
+  };
+  let errorOcurred = false;
   switch (expression.type) {
     case 'Equal':
-      return interpretEqual(expression as ELMEqual, library);
+      returnFilter = interpretEqual(expression as ELMEqual, library);
+      break;
     case 'Equivalent':
-      return interpretEquivalent(expression as ELMEquivalent, library);
+      returnFilter = interpretEquivalent(expression as ELMEquivalent, library);
+      break;
     case 'And':
-      return interpretAnd(expression as ELMAnd, library, parameters, patient);
+      returnFilter = interpretAnd(expression as ELMAnd, library, parameters, patient);
+      break;
     case 'Or':
-      return interpretOr(expression as ELMOr, library, parameters, patient);
+      returnFilter = interpretOr(expression as ELMOr, library, parameters, patient);
+      break;
     case 'IncludedIn':
-      return interpretIncludedIn(expression as ELMIncludedIn, library, parameters);
+      returnFilter = interpretIncludedIn(expression as ELMIncludedIn, library, parameters);
+      break;
     case 'In':
-      return interpretIn(expression as ELMIn, library, parameters);
+      returnFilter = interpretIn(expression as ELMIn, library, parameters);
+      break;
     case 'Not':
-      return interpretNot(expression as ELMNot);
+      returnFilter = interpretNot(expression as ELMNot);
+      break;
     case 'GreaterOrEqual':
-      return interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
+      returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
+      break;
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
       // Look for a property (source attribute) usage in the expression tree. This can denote an
       // attribute on a resource was checked but we don't know what it was checked for.
       const propUsage = findPropertyUsage(expression, expression.localId);
+
       if (propUsage) {
         return propUsage;
       }
+      errorOcurred = true;
   }
   // If we cannot make sense of this expression or find a parameter usage in it, then we should return
   // an UnknownFilter to denote something is done here that we could not interpret.
-  return {
-    type: 'unknown',
-    localId: expression.localId
-  };
+  if (errorOcurred) {
+    return {
+      type: 'unknown',
+      localId: expression.localId
+    };
+  }
+  if (expression.type !== 'And' && expression.type !== 'Or') {
+    returnFilter.libraryName = library.library.identifier.id;
+  }
+  return returnFilter;
 }
 
 /**

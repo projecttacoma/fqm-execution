@@ -17,6 +17,7 @@ const PARAMETERS = { 'Measurement Period': new cql.Interval(START_MP, END_MP, tr
 
 const EXPECTED_VS_WITH_ID_CHECK_QUERY: QueryInfo = {
   localId: '24',
+  libraryName: 'SimpleQueries',
   sources: [
     {
       retrieveLocalId: '18',
@@ -30,12 +31,14 @@ const EXPECTED_VS_WITH_ID_CHECK_QUERY: QueryInfo = {
     alias: 'C',
     attribute: 'id',
     value: 'test',
-    localId: '23'
+    localId: '23',
+    libraryName: 'SimpleQueries'
   }
 };
 
 const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
   localId: '42',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '31',
@@ -56,7 +59,8 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
           { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
           { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
         ],
-        localId: '36'
+        localId: '36',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -66,7 +70,8 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '40'
+        localId: '40',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -74,6 +79,7 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
 
 const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
   localId: '65',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '44',
@@ -90,13 +96,15 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '53'
+        localId: '53',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '56'
+        localId: '56',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -106,7 +114,8 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '63'
+        localId: '63',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -114,6 +123,7 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
 
 const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
   localId: '77',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '67',
@@ -132,7 +142,8 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
         valuePeriod: {
           start: '2017-12-31T23:59:59.999Z',
           end: '2019-12-31T23:59:59.998Z'
-        }
+        },
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -140,6 +151,7 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
 
 const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
   localId: '94',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '79',
@@ -160,7 +172,8 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
           { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
           { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
         ],
-        localId: '84'
+        localId: '84',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -170,13 +183,15 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '88'
+        localId: '88',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'C',
         attribute: 'abatement',
-        localId: '92'
+        localId: '92',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -184,6 +199,7 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
 
 const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
   localId: '46',
+  libraryName: 'SimpleQueries',
   sources: [
     {
       retrieveLocalId: '33',
@@ -201,13 +217,15 @@ const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
         alias: 'P',
         attribute: 'status',
         value: 'completed',
-        localId: '38'
+        localId: '38',
+        libraryName: 'SimpleQueries'
       },
       {
         type: 'notnull',
         alias: 'P',
         attribute: 'outcome',
-        localId: '45'
+        localId: '45',
+        libraryName: 'SimpleQueries'
       }
     ]
   }
@@ -215,6 +233,7 @@ const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
 
 const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
   localId: '120',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '96',
@@ -232,13 +251,15 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '105'
+        localId: '105',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '108'
+        localId: '108',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -248,7 +269,8 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '119'
+        localId: '119',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -256,6 +278,7 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
 
 const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
   localId: '134',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '96',
@@ -273,13 +296,15 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '105'
+        localId: '105',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '108'
+        localId: '108',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -289,13 +314,15 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '129'
+        localId: '129',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'bodySite',
-        localId: '132'
+        localId: '132',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -303,6 +330,7 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
 
 const EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY: QueryInfo = {
   localId: '65',
+  libraryName: 'SimpleQueries',
   sources: [
     {
       retrieveLocalId: '6',
@@ -320,14 +348,16 @@ const EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY: QueryInfo = {
         alias: 'P',
         attribute: 'id',
         value: 'test-2',
-        localId: '11'
+        localId: '11',
+        libraryName: 'SimpleDep'
       },
       {
         type: 'equals',
         alias: 'P',
         attribute: 'status',
         value: 'completed',
-        localId: '64'
+        localId: '64',
+        libraryName: 'SimpleQueries'
       }
     ]
   }
