@@ -66,7 +66,6 @@ export function parseQueryInfo(
   parameters: { [key: string]: any } = {},
   patient: R4.IPatient
 ): QueryInfo {
-  console.log('reached');
   if (!queryLocalId) {
     throw new Error('QueryLocalId was not provided');
   }
