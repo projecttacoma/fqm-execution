@@ -220,7 +220,6 @@ export function interpretExpression(
   let returnFilter: AnyFilter = {
     type: ''
   };
-  let errorOcurred = false;
   switch (expression.type) {
     case 'Equal':
       returnFilter = interpretEqual(expression as ELMEqual, library);
@@ -255,16 +254,14 @@ export function interpretExpression(
       if (propUsage) {
         return propUsage;
       }
-      errorOcurred = true;
+      return {
+        type: 'unknown',
+        localId: expression.localId
+      };
   }
   // If we cannot make sense of this expression or find a parameter usage in it, then we should return
   // an UnknownFilter to denote something is done here that we could not interpret.
-  if (errorOcurred) {
-    return {
-      type: 'unknown',
-      localId: expression.localId
-    };
-  }
+
   if (expression.type !== 'And' && expression.type !== 'Or') {
     returnFilter.libraryName = library.library.identifier.id;
   }

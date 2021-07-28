@@ -62,10 +62,6 @@ export function findRetrieves(
         bottomExprs[2].type === 'Query'
       ) {
         // check if the outer query is indeed referencing the inner one in the source.
-        /**
-         * seems like here we will need to replace elm with the ELM object of
-         * the referenced library when necessary
-         */
         const queryLib = allELM.find(lib => lib.library.identifier.id === bottomExprs[0].libraryName);
         if (!queryLib) {
           throw new Error('Referenced query library cannot be found.');
