@@ -49,6 +49,7 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
   ],
   filter: {
     type: 'and',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'in',
@@ -90,6 +91,7 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
   ],
   filter: {
     type: 'and',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'in',
@@ -134,6 +136,7 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
   ],
   filter: {
     type: 'and',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'during',
@@ -162,6 +165,7 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
   ],
   filter: {
     type: 'or',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'in',

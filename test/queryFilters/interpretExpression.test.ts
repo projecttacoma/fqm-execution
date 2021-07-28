@@ -34,6 +34,8 @@ describe('interpretExpression', () => {
     };
 
     expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
+      libraryName: 'ComplexQueries',
+      localId: undefined,
       type: 'unknown',
       attribute: 'onset',
       alias: 'C'
@@ -61,6 +63,8 @@ describe('interpretExpression', () => {
     };
 
     expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
+      libraryName: 'ComplexQueries',
+      localId: undefined,
       type: 'unknown'
     });
   });

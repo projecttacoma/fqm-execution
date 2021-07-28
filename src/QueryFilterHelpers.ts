@@ -145,7 +145,6 @@ export function parseQueryInfo(
         );
       }
     }
-
     return queryInfo;
   } else {
     throw new Error(`Clause ${queryLocalId} in ${library.library.identifier.id} was not a Query or not found.`);
@@ -218,7 +217,8 @@ export function interpretExpression(
   patient: R4.IPatient
 ): AnyFilter {
   let returnFilter: AnyFilter = {
-    type: ''
+    type: 'unknown',
+    localId: expression.localId
   };
   switch (expression.type) {
     case 'Equal':
@@ -252,19 +252,14 @@ export function interpretExpression(
       const propUsage = findPropertyUsage(expression, expression.localId);
 
       if (propUsage) {
-        return propUsage;
+        returnFilter = propUsage;
       }
-      return {
-        type: 'unknown',
-        localId: expression.localId
-      };
   }
   // If we cannot make sense of this expression or find a parameter usage in it, then we should return
   // an UnknownFilter to denote something is done here that we could not interpret.
 
-  if (expression.type !== 'And' && expression.type !== 'Or') {
-    returnFilter.libraryName = library.library.identifier.id;
-  }
+  returnFilter.libraryName = library.library.identifier.id;
+
   return returnFilter;
 }
 

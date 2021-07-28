@@ -131,7 +131,7 @@ describe('ELMDependencyHelper', () => {
       };
       const vs = ELMDependencyHelper.findValueSetReference(elm, [elm, dependency], valueSetRef);
       if (vs) {
-        vs.annotation = undefined;
+        delete vs.annotation;
       }
       expect(vs).toEqual(expectedValueSet);
     });

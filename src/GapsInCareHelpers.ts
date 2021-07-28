@@ -30,7 +30,7 @@ export function processQueriesForGaps(
   return queries.map(q => {
     // Determine satisfaction of parent query and leaf node retrieve
     const parentQueryResult = detailedResult.clauseResults?.find(
-      cr => cr.libraryName === q.retrieveLibraryName && cr.localId === q.queryLocalId
+      cr => cr.libraryName === q.queryLibraryName && cr.localId === q.queryLocalId
     );
 
     const retrieveResult = detailedResult.clauseResults?.find(
