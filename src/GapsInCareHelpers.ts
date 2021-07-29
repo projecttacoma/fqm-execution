@@ -375,16 +375,17 @@ export function calculateReasonDetail(
 ): GapsDataTypeQuery[] {
   return retrieves.map(r => {
     let reasonDetail: ReasonDetail;
-    // If this is a positive improvement notation then results
+    // If this is a positive improvement notation measure then we can look for reasons why the query wasn't satisfied
     if (improvementNotation === ImprovementNotation.POSITIVE) {
       // Create the initial reasonDetail information. There will be detail if the retrieve has a result but the query
-      // that filters on the retrieve.
+      // that filters on the retrieve does not have any results.
       reasonDetail = {
         hasReasonDetail: r.retrieveHasResult === true && r.parentQueryHasResult === false,
         reasons: []
       };
 
-      // If there are results for this clause and we have queryInfo then we can look at the
+      // If there are results for this clause and we have queryInfo then we can look at each of the
+      // resources from the retrieve results and record reasons for each filter they did not satisfy
       if (reasonDetail.hasReasonDetail && r.queryInfo && detailedResult?.clauseResults) {
         const flattenedFilters = flattenFilters(r.queryInfo.filter);
         const resources = detailedResult.clauseResults?.find(
@@ -488,8 +489,7 @@ export function calculateReasonDetail(
         reasonDetail.reasons = [{ code: CareGapReasonCode.MISSING }];
       }
     } else {
-      // Handle negative improvement notation cases.
-      // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
+      // TODO: Handle negative improvement cases, similar to above but it will be a bit more complicated.
       reasonDetail = {
         hasReasonDetail: false,
         reasons: []
