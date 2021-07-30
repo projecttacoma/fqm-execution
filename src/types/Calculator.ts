@@ -233,13 +233,26 @@ export interface GapsDataTypeQuery extends DataTypeQuery {
 }
 
 /**
- * Detailed information about a reason detail query
+ * Detailed information about a reason detail query. Contains multiple reasons for why the query failed.
  */
 export interface ReasonDetail {
   /** whether or not the query has a reason detail */
   hasReasonDetail: boolean;
-  /** codes that represent the causes of the reason detail */
-  reasonCodes: CareGapReasonCode[];
+  /** reasons with details on what was amiss about this query */
+  reasons: ReasonDetailData[];
+}
+
+/**
+ * Detailed data about a single reason why the query failed. This has the code and if there is a reference to a resource
+ * and the path in the resource the code is relevant for, that is included too.
+ */
+export interface ReasonDetailData {
+  /** The coded care gap reason. */
+  code: CareGapReasonCode;
+  /** The optional reference to the existing data on the patient with the gap. */
+  reference?: string;
+  /** The path in the resource were the gap exists. */
+  path?: string;
 }
 
 /**

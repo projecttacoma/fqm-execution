@@ -5,7 +5,8 @@ import {
   DetailedPopulationGroupResult,
   ExpressionStackEntry,
   GapsDataTypeQuery,
-  ReasonDetail
+  ReasonDetail,
+  ReasonDetailData
 } from './types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from './types/Enums';
 import {
@@ -14,7 +15,14 @@ import {
   generateDetailedDateFilter,
   generateDetailedValueFilter
 } from './helpers/DataRequirementHelpers';
-import { EqualsFilter, InFilter, DuringFilter, AnyFilter, NotNullFilter } from './types/QueryFilterTypes';
+import {
+  EqualsFilter,
+  InFilter,
+  DuringFilter,
+  AnyFilter,
+  NotNullFilter,
+  AttributeFilter
+} from './types/QueryFilterTypes';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -182,12 +190,8 @@ export function generateGuidanceResponses(
     let gapCoding: R4.ICoding[];
 
     // TODO: update system to be full URL once defined
-    if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasonCodes) {
-      gapCoding = q.reasonDetail.reasonCodes.map(c => ({
-        system: 'CareGapReasonCodeSystem',
-        code: c,
-        display: CareGapReasonCodeDisplay[c]
-      }));
+    if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasons.length > 0) {
+      gapCoding = q.reasonDetail.reasons.map(generateReasonCoding);
     } else {
       gapCoding =
         improvementNotation === ImprovementNotation.POSITIVE
@@ -257,6 +261,43 @@ export function generateGuidanceResponses(
     return guidanceResponse;
   });
   return guidanceResponses;
+}
+
+/**
+ * Creates a FHIR Coding object representing a reason detail for the GuidanceResponse resource.
+ *
+ * @param reason The reason detail data for a single reason.
+ * @returns The FHIR Coding object to add to the GuidanceResponse.reasonCode.coding field.
+ */
+export function generateReasonCoding(reason: ReasonDetailData): R4.ICoding {
+  const reasonCoding: R4.ICoding = {
+    system: 'CareGapReasonCodeSystem',
+    code: reason.code,
+    display: CareGapReasonCodeDisplay[reason.code]
+  };
+
+  // If there is a referenced resource create and add the extension
+  if (reason.reference) {
+    const detailExt: R4.IExtension = {
+      url: 'ReasonDetail',
+      extension: [
+        {
+          url: 'reference',
+          valueReference: {
+            reference: reason.reference
+          }
+        }
+      ]
+    };
+    if (reason.path) {
+      detailExt.extension?.push({
+        url: 'path',
+        valueString: reason.path
+      });
+    }
+    reasonCoding.extension = [detailExt];
+  }
+  return reasonCoding;
 }
 
 /**
@@ -334,96 +375,129 @@ export function calculateReasonDetail(
 ): GapsDataTypeQuery[] {
   return retrieves.map(r => {
     let reasonDetail: ReasonDetail;
+    // If this is a positive improvement notation measure then we can look for reasons why the query wasn't satisfied
     if (improvementNotation === ImprovementNotation.POSITIVE) {
+      // Create the initial reasonDetail information. There will be detail if the retrieve has a result but the query
+      // that filters on the retrieve does not have any results.
       reasonDetail = {
         hasReasonDetail: r.retrieveHasResult === true && r.parentQueryHasResult === false,
-        reasonCodes: []
+        reasons: []
       };
 
+      // If there are results for this clause and we have queryInfo then we can look at each of the
+      // resources from the retrieve results and record reasons for each filter they did not satisfy
       if (reasonDetail.hasReasonDetail && r.queryInfo && detailedResult?.clauseResults) {
         const flattenedFilters = flattenFilters(r.queryInfo.filter);
+        const resources = detailedResult.clauseResults?.find(
+          cr => cr.libraryName === r.retrieveLibraryName && cr.localId === r.retrieveLocalId
+        );
 
-        flattenedFilters.forEach(f => {
-          // Separate interval handling for 'during' filters
-          if (f.type === 'during') {
-            const duringFilter = f as DuringFilter;
-            const resources = detailedResult.clauseResults?.find(
-              cr => cr.libraryName === r.retrieveLibraryName && cr.localId === r.retrieveLocalId
-            );
+        if (resources) {
+          // loop through resources from the results
+          resources.raw.forEach((resource: any) => {
+            // loop through each filter
+            flattenedFilters.forEach(f => {
+              // Separate interval handling for 'during' filters
+              if (f.type === 'during') {
+                const duringFilter = f as DuringFilter;
 
-            if (duringFilter.valuePeriod.interval && resources) {
-              const path = duringFilter.attribute.split('.');
-              const interval = duringFilter.valuePeriod.interval;
+                if (duringFilter.valuePeriod.interval) {
+                  const path = duringFilter.attribute.split('.');
+                  const interval = duringFilter.valuePeriod.interval;
 
-              // Access desired property of FHIRObject
-              resources.raw.forEach((r: any) => {
-                let desiredAttr = r;
-                path.forEach(key => {
-                  if (desiredAttr.value?.isDateTime) {
-                    return;
+                  // Access desired property of FHIRObject
+                  let desiredAttr = resource;
+                  path.forEach(key => {
+                    if (desiredAttr) {
+                      desiredAttr = desiredAttr[key];
+                    }
+                  });
+
+                  // Use DateOutOfRange code if data point is outside of the desired interval
+                  if (desiredAttr?.value?.isDateTime) {
+                    const isAttrContainedInInterval = interval.contains(desiredAttr.value);
+
+                    if (isAttrContainedInInterval === false) {
+                      reasonDetail.reasons.push({
+                        code: CareGapReasonCode.DATEOUTOFRANGE,
+                        path: duringFilter.attribute,
+                        reference: `${resource._json.resourceType}/${resource.id.value}`
+                      });
+                    }
+                  } else {
+                    // if the attribute wasn't found then we can consider it missing
+                    reasonDetail.reasons.push({
+                      code: CareGapReasonCode.VALUEMISSING,
+                      path: duringFilter.attribute,
+                      reference: `${resource._json.resourceType}/${resource.id.value}`
+                    });
+
                   }
-
-                  desiredAttr = desiredAttr[key];
-                });
-
-                // Use DateOutOfRange code if data point is outside of the desired interval
-                const isAttrContainedInInterval = interval.contains(desiredAttr.value);
-
-                if (isAttrContainedInInterval === false) {
-                  reasonDetail.reasonCodes.push(CareGapReasonCode.DATEOUTOFRANGE);
                 }
-              });
-            }
-          } else if (f.type === 'notnull') {
-            const notNullFilter = f as NotNullFilter;
-            const resources = detailedResult.clauseResults?.find(
-              cr => cr.libraryName === r.retrieveLibraryName && cr.localId === r.retrieveLocalId
-            );
-            const attrPath = notNullFilter.attribute.split('.');
-            if (resources) {
-              // Access desired property of FHIRObject
-              resources.raw.forEach((r: any) => {
-                let desiredAttr = r;
+
+              } else if (f.type === 'notnull') {
+                const notNullFilter = f as NotNullFilter;
+                const attrPath = notNullFilter.attribute.split('.');
+
+                // Access desired property of FHIRObject
+                let desiredAttr = resource;
                 attrPath.forEach(key => {
-                  desiredAttr = desiredAttr[key];
+                  if (desiredAttr) {
+                    desiredAttr = desiredAttr[key];
+                  }
                 });
 
                 // Use VALUEMISSING code if data is null
                 if (desiredAttr === null || desiredAttr === undefined) {
-                  reasonDetail.reasonCodes.push(CareGapReasonCode.VALUEMISSING);
+                  reasonDetail.reasons.push({
+                    code: CareGapReasonCode.VALUEMISSING,
+                    path: notNullFilter.attribute,
+                    reference: `${resource._json.resourceType}/${resource.id.value}`
+                  });
                 }
-              });
-            }
-          } else {
-            // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
-            // For non-during filters, look up clause result by localId
-            // Ideally we can look to modify cql-execution to help us with this flaw
-            const clauseResult = detailedResult.clauseResults?.find(
-              cr => cr.libraryName === r.retrieveLibraryName && cr.localId === f.localId
-            );
+              } else {
+                // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
+                // For non-during filters, look up clause result by localId
+                // Ideally we can look to modify cql-execution to help us with this flaw
+                const clauseResult = detailedResult.clauseResults?.find(
+                  cr => cr.libraryName === r.libraryName && cr.localId === f.localId
+                );
 
-            // False clause means this specific filter was falsy
-            if (clauseResult && clauseResult.final === FinalResult.FALSE) {
-              const code = getGapReasonCode(f);
-              if (code !== null) {
-                reasonDetail.reasonCodes.push(code);
+                // False clause means this specific filter was falsy
+                if (clauseResult && clauseResult.final === FinalResult.FALSE) {
+                  const code = getGapReasonCode(f);
+                  if (code !== null) {
+                    // if this filter is filtering on an attribute of a resource then include info about the path to the
+                    // attribute and reference the patient
+                    if ((f as AttributeFilter).attribute) {
+                      reasonDetail.reasons.push({
+                        code: code,
+                        path: (f as AttributeFilter).attribute,
+                        reference: `${resource._json.resourceType}/${resource.id.value}`
+                      });
+                    } else {
+                      reasonDetail.reasons.push({ code: code });
+                    }
+                  }
+                }
               }
-            }
-          }
-        });
+            });
+          });
+        }
       }
 
       // If no specific reason details found, default is missing
-      if (reasonDetail.hasReasonDetail && reasonDetail.reasonCodes.length === 0) {
-        reasonDetail.reasonCodes = [CareGapReasonCode.MISSING];
+      if (reasonDetail.hasReasonDetail && reasonDetail.reasons.length === 0) {
+        reasonDetail.reasons = [{ code: CareGapReasonCode.MISSING }];
       }
     } else {
-      // TODO: this can probably be expanded to address negative improvement cases, but it will be a bit more complicated
+      // TODO: Handle negative improvement cases, similar to above but it will be a bit more complicated.
       reasonDetail = {
         hasReasonDetail: false,
-        reasonCodes: []
+        reasons: []
       };
     }
+    // add the reason detail we calculated to the query info and retrieve and return it
     return { ...r, reasonDetail };
   });
 }
