@@ -6,4 +6,9 @@ declare module 'cql-exec-fhir' {
       loadBundles(bundles: R4.IBundle[]): void;
     }
   };
+  export class FHIRWrapper {
+    constructor(filePathOrXML: string);
+    wrap(fhirJson: R4, fhirResourceType?: string): any;
+    static FHIRv401(): FHIRWrapper;
+  }
 }

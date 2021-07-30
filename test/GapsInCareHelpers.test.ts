@@ -1,14 +1,22 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import * as cql from 'cql-execution';
+import { FHIRWrapper } from 'cql-exec-fhir';
 import {
   processQueriesForGaps,
   generateDetectedIssueResources,
   generateGapsInCareBundle,
   calculateReasonDetail,
   groupGapQueries,
-  generateGuidanceResponses
+  generateGuidanceResponses,
+  generateReasonCoding
 } from '../src/GapsInCareHelpers';
-import { DataTypeQuery, DetailedPopulationGroupResult, ClauseResult, GapsDataTypeQuery } from '../src/types/Calculator';
+import {
+  DataTypeQuery,
+  DetailedPopulationGroupResult,
+  ClauseResult,
+  GapsDataTypeQuery,
+  ReasonDetailData
+} from '../src/types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode } from '../src/types/Enums';
 import { getJSONFixture } from './helpers/testHelpers';
 
@@ -384,7 +392,7 @@ describe('Find grouped queries', () => {
   });
 });
 
-describe('Find Near Misses', () => {
+describe('Find Reason Detail', () => {
   test('simple query/retrieve discrepancy near miss', () => {
     const gapQuery: GapsDataTypeQuery[] = BASE_CODE_RESULTS.map(q => ({
       ...q,
@@ -407,7 +415,7 @@ describe('Find Near Misses', () => {
     });
   });
 
-  describe('Near Miss Reasons', () => {
+  describe('Reason Details', () => {
     const baseQuery: GapsDataTypeQuery = {
       dataType: 'Procedure',
       valueSet: 'http://example.com/test-vs',
@@ -440,12 +448,26 @@ describe('Find Near Misses', () => {
           statementName: '',
           final: FinalResult.TRUE,
           raw: [
-            {
-              performed: {
-                start: { value: '2000-01-01' },
-                end: { value: '2000-01-02' } // out of range of desired interval
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Procedure',
+              id: 'proc23',
+              performedPeriod: {
+                start: '2000-01-01',
+                end: '2000-01-02' // out of range of desired interval
               }
-            }
+            })
+          ]
+        },
+        {
+          localId: 'procedure-no-performed',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Procedure',
+              id: 'proc23'
+            })
           ]
         },
         {
@@ -454,9 +476,11 @@ describe('Find Near Misses', () => {
           statementName: '',
           final: FinalResult.TRUE,
           raw: [
-            {
-              value: false
-            }
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Observation',
+              id: 'obs12',
+              valueBoolean: false
+            })
           ]
         }
       ],
@@ -488,7 +512,9 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.INVALIDATTRIBUTE]);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.INVALIDATTRIBUTE, path: 'status', reference: 'Procedure/proc23' }
+      ]);
     });
 
     test('retrieve with false date filter should be code DATEOUTOFRANGE', () => {
@@ -512,7 +538,7 @@ describe('Find Near Misses', () => {
             valuePeriod: {
               start: intervalStart,
               end: intervalEnd,
-              interval: new cql.Interval(intervalStart, intervalEnd)
+              interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
             }
           }
         }
@@ -522,7 +548,50 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.DATEOUTOFRANGE]);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.DATEOUTOFRANGE, path: 'performed.end', reference: 'Procedure/proc23' }
+      ]);
+    });
+
+    test('retrieve with during filter but missing attribute in resource should be code VALUEMISSING', () => {
+      const intervalStart = '2009-12-31';
+      const intervalEnd = '2019-12-31';
+
+      const q: GapsDataTypeQuery = {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: true,
+        parentQueryHasResult: false,
+        libraryName: 'example',
+        retrieveLocalId: 'procedure-no-performed',
+        queryInfo: {
+          sources: [
+            {
+              alias: 'P',
+              resourceType: 'Procedure',
+              retrieveLocalId: 'procedure-no-performed'
+            }
+          ],
+          filter: {
+            type: 'during',
+            alias: 'P',
+            attribute: 'performed.end',
+            valuePeriod: {
+              start: intervalStart,
+              end: intervalEnd,
+              interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
+            }
+          }
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEMISSING, path: 'performed.end', reference: 'Procedure/proc23' }
+      ]);
     });
 
     test('retrieve with false not null filter should be code VALUEMISSING', () => {
@@ -548,7 +617,9 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.VALUEMISSING]);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEMISSING, path: 'result', reference: 'Procedure/proc23' }
+      ]);
     });
 
     test('retrieve with true not null filter should have default reason detail', () => {
@@ -564,7 +635,7 @@ describe('Find Near Misses', () => {
             {
               alias: 'O',
               resourceType: 'Observation',
-              retrieveLocalId: 'true-clause'
+              retrieveLocalId: 'observation'
             }
           ],
           filter: {
@@ -579,7 +650,7 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       // If no specific reason details found, default is missing
-      expect(r.reasonDetail?.reasonCodes).toEqual([CareGapReasonCode.MISSING]);
+      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.MISSING }]);
     });
 
     test('retrieve with both false date and attribute filters should be code both INVALIDATTRIBUTE and DATEOUTOFRANGE', () => {
@@ -613,7 +684,7 @@ describe('Find Near Misses', () => {
                 valuePeriod: {
                   start: intervalStart,
                   end: intervalEnd,
-                  interval: new cql.Interval(intervalStart, intervalEnd)
+                  interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
                 }
               }
             ]
@@ -625,8 +696,11 @@ describe('Find Near Misses', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasonCodes?.sort()).toEqual(
-        [CareGapReasonCode.INVALIDATTRIBUTE, CareGapReasonCode.DATEOUTOFRANGE].sort()
+      expect(r.reasonDetail?.reasons?.sort()).toEqual(
+        [
+          { code: CareGapReasonCode.INVALIDATTRIBUTE, path: 'status', reference: 'Procedure/proc23' },
+          { code: CareGapReasonCode.DATEOUTOFRANGE, path: 'performed.end', reference: 'Procedure/proc23' }
+        ].sort()
       );
     });
   });
@@ -976,7 +1050,7 @@ describe('Guidance Response', () => {
     expect(gr.dataRequirement).toEqual(drWithValue);
   });
 
-  test('should generate combo data requirement with codeFilter and dateFilter', () => {
+  test('should generate combo data requirement with codeFilter and dateFilter. including reason detail', () => {
     const drWithDateAndCode: R4.IDataRequirement[] = [
       {
         type: 'Procedure',
@@ -1036,8 +1110,47 @@ describe('Guidance Response', () => {
             }
           ]
         }
+      },
+      reasonDetail: {
+        hasReasonDetail: true,
+        reasons: [
+          {
+            code: CareGapReasonCode.DATEOUTOFRANGE,
+            reference: 'Procedure/denom-EXM130-2',
+            path: 'performed.end'
+          }
+        ]
       }
     };
+
+    const expectedReasonCodeableConcept: R4.ICodeableConcept[] = [
+      {
+        coding: [
+          {
+            system: 'CareGapReasonCodeSystem',
+            code: 'DateOutOfRange',
+            display: 'Key date was not in the expected range',
+            extension: [
+              {
+                url: 'ReasonDetail',
+                extension: [
+                  {
+                    url: 'reference',
+                    valueReference: {
+                      reference: 'Procedure/denom-EXM130-2'
+                    }
+                  },
+                  {
+                    url: 'path',
+                    valueString: 'performed.end'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
 
     const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE);
 
@@ -1046,5 +1159,78 @@ describe('Guidance Response', () => {
     const [gr] = grs;
 
     expect(gr.dataRequirement).toEqual(drWithDateAndCode);
+    expect(gr.reasonCode).toBeDefined();
+    expect(gr.reasonCode).toEqual(expectedReasonCodeableConcept);
+  });
+});
+
+describe('Guidance Response ReasonCode Coding', () => {
+  test('should handle reason detail without reference', () => {
+    const reasonDetail: ReasonDetailData = {
+      code: CareGapReasonCode.MISSING
+    };
+    const expectedCoding: R4.ICoding = {
+      system: 'CareGapReasonCodeSystem',
+      code: 'Missing',
+      display: 'No Data Element found from Value Set'
+    };
+    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+  });
+
+  test('should handle reason detail with reference and no path', () => {
+    const reasonDetail: ReasonDetailData = {
+      code: CareGapReasonCode.PRESENT,
+      reference: 'Procedure/denom-EXM130-2'
+    };
+    const expectedCoding: R4.ICoding = {
+      system: 'CareGapReasonCodeSystem',
+      code: 'Present',
+      display: 'Data element was found',
+      extension: [
+        {
+          url: 'ReasonDetail',
+          extension: [
+            {
+              url: 'reference',
+              valueReference: {
+                reference: 'Procedure/denom-EXM130-2'
+              }
+            }
+          ]
+        }
+      ]
+    };
+    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+  });
+
+  test('should handle reason detail with reference and path', () => {
+    const reasonDetail: ReasonDetailData = {
+      code: CareGapReasonCode.DATEOUTOFRANGE,
+      reference: 'Procedure/denom-EXM130-2',
+      path: 'performed.end'
+    };
+    const expectedCoding: R4.ICoding = {
+      system: 'CareGapReasonCodeSystem',
+      code: 'DateOutOfRange',
+      display: 'Key date was not in the expected range',
+      extension: [
+        {
+          url: 'ReasonDetail',
+          extension: [
+            {
+              url: 'reference',
+              valueReference: {
+                reference: 'Procedure/denom-EXM130-2'
+              }
+            },
+            {
+              url: 'path',
+              valueString: 'performed.end'
+            }
+          ]
+        }
+      ]
+    };
+    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
   });
 });
