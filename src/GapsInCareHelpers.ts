@@ -431,10 +431,8 @@ export function calculateReasonDetail(
                       path: duringFilter.attribute,
                       reference: `${resource._json.resourceType}/${resource.id.value}`
                     });
-
                   }
                 }
-
               } else if (f.type === 'notnull') {
                 const notNullFilter = f as NotNullFilter;
                 const attrPath = notNullFilter.attribute.split('.');
@@ -460,7 +458,7 @@ export function calculateReasonDetail(
                 // For non-during filters, look up clause result by localId
                 // Ideally we can look to modify cql-execution to help us with this flaw
                 const clauseResult = detailedResult.clauseResults?.find(
-                  cr => cr.libraryName === r.libraryName && cr.localId === f.localId
+                  cr => cr.libraryName === r.retrieveLibraryName && cr.localId === f.localId
                 );
 
                 // False clause means this specific filter was falsy

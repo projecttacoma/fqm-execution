@@ -562,7 +562,7 @@ describe('Find Reason Detail', () => {
         valueSet: 'http://example.com/test-vs',
         retrieveHasResult: true,
         parentQueryHasResult: false,
-        libraryName: 'example',
+        retrieveLibraryName: 'example',
         retrieveLocalId: 'procedure-no-performed',
         queryInfo: {
           sources: [
