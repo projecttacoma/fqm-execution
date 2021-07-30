@@ -17,14 +17,14 @@ import { findClauseInLibrary } from './ELMHelpers';
  * Get all data types, and codes/valuesets used in Query ELM expressions
  *
  * @param elm main ELM library with expressions to traverse
- * @param deps list of any dependent ELM libraries included in the main ELM
+ * @param allELM list of any dependent ELM libraries included in the main ELM
  * @param expr expression to find queries under (usually numerator for gaps in care)
  * @param queryLocalId keeps track of latest id of query statements for lookup later
  * @returns query info for each ELM retrieve
  */
 export function findRetrieves(
   elm: ELM,
-  deps: ELM[],
+  allELM: ELM[],
   expr: ELMStatement | AnyELMExpression,
   queryLocalId?: string,
   expressionStack: ExpressionStackEntry[] = []
@@ -46,6 +46,8 @@ export function findRetrieves(
     // If present, strip off HL7 prefix to data type
     const dataType = exprRet.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 
+    let queryLibraryName = elm.library.identifier.id;
+
     // We need to detect if this query/retrieve is used as the source of another query directly. This is an indication
     // that the retrieve is filtered by two separate queries and we need to actually look at the 'outermost' query closest
     // to the numerator.
@@ -53,19 +55,25 @@ export function findRetrieves(
     if (expressionStack.length >= 4) {
       // Grab the last 4 in the stack and see if they match the case we are looking for
       const bottomExprs = expressionStack.slice(-4);
+
       if (
         bottomExprs[0].type === 'Query' &&
         bottomExprs[1].type === 'ExpressionRef' &&
         bottomExprs[2].type === 'Query'
       ) {
         // check if the outer query is indeed referencing the inner one in the source.
-        const outerQuery = findClauseInLibrary(elm, bottomExprs[0].localId) as ELMQuery;
+        const queryLib = allELM.find(lib => lib.library.identifier.id === bottomExprs[0].libraryName);
+        if (!queryLib) {
+          throw new Error('Referenced query library cannot be found.');
+        }
+        const outerQuery = findClauseInLibrary(queryLib, bottomExprs[0].localId) as ELMQuery;
         if (
           outerQuery.source[0].expression.localId === bottomExprs[1].localId &&
           outerQuery.source[0].expression.type === 'ExpressionRef'
         ) {
           // Change the queryLocalId to the outer query.
           queryLocalId = bottomExprs[0].localId;
+          queryLibraryName = bottomExprs[0].libraryName;
         } else {
           console.warn(
             'Query is referenced in another query but not as a single source. Gaps output may be incomplete.'
@@ -77,7 +85,7 @@ export function findRetrieves(
     if (exprRet.codes?.type === 'ValueSetRef') {
       const codes = exprRet.codes as ELMValueSetRef;
 
-      const valueSet = findValueSetReference(elm, deps, codes);
+      const valueSet = findValueSetReference(elm, allELM, codes);
 
       if (valueSet) {
         results.push({
@@ -85,7 +93,8 @@ export function findRetrieves(
           valueSet: valueSet.id,
           queryLocalId,
           retrieveLocalId: exprRet.localId,
-          libraryName: elm.library.identifier.id,
+          retrieveLibraryName: elm.library.identifier.id,
+          queryLibraryName,
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
@@ -112,7 +121,8 @@ export function findRetrieves(
           },
           queryLocalId,
           retrieveLocalId: exprRet.localId,
-          libraryName: elm.library.identifier.id,
+          retrieveLibraryName: elm.library.identifier.id,
+          queryLibraryName,
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
@@ -121,21 +131,21 @@ export function findRetrieves(
   } else if (expr.type === 'Query') {
     // Queries have the source array containing the expressions
     (expr as ELMQuery).source?.forEach(s => {
-      results.push(...findRetrieves(elm, deps, s.expression, (expr as ELMQuery).localId, [...expressionStack]));
+      results.push(...findRetrieves(elm, allELM, s.expression, (expr as ELMQuery).localId, [...expressionStack]));
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
     if ((expr as ELMExpressionRef).libraryName) {
-      const matchingLib = findLibraryReference(elm, deps, (expr as ELMExpressionRef).libraryName || '');
+      const matchingLib = findLibraryReference(elm, allELM, (expr as ELMExpressionRef).libraryName || '');
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === (expr as ELMExpressionRef).name);
       if (matchingLib && exprRef) {
-        results.push(...findRetrieves(matchingLib, deps, exprRef.expression, queryLocalId, [...expressionStack]));
+        results.push(...findRetrieves(matchingLib, allELM, exprRef.expression, queryLocalId, [...expressionStack]));
       }
     } else {
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === (expr as ELMExpressionRef).name);
       if (exprRef) {
-        results.push(...findRetrieves(elm, deps, exprRef.expression, queryLocalId, [...expressionStack]));
+        results.push(...findRetrieves(elm, allELM, exprRef.expression, queryLocalId, [...expressionStack]));
       }
     }
   } else if ((expr as any).operand) {
@@ -143,10 +153,10 @@ export function findRetrieves(
     const anyExpr = expr as any;
     if (Array.isArray(anyExpr.operand)) {
       anyExpr.operand.forEach((e: any) => {
-        results.push(...findRetrieves(elm, deps, e, queryLocalId, [...expressionStack]));
+        results.push(...findRetrieves(elm, allELM, e, queryLocalId, [...expressionStack]));
       });
     } else {
-      results.push(...findRetrieves(elm, deps, anyExpr.operand, queryLocalId, [...expressionStack]));
+      results.push(...findRetrieves(elm, allELM, anyExpr.operand, queryLocalId, [...expressionStack]));
     }
   }
   return results;

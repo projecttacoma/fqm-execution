@@ -47,3 +47,7 @@ define "Retrieve Query":
 define "Retrieve Using ValueSet In Dependency":
   [Procedure: SimpleDep."test-vs-2"] P
     where P.status = 'completed'
+
+define "Nested Query From Another Library":
+  SimpleDep."SimpleQuery" S
+    where S.status = 'completed'

@@ -43,7 +43,7 @@ import {
   TautologyFilter,
   UnknownFilter
 } from './types/QueryFilterTypes';
-import { findLibraryReferenceId } from './ELMDependencyHelper';
+import { findLibraryReference, findLibraryReferenceId } from './ELMDependencyHelper';
 import { findClauseInLibrary } from './helpers/ELMHelpers';
 
 /**
@@ -51,6 +51,7 @@ import { findClauseInLibrary } from './helpers/ELMHelpers';
  * how the query is filtered.
  *
  * @param library The library ELM the query resides in.
+ * @param allELM An array of all the ELM libraries accessible to fqm-execution (includes library from library param)
  * @param queryLocalId The localId for the query we want to get information on.
  * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
  *                    "Measurement Period" is the only supported parameter at the moment as it is the only parameter
@@ -60,6 +61,7 @@ import { findClauseInLibrary } from './helpers/ELMHelpers';
  */
 export function parseQueryInfo(
   library: ELM,
+  allELM: ELM[],
   queryLocalId: string | undefined,
   parameters: { [key: string]: any } = {},
   patient: R4.IPatient
@@ -73,7 +75,8 @@ export function parseQueryInfo(
     const queryInfo: QueryInfo = {
       localId: query?.localId,
       sources: parseSources(query),
-      filter: { type: 'truth' }
+      filter: { type: 'truth' },
+      libraryName: library.library.identifier.id
     };
 
     if (query.where) {
@@ -85,12 +88,19 @@ export function parseQueryInfo(
     // the filters from it.
     if (query.source[0].expression.type === 'ExpressionRef') {
       const exprRef = query.source[0].expression as ELMExpressionRef;
-      const statement = library.library.statements.def.find(s => s.name === exprRef.name);
+      let queryLib: ELM | null = library;
+      if (exprRef.libraryName) {
+        queryLib = findLibraryReference(library, allELM, exprRef.libraryName);
+      }
+      if (!queryLib) {
+        throw new Error(`Cannot Find Referenced Library: ${exprRef.libraryName}`);
+      }
+      const statement = queryLib.library.statements.def.find(s => s.name === exprRef.name);
       // if we find the statement and it is a query we can move forward.
       if (statement) {
         if (statement.expression.type === 'Query') {
           const innerQuery = statement.expression as ELMQuery;
-          const innerQueryInfo = parseQueryInfo(library, innerQuery.localId, parameters, patient);
+          const innerQueryInfo = parseQueryInfo(queryLib, allELM, innerQuery.localId, parameters, patient);
 
           // use sources from inner query
           queryInfo.sources = innerQueryInfo.sources;
@@ -135,7 +145,6 @@ export function parseQueryInfo(
         );
       }
     }
-
     return queryInfo;
   } else {
     throw new Error(`Clause ${queryLocalId} in ${library.library.identifier.id} was not a Query or not found.`);
@@ -207,38 +216,51 @@ export function interpretExpression(
   parameters: any,
   patient: R4.IPatient
 ): AnyFilter {
+  let returnFilter: AnyFilter = {
+    type: 'unknown',
+    localId: expression.localId
+  };
   switch (expression.type) {
     case 'Equal':
-      return interpretEqual(expression as ELMEqual, library);
+      returnFilter = interpretEqual(expression as ELMEqual, library);
+      break;
     case 'Equivalent':
-      return interpretEquivalent(expression as ELMEquivalent, library);
+      returnFilter = interpretEquivalent(expression as ELMEquivalent, library);
+      break;
     case 'And':
-      return interpretAnd(expression as ELMAnd, library, parameters, patient);
+      returnFilter = interpretAnd(expression as ELMAnd, library, parameters, patient);
+      break;
     case 'Or':
-      return interpretOr(expression as ELMOr, library, parameters, patient);
+      returnFilter = interpretOr(expression as ELMOr, library, parameters, patient);
+      break;
     case 'IncludedIn':
-      return interpretIncludedIn(expression as ELMIncludedIn, library, parameters);
+      returnFilter = interpretIncludedIn(expression as ELMIncludedIn, library, parameters);
+      break;
     case 'In':
-      return interpretIn(expression as ELMIn, library, parameters);
+      returnFilter = interpretIn(expression as ELMIn, library, parameters);
+      break;
     case 'Not':
-      return interpretNot(expression as ELMNot);
+      returnFilter = interpretNot(expression as ELMNot);
+      break;
     case 'GreaterOrEqual':
-      return interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
+      returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
+      break;
     default:
       console.error(`Don't know how to parse ${expression.type} expression.`);
       // Look for a property (source attribute) usage in the expression tree. This can denote an
       // attribute on a resource was checked but we don't know what it was checked for.
       const propUsage = findPropertyUsage(expression, expression.localId);
+
       if (propUsage) {
-        return propUsage;
+        returnFilter = propUsage;
       }
   }
   // If we cannot make sense of this expression or find a parameter usage in it, then we should return
   // an UnknownFilter to denote something is done here that we could not interpret.
-  return {
-    type: 'unknown',
-    localId: expression.localId
-  };
+
+  returnFilter.libraryName = library.library.identifier.id;
+
+  return returnFilter;
 }
 
 /**

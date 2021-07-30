@@ -21,6 +21,7 @@ export interface QueryInfo {
   localId?: string;
   sources: SourceInfo[];
   filter: AnyFilter;
+  libraryName?: string;
 }
 
 /**
@@ -40,6 +41,7 @@ export interface Filter {
   type: string;
   localId?: string;
   notes?: string;
+  libraryName?: string;
 }
 
 /**

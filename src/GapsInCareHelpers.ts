@@ -38,11 +38,11 @@ export function processQueriesForGaps(
   return queries.map(q => {
     // Determine satisfaction of parent query and leaf node retrieve
     const parentQueryResult = detailedResult.clauseResults?.find(
-      cr => cr.libraryName === q.libraryName && cr.localId === q.queryLocalId
+      cr => cr.libraryName === q.queryLibraryName && cr.localId === q.queryLocalId
     );
 
     const retrieveResult = detailedResult.clauseResults?.find(
-      cr => cr.libraryName === q.libraryName && cr.localId === q.retrieveLocalId
+      cr => cr.libraryName === q.retrieveLibraryName && cr.localId === q.retrieveLocalId
     );
 
     const parentQueryHasResult = parentQueryResult?.final === FinalResult.TRUE;
@@ -389,7 +389,7 @@ export function calculateReasonDetail(
       if (reasonDetail.hasReasonDetail && r.queryInfo && detailedResult?.clauseResults) {
         const flattenedFilters = flattenFilters(r.queryInfo.filter);
         const resources = detailedResult.clauseResults?.find(
-          cr => cr.libraryName === r.libraryName && cr.localId === r.retrieveLocalId
+          cr => cr.libraryName === r.retrieveLibraryName && cr.localId === r.retrieveLocalId
         );
 
         if (resources) {
@@ -458,7 +458,7 @@ export function calculateReasonDetail(
                 // For non-during filters, look up clause result by localId
                 // Ideally we can look to modify cql-execution to help us with this flaw
                 const clauseResult = detailedResult.clauseResults?.find(
-                  cr => cr.libraryName === r.libraryName && cr.localId === f.localId
+                  cr => cr.libraryName === r.retrieveLibraryName && cr.localId === f.localId
                 );
 
                 // False clause means this specific filter was falsy

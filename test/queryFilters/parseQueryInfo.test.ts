@@ -7,6 +7,9 @@ import { R4 } from '@ahryman40k/ts-fhir-types';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
+const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
+
+const allELM = [simpleQueryELM, complexQueryELM, simpleQueryELMDependency];
 
 const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
 const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
@@ -14,6 +17,7 @@ const PARAMETERS = { 'Measurement Period': new cql.Interval(START_MP, END_MP, tr
 
 const EXPECTED_VS_WITH_ID_CHECK_QUERY: QueryInfo = {
   localId: '24',
+  libraryName: 'SimpleQueries',
   sources: [
     {
       retrieveLocalId: '18',
@@ -27,12 +31,14 @@ const EXPECTED_VS_WITH_ID_CHECK_QUERY: QueryInfo = {
     alias: 'C',
     attribute: 'id',
     value: 'test',
-    localId: '23'
+    localId: '23',
+    libraryName: 'SimpleQueries'
   }
 };
 
 const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
   localId: '42',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '31',
@@ -43,6 +49,7 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
   ],
   filter: {
     type: 'and',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'in',
@@ -53,7 +60,8 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
           { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
           { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
         ],
-        localId: '36'
+        localId: '36',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -63,7 +71,8 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '40'
+        localId: '40',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -71,6 +80,7 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
 
 const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
   localId: '65',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '44',
@@ -81,19 +91,22 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
   ],
   filter: {
     type: 'and',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'in',
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '53'
+        localId: '53',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '56'
+        localId: '56',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -103,7 +116,8 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '63'
+        localId: '63',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -111,6 +125,7 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
 
 const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
   localId: '77',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '67',
@@ -121,6 +136,7 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
   ],
   filter: {
     type: 'and',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'during',
@@ -129,7 +145,8 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
         valuePeriod: {
           start: '2017-12-31T23:59:59.999Z',
           end: '2019-12-31T23:59:59.998Z'
-        }
+        },
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -137,6 +154,7 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
 
 const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
   localId: '94',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '79',
@@ -147,6 +165,7 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
   ],
   filter: {
     type: 'or',
+    libraryName: 'ComplexQueries',
     children: [
       {
         type: 'in',
@@ -157,7 +176,8 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
           { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
           { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
         ],
-        localId: '84'
+        localId: '84',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -167,13 +187,15 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '88'
+        localId: '88',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'C',
         attribute: 'abatement',
-        localId: '92'
+        localId: '92',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -181,6 +203,7 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
 
 const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
   localId: '46',
+  libraryName: 'SimpleQueries',
   sources: [
     {
       retrieveLocalId: '33',
@@ -198,13 +221,15 @@ const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
         alias: 'P',
         attribute: 'status',
         value: 'completed',
-        localId: '38'
+        localId: '38',
+        libraryName: 'SimpleQueries'
       },
       {
         type: 'notnull',
         alias: 'P',
         attribute: 'outcome',
-        localId: '45'
+        localId: '45',
+        libraryName: 'SimpleQueries'
       }
     ]
   }
@@ -212,6 +237,7 @@ const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
 
 const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
   localId: '120',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '96',
@@ -229,13 +255,15 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '105'
+        localId: '105',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '108'
+        localId: '108',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -245,7 +273,8 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '119'
+        localId: '119',
+        libraryName: 'ComplexQueries'
       }
     ]
   }
@@ -253,6 +282,7 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
 
 const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
   localId: '134',
+  libraryName: 'ComplexQueries',
   sources: [
     {
       retrieveLocalId: '96',
@@ -270,13 +300,15 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '105'
+        localId: '105',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '108'
+        localId: '108',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'during',
@@ -286,13 +318,50 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '129'
+        localId: '129',
+        libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'bodySite',
-        localId: '132'
+        localId: '132',
+        libraryName: 'ComplexQueries'
+      }
+    ]
+  }
+};
+
+const EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY: QueryInfo = {
+  localId: '65',
+  libraryName: 'SimpleQueries',
+  sources: [
+    {
+      retrieveLocalId: '6',
+      sourceLocalId: '7',
+      alias: 'P',
+      resourceType: 'Procedure'
+    }
+  ],
+  filter: {
+    type: 'and',
+    notes: 'Combination of multiple queries',
+    children: [
+      {
+        type: 'equals',
+        alias: 'P',
+        attribute: 'id',
+        value: 'test-2',
+        localId: '11',
+        libraryName: 'SimpleDep'
+      },
+      {
+        type: 'equals',
+        alias: 'P',
+        attribute: 'status',
+        value: 'completed',
+        localId: '64',
+        libraryName: 'SimpleQueries'
       }
     ]
   }
@@ -306,13 +375,13 @@ const PATIENT: R4.IPatient = {
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
   test('simple valueset with id check with no parameters passed in', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -322,7 +391,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_AND_STARTS_DURING_MP);
   });
 
@@ -334,7 +403,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
   });
 
@@ -346,7 +415,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
 
     const filter = queryInfo.filter as AndFilter;
 
@@ -368,31 +437,37 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL);
   });
 
   test('incorrect localid should throw error', () => {
     expect(() => {
-      parseQueryInfo(simpleQueryELM, '360', PARAMETERS, PATIENT);
+      parseQueryInfo(simpleQueryELM, allELM, '360', PARAMETERS, PATIENT);
     }).toThrow('Clause 360 in SimpleQueries was not a Query or not found.');
   });
 
   test('simple - query references query, combines filters', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(simpleQueryELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY);
   });
 
   test('complex - query references query, combines filters', () => {
     const queryLocalId = complexQueryELM.library.statements.def[6].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
   });
 
   test('complex - query references query, combines filters with ands in both filters and differing alias names', () => {
     const queryLocalId = complexQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(complexQueryELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH);
+  });
+
+  test('simple - query references query in another library, combines filters', () => {
+    const queryLocalId = simpleQueryELM.library.statements.def[10].expression.localId; // In simple queries "Nested Query From Another Library"
+    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY);
   });
 });

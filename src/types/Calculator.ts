@@ -212,7 +212,9 @@ export interface DataTypeQuery {
   /** localId in ELM for the query statement */
   queryLocalId?: string;
   /** name of the library where the statment can be looked up */
-  libraryName?: string;
+  retrieveLibraryName?: string;
+  /** name of library where the outermost query is */
+  queryLibraryName?: string;
   /** stack of expressions traversed during calculation */
   expressionStack?: ExpressionStackEntry[];
   /** path that the code or valueset object refers to */

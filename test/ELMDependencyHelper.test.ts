@@ -130,6 +130,9 @@ describe('ELMDependencyHelper', () => {
         accessLevel: 'Public'
       };
       const vs = ELMDependencyHelper.findValueSetReference(elm, [elm, dependency], valueSetRef);
+      if (vs) {
+        delete vs.annotation;
+      }
       expect(vs).toEqual(expectedValueSet);
     });
 
