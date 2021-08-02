@@ -1,7 +1,7 @@
 module.exports = {
   collectCoverageFrom: ['src/**/*.ts'],
   coveragePathIgnorePatterns: [
-    'src/_tests_',
+    'src/integration-tests',
     'src/cli.ts',
     'src/calculation/Calculator.ts',
     'src/helpers/DebugHelper.ts',
