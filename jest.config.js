@@ -4,7 +4,7 @@ module.exports = {
     'src/integration-tests',
     'src/cli.ts',
     'src/calculation/Calculator.ts',
-    'src/helpers/DebugHelper.ts',
+    'src/helpers/DebugHelpers.ts',
     'src/execution/Execution.ts'
   ],
   globals: {
