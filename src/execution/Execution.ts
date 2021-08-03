@@ -18,6 +18,10 @@ export async function execute(
   debugObject?: DebugOutput
 ): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
+
+  if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
+    throw new Error('No entries found in passed patient bundles');
+  }
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
   // check for any missing valuesets
@@ -29,19 +33,15 @@ export async function execute(
 
   if (missingVS.length > 0) {
     if (!options.vsAPIKey || options.vsAPIKey.length == 0) {
-      return {
-        errorMessage: `Missing the following valuesets: ${missingVS.join(
-          ', '
-        )}, and no API key was provided to resolve them`
-      };
+      throw new Error(
+        `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
+      );
     }
     const vsr = new ValueSetResolver(options.vsAPIKey || '');
     const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
 
     if (errorMessages.length > 0) {
-      return {
-        errorMessage: errorMessages.join('\n')
-      };
+      throw new Error(errorMessages.join('\n'));
     }
 
     valueSets.push(...expansions);
