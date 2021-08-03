@@ -1,4 +1,4 @@
-import * as ELMDependencyHelper from '../src/ELMDependencyHelper';
+import * as ELMDependencyHelper from '../src/helpers/elm/ELMDependencyHelpers';
 import { getELMFixture } from './helpers/testHelpers';
 import { ELM, ELMValueSet, ELMValueSetRef } from '../src/types/ELMTypes';
 

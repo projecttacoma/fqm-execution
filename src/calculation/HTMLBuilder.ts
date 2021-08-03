@@ -1,9 +1,9 @@
-import { Annotation, ELM } from './types/ELMTypes';
+import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
-import { ClauseResult, StatementResult } from './types/Calculator';
-import { FinalResult, Relevance } from './types/Enums';
-import mainTemplate from './templates/main';
-import clauseTemplate from './templates/clause';
+import { ClauseResult, StatementResult } from '../types/Calculator';
+import { FinalResult, Relevance } from '../types/Enums';
+import mainTemplate from '../templates/main';
+import clauseTemplate from '../templates/clause';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',

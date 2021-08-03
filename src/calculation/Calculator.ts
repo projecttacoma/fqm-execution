@@ -10,20 +10,20 @@ import {
   RCalculationOutput,
   DRCalculationOutput,
   DebugOutput
-} from './types/Calculator';
-import { PopulationType, MeasureScoreType, ImprovementNotation } from './types/Enums';
-import * as Execution from './Execution';
-import * as CalculatorHelpers from './CalculatorHelpers';
-import { extractMeasurementPeriod } from './helpers/MeasureHelpers';
-import * as ResultsHelpers from './ResultsHelpers';
+} from '../types/Calculator';
+import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
+import * as Execution from '../execution/Execution';
+import * as CalculatorHelpers from './DetailedResultsBuilder';
+import { extractMeasurementPeriod } from './ClauseResultsHelpers';
+import * as ResultsHelpers from './ClauseResultsBuilder';
 import MeasureReportBuilder from './MeasureReportBuilder';
-import * as GapsInCareHelpers from './GapsInCareHelpers';
-import { generateHTML } from './HTMLGenerator';
-import { parseQueryInfo } from './QueryFilterHelpers';
-import * as RetrievesHelper from './helpers/RetrievesHelper';
-import * as MeasureHelpers from './helpers/MeasureHelpers';
+import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
+import { generateHTML } from './HTMLBuilder';
+import { parseQueryInfo } from '../gaps/QueryFilterParser';
+import * as RetrievesHelper from '../gaps/RetrievesFinder';
+import * as MeasureHelpers from './ClauseResultsHelpers';
 import { uniqBy } from 'lodash';
-import { generateDataRequirement } from './helpers/DataRequirementHelpers';
+import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.

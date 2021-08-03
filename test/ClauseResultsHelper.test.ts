@@ -1,10 +1,10 @@
-import * as MeasureHelpers from '../src/helpers/MeasureHelpers';
+import * as ClauseResultsHelpers from '../src/calculation/ClauseResultsHelpers';
 import { ELM } from '../src/types/ELMTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType } from '../src/types/Enums';
 import { getJSONFixture } from './helpers/testHelpers';
 
-describe('MeasureHelpers', () => {
+describe('ClauseResultsHelpers', () => {
   describe('findAllLocalIdsInStatementByName', () => {
     test('finds localIds for library FunctionRefs while finding localIds in statements', () => {
       // Loads Anticoagulation Therapy for Atrial Fibrillation/Flutter measure.
@@ -14,7 +14,7 @@ describe('MeasureHelpers', () => {
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Encounter with Principal Diagnosis and Age';
-      const localIds = MeasureHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 49 and the functionRef itself is 55.
       expect(localIds[49]).not.toBeUndefined();
@@ -28,7 +28,7 @@ describe('MeasureHelpers', () => {
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Initial Population';
-      const localIds = MeasureHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 109 and the functionRef itself is 110.
       expect(localIds[109]).not.toBeUndefined();
@@ -42,7 +42,7 @@ describe('MeasureHelpers', () => {
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Comfort Measures during Hospitalization';
-      const localIds = MeasureHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 109 and the functionRef itself is 110.
       expect(localIds[42]).not.toBeUndefined();
@@ -62,27 +62,27 @@ describe('MeasureHelpers', () => {
     });
 
     test('returns correct localId for functionRef if when found', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '55', 'global');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '55', 'global');
       expect(ret).toEqual('49');
     });
 
     test('returns null if it does not find the localId for the functionRef', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '23', 'global');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '23', 'global');
       expect(ret).toBeNull();
     });
 
     test('returns null if it does not find the proper libraryName for the functionRef', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '55', 'notGlobal');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '55', 'notGlobal');
       expect(ret).toBeNull();
     });
 
     test('returns null if annotation is empty', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef({}, '55', 'notGlobal');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef({}, '55', 'notGlobal');
       expect(ret).toBeNull();
     });
 
     test('returns null if there is no value associated with annotation', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '68', 'notGlobal');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '68', 'notGlobal');
       expect(ret).toBeNull();
     });
   });
@@ -100,17 +100,17 @@ describe('MeasureHelpers', () => {
     });
 
     test('returns correct localId for expressionRef when found', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '110', 'TJC');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '110', 'TJC');
       expect(ret).toEqual('109');
     });
 
     test('returns null if it does not find the localId for the expressionRef', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '21', 'TJC');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '21', 'TJC');
       expect(ret).toBeNull();
     });
 
     test('returns null if it does not find the proper libraryName for the expressionRef', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '110', 'notTJC');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '110', 'notTJC');
       expect(ret).toBeNull();
     });
   });
@@ -128,12 +128,12 @@ describe('MeasureHelpers', () => {
     });
 
     test('returns null for expressionRef when found yet it is embedded', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '42', 'TJC');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '42', 'TJC');
       expect(ret).toBeNull();
     });
 
     test('returns null if it does not find the proper libraryName for the expressionRef', () => {
-      const ret = MeasureHelpers.findLocalIdForLibraryRef(annotationSnippet, '42', 'notTJC');
+      const ret = ClauseResultsHelpers.findLocalIdForLibraryRef(annotationSnippet, '42', 'notTJC');
       expect(ret).toBeNull();
     });
   });
@@ -143,7 +143,7 @@ describe('MeasureHelpers', () => {
       const codeableConcept: R4.ICodeableConcept = {
         text: 'no codings'
       };
-      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
+      expect(ClauseResultsHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
     });
 
     test('codeable concept with empty returns null', () => {
@@ -151,7 +151,7 @@ describe('MeasureHelpers', () => {
         text: 'empty codings',
         coding: []
       };
-      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
+      expect(ClauseResultsHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
     });
 
     test('codeable concept with codings of different system returns null', () => {
@@ -165,7 +165,7 @@ describe('MeasureHelpers', () => {
           }
         ]
       };
-      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
+      expect(ClauseResultsHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
     });
 
     test('codeable concept proper coding returns valid enum', () => {
@@ -179,7 +179,7 @@ describe('MeasureHelpers', () => {
           }
         ]
       };
-      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toEqual(PopulationType.IPP);
+      expect(ClauseResultsHelpers.codeableConceptToPopulationType(codeableConcept)).toEqual(PopulationType.IPP);
     });
 
     test('codeable concept correct system, bad code returns null', () => {
@@ -193,7 +193,7 @@ describe('MeasureHelpers', () => {
           }
         ]
       };
-      expect(MeasureHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
+      expect(ClauseResultsHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
     });
   });
 
@@ -213,7 +213,7 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = ClauseResultsHelpers.extractMeasurementPeriod(measureBundleFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
@@ -234,7 +234,7 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = ClauseResultsHelpers.extractMeasurementPeriod(measureBundleFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2019-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
@@ -256,7 +256,7 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = ClauseResultsHelpers.extractMeasurementPeriod(measureBundleFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
@@ -278,7 +278,7 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      const mpConfig = MeasureHelpers.extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = ClauseResultsHelpers.extractMeasurementPeriod(measureBundleFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2019-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
@@ -287,12 +287,12 @@ describe('MeasureHelpers', () => {
 
   describe('isValidLibraryURL', () => {
     test('returns true if it is a valid url ', () => {
-      const ret = MeasureHelpers.isValidLibraryURL('https://example.com/Library-url');
+      const ret = ClauseResultsHelpers.isValidLibraryURL('https://example.com/Library-url');
       expect(ret).toBeTruthy();
     });
 
     test('returns false if it is not  a valid url ', () => {
-      const ret = MeasureHelpers.isValidLibraryURL('Library/example');
+      const ret = ClauseResultsHelpers.isValidLibraryURL('Library/example');
       expect(ret).toBeFalsy();
     });
   });
@@ -319,7 +319,7 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      const ret = MeasureHelpers.extractMeasureFromBundle(measureBundleFixture);
+      const ret = ClauseResultsHelpers.extractMeasureFromBundle(measureBundleFixture);
       expect(ret.resourceType).toBe('Measure');
     });
 
@@ -335,7 +335,7 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      expect(() => MeasureHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
+      expect(() => ClauseResultsHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
     });
 
     test('throws an error if the Measure is not present', () => {
@@ -350,14 +350,14 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      expect(() => MeasureHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
+      expect(() => ClauseResultsHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
     });
   });
 
   describe('extractLibrariesFromBundle', () => {
     test('properly gets library from EXM130, and identifies the root library', () => {
       const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as R4.IBundle;
-      const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
+      const { cqls, rootLibIdentifier, elmJSONs } = ClauseResultsHelpers.extractLibrariesFromBundle(measureBundle);
 
       expect(rootLibIdentifier).toStrictEqual({
         id: 'EXM130',
@@ -395,7 +395,7 @@ describe('MeasureHelpers', () => {
         ]
       };
 
-      expect(() => MeasureHelpers.extractLibrariesFromBundle(measureBundle)).toThrow(
+      expect(() => ClauseResultsHelpers.extractLibrariesFromBundle(measureBundle)).toThrow(
         'No Root Library could be identified in provided measure bundle'
       );
     });

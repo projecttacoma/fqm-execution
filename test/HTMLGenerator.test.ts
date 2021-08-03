@@ -1,4 +1,9 @@
-import { generateHTML, objToCSS, cqlLogicClauseTrueStyle, cqlLogicClauseFalseStyle } from '../src/HTMLGenerator';
+import {
+  generateHTML,
+  objToCSS,
+  cqlLogicClauseTrueStyle,
+  cqlLogicClauseFalseStyle
+} from '../src/calculation/HTMLBuilder';
 import { StatementResult, ClauseResult } from '../src/types/Calculator';
 import { ELM, ELMStatement } from '../src/types/ELMTypes';
 import { FinalResult, Relevance } from '../src/types/Enums';

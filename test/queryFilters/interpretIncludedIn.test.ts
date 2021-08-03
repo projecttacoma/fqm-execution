@@ -1,6 +1,6 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import * as cql from 'cql-execution';
-import * as QueryFilter from '../../src/QueryFilterHelpers';
+import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMIncludedIn } from '../../src/types/ELMTypes';
 import { DuringFilter, UnknownFilter } from '../../src/types/QueryFilterTypes';
 

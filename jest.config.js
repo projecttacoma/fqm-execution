@@ -1,11 +1,11 @@
 module.exports = {
   collectCoverageFrom: ['src/**/*.ts'],
   coveragePathIgnorePatterns: [
-    'src/_tests_',
+    'src/integration-tests',
     'src/cli.ts',
-    'src/Calculator.ts',
-    'src/DebugHelper.ts',
-    'src/Execution.ts'
+    'src/calculation/Calculator.ts',
+    'src/helpers/DebugHelpers.ts',
+    'src/execution/Execution.ts'
   ],
   globals: {
     'ts-jest': {

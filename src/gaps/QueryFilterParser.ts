@@ -28,7 +28,7 @@ import {
   ELMStart,
   ELMEnd,
   ELMExpressionRef
-} from './types/ELMTypes';
+} from '../types/ELMTypes';
 import {
   AndFilter,
   AnyFilter,
@@ -42,9 +42,9 @@ import {
   SourceInfo,
   TautologyFilter,
   UnknownFilter
-} from './types/QueryFilterTypes';
-import { findLibraryReference, findLibraryReferenceId } from './ELMDependencyHelper';
-import { findClauseInLibrary } from './helpers/ELMHelpers';
+} from '../types/QueryFilterTypes';
+import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
+import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse

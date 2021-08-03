@@ -1,5 +1,5 @@
 import { getELMFixture } from './helpers/testHelpers';
-import { findRetrieves } from '../src/helpers/RetrievesHelper';
+import { findRetrieves } from '../src/gaps/RetrievesFinder';
 import { DataTypeQuery } from '../src/types/Calculator';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');

@@ -1,5 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { ValueSetResolver } from '../src/helpers/ValueSetResolver';
+import { ValueSetResolver } from '../src/execution/ValueSetResolver';
 import { getJSONFixture } from './helpers/testHelpers';
 import MockAdapter from 'axios-mock-adapter';
 

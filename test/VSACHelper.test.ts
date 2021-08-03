@@ -1,4 +1,4 @@
-import { isVSACUrl, getOIDFromValueSet, normalizeCanonical, VSAC_BASE } from '../src/helpers/VSACHelper';
+import { isVSACUrl, getOIDFromValueSet, normalizeCanonical, VSAC_BASE } from '../src/execution/VSACHelper';
 
 describe('VSACHelper', () => {
   describe('isVSACUrl', () => {

@@ -1,11 +1,11 @@
-import * as MeasureHelpers from './helpers/MeasureHelpers';
-import * as ELMDependencyHelper from './ELMDependencyHelper';
-import { ELM, LibraryDependencyInfo } from './types/ELMTypes';
-import * as cql from './types/CQLTypes';
+import * as MeasureHelpers from './ClauseResultsHelpers';
+import * as ELMDependencyHelper from '../helpers/elm/ELMDependencyHelpers';
+import { ELM, LibraryDependencyInfo } from '../types/ELMTypes';
+import * as cql from '../types/CQLTypes';
 import * as cqlSystemTypes from 'cql-execution';
 import moment from 'moment';
 import { R4 } from '@ahryman40k/ts-fhir-types';
-import { FinalResult, PopulationType, Relevance } from './types/Enums';
+import { FinalResult, PopulationType, Relevance } from '../types/Enums';
 import {
   ClauseResult,
   DetailedPopulationGroupResult,
@@ -13,7 +13,7 @@ import {
   PopulationResult,
   SDEResult,
   StatementResult
-} from './types/Calculator';
+} from '../types/Calculator';
 
 /**
  * Contains helpers that generate useful data for coverage and highlighing.

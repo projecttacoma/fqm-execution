@@ -4,10 +4,10 @@ import {
   CalculationOptions,
   PopulationResult,
   DetailedPopulationGroupResult
-} from './types/Calculator';
-import { PopulationType, MeasureScoreType, AggregationType } from './types/Enums';
+} from '../types/Calculator';
+import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
-import * as MeasureHelpers from './helpers/MeasureHelpers';
+import * as MeasureHelpers from './ClauseResultsHelpers';
 
 export default class MeasureReportBuilder {
   report: R4.IMeasureReport;
