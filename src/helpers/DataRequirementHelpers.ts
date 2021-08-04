@@ -10,7 +10,6 @@ import {
   Filter,
   NotNullFilter
 } from '../types/QueryFilterTypes';
-import { findValueSetReference } from './elm/ELMDependencyHelpers';
 
 /**
  * Take any nesting of base filters and AND filters and flatten into one list

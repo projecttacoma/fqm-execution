@@ -24,7 +24,6 @@ import {
   AttributeFilter
 } from '../types/QueryFilterTypes';
 import { GracefulError } from '../types/GracefulError';
-import { without } from 'lodash';
 import { IDetectedIssue } from '@ahryman40k/ts-fhir-types/lib/R4';
 
 /**
