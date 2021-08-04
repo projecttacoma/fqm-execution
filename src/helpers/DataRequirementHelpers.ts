@@ -1,5 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../types/Calculator';
+import { GracefulError } from '../types/GracefulError';
 import {
   EqualsFilter,
   InFilter,
@@ -9,6 +10,7 @@ import {
   Filter,
   NotNullFilter
 } from '../types/QueryFilterTypes';
+import { findValueSetReference } from './elm/ELMDependencyHelpers';
 
 /**
  * Take any nesting of base filters and AND filters and flatten into one list
@@ -94,7 +96,7 @@ export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequir
  * @param filter the filter to map
  * @returns extension for the valueFilter list of dataRequirement
  */
-export function generateDetailedValueFilter(filter: Filter): R4.IExtension | null {
+export function generateDetailedValueFilter(filter: Filter): R4.IExtension | GracefulError {
   if (filter.type === 'notnull') {
     const notnullFilter = filter as NotNullFilter;
     return {
@@ -104,9 +106,10 @@ export function generateDetailedValueFilter(filter: Filter): R4.IExtension | nul
         { url: 'dr-value-filter', valueString: 'not null' }
       ]
     };
+  } else if (filter?.withError) {
+    return filter.withError;
   } else {
-    console.error(`Detailed value filter is not yet supported for filter type ${filter.type}`);
-    return null;
+    return { message: `Detailed value filter is not yet supported for filter type ${filter.type}` } as GracefulError;
   }
 }
 

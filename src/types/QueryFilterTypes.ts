@@ -1,5 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import * as cql from 'cql-execution';
+import { GracefulError } from './GracefulError';
 
 /** Any type of query filter. */
 export type AnyFilter =
@@ -42,6 +43,7 @@ export interface Filter {
   localId?: string;
   notes?: string;
   libraryName?: string;
+  withError?: GracefulError;
 }
 
 /**

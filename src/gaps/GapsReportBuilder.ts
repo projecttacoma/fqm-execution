@@ -23,6 +23,9 @@ import {
   NotNullFilter,
   AttributeFilter
 } from '../types/QueryFilterTypes';
+import { GracefulError } from '../types/GracefulError';
+import { without } from 'lodash';
+import { IDetectedIssue } from '@ahryman40k/ts-fhir-types/lib/R4';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -68,7 +71,7 @@ export function generateDetectedIssueResources(
   queries: GapsDataTypeQuery[],
   measureReport: R4.IMeasureReport,
   improvementNotation: string
-): R4.IDetectedIssue[] {
+): { detectedIssues: R4.IDetectedIssue[]; withErrors: GracefulError[] } {
   const relevantGapQueries = queries.filter(q =>
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
@@ -77,7 +80,7 @@ export function generateDetectedIssueResources(
   const guidanceResponses = groupedQueries.map(q =>
     generateGuidanceResponses(q, measureReport.measure, improvementNotation)
   );
-  return guidanceResponses.map(gr => {
+  const formattedResponses: IDetectedIssue[] = guidanceResponses.map(gr => {
     return {
       resourceType: 'DetectedIssue',
       id: uuidv4(),
@@ -91,14 +94,21 @@ export function generateDetectedIssueResources(
           }
         ]
       },
-      evidence: gr.map(gr => {
+      evidence: gr.guidanceResponses.map(gr => {
         return {
           detail: [{ reference: `#${gr.id}` }]
         };
       }),
-      contained: gr
+      contained: gr.guidanceResponses
     };
   });
+  //accumulate all error info into a single array
+  const errorInfo = guidanceResponses.reduce((acc: GracefulError[], e) => {
+    acc.push(...e.withErrors);
+    return acc;
+  }, []);
+
+  return { detectedIssues: formattedResponses, withErrors: errorInfo };
 }
 
 /**
@@ -158,6 +168,14 @@ function stackEntryString(entry: ExpressionStackEntry): string {
   return JSON.stringify(entry);
 }
 
+function didEncounterDetailedValueFilterErrors(tbd: R4.IExtension | GracefulError): tbd is GracefulError {
+  if ((tbd as GracefulError).message) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 /**
  * Generate FHIR GuidanceResponse resources for queries that are gaps
  *
@@ -170,7 +188,8 @@ export function generateGuidanceResponses(
   queries: GapsDataTypeQuery[],
   measureURL: string,
   improvementNotation: string
-): R4.IGuidanceResponse[] {
+): { guidanceResponses: R4.IGuidanceResponse[]; withErrors: GracefulError[] } {
+  const withErrors: GracefulError[] = [];
   const guidanceResponses: R4.IGuidanceResponse[] = queries.map(q => {
     const dataTypeCodeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
       path: 'code'
@@ -239,7 +258,9 @@ export function generateGuidanceResponses(
           }
         } else {
           const valueFilter = generateDetailedValueFilter(df);
-          if (valueFilter) {
+          if (didEncounterDetailedValueFilterErrors(valueFilter)) {
+            withErrors.push(valueFilter);
+          } else if (valueFilter) {
             if (dataRequirement.extension) {
               dataRequirement.extension.push(valueFilter);
             } else {
@@ -260,7 +281,7 @@ export function generateGuidanceResponses(
     };
     return guidanceResponse;
   });
-  return guidanceResponses;
+  return { guidanceResponses, withErrors };
 }
 
 /**

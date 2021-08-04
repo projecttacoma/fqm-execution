@@ -45,6 +45,7 @@ import {
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
+import { GracefulError } from '../types/GracefulError';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
@@ -392,6 +393,7 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
  * @returns The interpreted filter. This may be a TautologyFilter that can be removed.
  */
 export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFilter {
+  const errorInfo = {} as GracefulError;
   if (not.operand.type === 'IsNull') {
     const isNull = not.operand as ELMIsNull;
     if (isNull.operand.type === 'Property') {
@@ -414,12 +416,12 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
         return { type: 'truth' };
       }
     } else {
-      console.warn(`could not handle 'isNull' inside 'not' for expression type ${isNull.operand.type}`);
+      errorInfo.message = `could not handle 'isNull' inside 'not' for expression type ${isNull.operand.type}`;
     }
   } else {
-    console.warn(`could not handle 'not' for expression type ${not.operand.type}`);
+    errorInfo.message = `could not handle 'not' for expression type ${not.operand.type}`;
   }
-  return { type: 'unknown' };
+  return { type: 'unknown', withError: errorInfo };
 }
 
 /**

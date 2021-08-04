@@ -23,6 +23,7 @@ import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
 import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
+import { GracefulError } from '../types/GracefulError';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -336,7 +337,7 @@ export async function calculateGapsInCare(
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
 
   let result: R4.IBundle = <R4.IBundle>{};
-
+  const errorLog: GracefulError[] = [];
   results.forEach(res => {
     const matchingMeasureReport = measureReports.find(mr => mr.subject?.reference?.split('/')[1] === res.patientId);
 
@@ -449,12 +450,12 @@ export async function calculateGapsInCare(
 
         detailedGapsRetrieves = GapsInCareHelpers.calculateReasonDetail(detailedGapsRetrieves, improvementNotation, dr);
 
-        const detectedIssues = GapsInCareHelpers.generateDetectedIssueResources(
+        const { detectedIssues, withErrors } = GapsInCareHelpers.generateDetectedIssueResources(
           detailedGapsRetrieves,
           matchingMeasureReport,
           improvementNotation
         );
-
+        errorLog.push(...withErrors);
         result = GapsInCareHelpers.generateGapsInCareBundle(
           detectedIssues,
           matchingMeasureReport,
@@ -471,7 +472,7 @@ export async function calculateGapsInCare(
     });
   });
 
-  return { results: result, debugOutput, valueSetCache: calculationResults.valueSetCache };
+  return { results: result, debugOutput, valueSetCache: calculationResults.valueSetCache, withErrors: errorLog };
 }
 
 /**

@@ -19,6 +19,7 @@ export async function execute(
 ): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
 
+  //if there are entries, pb.entry?.length will be > 0 which is truthy. Otherwise falsy
   if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
     throw new Error('No entries found in passed patient bundles');
   }

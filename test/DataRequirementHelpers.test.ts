@@ -9,6 +9,7 @@ import {
 } from '../src/types/QueryFilterTypes';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../src/types/Calculator';
+import { GracefulError } from '../src/types/GracefulError';
 
 describe('DataRequirementHelpers', () => {
   describe('Flatten Filters', () => {
@@ -311,8 +312,9 @@ describe('DataRequirementHelpers', () => {
         alias: 'R',
         attribute: 'attr-1'
       };
+      const ge: GracefulError = { message: 'Detailed value filter is not yet supported for filter type unknown' };
 
-      expect(DataRequirementHelpers.generateDetailedValueFilter(uf)).toBeNull();
+      expect(DataRequirementHelpers.generateDetailedValueFilter(uf)).toEqual(ge);
     });
   });
 
