@@ -21,7 +21,6 @@ import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
 import { generateHTML } from './HTMLBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
-import * as ClauseResultsHelpers from './ClauseResultsHelpers';
 import { uniqBy } from 'lodash';
 import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
 

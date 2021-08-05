@@ -63,7 +63,6 @@ describe('MeasureBundleHelpers', () => {
     });
   });
 
-
   describe('extractMeasurementPeriod', () => {
     test('Measurement period start set on measure', () => {
       const measureBundleFixture: R4.IBundle = {

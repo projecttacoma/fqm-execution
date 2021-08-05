@@ -1,6 +1,5 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from '../types/Calculator';
-import * as ClauseResultsHelpers from './ClauseResultsHelpers';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ClauseResultsBuilder';
 import { ELM, ELMStatement } from '../types/ELMTypes';

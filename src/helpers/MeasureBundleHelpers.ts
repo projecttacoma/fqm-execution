@@ -7,25 +7,25 @@ import { ELM, ELMIdentifier } from '../types/ELMTypes';
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
  * patient based measure.
  */
- const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
+const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
 
- /**
-  * Check if a measure is an episode of care measure or not. Look for the cqfm-populationBasis extension.
-  * If it is found return true if valueCode is not 'boolean' otherwise return false.
-  *
-  * @param {R4.IMeasure} measure FHIR Measure resource.
-  * @returns {boolean} true if this is an episode of care, false if it is a patient measure.
-  */
- export function isEpisodeOfCareMeasure(measure: R4.IMeasure): boolean {
-   const popBasisExt = measure.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
-   if (popBasisExt != undefined) {
-     return popBasisExt.valueCode != 'boolean';
-   } else {
-     return false;
-   }
- }
+/**
+ * Check if a measure is an episode of care measure or not. Look for the cqfm-populationBasis extension.
+ * If it is found return true if valueCode is not 'boolean' otherwise return false.
+ *
+ * @param {R4.IMeasure} measure FHIR Measure resource.
+ * @returns {boolean} true if this is an episode of care, false if it is a patient measure.
+ */
+export function isEpisodeOfCareMeasure(measure: R4.IMeasure): boolean {
+  const popBasisExt = measure.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
+  if (popBasisExt != undefined) {
+    return popBasisExt.valueCode != 'boolean';
+  } else {
+    return false;
+  }
+}
 
- /**
+/**
  * Population Type Code system.
  */
 const POPULATION_TYPE_CODESYSTEM = 'http://terminology.hl7.org/CodeSystem/measure-population';
@@ -57,7 +57,7 @@ export function codeableConceptToPopulationType(concept: R4.ICodeableConcept | u
  * @returns {CalculationOptions} object with only the measurement period start/end fields filled out,
  * or the year 2019 set as the calculation period if not set in the Measure.
  */
- export function extractMeasurementPeriod(measureBundle: R4.IBundle): CalculationOptions {
+export function extractMeasurementPeriod(measureBundle: R4.IBundle): CalculationOptions {
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
   if (!measureEntry || !measureEntry.resource) {
     throw new Error('Measure resource was not found in provided measure bundle');
@@ -75,7 +75,7 @@ export function codeableConceptToPopulationType(concept: R4.ICodeableConcept | u
  * @param {string} libraryName - The name of the library depending on the origin of the measure this may a url
  * @return {boolean} If the statement is a function or not.
  */
- export function isValidLibraryURL(libraryName: string) {
+export function isValidLibraryURL(libraryName: string) {
   const urlFormat = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
   const r = new RegExp(urlFormat);
   return r.test(libraryName);

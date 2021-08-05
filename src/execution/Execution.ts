@@ -9,7 +9,6 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { PopulationType } from '../types/Enums';
 import { generateELMJSONFunction } from '../calculation/DetailedResultsBuilder';
 import { ValueSetResolver } from './ValueSetResolver';
-import * as ClauseResultsHelpers from '../calculation/ClauseResultsHelpers';
 
 export async function execute(
   measureBundle: R4.IBundle,
@@ -89,7 +88,9 @@ export async function execute(
   // add expressions for collecting for all measure observations
   measure.group?.forEach(group => {
     group.population
-      ?.filter(population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.OBSERV)
+      ?.filter(
+        population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.OBSERV
+      )
       ?.forEach(obsrvPop => {
         const msrPop = group.population?.find(
           population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
