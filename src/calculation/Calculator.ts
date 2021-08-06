@@ -14,14 +14,13 @@ import {
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
 import * as CalculatorHelpers from './DetailedResultsBuilder';
-import { extractMeasurementPeriod } from './ClauseResultsHelpers';
+import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ResultsHelpers from './ClauseResultsBuilder';
 import MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
 import { generateHTML } from './HTMLBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
-import * as MeasureHelpers from './ClauseResultsHelpers';
 import { uniqBy } from 'lodash';
 import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
 
@@ -46,12 +45,12 @@ export async function calculate(
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
   // Get the default measurement period out of the Measure object
-  const measurementPeriod = extractMeasurementPeriod(measureBundle);
+  const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measureBundle);
   // Set the measurement period start/end, but only if the caller didn't specify one
   options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
   options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
 
-  const measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
+  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
   const executionResults: ExecutionResult[] = [];
 
   const results = await Execution.execute(measureBundle, patientBundles, options, valueSetCache, debugObject);
@@ -346,7 +345,7 @@ export async function calculateGapsInCare(
     }
 
     res.detailedResults?.forEach((dr, i) => {
-      const measureResource = MeasureHelpers.extractMeasureFromBundle(measureBundle);
+      const measureResource = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
       // Gaps only supported for proportion/ratio measures
       const scoringCode = measureResource.scoring?.coding?.find(
@@ -484,7 +483,7 @@ export async function calculateGapsInCare(
 
 export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculationOutput {
   // Extract the library ELM, and the id of the root library, from the measure bundle
-  const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
+  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
 
   // We need a root library to run dataRequirements properly. If we don't have one, error out.

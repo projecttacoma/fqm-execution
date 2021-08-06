@@ -5,11 +5,10 @@ import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calc
 import cql from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './ValueSetHelper';
-import { codeableConceptToPopulationType } from '../calculation/ClauseResultsHelpers';
+import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { PopulationType } from '../types/Enums';
 import { generateELMJSONFunction } from '../calculation/DetailedResultsBuilder';
 import { ValueSetResolver } from './ValueSetResolver';
-import * as MeasureHelpers from '../calculation/ClauseResultsHelpers';
 
 export async function execute(
   measureBundle: R4.IBundle,
@@ -19,7 +18,7 @@ export async function execute(
   debugObject?: DebugOutput
 ): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
-  const measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
+  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
   // check for any missing valuesets
   const valueSets: R4.IValueSet[] = [];
@@ -65,7 +64,7 @@ export async function execute(
 
   const vsMap = valueSetsForCodeService(valueSets);
 
-  const { cqls, rootLibIdentifier, elmJSONs } = MeasureHelpers.extractLibrariesFromBundle(measureBundle);
+  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
 
   // Measure datetime stuff
   let start;
@@ -89,10 +88,12 @@ export async function execute(
   // add expressions for collecting for all measure observations
   measure.group?.forEach(group => {
     group.population
-      ?.filter(population => codeableConceptToPopulationType(population.code) === PopulationType.OBSERV)
+      ?.filter(
+        population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.OBSERV
+      )
       ?.forEach(obsrvPop => {
         const msrPop = group.population?.find(
-          population => codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
+          population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
         );
         if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
           const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifier.id);

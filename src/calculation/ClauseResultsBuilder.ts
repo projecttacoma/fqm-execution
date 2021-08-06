@@ -1,4 +1,5 @@
-import * as MeasureHelpers from './ClauseResultsHelpers';
+import * as ClauseResultsHelpers from './ClauseResultsHelpers';
+import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ELMDependencyHelper from '../helpers/elm/ELMDependencyHelpers';
 import { ELM, LibraryDependencyInfo } from '../types/ELMTypes';
 import * as cql from '../types/CQLTypes';
@@ -107,7 +108,7 @@ export function buildStatementRelevanceMap(
 
   // Iterate over all populations in this group and mark their statements relevant.
   populationGroup.population?.forEach(population => {
-    const popType = MeasureHelpers.codeableConceptToPopulationType(population.code);
+    const popType = MeasureBundleHelpers.codeableConceptToPopulationType(population.code);
     if (popType) {
       // If the population is values, that means we need to mark relevance for the OBSERVs
       const relevance = getResult(popType, populationRelevanceSet);
@@ -260,7 +261,7 @@ export function buildStatementAndClauseResults(
     statementResult.raw = rawStatementResult;
 
     //TODO: determine how SDEs should be handled
-    //const isSDE = MeasureHelpers.isSupplementalDataElementStatement(measure.supplementalData, statement_name);
+    //const isSDE = ClauseResultsHelpers.isSupplementalDataElementStatement(measure.supplementalData, statement_name);
     if (/*(!measure.calculate_sdes && isSDE) || */ statementResult.relevance == Relevance.NA) {
       statementResult.final = FinalResult.NA;
       if (doPretty) {
@@ -271,7 +272,7 @@ export function buildStatementAndClauseResults(
       // even if the statement wasn't hit, we want the pretty result to just
       // be FUNCTION for functions
       if (doPretty) {
-        if (MeasureHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
+        if (ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
           statementResult.pretty = 'FUNCTION';
         } else {
           statementResult.pretty = 'UNHIT';
@@ -289,7 +290,7 @@ export function buildStatementAndClauseResults(
         if (doPretty) {
           statementResult.pretty = 'FALSE ([])';
         }
-      } else if (MeasureHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
+      } else if (ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
         if (doPretty) {
           statementResult.pretty = 'FUNCTION';
         }
@@ -300,7 +301,7 @@ export function buildStatementAndClauseResults(
 
     if (includeClauseResults) {
       // create clause results for all localIds in this statement
-      const localIds = MeasureHelpers.findAllLocalIdsInStatementByName(elmLibrary, statementResult.statementName);
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(elmLibrary, statementResult.statementName);
       for (const localId in localIds) {
         const clause = localIds[localId];
         const rawClauseResult =
@@ -594,7 +595,7 @@ export function buildPopulationRelevanceForAllEpisodes(
   const masterRelevanceResults: PopulationResult[] =
     populationGroup.population?.map(population => {
       return <PopulationResult>{
-        populationType: MeasureHelpers.codeableConceptToPopulationType(population.code),
+        populationType: MeasureBundleHelpers.codeableConceptToPopulationType(population.code),
         result: false
       };
     }) || []; // Should not end up becoming an empty list.

@@ -7,7 +7,7 @@ import {
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
-import * as MeasureHelpers from './ClauseResultsHelpers';
+import { extractMeasureFromBundle } from '../helpers/MeasureBundleHelpers';
 
 export default class MeasureReportBuilder {
   report: R4.IMeasureReport;
@@ -25,7 +25,7 @@ export default class MeasureReportBuilder {
       resourceType: 'MeasureReport'
     };
     this.measureBundle = measureBundle;
-    this.measure = MeasureHelpers.extractMeasureFromBundle(measureBundle);
+    this.measure = extractMeasureFromBundle(measureBundle);
     this.scoringCode =
       this.measure.scoring?.coding?.find(
         c =>

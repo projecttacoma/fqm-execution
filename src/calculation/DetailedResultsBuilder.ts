@@ -1,6 +1,6 @@
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from '../types/Calculator';
-import * as MeasureHelpers from './ClauseResultsHelpers';
+import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ClauseResultsBuilder';
 import { ELM, ELMStatement } from '../types/ELMTypes';
 import { PopulationType } from '../types/Enums';
@@ -27,7 +27,7 @@ export function createPopulationValues(
   let episodeResults: EpisodeResults[] | undefined;
 
   // patient based measure
-  if (!MeasureHelpers.isEpisodeOfCareMeasure(measure)) {
+  if (!MeasureBundleHelpers.isEpisodeOfCareMeasure(measure)) {
     const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
     populationResults = popAndStratResults.populationResults;
     stratifierResults = popAndStratResults.stratifierResults;
@@ -171,7 +171,7 @@ export function createPatientPopulationValues(
     // We need to check if the populationCriteria contains the population so that a STRAT is not set to zero if there is not a STRAT in the populationCriteria
     // Grab CQL result value and adjust for ECQME
 
-    const populationType = MeasureHelpers.codeableConceptToPopulationType(population.code);
+    const populationType = MeasureBundleHelpers.codeableConceptToPopulationType(population.code);
     // If this is a valid population type and there is a defined cql population pull out the values
     if (populationType != null && cqlPopulation != null) {
       const value = patientResults[cqlPopulation];
@@ -236,7 +236,7 @@ export function createEpisodePopulationValues(
 
   populationGroup.population?.forEach(population => {
     const cqlPopulation = population.criteria.expression;
-    const populationType = MeasureHelpers.codeableConceptToPopulationType(population.code);
+    const populationType = MeasureBundleHelpers.codeableConceptToPopulationType(population.code);
 
     // If this is a valid population type and there is a defined cql population pull out the values
     if (populationType != null && cqlPopulation != null) {
@@ -244,7 +244,7 @@ export function createEpisodePopulationValues(
       if (populationType === PopulationType.OBSERV) {
         // find the MSRPOPL for this population because we need to know its name
         const msrPopl = populationGroup.population?.find(
-          pop => MeasureHelpers.codeableConceptToPopulationType(pop.code) === PopulationType.MSRPOPL
+          pop => MeasureBundleHelpers.codeableConceptToPopulationType(pop.code) === PopulationType.MSRPOPL
         );
         if (msrPopl?.criteria.expression) {
           const episodesRawResults = patientResults[`obs_func_${cqlPopulation}_${msrPopl?.criteria.expression}`];
@@ -363,7 +363,7 @@ function createOrSetValueOfEpisodes(
           };
           populationGroup.population?.forEach(population => {
             newEpisodeResults.populationResults.push({
-              populationType: <PopulationType>MeasureHelpers.codeableConceptToPopulationType(population.code),
+              populationType: <PopulationType>MeasureBundleHelpers.codeableConceptToPopulationType(population.code),
               result: false
             });
           });
