@@ -9,7 +9,8 @@ import {
   GICCalculationOutput,
   RCalculationOutput,
   DRCalculationOutput,
-  DebugOutput
+  DebugOutput,
+  DataTypeQuery
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -408,11 +409,15 @@ export async function calculateGapsInCare(
         }
 
         // Parse ELM for basic info about queries
-        const baseRetrieves = RetrievesHelper.findRetrieves(
+        const retrievesOutput = RetrievesHelper.findRetrieves(
           mainLibraryELM,
           elmLibraries,
           numerELMExpression.expression
         );
+
+        const baseRetrieves = retrievesOutput.results;
+        const retrievesErrors = retrievesOutput.withErrors;
+        errorLog.push(...retrievesErrors);
 
         // find this patient's bundle
         const patientBundle = patientBundles.find(patientBundle => {
@@ -429,9 +434,9 @@ export async function calculateGapsInCare(
         }
 
         // Add detailed info to queries based on clause results
-        let detailedGapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
+        const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
 
-        detailedGapsRetrieves.forEach(retrieve => {
+        gapsRetrieves.forEach(retrieve => {
           // If the retrieves have a localId for the query and a known library name, we can get more info
           // on how the query filters the sources.
           if (retrieve.queryLocalId && retrieve.queryLibraryName) {
@@ -448,14 +453,19 @@ export async function calculateGapsInCare(
           }
         });
 
-        detailedGapsRetrieves = GapsInCareHelpers.calculateReasonDetail(detailedGapsRetrieves, improvementNotation, dr);
+        const {
+          results: detailedGapsRetrieves,
+          withErrors: reasonDetailErrors
+        } = GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
 
-        const { detectedIssues, withErrors } = GapsInCareHelpers.generateDetectedIssueResources(
+        errorLog.push(...reasonDetailErrors);
+
+        const { detectedIssues, withErrors: detectedIssueErrors } = GapsInCareHelpers.generateDetectedIssueResources(
           detailedGapsRetrieves,
           matchingMeasureReport,
           improvementNotation
         );
-        errorLog.push(...withErrors);
+        errorLog.push(...detectedIssueErrors);
         result = GapsInCareHelpers.generateGapsInCareBundle(
           detectedIssues,
           matchingMeasureReport,
@@ -491,14 +501,15 @@ export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculat
   if (!rootLib?.library) {
     throw new Error("root library doesn't contain a library object");
   }
-
+  const withErrors: GracefulError[] = [];
   // get the retrieves for every statement in the root library
   const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
     if (statement.expression && statement.name != 'Patient') {
-      const retrieves = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
-      return retrieves;
+      const retrievesOutput = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
+      withErrors.push(...retrievesOutput.withErrors);
+      return retrievesOutput.results;
     } else {
-      return [];
+      return [] as DataTypeQuery[];
     }
   });
 
@@ -512,7 +523,6 @@ export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculat
     resourceType: 'Library',
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] }
   };
-
   results.dataRequirement = uniqueRetrieves.map(retrieve => generateDataRequirement(retrieve));
 
   return {
@@ -523,6 +533,7 @@ export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculat
       gaps: {
         retrieves: uniqueRetrieves
       }
-    }
+    },
+    withErrors
   };
 }

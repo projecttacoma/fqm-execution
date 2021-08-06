@@ -23,6 +23,7 @@ export interface QueryInfo {
   sources: SourceInfo[];
   filter: AnyFilter;
   libraryName?: string;
+  withError?: GracefulError;
 }
 
 /**
@@ -122,4 +123,10 @@ export interface UnknownFilter extends Filter {
  */
 export interface TautologyFilter extends Filter {
   type: 'truth';
+}
+
+export interface CQLInterval {
+  start?: string;
+  end?: string;
+  interval?: cql.Interval;
 }

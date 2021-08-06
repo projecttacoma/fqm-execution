@@ -23,7 +23,7 @@ import {
   NotNullFilter,
   AttributeFilter
 } from '../types/QueryFilterTypes';
-import { GracefulError } from '../types/GracefulError';
+import { GracefulError, isOfTypeGracefulError } from '../types/GracefulError';
 import { IDetectedIssue } from '@ahryman40k/ts-fhir-types/lib/R4';
 
 /**
@@ -392,8 +392,9 @@ export function calculateReasonDetail(
   retrieves: GapsDataTypeQuery[],
   improvementNotation: string,
   detailedResult?: DetailedPopulationGroupResult
-): GapsDataTypeQuery[] {
-  return retrieves.map(r => {
+): { results: GapsDataTypeQuery[]; withErrors: GracefulError[] } {
+  const withErrors: GracefulError[] = [];
+  const results = retrieves.map(r => {
     let reasonDetail: ReasonDetail;
     // If this is a positive improvement notation measure then we can look for reasons why the query wasn't satisfied
     if (improvementNotation === ImprovementNotation.POSITIVE) {
@@ -484,7 +485,7 @@ export function calculateReasonDetail(
                 // False clause means this specific filter was falsy
                 if (clauseResult && clauseResult.final === FinalResult.FALSE) {
                   const code = getGapReasonCode(f);
-                  if (code !== null) {
+                  if (!isOfTypeGracefulError(code)) {
                     // if this filter is filtering on an attribute of a resource then include info about the path to the
                     // attribute and reference the patient
                     if ((f as AttributeFilter).attribute) {
@@ -496,6 +497,8 @@ export function calculateReasonDetail(
                     } else {
                       reasonDetail.reasons.push({ code: code });
                     }
+                  } else {
+                    withErrors.push(code);
                   }
                 }
               }
@@ -518,9 +521,10 @@ export function calculateReasonDetail(
     // add the reason detail we calculated to the query info and retrieve and return it
     return { ...r, reasonDetail };
   });
+  return { results, withErrors };
 }
 
-function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | null {
+function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | GracefulError {
   switch (filter.type) {
     case 'equals':
     case 'in':
@@ -528,7 +532,6 @@ function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | null {
     case 'during':
       return CareGapReasonCode.DATEOUTOFRANGE;
     default:
-      console.warn(`unknown reasonCode mapping for filter type ${filter.type}`);
-      return null;
+      return { message: `unknown reasonCode mapping for filter type ${filter.type}` } as GracefulError;
   }
 }

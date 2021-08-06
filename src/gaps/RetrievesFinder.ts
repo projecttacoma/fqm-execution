@@ -12,6 +12,7 @@ import {
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 import { findLibraryReference, findValueSetReference } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
+import { GracefulError } from '../types/GracefulError';
 
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions
@@ -27,10 +28,10 @@ export function findRetrieves(
   allELM: ELM[],
   expr: ELMStatement | AnyELMExpression,
   queryLocalId?: string,
-  expressionStack: ExpressionStackEntry[] = []
-) {
+  expressionStack: ExpressionStackEntry[] = [],
+  withErrors: GracefulError[] = []
+): { results: DataTypeQuery[]; withErrors: GracefulError[] } {
   const results: DataTypeQuery[] = [];
-
   // Push this expression onto the stack of processed expressions
   if (expr.localId && expr.type) {
     expressionStack.push({
@@ -75,18 +76,16 @@ export function findRetrieves(
           queryLocalId = bottomExprs[0].localId;
           queryLibraryName = bottomExprs[0].libraryName;
         } else {
-          console.warn(
-            'Query is referenced in another query but not as a single source. Gaps output may be incomplete.'
-          );
+          withErrors.push({
+            message: 'Query is referenced in another query but not as a single source. Gaps output may be incomplete.'
+          } as GracefulError);
         }
       }
     }
 
     if (exprRet.codes?.type === 'ValueSetRef') {
       const codes = exprRet.codes as ELMValueSetRef;
-
       const valueSet = findValueSetReference(elm, allELM, codes);
-
       if (valueSet) {
         results.push({
           dataType,
@@ -98,6 +97,7 @@ export function findRetrieves(
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
+        withErrors.push(...withErrors);
       }
     } else if (
       exprRet.codes?.type === 'CodeRef' ||
@@ -126,12 +126,22 @@ export function findRetrieves(
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
+        withErrors.push(...withErrors);
       }
     }
   } else if (expr.type === 'Query') {
     // Queries have the source array containing the expressions
     (expr as ELMQuery).source?.forEach(s => {
-      results.push(...findRetrieves(elm, allELM, s.expression, (expr as ELMQuery).localId, [...expressionStack]));
+      const retrieves = findRetrieves(
+        elm,
+        allELM,
+        s.expression,
+        (expr as ELMQuery).localId,
+        [...expressionStack],
+        [...withErrors]
+      );
+      results.push(...retrieves.results);
+      withErrors.push(...retrieves.withErrors);
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
@@ -139,13 +149,31 @@ export function findRetrieves(
       const matchingLib = findLibraryReference(elm, allELM, (expr as ELMExpressionRef).libraryName || '');
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === (expr as ELMExpressionRef).name);
       if (matchingLib && exprRef) {
-        results.push(...findRetrieves(matchingLib, allELM, exprRef.expression, queryLocalId, [...expressionStack]));
+        const retrieves = findRetrieves(
+          matchingLib,
+          allELM,
+          exprRef.expression,
+          queryLocalId,
+          [...expressionStack],
+          [...withErrors]
+        );
+        results.push(...retrieves.results);
+        withErrors.push(...retrieves.withErrors);
       }
     } else {
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === (expr as ELMExpressionRef).name);
       if (exprRef) {
-        results.push(...findRetrieves(elm, allELM, exprRef.expression, queryLocalId, [...expressionStack]));
+        const retrieves = findRetrieves(
+          elm,
+          allELM,
+          exprRef.expression,
+          queryLocalId,
+          [...expressionStack],
+          [...withErrors]
+        );
+        results.push(...retrieves.results);
+        withErrors.push(...retrieves.withErrors);
       }
     }
   } else if ((expr as any).operand) {
@@ -153,11 +181,22 @@ export function findRetrieves(
     const anyExpr = expr as any;
     if (Array.isArray(anyExpr.operand)) {
       anyExpr.operand.forEach((e: any) => {
-        results.push(...findRetrieves(elm, allELM, e, queryLocalId, [...expressionStack]));
+        const retrieves = findRetrieves(elm, allELM, e, queryLocalId, [...expressionStack], [...withErrors]);
+        results.push(...retrieves.results);
+        withErrors.push(...retrieves.withErrors);
       });
     } else {
-      results.push(...findRetrieves(elm, allELM, anyExpr.operand, queryLocalId, [...expressionStack]));
+      const retrieves = findRetrieves(
+        elm,
+        allELM,
+        anyExpr.operand,
+        queryLocalId,
+        [...expressionStack],
+        [...withErrors]
+      );
+      results.push(...retrieves.results);
+      withErrors.push(...retrieves.withErrors);
     }
   }
-  return results;
+  return { results, withErrors };
 }

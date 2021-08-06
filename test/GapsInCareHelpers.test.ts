@@ -403,7 +403,7 @@ describe('Find Reason Detail', () => {
     }));
 
     const retrieves = calculateReasonDetail(gapQuery, ImprovementNotation.POSITIVE);
-    retrieves.forEach(r => {
+    retrieves.results.forEach(r => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBeTruthy();
     });
@@ -411,7 +411,7 @@ describe('Find Reason Detail', () => {
 
   test('retrieve false, not a near miss', () => {
     const retrieves = calculateReasonDetail(BASE_VS_RETRIEVE_RESULTS, ImprovementNotation.POSITIVE);
-    retrieves.forEach(r => {
+    retrieves.results.forEach(r => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBeFalsy();
     });
@@ -510,7 +510,7 @@ describe('Find Reason Detail', () => {
         }
       };
 
-      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
@@ -546,7 +546,7 @@ describe('Find Reason Detail', () => {
         }
       };
 
-      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
@@ -587,7 +587,7 @@ describe('Find Reason Detail', () => {
         }
       };
 
-      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
@@ -615,7 +615,7 @@ describe('Find Reason Detail', () => {
         }
       };
 
-      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
@@ -648,7 +648,7 @@ describe('Find Reason Detail', () => {
         }
       };
 
-      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
 
       expect(r.reasonDetail).toBeDefined();
       // If no specific reason details found, default is missing
@@ -694,7 +694,7 @@ describe('Find Reason Detail', () => {
         }
       };
 
-      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr);
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);

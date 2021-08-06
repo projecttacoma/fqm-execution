@@ -3,3 +3,10 @@ export interface GracefulError {
   type?: string;
   stackTrace?: string;
 }
+
+export const isOfTypeGracefulError = (tbd: any): tbd is GracefulError => {
+  if ((tbd as GracefulError).message) {
+    return true;
+  }
+  return false;
+};

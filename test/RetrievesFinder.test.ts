@@ -1,202 +1,227 @@
 import { getELMFixture } from './helpers/testHelpers';
 import { findRetrieves } from '../src/gaps/RetrievesFinder';
 import { DataTypeQuery } from '../src/types/Calculator';
+import { GracefulError } from '../src/types/GracefulError';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
 
 const allELM = [simpleQueryELM, simpleQueryELMDependency];
 
-const EXPECTED_VS_RETRIEVE_RESULTS: DataTypeQuery[] = [
-  {
-    dataType: 'Condition',
-    valueSet: 'http://example.com/test-vs',
-    retrieveLocalId: '14',
-    queryLocalId: undefined,
-    retrieveLibraryName: 'SimpleQueries',
-    queryLibraryName: 'SimpleQueries',
-    expressionStack: [
-      {
-        localId: '14',
-        libraryName: 'SimpleQueries',
-        type: 'Retrieve'
-      }
-    ],
-    path: 'code'
-  }
-];
+const EXPECTED_VS_RETRIEVE_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulError[] } = {
+  results: [
+    {
+      dataType: 'Condition',
+      valueSet: 'http://example.com/test-vs',
+      retrieveLocalId: '14',
+      queryLocalId: undefined,
+      retrieveLibraryName: 'SimpleQueries',
+      queryLibraryName: 'SimpleQueries',
+      expressionStack: [
+        {
+          localId: '14',
+          libraryName: 'SimpleQueries',
+          type: 'Retrieve'
+        }
+      ],
+      path: 'code'
+    }
+  ],
+  withErrors: []
+};
 
-const EXPECTED_VS_QUERY_RESULTS: DataTypeQuery[] = [
-  {
-    dataType: 'Condition',
-    valueSet: 'http://example.com/test-vs',
-    retrieveLocalId: '18',
-    queryLocalId: '24',
-    retrieveLibraryName: 'SimpleQueries',
-    queryLibraryName: 'SimpleQueries',
-    expressionStack: [
-      {
-        localId: '24',
-        libraryName: 'SimpleQueries',
-        type: 'Query'
-      },
-      {
-        localId: '18',
-        libraryName: 'SimpleQueries',
-        type: 'Retrieve'
-      }
-    ],
-    path: 'code'
-  }
-];
+const EXPECTED_VS_QUERY_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulError[] } = {
+  results: [
+    {
+      dataType: 'Condition',
+      valueSet: 'http://example.com/test-vs',
+      retrieveLocalId: '18',
+      queryLocalId: '24',
+      retrieveLibraryName: 'SimpleQueries',
+      queryLibraryName: 'SimpleQueries',
+      expressionStack: [
+        {
+          localId: '24',
+          libraryName: 'SimpleQueries',
+          type: 'Query'
+        },
+        {
+          localId: '18',
+          libraryName: 'SimpleQueries',
+          type: 'Retrieve'
+        }
+      ],
+      path: 'code'
+    }
+  ],
+  withErrors: []
+};
 
-const EXPECTED_CODE_RESULTS: DataTypeQuery[] = [
-  {
-    dataType: 'Procedure',
-    code: {
-      system: 'http://example.com',
-      code: 'test'
-    },
-    retrieveLocalId: '16',
-    queryLocalId: undefined,
-    retrieveLibraryName: 'SimpleQueries',
-    queryLibraryName: 'SimpleQueries',
-    expressionStack: [
-      {
-        localId: '16',
-        libraryName: 'SimpleQueries',
-        type: 'Retrieve'
-      }
-    ],
-    path: 'code'
-  }
-];
+const EXPECTED_CODE_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulError[] } = {
+  results: [
+    {
+      dataType: 'Procedure',
+      code: {
+        system: 'http://example.com',
+        code: 'test'
+      },
+      retrieveLocalId: '16',
+      queryLocalId: undefined,
+      retrieveLibraryName: 'SimpleQueries',
+      queryLibraryName: 'SimpleQueries',
+      expressionStack: [
+        {
+          localId: '16',
+          libraryName: 'SimpleQueries',
+          type: 'Retrieve'
+        }
+      ],
+      path: 'code'
+    }
+  ],
+  withErrors: []
+};
 
-const EXPECTED_EXPRESSIONREF_RESULTS: DataTypeQuery[] = [
-  {
-    dataType: 'Condition',
-    valueSet: 'http://example.com/test-vs',
-    retrieveLocalId: '14',
-    queryLocalId: undefined,
-    retrieveLibraryName: 'SimpleQueries',
-    queryLibraryName: 'SimpleQueries',
-    expressionStack: [
-      {
-        localId: '26',
-        libraryName: 'SimpleQueries',
-        type: 'ExpressionRef'
-      },
-      {
-        localId: '14',
-        libraryName: 'SimpleQueries',
-        type: 'Retrieve'
-      }
-    ],
-    path: 'code'
-  }
-];
+const EXPECTED_EXPRESSIONREF_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulError[] } = {
+  results: [
+    {
+      dataType: 'Condition',
+      valueSet: 'http://example.com/test-vs',
+      retrieveLocalId: '14',
+      queryLocalId: undefined,
+      retrieveLibraryName: 'SimpleQueries',
+      queryLibraryName: 'SimpleQueries',
+      expressionStack: [
+        {
+          localId: '26',
+          libraryName: 'SimpleQueries',
+          type: 'ExpressionRef'
+        },
+        {
+          localId: '14',
+          libraryName: 'SimpleQueries',
+          type: 'Retrieve'
+        }
+      ],
+      path: 'code'
+    }
+  ],
+  withErrors: []
+};
 
-const EXPECTED_DEPENDENCY_RESULTS: DataTypeQuery[] = [
-  {
-    dataType: 'Condition',
-    valueSet: 'http://example.com/test-vs-2',
-    retrieveLocalId: '4',
-    queryLocalId: undefined,
-    retrieveLibraryName: 'SimpleDep',
-    queryLibraryName: 'SimpleDep',
-    expressionStack: [
-      {
-        localId: '29',
-        libraryName: 'SimpleQueries',
-        type: 'ExpressionRef'
-      },
-      {
-        localId: '4',
-        libraryName: 'SimpleDep',
-        type: 'Retrieve'
-      }
-    ],
-    path: 'code'
-  }
-];
+const EXPECTED_DEPENDENCY_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulError[] } = {
+  results: [
+    {
+      dataType: 'Condition',
+      valueSet: 'http://example.com/test-vs-2',
+      retrieveLocalId: '4',
+      queryLocalId: undefined,
+      retrieveLibraryName: 'SimpleDep',
+      queryLibraryName: 'SimpleDep',
+      expressionStack: [
+        {
+          localId: '29',
+          libraryName: 'SimpleQueries',
+          type: 'ExpressionRef'
+        },
+        {
+          localId: '4',
+          libraryName: 'SimpleDep',
+          type: 'Retrieve'
+        }
+      ],
+      path: 'code'
+    }
+  ],
+  withErrors: []
+};
 
-const EXPECTED_QUERY_REFERENCING_QUERY_RESULTS: DataTypeQuery[] = [
-  {
-    dataType: 'Procedure',
-    valueSet: 'http://example.com/test-vs',
-    retrieveLocalId: '33',
-    queryLocalId: '46',
-    retrieveLibraryName: 'SimpleQueries',
-    queryLibraryName: 'SimpleQueries',
-    path: 'code',
-    expressionStack: [
-      {
-        localId: '49',
-        libraryName: 'SimpleQueries',
-        type: 'Exists'
-      },
-      {
-        localId: '48',
-        libraryName: 'SimpleQueries',
-        type: 'ExpressionRef'
-      },
-      {
-        localId: '46',
-        libraryName: 'SimpleQueries',
-        type: 'Query'
-      },
-      {
-        localId: '41',
-        libraryName: 'SimpleQueries',
-        type: 'ExpressionRef'
-      },
-      {
-        localId: '39',
-        libraryName: 'SimpleQueries',
-        type: 'Query'
-      },
-      {
-        localId: '33',
-        libraryName: 'SimpleQueries',
-        type: 'Retrieve'
-      }
-    ]
-  }
-];
+const EXPECTED_QUERY_REFERENCING_QUERY_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulError[] } = {
+  results: [
+    {
+      dataType: 'Procedure',
+      valueSet: 'http://example.com/test-vs',
+      retrieveLocalId: '33',
+      queryLocalId: '46',
+      retrieveLibraryName: 'SimpleQueries',
+      queryLibraryName: 'SimpleQueries',
+      path: 'code',
+      expressionStack: [
+        {
+          localId: '49',
+          libraryName: 'SimpleQueries',
+          type: 'Exists'
+        },
+        {
+          localId: '48',
+          libraryName: 'SimpleQueries',
+          type: 'ExpressionRef'
+        },
+        {
+          localId: '46',
+          libraryName: 'SimpleQueries',
+          type: 'Query'
+        },
+        {
+          localId: '41',
+          libraryName: 'SimpleQueries',
+          type: 'ExpressionRef'
+        },
+        {
+          localId: '39',
+          libraryName: 'SimpleQueries',
+          type: 'Query'
+        },
+        {
+          localId: '33',
+          libraryName: 'SimpleQueries',
+          type: 'Retrieve'
+        }
+      ]
+    }
+  ],
+  withErrors: []
+};
 
-const EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS: DataTypeQuery[] = [
-  {
-    dataType: 'Procedure',
-    valueSet: 'http://example.com/test-vs-2',
-    retrieveLocalId: '6',
-    queryLocalId: '65',
-    retrieveLibraryName: 'SimpleDep',
-    queryLibraryName: 'SimpleQueries',
-    path: 'code',
-    expressionStack: [
-      {
-        localId: '65',
-        libraryName: 'SimpleQueries',
-        type: 'Query'
-      },
-      {
-        localId: '59',
-        libraryName: 'SimpleQueries',
-        type: 'ExpressionRef'
-      },
-      {
-        localId: '12',
-        libraryName: 'SimpleDep',
-        type: 'Query'
-      },
-      {
-        localId: '6',
-        libraryName: 'SimpleDep',
-        type: 'Retrieve'
-      }
-    ]
-  }
-];
+const EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS: {
+  results: DataTypeQuery[];
+  withErrors: GracefulError[];
+} = {
+  results: [
+    {
+      dataType: 'Procedure',
+      valueSet: 'http://example.com/test-vs-2',
+      retrieveLocalId: '6',
+      queryLocalId: '65',
+      retrieveLibraryName: 'SimpleDep',
+      queryLibraryName: 'SimpleQueries',
+      path: 'code',
+      expressionStack: [
+        {
+          localId: '65',
+          libraryName: 'SimpleQueries',
+          type: 'Query'
+        },
+        {
+          localId: '59',
+          libraryName: 'SimpleQueries',
+          type: 'ExpressionRef'
+        },
+        {
+          localId: '12',
+          libraryName: 'SimpleDep',
+          type: 'Query'
+        },
+        {
+          localId: '6',
+          libraryName: 'SimpleDep',
+          type: 'Retrieve'
+        }
+      ]
+    }
+  ],
+  withErrors: []
+};
 
 describe('Find Numerator Queries', () => {
   test('simple valueset lookup', () => {
