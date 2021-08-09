@@ -33,7 +33,7 @@ import {
   AndFilter,
   AnyFilter,
   AttributeFilter,
-  CQLInterval,
+  ParsedFilterInterval,
   DuringFilter,
   EqualsFilter,
   InFilter,
@@ -729,7 +729,7 @@ export function executeIntervalELM(
   intervalExpr: ELMInterval,
   library: ELM,
   parameters: any
-): CQLInterval | GracefulError {
+): ParsedFilterInterval | GracefulError {
   // make sure the interval created based on property usage from the query source
   const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
   const withError: GracefulError = {

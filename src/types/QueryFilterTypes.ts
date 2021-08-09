@@ -125,7 +125,7 @@ export interface TautologyFilter extends Filter {
   type: 'truth';
 }
 
-export interface CQLInterval {
+export interface ParsedFilterInterval {
   start?: string;
   end?: string;
   interval?: cql.Interval;
