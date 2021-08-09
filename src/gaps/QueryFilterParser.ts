@@ -33,6 +33,7 @@ import {
   AndFilter,
   AnyFilter,
   AttributeFilter,
+  ParsedFilterInterval,
   DuringFilter,
   EqualsFilter,
   InFilter,
@@ -45,6 +46,7 @@ import {
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
+import { GracefulError, isOfTypeGracefulError } from '../types/GracefulError';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
@@ -135,14 +137,16 @@ export function parseQueryInfo(
             queryInfo.filter = combinedAnd;
           }
         } else {
-          console.error(
-            `query source referenced a statement that is not a query. ${query.localId} in ${library.library.identifier.id}`
-          );
+          const withError: GracefulError = {
+            message: `query source referenced a statement that is not a query. ${query.localId} in ${library.library.identifier.id}`
+          };
+          queryInfo.withError = withError;
         }
       } else {
-        console.error(
-          `query source referenced a statement that could not be found. ${query.localId} in ${library.library.identifier.id}`
-        );
+        const withError: GracefulError = {
+          message: `query source referenced a statement that could not be found. ${query.localId} in ${library.library.identifier.id}`
+        };
+        queryInfo.withError = withError;
       }
     }
     return queryInfo;
@@ -246,7 +250,7 @@ export function interpretExpression(
       returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
       break;
     default:
-      console.error(`Don't know how to parse ${expression.type} expression.`);
+      const withError: GracefulError = { message: `Don't know how to parse ${expression.type} expression.` };
       // Look for a property (source attribute) usage in the expression tree. This can denote an
       // attribute on a resource was checked but we don't know what it was checked for.
       const propUsage = findPropertyUsage(expression, expression.localId);
@@ -254,6 +258,7 @@ export function interpretExpression(
       if (propUsage) {
         returnFilter = propUsage;
       }
+      returnFilter.withError = withError;
   }
   // If we cannot make sense of this expression or find a parameter usage in it, then we should return
   // an UnknownFilter to denote something is done here that we could not interpret.
@@ -377,7 +382,9 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
           break;
       }
     } else {
-      console.warn(`do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`);
+      return {
+        message: `do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`
+      } as GracefulError;
     }
   }
 }
@@ -392,6 +399,7 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
  * @returns The interpreted filter. This may be a TautologyFilter that can be removed.
  */
 export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | UnknownFilter {
+  const errorInfo = {} as GracefulError;
   if (not.operand.type === 'IsNull') {
     const isNull = not.operand as ELMIsNull;
     if (isNull.operand.type === 'Property') {
@@ -414,12 +422,12 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
         return { type: 'truth' };
       }
     } else {
-      console.warn(`could not handle 'isNull' inside 'not' for expression type ${isNull.operand.type}`);
+      errorInfo.message = `could not handle 'isNull' inside 'not' for expression type ${isNull.operand.type}`;
     }
   } else {
-    console.warn(`could not handle 'not' for expression type ${not.operand.type}`);
+    errorInfo.message = `could not handle 'not' for expression type ${not.operand.type}`;
   }
-  return { type: 'unknown' };
+  return { type: 'unknown', withError: errorInfo };
 }
 
 /**
@@ -431,7 +439,7 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
  * @returns The filter representation.
  */
 export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
@@ -439,8 +447,12 @@ export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsF
   }
 
   if (propRef == null) {
-    console.warn('could not resolve property ref for Equivalent');
-    return { type: 'unknown' };
+    const withError: GracefulError = { message: 'could not resolve property ref for Equivalent' };
+    return { type: 'unknown', withError };
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   if (equal.operand[1].type == 'Literal') {
@@ -454,8 +466,8 @@ export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsF
         localId: equal.localId
       };
     } else {
-      console.warn('Property reference scope or literal value were not found.');
-      return { type: 'unknown' };
+      const withError: GracefulError = { message: 'Property reference scope or literal value were not found.' };
+      return { type: 'unknown', withError };
     }
   }
 
@@ -470,8 +482,8 @@ export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsF
         localId: equal.localId
       };
     } else {
-      console.warn('Property reference scope was not found.');
-      return { type: 'unknown' };
+      const withError: GracefulError = { message: 'Property reference scope was not found.' };
+      return { type: 'unknown', withError };
     }
   }
   return { type: 'unknown' };
@@ -512,11 +524,16 @@ export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
  * @returns Filter representing the equal filter.
  */
 export function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
+  let withError: GracefulError = { message: 'An unknown error ocurred.' };
   if (equal.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   let literal: ELMLiteral | null = null;
@@ -533,9 +550,9 @@ export function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | Un
       localId: equal.localId
     };
   } else {
-    console.log('could not find attribute or literal for Equal');
+    withError = { message: 'could not find attribute or literal for Equal' };
   }
-  return { type: 'unknown' };
+  return { type: 'unknown', withError };
 }
 
 /**
@@ -552,7 +569,8 @@ export function interpretIncludedIn(
   library: ELM,
   parameters: any
 ): DuringFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
+  let withError: GracefulError = { message: 'An unknown error occured' };
   if (includedIn.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
   } else if (includedIn.operand[0].type == 'Property') {
@@ -560,10 +578,14 @@ export function interpretIncludedIn(
   }
 
   if (propRef == null) {
-    console.warn(
-      `could not resolve property ref for IncludedIn:${includedIn.localId}. first operand is a ${includedIn.operand[0].type}`
-    );
-    return { type: 'unknown' };
+    const withError: GracefulError = {
+      message: `could not resolve property ref for IncludedIn:${includedIn.localId}. first operand is a ${includedIn.operand[0].type}`
+    };
+    return { type: 'unknown', withError };
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   if (includedIn.operand[1].type == 'ParameterRef') {
@@ -574,8 +596,10 @@ export function interpretIncludedIn(
       valuePeriod.start = (parameters[paramName] as cql.Interval).start().toString().replace('+00:00', 'Z');
       valuePeriod.end = (parameters[paramName] as cql.Interval).end().toString().replace('+00:00', 'Z');
     } else {
-      console.warn(`could not find parameter "${paramName}" or it was not an interval.`);
-      return { type: 'unknown', alias: propRef.scope, attribute: propRef.path };
+      withError = {
+        message: `could not find parameter "${paramName}" or it was not an interval.`
+      };
+      return { type: 'unknown', alias: propRef.scope, attribute: propRef.path, withError };
     }
     if (propRef.scope) {
       return {
@@ -586,12 +610,14 @@ export function interpretIncludedIn(
         localId: includedIn.localId
       };
     } else {
-      console.warn('could not find scope of property ref');
+      withError = { message: 'could not find scope of property ref' };
     }
   } else {
-    console.warn('could not resolve IncludedIn operand[1] ' + includedIn.operand[1].type);
+    withError = {
+      message: 'could not resolve IncludedIn operand[1] ' + includedIn.operand[1].type
+    };
   }
-  return { type: 'unknown' };
+  return { type: 'unknown', withError };
 }
 
 /**
@@ -605,7 +631,8 @@ export function interpretIncludedIn(
  * @returns Filter representation of the In clause.
  */
 export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
+  const withError: GracefulError = { message: 'An unknown error occured' };
   if (inExpr.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {
@@ -618,7 +645,8 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
     } else if (startOrEnd.operand.type == 'Property') {
       propRef = startOrEnd.operand as ELMProperty;
     }
-    if (propRef) {
+
+    if (propRef && !isOfTypeGracefulError(propRef)) {
       propRef = {
         type: 'Property',
         path: propRef?.path + suffix,
@@ -631,17 +659,21 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
   }
 
   if (propRef == null) {
-    console.warn(
-      `could not resolve property ref for In:${inExpr.localId}. first operand is a ${inExpr.operand[0].type}`
-    );
+    withError.message = `could not resolve property ref for In:${inExpr.localId}. first operand is a ${inExpr.operand[0].type}`;
 
     const foundPropUsage = findPropertyUsage(inExpr, inExpr.localId);
     if (foundPropUsage) {
-      console.warn(`  found property ref "${foundPropUsage.alias}.${foundPropUsage.attribute}" in first operand.`);
-      return foundPropUsage;
+      withError.message = withError.message.concat(
+        '\n',
+        `  found property ref "${foundPropUsage.alias}.${foundPropUsage.attribute}" in first operand.`
+      );
+      return { ...foundPropUsage, withError };
     }
 
-    return { type: 'unknown' };
+    return { type: 'unknown', withError };
+  }
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   if (inExpr.operand[1].type == 'List') {
@@ -654,18 +686,19 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
         localId: inExpr.localId
       };
     } else {
-      console.warn('Could not find scope for property reference');
-      return { type: 'unknown' };
+      withError.message = 'Could not find scope for property reference';
+      return { type: 'unknown', withError };
     }
   } else if (inExpr.operand[1].type == 'Interval') {
     // execute the interval creation elm.
     const period = executeIntervalELM(inExpr.operand[1] as ELMInterval, library, parameters);
-    if (period == null) {
+    if (isOfTypeGracefulError(period)) {
       return {
         type: 'unknown',
         localId: inExpr.localId,
         alias: propRef.scope,
-        attribute: propRef.path
+        attribute: propRef.path,
+        withError: period
       };
     } else if (propRef.scope) {
       return {
@@ -675,12 +708,12 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
         valuePeriod: period
       };
     } else {
-      console.warn('could not resolve property scope');
+      withError.message = 'could not resolve property scope';
     }
   } else {
-    console.warn('could not resolve In operand[1] ' + inExpr.operand[1].type);
+    withError.message = 'could not resolve In operand[1] ' + inExpr.operand[1].type;
   }
-  return { type: 'unknown' };
+  return { type: 'unknown', withError };
 }
 
 /**
@@ -696,16 +729,15 @@ export function executeIntervalELM(
   intervalExpr: ELMInterval,
   library: ELM,
   parameters: any
-): {
-  start?: string;
-  end?: string;
-  interval?: cql.Interval;
-} | null {
+): ParsedFilterInterval | GracefulError {
   // make sure the interval created based on property usage from the query source
   const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
+  const withError: GracefulError = {
+    message: 'An unknown error occured while calculating CQL intervals based on measurement period'
+  };
   if (propRefInInterval) {
-    console.warn('cannot handle intervals constructed on query data right now');
-    return null;
+    withError.message = 'cannot handle intervals constructed on query data right now';
+    return withError;
   }
 
   // build an expression that has the interval creation and
@@ -719,7 +751,7 @@ export function executeIntervalELM(
       interval
     };
   } else {
-    return null;
+    return withError;
   }
 }
 
@@ -753,6 +785,7 @@ export function interpretGreaterOrEqual(
   patient: R4.IPatient
 ): AnyFilter {
   // look at first param if it is function ref to calendar age in years at.
+  const withError: GracefulError = { message: 'An unknown error occured while interpretting greater or equal filter' };
   if (greaterOrEqualExpr.operand[0].type === 'FunctionRef') {
     const functionRef = greaterOrEqualExpr.operand[0] as ELMFunctionRef;
     // Check if it is "Global.CalendarAgeInYearsAt"
@@ -768,7 +801,7 @@ export function interpretGreaterOrEqual(
       ) {
         // figure out what the attribute on the property is
         const attrExpr = calAgeRef.operand[1];
-        let propRef: ELMProperty | null = null;
+        let propRef: ELMProperty | GracefulError | null = null;
         if (attrExpr.type === 'FunctionRef') {
           propRef = interpretFunctionRef(attrExpr as ELMFunctionRef, library);
         } else if (attrExpr.type === 'Property') {
@@ -780,7 +813,8 @@ export function interpretGreaterOrEqual(
           } else if (attrExpr.operand.type == 'Property') {
             propRef = attrExpr.operand as ELMProperty;
           }
-          if (propRef) {
+
+          if (propRef && !isOfTypeGracefulError(propRef)) {
             propRef = {
               type: 'Property',
               path: propRef?.path + suffix,
@@ -794,10 +828,12 @@ export function interpretGreaterOrEqual(
 
         // if propRef is defined that means we found the attribute on the source resource
         if (propRef == null) {
-          console.warn('Could not resolve the property referenced in CalendarAgeInYearsAt');
-          return { type: 'unknown' };
+          withError.message = 'Could not resolve the property referenced in CalendarAgeInYearsAt';
+          return { type: 'unknown', withError };
         }
-
+        if (isOfTypeGracefulError(propRef)) {
+          return { type: 'unknown', withError: propRef };
+        }
         // If the second operand in the GreaterOrEqual expression is a literal then we can move forward using the literal
         // as the number of years to add to the birthDate.
         if (greaterOrEqualExpr.operand[1].type === 'Literal') {
@@ -827,23 +863,25 @@ export function interpretGreaterOrEqual(
               notes: `Compares against the patient's birthDate (${years} years)`
             };
           } else {
-            console.warn('Patient data had no birthDate');
+            withError.message = 'Patient data had no birthDate';
             return {
               type: 'unknown',
               alias: propRef.scope,
               attribute: propRef.path,
               localId: greaterOrEqualExpr.localId,
-              notes: "Compares against the patient's birthDate. But patient did not have birthDate."
+              notes: "Compares against the patient's birthDate. But patient did not have birthDate.",
+              withError
             };
           }
         }
       }
     } else {
       // If the function referenced is not "CalendarAgeInYearsAt".
-      return { type: 'unknown' };
+      withError.message = 'Function referenced is not "CalendarAgeInYearsAt"';
+      return { type: 'unknown', withError };
     }
   }
 
   // Fallback if the first operand cannot be parsed or parsing falls through.
-  return { type: 'unknown' };
+  return { type: 'unknown', withError };
 }

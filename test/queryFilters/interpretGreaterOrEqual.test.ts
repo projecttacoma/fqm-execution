@@ -340,7 +340,8 @@ describe('interpretGreaterOrEqual', () => {
       alias: 'HPVTest',
       attribute: 'effective.start',
       localId: '143',
-      notes: "Compares against the patient's birthDate. But patient did not have birthDate."
+      notes: "Compares against the patient's birthDate. But patient did not have birthDate.",
+      withError: { message: 'Patient data had no birthDate' }
     });
   });
 
@@ -353,7 +354,8 @@ describe('interpretGreaterOrEqual', () => {
     ) as UnknownFilter;
 
     expect(filter).toEqual({
-      type: 'unknown'
+      type: 'unknown',
+      withError: { message: 'An unknown error occured while interpretting greater or equal filter' }
     });
   });
 
@@ -366,7 +368,8 @@ describe('interpretGreaterOrEqual', () => {
     ) as UnknownFilter;
 
     expect(filter).toEqual({
-      type: 'unknown'
+      type: 'unknown',
+      withError: { message: 'An unknown error occured while interpretting greater or equal filter' }
     });
   });
 
@@ -379,7 +382,8 @@ describe('interpretGreaterOrEqual', () => {
     ) as UnknownFilter;
 
     expect(filter).toEqual({
-      type: 'unknown'
+      type: 'unknown',
+      withError: { message: 'Function referenced is not "CalendarAgeInYearsAt"' }
     });
   });
 });

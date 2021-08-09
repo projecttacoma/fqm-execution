@@ -167,11 +167,11 @@ export function findLibraryReference(mainELM: ELM, allELM: ELM[], localIdentifie
 export function findValueSetReference(mainELM: ELM, allELM: ELM[], valueSetRef: ELMValueSetRef): ELMValueSet | null {
   let matchingLib: ELM | null = null;
   // ValueSet exists in other lib, need to follow library reference first
+
   if (valueSetRef.libraryName) {
     matchingLib = findLibraryReference(mainELM, allELM, valueSetRef.libraryName);
   } else {
     matchingLib = mainELM;
   }
-
   return matchingLib?.library.valueSets?.def.find(v => v.name === valueSetRef.name) || null;
 }

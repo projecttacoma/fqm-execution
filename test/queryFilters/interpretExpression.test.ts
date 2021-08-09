@@ -38,7 +38,8 @@ describe('interpretExpression', () => {
       localId: undefined,
       type: 'unknown',
       attribute: 'onset',
-      alias: 'C'
+      alias: 'C',
+      withError: { message: "Don't know how to parse FunctionRef expression." }
     });
   });
 
@@ -65,7 +66,8 @@ describe('interpretExpression', () => {
     expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
       libraryName: 'ComplexQueries',
       localId: undefined,
-      type: 'unknown'
+      type: 'unknown',
+      withError: { message: "Don't know how to parse FunctionRef expression." }
     });
   });
 });

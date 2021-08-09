@@ -23,6 +23,8 @@ import {
   NotNullFilter,
   AttributeFilter
 } from '../types/QueryFilterTypes';
+import { GracefulError, isOfTypeGracefulError } from '../types/GracefulError';
+import { IDetectedIssue } from '@ahryman40k/ts-fhir-types/lib/R4';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -68,7 +70,7 @@ export function generateDetectedIssueResources(
   queries: GapsDataTypeQuery[],
   measureReport: R4.IMeasureReport,
   improvementNotation: string
-): R4.IDetectedIssue[] {
+): { detectedIssues: R4.IDetectedIssue[]; withErrors: GracefulError[] } {
   const relevantGapQueries = queries.filter(q =>
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
@@ -77,7 +79,7 @@ export function generateDetectedIssueResources(
   const guidanceResponses = groupedQueries.map(q =>
     generateGuidanceResponses(q, measureReport.measure, improvementNotation)
   );
-  return guidanceResponses.map(gr => {
+  const formattedResponses: IDetectedIssue[] = guidanceResponses.map(gr => {
     return {
       resourceType: 'DetectedIssue',
       id: uuidv4(),
@@ -91,14 +93,21 @@ export function generateDetectedIssueResources(
           }
         ]
       },
-      evidence: gr.map(gr => {
+      evidence: gr.guidanceResponses.map(gr => {
         return {
           detail: [{ reference: `#${gr.id}` }]
         };
       }),
-      contained: gr
+      contained: gr.guidanceResponses
     };
   });
+  //accumulate all error info into a single array
+  const errorInfo = guidanceResponses.reduce((acc: GracefulError[], e) => {
+    acc.push(...e.withErrors);
+    return acc;
+  }, []);
+
+  return { detectedIssues: formattedResponses, withErrors: errorInfo };
 }
 
 /**
@@ -158,6 +167,14 @@ function stackEntryString(entry: ExpressionStackEntry): string {
   return JSON.stringify(entry);
 }
 
+function didEncounterDetailedValueFilterErrors(tbd: R4.IExtension | GracefulError): tbd is GracefulError {
+  if ((tbd as GracefulError).message) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 /**
  * Generate FHIR GuidanceResponse resources for queries that are gaps
  *
@@ -170,7 +187,8 @@ export function generateGuidanceResponses(
   queries: GapsDataTypeQuery[],
   measureURL: string,
   improvementNotation: string
-): R4.IGuidanceResponse[] {
+): { guidanceResponses: R4.IGuidanceResponse[]; withErrors: GracefulError[] } {
+  const withErrors: GracefulError[] = [];
   const guidanceResponses: R4.IGuidanceResponse[] = queries.map(q => {
     const dataTypeCodeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
       path: 'code'
@@ -239,7 +257,9 @@ export function generateGuidanceResponses(
           }
         } else {
           const valueFilter = generateDetailedValueFilter(df);
-          if (valueFilter) {
+          if (didEncounterDetailedValueFilterErrors(valueFilter)) {
+            withErrors.push(valueFilter);
+          } else if (valueFilter) {
             if (dataRequirement.extension) {
               dataRequirement.extension.push(valueFilter);
             } else {
@@ -260,7 +280,7 @@ export function generateGuidanceResponses(
     };
     return guidanceResponse;
   });
-  return guidanceResponses;
+  return { guidanceResponses, withErrors };
 }
 
 /**
@@ -372,8 +392,9 @@ export function calculateReasonDetail(
   retrieves: GapsDataTypeQuery[],
   improvementNotation: string,
   detailedResult?: DetailedPopulationGroupResult
-): GapsDataTypeQuery[] {
-  return retrieves.map(r => {
+): { results: GapsDataTypeQuery[]; withErrors: GracefulError[] } {
+  const withErrors: GracefulError[] = [];
+  const results = retrieves.map(r => {
     let reasonDetail: ReasonDetail;
     // If this is a positive improvement notation measure then we can look for reasons why the query wasn't satisfied
     if (improvementNotation === ImprovementNotation.POSITIVE) {
@@ -464,7 +485,7 @@ export function calculateReasonDetail(
                 // False clause means this specific filter was falsy
                 if (clauseResult && clauseResult.final === FinalResult.FALSE) {
                   const code = getGapReasonCode(f);
-                  if (code !== null) {
+                  if (!isOfTypeGracefulError(code)) {
                     // if this filter is filtering on an attribute of a resource then include info about the path to the
                     // attribute and reference the patient
                     if ((f as AttributeFilter).attribute) {
@@ -476,6 +497,8 @@ export function calculateReasonDetail(
                     } else {
                       reasonDetail.reasons.push({ code: code });
                     }
+                  } else {
+                    withErrors.push(code);
                   }
                 }
               }
@@ -498,9 +521,10 @@ export function calculateReasonDetail(
     // add the reason detail we calculated to the query info and retrieve and return it
     return { ...r, reasonDetail };
   });
+  return { results, withErrors };
 }
 
-function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | null {
+function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | GracefulError {
   switch (filter.type) {
     case 'equals':
     case 'in':
@@ -508,7 +532,6 @@ function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | null {
     case 'during':
       return CareGapReasonCode.DATEOUTOFRANGE;
     default:
-      console.warn(`unknown reasonCode mapping for filter type ${filter.type}`);
-      return null;
+      return { message: `unknown reasonCode mapping for filter type ${filter.type}` } as GracefulError;
   }
 }
