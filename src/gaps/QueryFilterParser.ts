@@ -382,7 +382,9 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
           break;
       }
     } else {
-      //(`do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`);
+      return {
+        message: `do not know how to interpret function ref ${functionRef.libraryName}."${functionRef.name}"`
+      } as GracefulError;
     }
   }
 }
@@ -437,7 +439,7 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
  * @returns The filter representation.
  */
 export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsFilter | InFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
   if (equal.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
@@ -447,6 +449,10 @@ export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsF
   if (propRef == null) {
     const withError: GracefulError = { message: 'could not resolve property ref for Equivalent' };
     return { type: 'unknown', withError };
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   if (equal.operand[1].type == 'Literal') {
@@ -518,12 +524,16 @@ export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
  * @returns Filter representing the equal filter.
  */
 export function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
   let withError: GracefulError = { message: 'An unknown error ocurred.' };
   if (equal.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(equal.operand[0] as ELMFunctionRef, library);
   } else if (equal.operand[0].type == 'Property') {
     propRef = equal.operand[0] as ELMProperty;
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   let literal: ELMLiteral | null = null;
@@ -559,7 +569,7 @@ export function interpretIncludedIn(
   library: ELM,
   parameters: any
 ): DuringFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
   let withError: GracefulError = { message: 'An unknown error occured' };
   if (includedIn.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
@@ -572,6 +582,10 @@ export function interpretIncludedIn(
       message: `could not resolve property ref for IncludedIn:${includedIn.localId}. first operand is a ${includedIn.operand[0].type}`
     };
     return { type: 'unknown', withError };
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   if (includedIn.operand[1].type == 'ParameterRef') {
@@ -617,7 +631,7 @@ export function interpretIncludedIn(
  * @returns Filter representation of the In clause.
  */
 export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
-  let propRef: ELMProperty | null = null;
+  let propRef: ELMProperty | GracefulError | null = null;
   const withError: GracefulError = { message: 'An unknown error occured' };
   if (inExpr.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
@@ -631,7 +645,8 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
     } else if (startOrEnd.operand.type == 'Property') {
       propRef = startOrEnd.operand as ELMProperty;
     }
-    if (propRef) {
+
+    if (propRef && !isOfTypeGracefulError(propRef)) {
       propRef = {
         type: 'Property',
         path: propRef?.path + suffix,
@@ -656,6 +671,9 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
     }
 
     return { type: 'unknown', withError };
+  }
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
   }
 
   if (inExpr.operand[1].type == 'List') {
@@ -783,7 +801,7 @@ export function interpretGreaterOrEqual(
       ) {
         // figure out what the attribute on the property is
         const attrExpr = calAgeRef.operand[1];
-        let propRef: ELMProperty | null = null;
+        let propRef: ELMProperty | GracefulError | null = null;
         if (attrExpr.type === 'FunctionRef') {
           propRef = interpretFunctionRef(attrExpr as ELMFunctionRef, library);
         } else if (attrExpr.type === 'Property') {
@@ -795,7 +813,8 @@ export function interpretGreaterOrEqual(
           } else if (attrExpr.operand.type == 'Property') {
             propRef = attrExpr.operand as ELMProperty;
           }
-          if (propRef) {
+
+          if (propRef && !isOfTypeGracefulError(propRef)) {
             propRef = {
               type: 'Property',
               path: propRef?.path + suffix,
@@ -812,7 +831,9 @@ export function interpretGreaterOrEqual(
           withError.message = 'Could not resolve the property referenced in CalendarAgeInYearsAt';
           return { type: 'unknown', withError };
         }
-
+        if (isOfTypeGracefulError(propRef)) {
+          return { type: 'unknown', withError: propRef };
+        }
         // If the second operand in the GreaterOrEqual expression is a literal then we can move forward using the literal
         // as the number of years to add to the birthDate.
         if (greaterOrEqualExpr.operand[1].type === 'Literal') {
