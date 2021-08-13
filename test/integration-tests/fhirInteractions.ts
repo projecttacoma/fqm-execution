@@ -1,5 +1,5 @@
-import { calculateIndividualMeasureReports } from '../calculation/Calculator';
-import { CalculationOptions } from '../types/Calculator';
+import { calculateIndividualMeasureReports } from '../../src/calculation/Calculator';
+import { CalculationOptions } from '../../src/types/Calculator';
 import { R4 } from '@ahryman40k/ts-fhir-types';
 import fs from 'fs';
 

@@ -1,0 +1,7 @@
+
+
+{
+    "extends": "./tsconfig.json",
+    "exclude": ["../build", "../node_modules"],
+  "include": ["../src", "integration-tests"],
+  }
