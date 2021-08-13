@@ -21,11 +21,3 @@ jobs:
         echo ${GITHUB_SHA}
         echo "gitleaks --repo=${REPO} -v --pretty --redact --commit=${GITHUB_SHA} --config=gitleaks.toml"
         ./gitleaks --repo=${REPO} -v --pretty --redact --commit=${GITHUB_SHA} --config=gitleaks.toml --access-token=${{ secrets.ACCESS_TOKEN_GITLEAKS }}
-    - name: Slack notification
-      if: failure()
-      env:
-        SLACK_WEBHOOK_GITLEAKS: ${{ secrets.SLACK_WEBHOOK_GITLEAKS }}
-      uses: Ilshidur/action-slack@master
-      with:
-        args: 'Potential Secrets found in: https://github.com/{{ GITHUB_REPOSITORY }}/commit/{{ GITHUB_SHA }} Link to build with full gitleaks output: https://github.com/{{ GITHUB_REPOSITORY }}/commit/{{ GITHUB_SHA }}/checks'
-
