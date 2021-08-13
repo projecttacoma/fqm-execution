@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - run: sudo chmod +x ./src/integration-tests/setup.sh
-      - run: ./src/integration-tests/setup.sh
-      - run: sudo chmod +x ./src/integration-tests/test_measures.sh
-      - run: ./src/integration-tests/test_measures.sh ${{ matrix.measure }}
+      - run: sudo chmod +x ./test/integration-tests/setup.sh
+      - run: ./test/integration-tests/setup.sh
+      - run: sudo chmod +x ./test/integration-tests/test_measures.sh
+      - run: ./test/integration-tests/test_measures.sh ${{ matrix.measure }}

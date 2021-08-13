@@ -54,7 +54,7 @@
     "test:coverage": "jest --collectCoverage --silent",
     "test:watch": "jest --watchAll",
     "test:watch:coverage": "jest --watchAll --collectCoverage",
-    "test:integration": "ts-node --files ./src/integration-tests/run_tests.ts",
+    "test:integration": "ts-node --files ./test/integration-tests/run_tests.ts",
     "check": "npm run test && npm run lint && npm run prettier",
     "prepare": "npm run build"
   },
