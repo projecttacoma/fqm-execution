@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DataTypeQuery } from '../types/Calculator';
 import { GracefulError } from '../types/GracefulError';
 import {
@@ -39,7 +38,7 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
 export function generateDetailedCodeFilter(
   filter: EqualsFilter | InFilter,
   dataType?: string
-): R4.IDataRequirement_CodeFilter | null {
+): fhir4.DataRequirementCodeFilter | null {
   const system: string | null = dataType ? codeLookup(dataType, filter.attribute) : null;
   if (filter.type === 'equals') {
     const equalsFilter = filter as EqualsFilter;
@@ -82,7 +81,7 @@ export function generateDetailedCodeFilter(
  * @param filter the "during" filter to map
  * @returns dateFilter for the dateFilter list of dataRequirement
  */
-export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequirement_DateFilter {
+export function generateDetailedDateFilter(filter: DuringFilter): fhir4.DataRequirementDateFilter {
   return {
     path: filter.attribute,
     valuePeriod: { start: filter.valuePeriod.start, end: filter.valuePeriod.end }
@@ -95,7 +94,7 @@ export function generateDetailedDateFilter(filter: DuringFilter): R4.IDataRequir
  * @param filter the filter to map
  * @returns extension for the valueFilter list of dataRequirement
  */
-export function generateDetailedValueFilter(filter: Filter): R4.IExtension | GracefulError {
+export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | GracefulError {
   if (filter.type === 'notnull') {
     const notnullFilter = filter as NotNullFilter;
     return {
@@ -117,9 +116,9 @@ export function generateDetailedValueFilter(filter: Filter): R4.IExtension | Gra
  * that would be requested from a FHIR server for that query.
  * Currently supports
  * @param retrieve a DataTypeQuery that represents a retrieve for a FHIR Resource with certain attributes
- * @returns R4.IDataRequirement with as much attribute data as we can add
+ * @returns fhir4.DataRequirement with as much attribute data as we can add
  */
-export function generateDataRequirement(retrieve: DataTypeQuery): R4.IDataRequirement {
+export function generateDataRequirement(retrieve: DataTypeQuery): fhir4.DataRequirement {
   if (retrieve.valueSet) {
     return {
       type: retrieve.dataType,
@@ -136,7 +135,7 @@ export function generateDataRequirement(retrieve: DataTypeQuery): R4.IDataRequir
       codeFilter: [
         {
           path: retrieve.path,
-          code: [retrieve.code as R4.ICoding]
+          code: [retrieve.code as fhir4.Coding]
         }
       ]
     };

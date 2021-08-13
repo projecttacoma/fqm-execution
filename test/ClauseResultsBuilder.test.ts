@@ -1,12 +1,12 @@
 import * as ClauseResultsBuilder from '../src/calculation/ClauseResultsBuilder';
 import { getJSONFixture, getELMFixture } from './helpers/testHelpers';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import { PopulationResult, StatementResult } from '../src/types/Calculator';
 import { PopulationType, Relevance, FinalResult } from '../src/types/Enums';
 import * as cql from '../src/types/CQLTypes';
 
-type MeasureWithGroup = R4.IMeasure & {
-  group: R4.IMeasure_Group[];
+type MeasureWithGroup = fhir4.Measure & {
+  group: fhir4.MeasureGroup[];
 };
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWithGroup;

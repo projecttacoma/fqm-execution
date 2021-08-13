@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
 
 // import { PatientSource } from 'cql-exec-fhir';
@@ -11,10 +10,10 @@ import { generateELMJSONFunction } from '../calculation/DetailedResultsBuilder';
 import { ValueSetResolver } from './ValueSetResolver';
 
 export async function execute(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   options: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = [],
+  valueSetCache: fhir4.ValueSet[] = [],
   debugObject?: DebugOutput
 ): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
@@ -26,8 +25,8 @@ export async function execute(
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
   // check for any missing valuesets
-  const valueSets: R4.IValueSet[] = [];
-  const newCache: R4.IValueSet[] = [];
+  const valueSets: fhir4.ValueSet[] = [];
+  const newCache: fhir4.ValueSet[] = [];
 
   // Pass in existing cache to attempt any missing resolutions
   const missingVS = getMissingDependentValuesets(measureBundle, [...valueSetCache]);
@@ -55,7 +54,7 @@ export async function execute(
 
   measureBundle.entry?.forEach(e => {
     if (e.resource?.resourceType === 'ValueSet') {
-      valueSets.push(e.resource as R4.IValueSet);
+      valueSets.push(e.resource as fhir4.ValueSet);
     }
   });
 

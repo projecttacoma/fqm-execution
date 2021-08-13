@@ -7,7 +7,7 @@ import {
   NotNullFilter,
   UnknownFilter
 } from '../src/types/QueryFilterTypes';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import { DataTypeQuery } from '../src/types/Calculator';
 import { GracefulError } from '../src/types/GracefulError';
 
@@ -97,7 +97,7 @@ describe('DataRequirementHelpers', () => {
         value: 'value-1'
       };
 
-      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+      const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
         path: 'attr-1',
         code: [
           {
@@ -117,7 +117,7 @@ describe('DataRequirementHelpers', () => {
         valueList: ['value-1', 'value-2', 'value-3']
       };
 
-      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+      const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
         path: 'attr-1',
         code: [
           {
@@ -159,7 +159,7 @@ describe('DataRequirementHelpers', () => {
           }
         ]
       };
-      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+      const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
         path: 'attr-1',
         code: [
           {
@@ -181,7 +181,7 @@ describe('DataRequirementHelpers', () => {
         value: 'value1'
       };
 
-      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+      const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
         path: 'status',
         code: [
           {
@@ -202,7 +202,7 @@ describe('DataRequirementHelpers', () => {
         value: 'value1'
       };
 
-      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+      const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
         path: 'status',
         code: [
           {
@@ -222,7 +222,7 @@ describe('DataRequirementHelpers', () => {
         valueList: ['value-1', 'value-2', 'value-3']
       };
 
-      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+      const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
         path: 'status',
         code: [
           {
@@ -249,7 +249,7 @@ describe('DataRequirementHelpers', () => {
         valueList: ['value1']
       };
 
-      const expectedCodeFilter: R4.IDataRequirement_CodeFilter = {
+      const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
         path: 'status',
         code: [
           {
@@ -275,7 +275,7 @@ describe('DataRequirementHelpers', () => {
         }
       };
 
-      const expectedDateFilter: R4.IDataRequirement_DateFilter = {
+      const expectedDateFilter: fhir4.DataRequirementDateFilter = {
         path: 'attr-1',
         valuePeriod: {
           start: '2021-01-01',
@@ -295,7 +295,7 @@ describe('DataRequirementHelpers', () => {
         attribute: 'attr-1'
       };
 
-      const expectedDetailFilter: R4.IExtension = {
+      const expectedDetailFilter: fhir4.Extension = {
         url: 'http://example.com/dr-value',
         extension: [
           { url: 'dr-value-attribute', valueString: 'attr-1' },
@@ -326,7 +326,7 @@ describe('DataRequirementHelpers', () => {
         valueSet: 'http://example.com/valueset'
       };
 
-      const expectedDataReq: R4.IDataRequirement = {
+      const expectedDataReq: fhir4.DataRequirement = {
         type: dtq.dataType,
         codeFilter: [
           {
@@ -346,12 +346,12 @@ describe('DataRequirementHelpers', () => {
         code: { code: 'a_code', system: 'http://example.com/system' }
       };
 
-      const expectedDataReq: R4.IDataRequirement = {
+      const expectedDataReq: fhir4.DataRequirement = {
         type: dtq.dataType,
         codeFilter: [
           {
             path: dtq.path,
-            code: [dtq.code as R4.ICoding]
+            code: [dtq.code as fhir4.Coding]
           }
         ]
       };
@@ -365,7 +365,7 @@ describe('DataRequirementHelpers', () => {
         path: 'a.path'
       };
 
-      const expectedDataReq: R4.IDataRequirement = {
+      const expectedDataReq: fhir4.DataRequirement = {
         type: dtq.dataType
       };
 

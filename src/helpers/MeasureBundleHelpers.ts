@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType } from '../types/Enums';
 import { CalculationOptions } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
@@ -13,10 +12,10 @@ const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefini
  * Check if a measure is an episode of care measure or not. Look for the cqfm-populationBasis extension.
  * If it is found return true if valueCode is not 'boolean' otherwise return false.
  *
- * @param {R4.IMeasure} measure FHIR Measure resource.
+ * @param {fhir4.Measure} measure FHIR Measure resource.
  * @returns {boolean} true if this is an episode of care, false if it is a patient measure.
  */
-export function isEpisodeOfCareMeasure(measure: R4.IMeasure): boolean {
+export function isEpisodeOfCareMeasure(measure: fhir4.Measure): boolean {
   const popBasisExt = measure.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
   if (popBasisExt != undefined) {
     return popBasisExt.valueCode != 'boolean';
@@ -33,10 +32,10 @@ const POPULATION_TYPE_CODESYSTEM = 'http://terminology.hl7.org/CodeSystem/measur
 /**
  * Converts FHIR CodeableConcept value for the measure population type to a PopulationType enum value.
  *
- * @param {R4.ICodeableConcept|undefined} concept The FHIR CodeableConcept value for the measure population.
+ * @param {fhir4.CodeableConcept|undefined} concept The FHIR CodeableConcept value for the measure population.
  * @returns {PopulationType|null} null if not a proper population type. The PopulationType if it is.
  */
-export function codeableConceptToPopulationType(concept: R4.ICodeableConcept | undefined): PopulationType | null {
+export function codeableConceptToPopulationType(concept: fhir4.CodeableConcept | undefined): PopulationType | null {
   const populationTypeCoding = concept?.coding?.find(coding => {
     return coding.system == POPULATION_TYPE_CODESYSTEM;
   });
@@ -53,16 +52,16 @@ export function codeableConceptToPopulationType(concept: R4.ICodeableConcept | u
  * NOTE: the default start/end values are also set in Execution.ts
  * so if this date is changed from 2019 it must also be changed there
  *
- * @param {R4.IBundle} measureBundle the FHIR Bundle object containing the Measure resource.
+ * @param {fhir4.Bundle} measureBundle the FHIR Bundle object containing the Measure resource.
  * @returns {CalculationOptions} object with only the measurement period start/end fields filled out,
  * or the year 2019 set as the calculation period if not set in the Measure.
  */
-export function extractMeasurementPeriod(measureBundle: R4.IBundle): CalculationOptions {
+export function extractMeasurementPeriod(measureBundle: fhir4.Bundle): CalculationOptions {
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
   if (!measureEntry || !measureEntry.resource) {
     throw new Error('Measure resource was not found in provided measure bundle');
   }
-  const measure = measureEntry.resource as R4.IMeasure;
+  const measure = measureEntry.resource as fhir4.Measure;
   return {
     measurementPeriodStart: measure.effectivePeriod?.start || '2019-01-01',
     measurementPeriodEnd: measure.effectivePeriod?.end || '2019-12-31'
@@ -82,7 +81,7 @@ export function isValidLibraryURL(libraryName: string) {
 }
 
 export function extractLibrariesFromBundle(
-  measureBundle: R4.IBundle
+  measureBundle: fhir4.Bundle
 ): {
   cqls: { name: string; cql: string }[];
   rootLibIdentifier: ELMIdentifier;
@@ -94,7 +93,7 @@ export function extractLibrariesFromBundle(
   if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
   else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
 
-  const libraries: R4.ILibrary[] = [];
+  const libraries: fhir4.Library[] = [];
   const elmJSONs: ELM[] = [];
   const cqls: { name: string; cql: string }[] = [];
   let rootLibIdentifier: ELMIdentifier = {
@@ -103,7 +102,7 @@ export function extractLibrariesFromBundle(
   };
   measureBundle.entry?.forEach(e => {
     if (e.resource?.resourceType == 'Library') {
-      const library = e.resource as R4.ILibrary;
+      const library = e.resource as fhir4.Library;
       libraries.push(library);
       const elmsEncoded = library.content?.filter(a => a.contentType === 'application/elm+json');
       elmsEncoded?.forEach(elmEncoded => {
@@ -147,9 +146,9 @@ export function extractLibrariesFromBundle(
   return { cqls, rootLibIdentifier, elmJSONs };
 }
 
-export type MeasureWithLibrary = R4.IMeasure & { library: string[] };
+export type MeasureWithLibrary = fhir4.Measure & { library: string[] };
 
-export function extractMeasureFromBundle(measureBundle: R4.IBundle): MeasureWithLibrary {
+export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWithLibrary {
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
 
   if (!measureEntry) {

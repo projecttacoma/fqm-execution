@@ -1,5 +1,4 @@
 import { ELM, ELMStatement } from '../types/ELMTypes';
-import { R4 } from '@ahryman40k/ts-fhir-types';
 
 /**
  * Finds all localIds in a statement by it's library and statement name.
@@ -314,12 +313,12 @@ export function isStatementFunction(library: ELM, statementName: string): boolea
 /**
  * Figure out if a statement is in a Supplemental Data Element given the statement name.
  * @public
- * @param {R4.IMeasure_SupplementalData[]} supplementalDataElements
+ * @param {fhir4.MeasureSupplementalData[]} supplementalDataElements
  * @param {string} statementName - The statement to search for.
  * @return {boolean} Statement does or does not belong to a Supplemental Data Element.
  */
 export function isSupplementalDataElementStatement(
-  supplementalDataElements: R4.IMeasure_SupplementalData[] | undefined,
+  supplementalDataElements: fhir4.MeasureSupplementalData[] | undefined,
   statementName: string
 ): boolean {
   if (supplementalDataElements != undefined) {

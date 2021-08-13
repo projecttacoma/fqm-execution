@@ -1,19 +1,19 @@
 import * as MeasureBundleHelpers from '../src/helpers/MeasureBundleHelpers';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import { PopulationType } from '../src/types/Enums';
 import { getJSONFixture } from './helpers/testHelpers';
 
 describe('MeasureBundleHelpers', () => {
   describe('codeableConceptToPopulationType', () => {
     test('codeable concept with no codings returns null', () => {
-      const codeableConcept: R4.ICodeableConcept = {
+      const codeableConcept: fhir4.CodeableConcept = {
         text: 'no codings'
       };
       expect(MeasureBundleHelpers.codeableConceptToPopulationType(codeableConcept)).toBe(null);
     });
 
     test('codeable concept with empty returns null', () => {
-      const codeableConcept: R4.ICodeableConcept = {
+      const codeableConcept: fhir4.CodeableConcept = {
         text: 'empty codings',
         coding: []
       };
@@ -21,7 +21,7 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('codeable concept with codings of different system returns null', () => {
-      const codeableConcept: R4.ICodeableConcept = {
+      const codeableConcept: fhir4.CodeableConcept = {
         text: 'bad system coding',
         coding: [
           {
@@ -35,7 +35,7 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('codeable concept proper coding returns valid enum', () => {
-      const codeableConcept: R4.ICodeableConcept = {
+      const codeableConcept: fhir4.CodeableConcept = {
         text: 'good coding',
         coding: [
           {
@@ -49,7 +49,7 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('codeable concept correct system, bad code returns null', () => {
-      const codeableConcept: R4.ICodeableConcept = {
+      const codeableConcept: fhir4.CodeableConcept = {
         text: 'good coding',
         coding: [
           {
@@ -65,7 +65,7 @@ describe('MeasureBundleHelpers', () => {
 
   describe('extractMeasurementPeriod', () => {
     test('Measurement period start set on measure', () => {
-      const measureBundleFixture: R4.IBundle = {
+      const measureBundleFixture: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
@@ -73,10 +73,12 @@ describe('MeasureBundleHelpers', () => {
               resourceType: 'Measure',
               effectivePeriod: {
                 start: '2000-01-01'
-              }
+              },
+              status: 'draft'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       const mpConfig = MeasureBundleHelpers.extractMeasurementPeriod(measureBundleFixture);
@@ -86,7 +88,7 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('Measurement period end set on measure', () => {
-      const measureBundleFixture: R4.IBundle = {
+      const measureBundleFixture: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
@@ -94,10 +96,12 @@ describe('MeasureBundleHelpers', () => {
               resourceType: 'Measure',
               effectivePeriod: {
                 end: '2000-12-31'
-              }
+              },
+              status: 'draft'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       const mpConfig = MeasureBundleHelpers.extractMeasurementPeriod(measureBundleFixture);
@@ -107,7 +111,7 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('Measurement period start and end set on measure', () => {
-      const measureBundleFixture: R4.IBundle = {
+      const measureBundleFixture: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
@@ -116,10 +120,12 @@ describe('MeasureBundleHelpers', () => {
               effectivePeriod: {
                 start: '2000-01-01',
                 end: '2000-12-31'
-              }
+              },
+              status: 'draft'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       const mpConfig = MeasureBundleHelpers.extractMeasurementPeriod(measureBundleFixture);
@@ -129,7 +135,7 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('Neither set on measure', () => {
-      const measureBundleFixture: R4.IBundle = {
+      const measureBundleFixture: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
@@ -138,10 +144,12 @@ describe('MeasureBundleHelpers', () => {
               effectivePeriod: {
                 start: '',
                 end: ''
-              }
+              },
+              status: 'draft'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       const mpConfig = MeasureBundleHelpers.extractMeasurementPeriod(measureBundleFixture);
@@ -165,13 +173,14 @@ describe('MeasureBundleHelpers', () => {
 
   describe('extractMeasureFromBundle', () => {
     test('returns measure object if one exists', () => {
-      const measureBundleFixture: R4.IBundle = {
+      const measureBundleFixture: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
             resource: {
               resourceType: 'Measure',
-              library: []
+              library: [],
+              status: 'draft'
             }
           },
           {
@@ -179,10 +188,12 @@ describe('MeasureBundleHelpers', () => {
               resourceType: 'Library',
               type: {
                 coding: [{ code: 'logic-library', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
-              }
+              },
+              status: 'draft'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       const ret = MeasureBundleHelpers.extractMeasureFromBundle(measureBundleFixture);
@@ -190,22 +201,24 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('throws an error if the Library is not present', () => {
-      const measureBundleFixture: R4.IBundle = {
+      const measureBundleFixture: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
             resource: {
-              resourceType: 'Measure'
+              resourceType: 'Measure',
+              status: 'draft'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       expect(() => MeasureBundleHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
     });
 
     test('throws an error if the Measure is not present', () => {
-      const measureBundleFixture: R4.IBundle = {
+      const measureBundleFixture: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
@@ -213,7 +226,8 @@ describe('MeasureBundleHelpers', () => {
               resourceType: 'Patient'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       expect(() => MeasureBundleHelpers.extractMeasureFromBundle(measureBundleFixture)).toThrow();
@@ -222,7 +236,7 @@ describe('MeasureBundleHelpers', () => {
 
   describe('extractLibrariesFromBundle', () => {
     test('properly gets library from EXM130, and identifies the root library', () => {
-      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as R4.IBundle;
+      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
       const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
 
       expect(rootLibIdentifier).toStrictEqual({
@@ -237,7 +251,7 @@ describe('MeasureBundleHelpers', () => {
     });
 
     test('throws an error if there is no root Library resource on Measure', () => {
-      const measureBundle: R4.IBundle = {
+      const measureBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
         entry: [
           {
@@ -246,7 +260,8 @@ describe('MeasureBundleHelpers', () => {
               type: {
                 coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
               },
-              url: 'http://example.com/root-library'
+              url: 'http://example.com/root-library',
+              status: 'draft'
             }
           },
           {
@@ -255,10 +270,12 @@ describe('MeasureBundleHelpers', () => {
               library: [
                 // Library array doesn't contain the root lib ID
                 'http://example.com/other-library'
-              ]
+              ],
+              status: 'draft'
             }
           }
-        ]
+        ],
+        type: 'transaction'
       };
 
       expect(() => MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle)).toThrow(

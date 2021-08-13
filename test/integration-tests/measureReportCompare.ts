@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { BadPatient } from './testDataHelpers';
 const debug = process.env.DEBUG;
 /**
@@ -8,7 +7,7 @@ const debug = process.env.DEBUG;
  * @param {FHIR.MeasureReport} report The MeasureReport to find the group in.
  * @returns {Object} The corresponding group.
  */
-function findCorrespondingGroup(referenceGroup: R4.IMeasureReport_Group, report: R4.IMeasureReport) {
+function findCorrespondingGroup(referenceGroup: fhir4.MeasureReportGroup, report: fhir4.MeasureReport) {
   return report.group?.find(group => {
     return referenceGroup.id == group.id;
   });
@@ -22,8 +21,8 @@ function findCorrespondingGroup(referenceGroup: R4.IMeasureReport_Group, report:
  * @returns {Object} The corresponding population.
  */
 function findCorrespondingPopulation(
-  referencePopulation: R4.IMeasureReport_Population,
-  group: R4.IMeasureReport_Group | undefined
+  referencePopulation: fhir4.MeasureReportGroupPopulation,
+  group: fhir4.MeasureReportGroup | undefined
 ) {
   return group?.population?.find(population => {
     if (referencePopulation.code?.coding && population.code?.coding) {
@@ -67,7 +66,11 @@ function addBadPatientEntry(
  * @param {FHIR.MeasureReport} report The report coming from execution.
  * @returns {BadPatient[]} List of bad patients and the issues with them.
  */
-export function compareMeasureReports(referenceReport: R4.IMeasureReport, report: R4.IMeasureReport, fileName: string) {
+export function compareMeasureReports(
+  referenceReport: fhir4.MeasureReport,
+  report: fhir4.MeasureReport,
+  fileName: string
+) {
   /** @type {BadPatient[]} */
   const badPatientsList: BadPatient[] = [];
   const patientName = fileName.substring(0, fileName.lastIndexOf('-'));

@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from '../types/Calculator';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ClauseResultsBuilder';
@@ -11,15 +10,15 @@ import * as cql from '../types/CQLTypes';
  * calculator. This creates the DetailedPopulationGroupResult for the patient that will be filed my most of the
  * results processing functions.
  *
- * @param {R4.IMeasure} measure - The measure we are getting the values for.
- * @param {R4.IMeasure_Group} populationGroup - The population group that we are creating results to.
+ * @param {fhir4.Measure} measure - The measure we are getting the values for.
+ * @param {fhir4.MeasureGroup} populationGroup - The population group that we are creating results to.
  * @param {cql.StatementResults} patientResults - The raw results object from the calculation engine for a patient.
  * @returns {DetailedPopulationGroupResult} The population group results object with the populationResults, stratifierResults,
  *   and episodeResults (if episode of care measure) populated.
  */
 export function createPopulationValues(
-  measure: R4.IMeasure,
-  populationGroup: R4.IMeasure_Group,
+  measure: fhir4.Measure,
+  populationGroup: fhir4.MeasureGroup,
   patientResults: cql.StatementResults
 ): DetailedPopulationGroupResult {
   let populationResults: PopulationResult[] = [];
@@ -151,12 +150,12 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
 /**
  * Create patient population values (aka results) for all populations in the population group using the results from the
  * calculator.
- * @param {R4.IMeasure_Group} populationGroup - The population group we are getting the values for.
+ * @param {fhir4.MeasureGroup} populationGroup - The population group we are getting the values for.
  * @param {cql.StatementResults} patientResults - The raw results object for a patient from the calculation engine.
  * @returns {PopulationResult[]} The population results list.
  */
 export function createPatientPopulationValues(
-  populationGroup: R4.IMeasure_Group,
+  populationGroup: fhir4.MeasureGroup,
   patientResults: cql.StatementResults
 ): {
   populationResults: PopulationResult[];
@@ -223,13 +222,13 @@ function isStatementValueTruthy(value: any): boolean {
 /**
  * Create population results for all episodes using the results from the calculator. This is
  * used only for the episode of care measures.
- * @param {R4.IMeasure_Group} populationGroup - The population group we are getting the values for.
+ * @param {fhir4.MeasureGroup} populationGroup - The population group we are getting the values for.
  * @param {cql.StatementResults} patientResults - The raw results object for the patient from the calculation engine.
  * @returns {EpisodeResults[]} The episode results list. Structure with episode id population results for each episode.
  *   If this is a continuous variable measure the observations are included.
  */
 export function createEpisodePopulationValues(
-  populationGroup: R4.IMeasure_Group,
+  populationGroup: fhir4.MeasureGroup,
   patientResults: cql.StatementResults
 ): EpisodeResults[] {
   const episodeResultsSet: EpisodeResults[] = [];
@@ -318,14 +317,14 @@ export function createEpisodePopulationValues(
  *
  * @param {any} rawEpisodeResults - Raw population defining statement result. This result should be a list.
  * @param {EpisodeResults[]} episodeResultsSet - EpisodeResults set to populate.
- * @param {R4.IMeasure_Group} populationGroup - The population group. Used to populate default values for a new encounter.
+ * @param {fhir4.MeasureGroup} populationGroup - The population group. Used to populate default values for a new encounter.
  * @param {PopulationType} populationType - If this is a regular population the type must be provided.
  * @param {string} strataCode - If this is a stratifier result, the code of the strata must be provided.
  */
 function createOrSetValueOfEpisodes(
   rawEpisodeResults: any,
   episodeResultsSet: EpisodeResults[],
-  populationGroup: R4.IMeasure_Group,
+  populationGroup: fhir4.MeasureGroup,
   populationType?: PopulationType,
   strataCode?: string
 ): void {
