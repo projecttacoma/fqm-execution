@@ -1,12 +1,11 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMFunctionRef } from '../../src/types/ELMTypes';
-import { R4 } from '@ahryman40k/ts-fhir-types';
 
 // to use as a library parameter for tests
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
 
-const PATIENT: R4.IPatient = {
+const PATIENT: fhir4.Patient = {
   resourceType: 'Patient',
   birthDate: '1988-09-08'
 };

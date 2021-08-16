@@ -1,6 +1,5 @@
 #!/usr/bin/env ts-node --files
 
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { program } from 'commander';
 import fs from 'fs';
 import path from 'path';
@@ -45,12 +44,12 @@ program
   .option('-c, --cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service', false)
   .parse(process.argv);
 
-function parseBundle(filePath: string): R4.IBundle {
+function parseBundle(filePath: string): fhir4.Bundle {
   const contents = fs.readFileSync(filePath, 'utf8');
-  return JSON.parse(contents) as R4.IBundle;
+  return JSON.parse(contents) as fhir4.Bundle;
 }
 
-function getCachedValueSets(cacheDir: string): R4.IValueSet[] {
+function getCachedValueSets(cacheDir: string): fhir4.ValueSet[] {
   if (fs.existsSync(cacheDir)) {
     return fs.readdirSync(cacheDir).map(vs => JSON.parse(fs.readFileSync(path.join(cacheDir, vs), 'utf8')));
   }
@@ -59,10 +58,10 @@ function getCachedValueSets(cacheDir: string): R4.IValueSet[] {
 }
 
 async function calc(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   calcOptions: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = []
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<CalculatorFunctionOutput> {
   let result;
   if (program.outputType === 'raw') {
@@ -86,7 +85,7 @@ async function calc(
 
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
-let patientBundles: R4.IBundle[];
+let patientBundles: fhir4.Bundle[];
 if (program.outputType !== 'dataRequirements') {
   // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
   if (!program.patientBundles) {
@@ -177,7 +176,7 @@ calc(
       if (!fs.existsSync('./cache/terminology')) {
         fs.mkdirSync('./cache/terminology/', { recursive: true });
       }
-      (result.valueSetCache as R4.IValueSet[]).forEach(vs => {
+      (result.valueSetCache as fhir4.ValueSet[]).forEach(vs => {
         fs.writeFileSync(`./cache/terminology/${vs.id}.json`, JSON.stringify(vs), 'utf8');
       });
     }

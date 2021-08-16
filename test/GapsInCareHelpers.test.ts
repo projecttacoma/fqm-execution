@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import * as cql from 'cql-execution';
 import { FHIRWrapper } from 'cql-exec-fhir';
 import {
@@ -249,14 +248,16 @@ const EXAMPLE_DETAILED_RESULTS: DetailedPopulationGroupResult = {
   ]
 };
 
-const SIMPLE_MEASURE_REPORT: R4.IMeasureReport = {
+const SIMPLE_MEASURE_REPORT: fhir4.MeasureReport = {
   resourceType: 'MeasureReport',
   id: 'example',
   measure: 'Measure/example',
   period: {
     start: '2020-01-01',
     end: '2020-12-31'
-  }
+  },
+  status: 'complete',
+  type: 'individual'
 };
 
 describe('Process detailed queries', () => {
@@ -761,7 +762,7 @@ describe('FHIR Bundle Generation', () => {
       })
     );
 
-    EXAMPLE_DETECTED_ISSUE.forEach((e: R4.IDetectedIssue) => {
+    EXAMPLE_DETECTED_ISSUE.forEach((e: fhir4.DetectedIssue) => {
       expect(bundle.entry).toContainEqual(
         expect.objectContaining({
           resource: e
@@ -780,7 +781,7 @@ describe('Guidance Response', () => {
   };
 
   test('should generate data requirement with equals attribute codeFilter', () => {
-    const drWithAttributeFilter: R4.IDataRequirement[] = [
+    const drWithAttributeFilter: fhir4.DataRequirement[] = [
       {
         type: 'Procedure',
         codeFilter: [
@@ -829,7 +830,7 @@ describe('Guidance Response', () => {
   });
 
   test('should generate data requirement with "in" attribute codeFilter', () => {
-    const drWithAttributeFilter: R4.IDataRequirement[] = [
+    const drWithAttributeFilter: fhir4.DataRequirement[] = [
       {
         type: 'Procedure',
         codeFilter: [
@@ -882,7 +883,7 @@ describe('Guidance Response', () => {
   });
 
   test('should generate data requirement with "in" codings attribute codeFilter', () => {
-    const drWithAttributeFilter: R4.IDataRequirement[] = [
+    const drWithAttributeFilter: fhir4.DataRequirement[] = [
       {
         type: 'Procedure',
         codeFilter: [
@@ -944,7 +945,7 @@ describe('Guidance Response', () => {
   });
 
   test('should generate data requirement with dateFilter', () => {
-    const drWithDate: R4.IDataRequirement[] = [
+    const drWithDate: fhir4.DataRequirement[] = [
       {
         type: 'Procedure',
         codeFilter: [
@@ -996,7 +997,7 @@ describe('Guidance Response', () => {
   });
 
   test('should generate data requirement with valueFilter for not-null filter', () => {
-    const drWithValue: R4.IDataRequirement[] = [
+    const drWithValue: fhir4.DataRequirement[] = [
       {
         type: 'Observation',
         codeFilter: [
@@ -1053,7 +1054,7 @@ describe('Guidance Response', () => {
   });
 
   test('should generate combo data requirement with codeFilter and dateFilter. including reason detail', () => {
-    const drWithDateAndCode: R4.IDataRequirement[] = [
+    const drWithDateAndCode: fhir4.DataRequirement[] = [
       {
         type: 'Procedure',
         codeFilter: [
@@ -1125,7 +1126,7 @@ describe('Guidance Response', () => {
       }
     };
 
-    const expectedReasonCodeableConcept: R4.ICodeableConcept[] = [
+    const expectedReasonCodeableConcept: fhir4.CodeableConcept[] = [
       {
         coding: [
           {
@@ -1171,7 +1172,7 @@ describe('Guidance Response ReasonCode Coding', () => {
     const reasonDetail: ReasonDetailData = {
       code: CareGapReasonCode.MISSING
     };
-    const expectedCoding: R4.ICoding = {
+    const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'Missing',
       display: 'No Data Element found from Value Set'
@@ -1184,7 +1185,7 @@ describe('Guidance Response ReasonCode Coding', () => {
       code: CareGapReasonCode.PRESENT,
       reference: 'Procedure/denom-EXM130-2'
     };
-    const expectedCoding: R4.ICoding = {
+    const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'Present',
       display: 'Data element was found',
@@ -1211,7 +1212,7 @@ describe('Guidance Response ReasonCode Coding', () => {
       reference: 'Procedure/denom-EXM130-2',
       path: 'performed.end'
     };
-    const expectedCoding: R4.ICoding = {
+    const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'DateOutOfRange',
       display: 'Key date was not in the expected range',

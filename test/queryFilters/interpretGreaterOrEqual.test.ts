@@ -1,7 +1,7 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMGreaterOrEqual } from '../../src/types/ELMTypes';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import { DuringFilter, UnknownFilter } from '../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
 
@@ -277,12 +277,12 @@ const GREATEROREQUAL_LITERAL_TO_VALUE: ELMGreaterOrEqual = {
   ]
 };
 
-const PATIENT: R4.IPatient = {
+const PATIENT: fhir4.Patient = {
   resourceType: 'Patient',
   birthDate: '1988-09-08'
 };
 
-const PATIENT_NO_BIRTHDATE: R4.IPatient = {
+const PATIENT_NO_BIRTHDATE: fhir4.Patient = {
   resourceType: 'Patient'
 };
 

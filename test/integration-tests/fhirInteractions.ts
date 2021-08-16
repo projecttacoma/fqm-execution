@@ -1,6 +1,5 @@
 import { calculateIndividualMeasureReports } from '../../src/calculation/Calculator';
 import { CalculationOptions } from '../../src/types/Calculator';
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import fs from 'fs';
 
 const PERIOD_START = '2019-01-01';
@@ -32,9 +31,9 @@ const PERIOD_END = '2019-12-31';
  * Run Measure/{id}/$evaluate-measure on fqm execution and return the MeasureReport as a JS object.
  *
  * @param {String} measureId The id of the measure to execute on fqm execution.
- * @returns {Promise<R4.IMeasureReport>} The patient-list MeasureReport.
+ * @returns {Promise<fhir4.MeasureReport>} The patient-list MeasureReport.
  */
-export async function getMeasureReport(measureId: string, measureBundle: R4.IBundle, patientBundle: R4.IBundle) {
+export async function getMeasureReport(measureId: string, measureBundle: fhir4.Bundle, patientBundle: fhir4.Bundle) {
   // Start a timer
   const calcOptions: CalculationOptions = setupCalcOptions();
   const report = await calculateIndividualMeasureReports(measureBundle, [patientBundle], calcOptions);
@@ -56,6 +55,6 @@ function setupCalcOptions(/* string paramName, boolean value*/): CalculationOpti
 }
 export function loadPatientBundle(patientBundlePath: string) {
   const patientBundle = fs.readFileSync(patientBundlePath, 'utf8');
-  const bundleStream = JSON.parse(patientBundle) as R4.IBundle;
+  const bundleStream = JSON.parse(patientBundle) as fhir4.Bundle;
   return bundleStream;
 }

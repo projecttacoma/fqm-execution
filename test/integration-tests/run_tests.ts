@@ -4,18 +4,18 @@ import path from 'path';
 import process from 'process';
 import { BadPatient, getTestMeasureList, loadReferenceMeasureReport, loadTestDataFolder } from './testDataHelpers';
 import { getMeasureReport } from './fhirInteractions';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import { compareMeasureReports } from './measureReportCompare';
 
-function parseBundle(filePath: string): R4.IBundle {
-  let bundle: R4.IBundle | undefined;
+function parseBundle(filePath: string): fhir4.Bundle {
+  let bundle: fhir4.Bundle | undefined;
   if (fs.existsSync(filePath)) {
     const contents = fs.readFileSync(filePath, 'utf8');
-    bundle = JSON.parse(contents) as R4.IBundle;
+    bundle = JSON.parse(contents) as fhir4.Bundle;
   } else {
     bundle = {
       resourceType: 'Bundle',
-      type: R4.BundleTypeKind._document,
+      type: 'document',
       entry: []
     };
   }

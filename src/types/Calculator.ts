@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { PopulationType, FinalResult, Relevance, CareGapReasonCode } from './Enums';
 import * as cql from './CQLTypes';
 import { ELM } from './ELMTypes';
@@ -54,7 +53,7 @@ export interface RawExecutionData {
     [key: string]: any;
   };
   /** Cache of VSAC ValueSets */
-  valueSetCache?: R4.IValueSet[];
+  valueSetCache?: fhir4.ValueSet[];
 }
 
 /**
@@ -64,13 +63,13 @@ export interface ExecutionResult {
   /** ID of the patient this calculation result belongs to. */
   patientId: string;
   /** FHIR MeasureReport of type 'individual' for this patient. */
-  measureReport?: R4.IMeasureReport;
+  measureReport?: fhir4.MeasureReport;
   /** Detailed results for each population group and stratifier. */
   detailedResults?: DetailedPopulationGroupResult[];
   /** SDE values, if specified for calculation */
   supplementalData?: SDEResult[];
   /** Resources evaluated during execution */
-  evaluatedResource?: R4.IResourceList[];
+  evaluatedResource?: fhir4.Resource[];
 }
 
 /**
@@ -278,10 +277,10 @@ export interface DebugOutput {
   html?: { name: string; html: string }[];
   rawResults?: cql.Results | string;
   detailedResults?: ExecutionResult[];
-  measureReports?: R4.IMeasureReport[];
+  measureReports?: fhir4.MeasureReport[];
   gaps?: {
     retrieves?: DataTypeQuery[];
-    bundle?: R4.IBundle;
+    bundle?: fhir4.Bundle;
   };
 }
 
@@ -291,14 +290,14 @@ export interface DebugOutput {
 export interface CalculatorFunctionOutput {
   results:
     | ExecutionResult[]
-    | R4.IMeasureReport
-    | R4.IMeasureReport[]
+    | fhir4.MeasureReport
+    | fhir4.MeasureReport[]
     | cql.Results
     | string
-    | R4.IBundle
-    | R4.ILibrary;
+    | fhir4.Bundle
+    | fhir4.Library;
   debugOutput?: DebugOutput;
-  valueSetCache?: R4.IValueSet[];
+  valueSetCache?: fhir4.ValueSet[];
   withErrors?: GracefulError[];
 }
 
@@ -316,21 +315,21 @@ export interface CalculationOutput extends CalculatorFunctionOutput {
  * dataType for calculateMeasureReports() function
  */
 export interface MRCalculationOutput extends CalculatorFunctionOutput {
-  results: R4.IMeasureReport | R4.IMeasureReport[];
+  results: fhir4.MeasureReport | fhir4.MeasureReport[];
 }
 
 /**
  * dataType for calculateAggregateMeasureReports() function
  */
 export interface AMRCalculationOutput extends MRCalculationOutput {
-  results: R4.IMeasureReport;
+  results: fhir4.MeasureReport;
 }
 
 /**
  * dataType for calculateIndividualMeasureReports() function
  */
 export interface IMRCalculationOutput extends MRCalculationOutput {
-  results: R4.IMeasureReport[];
+  results: fhir4.MeasureReport[];
 }
 
 /**
@@ -344,12 +343,12 @@ export interface RCalculationOutput extends CalculatorFunctionOutput {
  * dataType for calculateGapsInCare() function
  */
 export interface GICCalculationOutput extends CalculatorFunctionOutput {
-  results: R4.IBundle;
+  results: fhir4.Bundle;
 }
 
 /**
  * dataType for calculateDataRequirements() function
  */
 export interface DRCalculationOutput extends Omit<CalculatorFunctionOutput, 'valueSetCache'> {
-  results: R4.ILibrary;
+  results: fhir4.Library;
 }

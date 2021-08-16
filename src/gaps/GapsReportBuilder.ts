@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { v4 as uuidv4 } from 'uuid';
 import {
   DataTypeQuery,
@@ -24,7 +23,6 @@ import {
   AttributeFilter
 } from '../types/QueryFilterTypes';
 import { GracefulError, isOfTypeGracefulError } from '../types/GracefulError';
-import { IDetectedIssue } from '@ahryman40k/ts-fhir-types/lib/R4';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -68,9 +66,9 @@ export function processQueriesForGaps(
  */
 export function generateDetectedIssueResources(
   queries: GapsDataTypeQuery[],
-  measureReport: R4.IMeasureReport,
+  measureReport: fhir4.MeasureReport,
   improvementNotation: string
-): { detectedIssues: R4.IDetectedIssue[]; withErrors: GracefulError[] } {
+): { detectedIssues: fhir4.DetectedIssue[]; withErrors: GracefulError[] } {
   const relevantGapQueries = queries.filter(q =>
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
@@ -79,7 +77,7 @@ export function generateDetectedIssueResources(
   const guidanceResponses = groupedQueries.map(q =>
     generateGuidanceResponses(q, measureReport.measure, improvementNotation)
   );
-  const formattedResponses: IDetectedIssue[] = guidanceResponses.map(gr => {
+  const formattedResponses: fhir4.DetectedIssue[] = guidanceResponses.map(gr => {
     return {
       resourceType: 'DetectedIssue',
       id: uuidv4(),
@@ -167,7 +165,7 @@ function stackEntryString(entry: ExpressionStackEntry): string {
   return JSON.stringify(entry);
 }
 
-function didEncounterDetailedValueFilterErrors(tbd: R4.IExtension | GracefulError): tbd is GracefulError {
+function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulError): tbd is GracefulError {
   if ((tbd as GracefulError).message) {
     return true;
   } else {
@@ -187,9 +185,9 @@ export function generateGuidanceResponses(
   queries: GapsDataTypeQuery[],
   measureURL: string,
   improvementNotation: string
-): { guidanceResponses: R4.IGuidanceResponse[]; withErrors: GracefulError[] } {
+): { guidanceResponses: fhir4.GuidanceResponse[]; withErrors: GracefulError[] } {
   const withErrors: GracefulError[] = [];
-  const guidanceResponses: R4.IGuidanceResponse[] = queries.map(q => {
+  const guidanceResponses: fhir4.GuidanceResponse[] = queries.map(q => {
     const dataTypeCodeFilter: { path: 'code'; valueSet?: string; code?: [{ code: string; system: string }] } = {
       path: 'code'
     };
@@ -205,7 +203,7 @@ export function generateGuidanceResponses(
       ];
     }
 
-    let gapCoding: R4.ICoding[];
+    let gapCoding: fhir4.Coding[];
 
     // TODO: update system to be full URL once defined
     if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasons.length > 0) {
@@ -229,11 +227,11 @@ export function generateGuidanceResponses(
             ];
     }
 
-    const gapStatus: R4.ICodeableConcept = {
+    const gapStatus: fhir4.CodeableConcept = {
       coding: gapCoding
     };
 
-    const dataRequirement: R4.IDataRequirement = {
+    const dataRequirement: fhir4.DataRequirement = {
       type: q.dataType,
       codeFilter: [{ ...dataTypeCodeFilter }]
     };
@@ -270,12 +268,12 @@ export function generateGuidanceResponses(
       });
     }
 
-    const guidanceResponse: R4.IGuidanceResponse = {
+    const guidanceResponse: fhir4.GuidanceResponse = {
       resourceType: 'GuidanceResponse',
       id: uuidv4(),
       dataRequirement: [dataRequirement],
       reasonCode: [gapStatus],
-      status: R4.GuidanceResponseStatusKind._dataRequired,
+      status: 'data-required',
       moduleUri: measureURL
     };
     return guidanceResponse;
@@ -289,8 +287,8 @@ export function generateGuidanceResponses(
  * @param reason The reason detail data for a single reason.
  * @returns The FHIR Coding object to add to the GuidanceResponse.reasonCode.coding field.
  */
-export function generateReasonCoding(reason: ReasonDetailData): R4.ICoding {
-  const reasonCoding: R4.ICoding = {
+export function generateReasonCoding(reason: ReasonDetailData): fhir4.Coding {
+  const reasonCoding: fhir4.Coding = {
     system: 'CareGapReasonCodeSystem',
     code: reason.code,
     display: CareGapReasonCodeDisplay[reason.code]
@@ -298,7 +296,7 @@ export function generateReasonCoding(reason: ReasonDetailData): R4.ICoding {
 
   // If there is a referenced resource create and add the extension
   if (reason.reference) {
-    const detailExt: R4.IExtension = {
+    const detailExt: fhir4.Extension = {
       url: 'ReasonDetail',
       extension: [
         {
@@ -328,11 +326,11 @@ export function generateReasonCoding(reason: ReasonDetailData): R4.ICoding {
  * @param patient Current FHIR Patient processed in execution
  */
 export function generateGapsInCareBundle(
-  detectedIssues: R4.IDetectedIssue[],
-  measureReport: R4.IMeasureReport,
-  patient: R4.IPatient
-): R4.IBundle {
-  const composition: R4.IComposition = {
+  detectedIssues: fhir4.DetectedIssue[],
+  measureReport: fhir4.MeasureReport,
+  patient: fhir4.Patient
+): fhir4.Bundle {
+  const composition: fhir4.Composition = {
     resourceType: 'Composition',
     type: {
       coding: [
@@ -347,6 +345,7 @@ export function generateGapsInCareBundle(
     subject: measureReport.subject,
     date: new Date().toISOString(),
     title: 'Gaps in Care Report',
+    status: 'preliminary',
     section: [
       {
         title: measureReport.measure,
@@ -359,9 +358,9 @@ export function generateGapsInCareBundle(
       }
     ]
   };
-  const returnBundle: R4.IBundle = {
+  const returnBundle: fhir4.Bundle = {
     resourceType: 'Bundle',
-    type: R4.BundleTypeKind._document,
+    type: 'document',
     entry: [
       {
         resource: composition

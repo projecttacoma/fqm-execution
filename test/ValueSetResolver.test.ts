@@ -1,14 +1,13 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { ValueSetResolver } from '../src/execution/ValueSetResolver';
 import { getJSONFixture } from './helpers/testHelpers';
 import MockAdapter from 'axios-mock-adapter';
 
-type ValueSetWithNoUndefined = R4.IValueSet & {
+type ValueSetWithNoUndefined = fhir4.ValueSet & {
   url: string;
   version: string;
   compose: {
-    include: (R4.IValueSet_Include & {
-      concept: R4.IValueSet_Concept;
+    include: (fhir4.ValueSetComposeInclude & {
+      concept: fhir4.ValueSetComposeIncludeConcept;
       system: string;
       version: string;
     })[];

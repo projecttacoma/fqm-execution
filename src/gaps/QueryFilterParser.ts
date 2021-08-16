@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import cql from 'cql-execution';
 import {
   ELM,
@@ -66,7 +65,7 @@ export function parseQueryInfo(
   allELM: ELM[],
   queryLocalId: string | undefined,
   parameters: { [key: string]: any } = {},
-  patient: R4.IPatient
+  patient: fhir4.Patient
 ): QueryInfo {
   if (!queryLocalId) {
     throw new Error('QueryLocalId was not provided');
@@ -218,7 +217,7 @@ export function interpretExpression(
   expression: ELMExpression,
   library: ELM,
   parameters: any,
-  patient: R4.IPatient
+  patient: fhir4.Patient
 ): AnyFilter {
   let returnFilter: AnyFilter = {
     type: 'unknown',
@@ -308,7 +307,7 @@ export function findPropertyUsage(expression: any, unknownLocalId?: string): Unk
  * @param patient The patient resource.
  * @returns The filter tree for this and expression.
  */
-export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient: R4.IPatient): AndFilter {
+export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient: fhir4.Patient): AndFilter {
   const andInfo: AndFilter = { type: 'and', children: [] };
   if (andExpression.operand[0].type == 'And') {
     andInfo.children.push(...interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters, patient).children);
@@ -333,7 +332,7 @@ export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: an
  * @param patient The patient resource.
  * @returns The filter tree for this or expression.
  */
-export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient: R4.IPatient): OrFilter {
+export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient: fhir4.Patient): OrFilter {
   const orInfo: OrFilter = { type: 'or', children: [] };
   if (orExpression.operand[0].type == 'Or') {
     orInfo.children.push(...interpretOr(orExpression.operand[0] as ELMOr, library, parameters, patient).children);
@@ -497,10 +496,10 @@ export function interpretEquivalent(equal: ELMEquivalent, library: ELM): EqualsF
  * @param library The library elm the concept should be found in.
  * @returns A list of codings in the concept
  */
-export function getCodesInConcept(name: string, library: ELM): R4.ICoding[] {
+export function getCodesInConcept(name: string, library: ELM): fhir4.Coding[] {
   const concept = library.library.concepts?.def.find(concept => concept.name === name);
   if (concept) {
-    const codes: R4.ICoding[] = [];
+    const codes: fhir4.Coding[] = [];
     concept.code.map(codeRef => {
       const code = library.library.codes?.def.find(code => code.name == codeRef.name);
       if (code) {
@@ -782,7 +781,7 @@ export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
   library: ELM,
   parameters: any,
-  patient: R4.IPatient
+  patient: fhir4.Patient
 ): AnyFilter {
   // look at first param if it is function ref to calendar age in years at.
   const withError: GracefulError = { message: 'An unknown error occured while interpretting greater or equal filter' };

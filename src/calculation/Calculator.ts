@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import {
   ExecutionResult,
   CalculationOptions,
@@ -36,10 +35,10 @@ import { GracefulError } from '../types/GracefulError';
  * @returns Detailed execution results. One for each patient.
  */
 export async function calculate(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   options: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = []
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<CalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
@@ -74,7 +73,7 @@ export async function calculate(
       // Skip this bundle if no patient was found.
       return;
     }
-    const patient = patientEntry.resource as R4.IPatient;
+    const patient = patientEntry.resource as fhir4.Patient;
     if (!patient.id) {
       // Patient has no ID
       return;
@@ -195,10 +194,10 @@ export async function calculate(
  * @returns MeasureReport resource(s) for each patient or entire population according to standard https://www.hl7.org/fhir/measurereport.html
  */
 export async function calculateMeasureReports(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   options: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = []
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<MRCalculationOutput> {
   return options.reportType === 'summary'
     ? calculateAggregateMeasureReport(measureBundle, patientBundles, options, valueSetCache)
@@ -215,10 +214,10 @@ export async function calculateMeasureReports(
  * @returns MeasureReport resource for each patient according to standard https://www.hl7.org/fhir/measurereport.html
  */
 export async function calculateIndividualMeasureReports(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   options: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = []
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<IMRCalculationOutput> {
   if (options.reportType && options.reportType !== 'individual') {
     throw new Error('calculateMeasureReports only supports reportType "individual".');
@@ -246,10 +245,10 @@ export async function calculateIndividualMeasureReports(
  * @returns MeasureReport resource summary according to standard https://www.hl7.org/fhir/measurereport.html
  */
 export async function calculateAggregateMeasureReport(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   options: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = []
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<AMRCalculationOutput> {
   if (options.reportType && options.reportType === 'individual') {
     throw new Error('calculateAggregateMeasureReports only supports reportType "summary".');
@@ -276,7 +275,7 @@ export async function calculateAggregateMeasureReport(
     if (patientBundle) {
       const patient = patientBundle.entry?.find(bundleEntry => {
         return bundleEntry.resource?.resourceType === 'Patient';
-      })?.resource as R4.IPatient;
+      })?.resource as fhir4.Patient;
       builder.addPatientResults(patient, result);
     }
   });
@@ -300,10 +299,10 @@ export async function calculateAggregateMeasureReport(
  * @returns pass through of raw calculation results from the engine
  */
 export async function calculateRaw(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   options: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = []
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<RCalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
   const results = await Execution.execute(measureBundle, patientBundles, options, valueSetCache, debugObject);
@@ -324,10 +323,10 @@ export async function calculateRaw(
  * @returns gaps bundle of DetectedIssues and GuidanceResponses
  */
 export async function calculateGapsInCare(
-  measureBundle: R4.IBundle,
-  patientBundles: R4.IBundle[],
+  measureBundle: fhir4.Bundle,
+  patientBundles: fhir4.Bundle[],
   options: CalculationOptions,
-  valueSetCache: R4.IValueSet[] = []
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<GICCalculationOutput> {
   // Detailed results for populations get ELM content back
   options.returnELM = true;
@@ -337,7 +336,7 @@ export async function calculateGapsInCare(
   const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = calculationResults;
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
 
-  let result: R4.IBundle = <R4.IBundle>{};
+  let result: fhir4.Bundle = <fhir4.Bundle>{};
   const errorLog: GracefulError[] = [];
   results.forEach(res => {
     const matchingMeasureReport = measureReports.find(mr => mr.subject?.reference?.split('/')[1] === res.patientId);
@@ -447,7 +446,7 @@ export async function calculateGapsInCare(
                 elmLibraries,
                 retrieve.queryLocalId,
                 parameters,
-                patientEntry.resource as R4.IPatient
+                patientEntry.resource as fhir4.Patient
               );
             }
           }
@@ -469,7 +468,7 @@ export async function calculateGapsInCare(
         result = GapsInCareHelpers.generateGapsInCareBundle(
           detectedIssues,
           matchingMeasureReport,
-          patientEntry.resource as R4.IPatient
+          patientEntry.resource as fhir4.Patient
         );
 
         if (debugOutput && options.enableDebugOutput) {
@@ -492,7 +491,7 @@ export async function calculateGapsInCare(
  * @returns FHIR Library of data requirements
  */
 
-export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculationOutput {
+export function calculateDataRequirements(measureBundle: fhir4.Bundle): DRCalculationOutput {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
@@ -519,9 +518,10 @@ export function calculateDataRequirements(measureBundle: R4.IBundle): DRCalculat
     return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
   });
 
-  const results: R4.ILibrary = {
+  const results: fhir4.Library = {
     resourceType: 'Library',
-    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] }
+    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
+    status: 'unknown'
   };
   results.dataRequirement = uniqueRetrieves.map(retrieve => generateDataRequirement(retrieve));
 

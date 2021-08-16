@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import fs from 'fs';
 import path, { join } from 'path';
 import { loadPatientBundle } from './fhirInteractions';
@@ -101,7 +100,7 @@ export function loadTestDataFolder(testDataFolder: string) {
     });
 
   /** @type {BundleLoadInfo[]} */
-  const bundleResourceInfos: { fileName: string; bundle: R4.IBundle }[] = [];
+  const bundleResourceInfos: { fileName: string; bundle: fhir4.Bundle }[] = [];
   // Iterate over sub folders
   for (const subfolder of subfolders) {
     const subfolderPath = testDataFolder + '/' + subfolder;

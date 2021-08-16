@@ -1,13 +1,13 @@
 import * as DetailedResultsBuilder from '../src/calculation/DetailedResultsBuilder';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import { getJSONFixture } from './helpers/testHelpers';
 import { PopulationType } from '../src/types/Enums';
 import { StatementResults } from '../src/types/CQLTypes';
 import { PopulationResult } from '../src/types/Calculator';
 import { ELMExpressionRef, ELMQuery, ELMTuple } from '../src/types/ELMTypes';
 
-type MeasureWithGroup = R4.IMeasure & {
-  group: R4.IMeasure_Group[];
+type MeasureWithGroup = fhir4.Measure & {
+  group: fhir4.MeasureGroup[];
 };
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWithGroup;

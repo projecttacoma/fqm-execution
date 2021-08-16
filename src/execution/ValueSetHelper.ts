@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import { CQLCode, ValueSetMap } from '../types/CQLTypes';
 import moment from 'moment';
 
@@ -12,7 +11,7 @@ import moment from 'moment';
  * @param valueSetResources FHIR ValueSets.
  * @returns The value set DB structure needed for the cql-execution CodeService.
  */
-export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): ValueSetMap {
+export function valueSetsForCodeService(valueSetResources: fhir4.ValueSet[]): ValueSetMap {
   const valueSets: ValueSetMap = {};
   let valueSetId: string;
   let version: string;
@@ -63,7 +62,7 @@ export function valueSetsForCodeService(valueSetResources: R4.IValueSet[]): Valu
   return valueSets;
 }
 
-function getHierarchicalCodes(contains: R4.IValueSet_Contains[]): CQLCode[] {
+function getHierarchicalCodes(contains: fhir4.ValueSetExpansionContains[]): CQLCode[] {
   const codes: CQLCode[] = [];
   contains.forEach(contain => {
     if (!contain.abstract && !contain.inactive && contain.code && contain.system) {
@@ -95,11 +94,14 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
  * Collates dependent valuesets from a measure by going through all of the measure bundle's libraries' dataCriteria's codeFilters' valueset.
  * Then finds all valuesets that are not already contained in the measure bundle.
  *
- * @param {R4.IBundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
- * @param {R4.IValueSet[]} valueSetCache - Cache of existing valueset objects on disk to include in lookup
+ * @param {fhir4.Bundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
+ * @param {fhir4.ValueSet[]} valueSetCache - Cache of existing valueset objects on disk to include in lookup
  * @returns {string[]} An array of all dependent valueset urls in the measure that are used by the measure's libraries but not contained in the measure bundle
  */
-export function getMissingDependentValuesets(measureBundle: R4.IBundle, valueSetCache: R4.IValueSet[] = []): string[] {
+export function getMissingDependentValuesets(
+  measureBundle: fhir4.Bundle,
+  valueSetCache: fhir4.ValueSet[] = []
+): string[] {
   if (!measureBundle.entry) {
     throw new Error('Expected measure bundle to contain entries');
   }
@@ -109,7 +111,7 @@ export function getMissingDependentValuesets(measureBundle: R4.IBundle, valueSet
 
   // create an array of valueset urls
   const vsURLs: string[] = libraryEntries.reduce((acc, lib) => {
-    const libraryResource = lib.resource as R4.ILibrary;
+    const libraryResource = lib.resource as fhir4.Library;
     if (!libraryResource || !libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
       throw new Error('Expected library entry to have resource with dataRequirements that have codeFilters');
     }
@@ -136,7 +138,7 @@ export function getMissingDependentValuesets(measureBundle: R4.IBundle, valueSet
   // full array of all valueset URLs present across measureBundle and cache
   const existingValueSets = measureBundle.entry
     .filter(e => e.resource?.resourceType === 'ValueSet')
-    .map(e => e.resource as R4.IValueSet)
+    .map(e => e.resource as fhir4.ValueSet)
     .concat(valueSetCache)
     .map(vs => vs.url as string);
 

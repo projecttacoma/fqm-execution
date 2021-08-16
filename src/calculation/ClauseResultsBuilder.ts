@@ -5,7 +5,7 @@ import { ELM, LibraryDependencyInfo } from '../types/ELMTypes';
 import * as cql from '../types/CQLTypes';
 import * as cqlSystemTypes from 'cql-execution';
 import moment from 'moment';
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import { FinalResult, PopulationType, Relevance } from '../types/Enums';
 import {
   ClauseResult,
@@ -41,20 +41,20 @@ import {
  * determine the relevance of the population defining statement and its dependent statements.
  *
  * @public
- * @param {R4.IMeasure} measure - The measure.
+ * @param {fhir4.Measure} measure - The measure.
  * @param {PopulationResult[]} populationRelevanceSet - The population relevance results, used at the starting point.
  * @param {string} mainLibraryId - The identifier of the main library.
  * @param {ELM[]} elmLibraries - All ELM libraries for the measure.
- * @param {R4.IMeasure_Group} populationGroup - The population group being calculated.
+ * @param {fhir4.MeasureGroup} populationGroup - The population group being calculated.
  * @param {boolean} calculateSDEs - Wether or not to treat SDEs as calculed/relevant or not.
  * @returns {StatementResult[]} The StatementResults list for each statement with it its relevance status populated.
  */
 export function buildStatementRelevanceMap(
-  measure: R4.IMeasure,
+  measure: fhir4.Measure,
   populationRelevanceSet: PopulationResult[],
   mainLibraryId: string,
   elmLibraries: ELM[],
-  populationGroup: R4.IMeasure_Group,
+  populationGroup: fhir4.MeasureGroup,
   calculateSDEs: boolean
 ): StatementResult[] {
   // build statement results defaulting to not applicable (NA)
@@ -222,7 +222,7 @@ export function getStatementResult(
  * This function relies very heavily on the StatementResult `relevance` field to determine the final results.
  *
  * @public
- * @param {R4.IMeasure} measure - The measure.
+ * @param {fhir4.Measure} measure - The measure.
  * @param {ELM[]} elmLibraries - List of all ELM Library JSONs.
  * @param {any} rawClauseResults - The raw clause results from the calculation engine.
  * @param {StatementResult[]} statementResults - The `statement_relevance` map. Used to determine if they were hit or not.
@@ -230,7 +230,7 @@ export function getStatementResult(
  * @returns {object} Object with the statement_results and clause_results structures, keyed as such.
  */
 export function buildStatementAndClauseResults(
-  measure: R4.IMeasure,
+  measure: fhir4.Measure,
   elmLibraries: ELM[],
   rawClauseResults: cql.LocalIdResults,
   statementResults: StatementResult[],
@@ -589,7 +589,7 @@ export function doesResultPass(result: any | null): boolean {
  * @returns {PopulationResult[]} List denoting if population calculation was considered/relevant in any episode
  */
 export function buildPopulationRelevanceForAllEpisodes(
-  populationGroup: R4.IMeasure_Group,
+  populationGroup: fhir4.MeasureGroup,
   episodeResultsSet: EpisodeResults[]
 ): PopulationResult[] {
   const masterRelevanceResults: PopulationResult[] =
@@ -733,7 +733,7 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
 }
 
 export function buildPopulationGroupRelevanceMap(
-  group: R4.IMeasure_Group,
+  group: fhir4.MeasureGroup,
   results: DetailedPopulationGroupResult
 ): PopulationResult[] {
   // Episode of care measure
@@ -789,7 +789,7 @@ export function createOrSetResult(
 }
 
 // Get raw results of matching SDE expressions for each SDE in the Measure
-export function getSDEValues(measure: R4.IMeasure, statementResults: cql.StatementResults): SDEResult[] {
+export function getSDEValues(measure: fhir4.Measure, statementResults: cql.StatementResults): SDEResult[] {
   const results: SDEResult[] = [];
   if (measure.supplementalData) {
     measure.supplementalData.forEach(sde => {

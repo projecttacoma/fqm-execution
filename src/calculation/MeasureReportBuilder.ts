@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import {
   ExecutionResult,
   CalculationOptions,
@@ -10,17 +9,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { extractMeasureFromBundle } from '../helpers/MeasureBundleHelpers';
 
 export default class MeasureReportBuilder {
-  report: R4.IMeasureReport;
-  measureBundle: R4.IBundle;
-  measure: R4.IMeasure;
+  report: fhir4.MeasureReport;
+  measureBundle: fhir4.Bundle;
+  measure: fhir4.Measure;
   options: CalculationOptions;
   isIndividual: boolean;
   calculateSDEs: boolean;
   patientCount: number;
   scoringCode: string;
 
-  constructor(measureBundle: R4.IBundle, options: CalculationOptions) {
-    this.report = <R4.IMeasureReport>{
+  constructor(measureBundle: fhir4.Bundle, options: CalculationOptions) {
+    this.report = <fhir4.MeasureReport>{
       id: uuidv4(),
       resourceType: 'MeasureReport'
     };
@@ -54,8 +53,8 @@ export default class MeasureReportBuilder {
       start: this.options.measurementPeriodStart, // double check format of start and end that we're passing in https://www.hl7.org/fhir/datatypes.html#dateTime... we don't seem to be passing anything in from CLI
       end: this.options.measurementPeriodEnd
     };
-    this.report.status = R4.MeasureReportStatusKind._complete;
-    this.report.type = this.isIndividual ? R4.MeasureReportTypeKind._individual : R4.MeasureReportTypeKind._summary;
+    this.report.status = 'complete';
+    this.report.type = this.isIndividual ? 'individual' : 'summary';
 
     // measure url from measure bundle
     this.report.measure = this.measure.url || 'UnknownMeasure'; // or some other default?
@@ -64,7 +63,7 @@ export default class MeasureReportBuilder {
     // add narrative if specified
     if (this.options.calculateHTML && this.isIndividual) {
       this.report.text = {
-        status: R4.NarrativeStatusKind._generated,
+        status: 'generated',
         div: ''
       };
     }
@@ -77,7 +76,7 @@ export default class MeasureReportBuilder {
 
     // build population groups from measure resource
     this.measure.group?.forEach(measureGroup => {
-      const group = <R4.IMeasureReport_Group>{};
+      const group = <fhir4.MeasureReportGroup>{};
       if (measureGroup.id) {
         group.id = measureGroup.id;
       }
@@ -86,11 +85,11 @@ export default class MeasureReportBuilder {
 
       // build each population group with 0 for initial value
       measureGroup.population?.forEach(measurePopulation => {
-        const pop = <R4.IMeasureReport_Population>{};
+        const pop = <fhir4.MeasureReportGroupPopulation>{};
         pop.count = 0;
         // copy coding values for the population from the measure
         if (measurePopulation.code?.coding) {
-          const popCoding: R4.ICoding = measurePopulation.code?.coding[0];
+          const popCoding: fhir4.Coding = measurePopulation.code?.coding[0];
           pop.code = {
             coding: [
               {
@@ -108,12 +107,14 @@ export default class MeasureReportBuilder {
       if (measureGroup.stratifier) {
         group.stratifier = [];
         measureGroup.stratifier.forEach(s => {
-          const reportStratifier = <R4.IMeasureReport_Stratifier>{};
+          const reportStratifier = <fhir4.MeasureReportGroupStratifier>{};
           reportStratifier.code = s.code ? [s.code] : [];
-          const strat = <R4.IMeasureReport_Stratum>{};
+          const strat = <fhir4.MeasureReportGroupStratifierStratum>{};
           // use existing populations, but reduce count as appropriate
           // Deep copy population with matching attributes but different interface
-          strat.population = <R4.IMeasureReport_Population1[]>JSON.parse(JSON.stringify(group.population));
+          strat.population = <fhir4.MeasureReportGroupStratifierStratumPopulation[]>(
+            JSON.parse(JSON.stringify(group.population))
+          );
 
           reportStratifier.stratum = [strat];
           group.stratifier?.push(reportStratifier);
@@ -124,7 +125,7 @@ export default class MeasureReportBuilder {
     });
   }
 
-  public addPatientResults(patient: R4.IPatient, results: ExecutionResult) {
+  public addPatientResults(patient: fhir4.Patient, results: ExecutionResult) {
     // if this is a individual measure report and we have already received a patient we should throw
     // an error
     if (this.isIndividual && this.patientCount > 0) {
@@ -140,7 +141,7 @@ export default class MeasureReportBuilder {
     // if we are creating an individual report create the patient reference.
     if (this.isIndividual) {
       const patId = `Patient/${patient.id}`;
-      const subjectReference: R4.IReference = {
+      const subjectReference: fhir4.Reference = {
         reference: patId
       };
       this.report.subject = subjectReference;
@@ -248,7 +249,7 @@ export default class MeasureReportBuilder {
 
     if (results.evaluatedResource) {
       results.evaluatedResource.forEach(resource => {
-        const reference: R4.IReference = {
+        const reference: fhir4.Reference = {
           reference: `${resource.resourceType}/${resource.id}`
         };
         if (!this.report.evaluatedResource?.find(r => r.reference === reference.reference)) {
@@ -260,7 +261,7 @@ export default class MeasureReportBuilder {
     this.patientCount++;
   }
 
-  private incrementPopulationInStratum(stratum: R4.IMeasureReport_Stratum, pr: PopulationResult) {
+  private incrementPopulationInStratum(stratum: fhir4.MeasureReportGroupStratifierStratum, pr: PopulationResult) {
     const pop = stratum.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
     if (pop) {
       // add to pop count creating it if not already created.
@@ -271,7 +272,7 @@ export default class MeasureReportBuilder {
     }
   }
 
-  private incrementPopulationInGroup(group: R4.IMeasureReport_Group, pr: PopulationResult) {
+  private incrementPopulationInGroup(group: fhir4.MeasureReportGroup, pr: PopulationResult) {
     const pop = group.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
     if (pop) {
       // add to pop count creating it if not already created.
@@ -285,11 +286,11 @@ export default class MeasureReportBuilder {
   private addSDE(result: ExecutionResult) {
     // 	Note that supplemental data are reported as observations for each patient and included in the evaluatedResources bundle. See the MeasureReport resource or the Quality Reporting topic for more information.
     result.supplementalData?.forEach(sd => {
-      const observation = <R4.IObservation>{};
+      const observation = <fhir4.Observation>{};
       observation.resourceType = 'Observation';
       observation.code = { text: sd.name };
       observation.id = uuidv4();
-      observation.status = R4.ObservationStatusKind._final;
+      observation.status = 'final';
       observation.extension = [
         {
           url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
@@ -335,7 +336,7 @@ export default class MeasureReportBuilder {
     });
   }
 
-  private populationTotal(population: R4.IMeasureReport_Population[], type: PopulationType) {
+  private populationTotal(population: fhir4.MeasureReportGroupPopulation[], type: PopulationType) {
     return (
       population?.find(pop => {
         return pop.code?.coding && pop.code.coding.length > 0 && pop.code?.coding[0].code === type;
@@ -384,7 +385,7 @@ export default class MeasureReportBuilder {
 
   // CV requires different input types than other scores
   private calcMeasureScoreCV(
-    measure: R4.IMeasure,
+    measure: fhir4.Measure,
     detail: DetailedPopulationGroupResult,
     groupID: string,
     strataCode?: string
@@ -429,15 +430,15 @@ export default class MeasureReportBuilder {
   }
 
   // TODO: shouldn't this have a group reference or something since the score is specific to a group? (how would this score be re-associated with the right group?)
-  private addScoreObservation(score: R4.IQuantity, measure: R4.IMeasure, report: R4.IMeasureReport) {
+  private addScoreObservation(score: fhir4.Quantity, measure: fhir4.Measure, report: fhir4.MeasureReport) {
     // create observation resource to reflect the score value and add as reference in evaluated resources
-    const observationResource: R4.IObservation = {
+    const observationResource: fhir4.Observation = {
       resourceType: 'Observation',
       code: {
         text: 'MeasureObservation'
       },
       id: uuidv4(),
-      status: R4.ObservationStatusKind._final,
+      status: 'final',
       valueQuantity: score
     };
     // is this extension necessary?
@@ -464,8 +465,8 @@ export default class MeasureReportBuilder {
 
   private calcMeasureScore(
     scoringCode: string,
-    population: R4.IMeasureReport_Population[] | R4.IMeasureReport_Population1[]
-  ): R4.IQuantity {
+    population: fhir4.MeasureReportGroupPopulation[] | fhir4.MeasureReportGroupStratifierStratumPopulation[]
+  ): fhir4.Quantity {
     switch (scoringCode) {
       case MeasureScoreType.PROP:
         // (Numerator - Numerator Exclusions) / (Denominator - D Exclusions - D Exceptions).
@@ -539,18 +540,18 @@ export default class MeasureReportBuilder {
     });
   }
 
-  public getReport(): R4.IMeasureReport {
+  public getReport(): fhir4.MeasureReport {
     this.calculateGroupScores();
     return this.report;
   }
 
   static buildMeasureReports(
-    measureBundle: R4.IBundle,
-    patientBundles: R4.IBundle[],
+    measureBundle: fhir4.Bundle,
+    patientBundles: fhir4.Bundle[],
     executionResults: ExecutionResult[],
     options: CalculationOptions
-  ): R4.IMeasureReport[] {
-    const reports: R4.IMeasureReport[] = [];
+  ): fhir4.MeasureReport[] {
+    const reports: fhir4.MeasureReport[] = [];
     executionResults.forEach(result => {
       // find this patient's bundle
       const patientBundle = patientBundles.find(patientBundle => {
@@ -569,7 +570,7 @@ export default class MeasureReportBuilder {
         const builder = new MeasureReportBuilder(measureBundle, options);
         const patient = patientBundle.entry?.find(bundleEntry => {
           return bundleEntry.resource?.resourceType === 'Patient';
-        })?.resource as R4.IPatient;
+        })?.resource as fhir4.Patient;
         builder.addPatientResults(patient, result);
         reports.push(builder.getReport());
       }

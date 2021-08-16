@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import axios, { AxiosInstance } from 'axios';
 import { isVSACUrl, normalizeCanonical } from './VSACHelper';
 
@@ -23,8 +22,8 @@ export class ValueSetResolver {
     return Buffer.from(`apikey:${this.apiKey}`).toString('base64');
   }
 
-  async getExpansionForValuesetUrls(urls: string[]): Promise<[R4.IValueSet[], string[]]> {
-    const valuesets: R4.IValueSet[] = [];
+  async getExpansionForValuesetUrls(urls: string[]): Promise<[fhir4.ValueSet[], string[]]> {
+    const valuesets: fhir4.ValueSet[] = [];
     const errors: string[] = [];
 
     // Make the actual requests. We use 'for.. of' here because we want to send requests individually
@@ -39,7 +38,7 @@ export class ValueSetResolver {
           normalizedUrl = normalizeCanonical(url) || url;
         }
 
-        const res = await this.instance.get<R4.IValueSet>(`${normalizedUrl}/$expand`);
+        const res = await this.instance.get<fhir4.ValueSet>(`${normalizedUrl}/$expand`);
         valuesets.push(res.data);
       } catch (e) {
         errors.push(`Valueset with URL ${normalizedUrl} could not be retrieved. Reason: ${e.message}`);
@@ -56,7 +55,7 @@ export class ValueSetResolver {
     return [valuesets, missingValuesets];
   }
 
-  findMissingValuesets(missingVSURLs: string[], expansions: R4.IValueSet[]): string[] {
+  findMissingValuesets(missingVSURLs: string[], expansions: fhir4.ValueSet[]): string[] {
     const stillMissingValuesets: string[] = [...missingVSURLs];
     // remove any valuesets we got from their URLs from the "missing" list
     expansions.forEach(vs => {

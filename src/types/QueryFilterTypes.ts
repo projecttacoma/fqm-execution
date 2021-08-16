@@ -1,4 +1,3 @@
-import { R4 } from '@ahryman40k/ts-fhir-types';
 import * as cql from 'cql-execution';
 import { GracefulError } from './GracefulError';
 
@@ -77,7 +76,7 @@ export interface AttributeFilter extends Filter {
  */
 export interface InFilter extends AttributeFilter {
   type: 'in';
-  valueCodingList?: R4.ICoding[];
+  valueCodingList?: fhir4.Coding[];
   valueList?: (string | number)[];
 }
 

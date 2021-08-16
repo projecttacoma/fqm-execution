@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { R4 } from '@ahryman40k/ts-fhir-types';
+
 import MeasureReportBuilder from '../src/calculation/MeasureReportBuilder';
 import { getJSONFixture } from './helpers/testHelpers';
 import { ExecutionResult, CalculationOptions } from '../src/types/Calculator';
@@ -15,12 +15,12 @@ const patient2 = getJSONFixture('EXM111-9.1.000/Armando772_Almanza534_08fc9439-b
 const patient1Id = '3413754c-73f0-4559-9f67-df8e593ce7e1';
 const patient2Id = '08fc9439-b7ff-4309-b409-4d143388594c';
 
-const simpleMeasure = getJSONFixture('measure/simple-measure.json') as R4.IMeasure;
-const cvMeasure = getJSONFixture('measure/cv-measure.json') as R4.IMeasure;
+const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
+const cvMeasure = getJSONFixture('measure/cv-measure.json') as fhir4.Measure;
 
-const simpleMeasureBundle: R4.IBundle = {
+const simpleMeasureBundle: fhir4.Bundle = {
   resourceType: 'Bundle',
-  type: R4.BundleTypeKind._collection,
+  type: 'collection',
   entry: [
     {
       resource: simpleMeasure
@@ -28,9 +28,9 @@ const simpleMeasureBundle: R4.IBundle = {
   ]
 };
 
-const cvMeasureBundle: R4.IBundle = {
+const cvMeasureBundle: fhir4.Bundle = {
   resourceType: 'Bundle',
-  type: R4.BundleTypeKind._collection,
+  type: 'collection',
   entry: [
     {
       resource: cvMeasure
@@ -131,7 +131,7 @@ const calculationOptions: CalculationOptions = {
 
 describe('MeasureReportBuilder Static', () => {
   describe('Simple Measure Report', () => {
-    let measureReports: R4.IMeasureReport[];
+    let measureReports: fhir4.MeasureReport[];
     beforeAll(() => {
       measureReports = MeasureReportBuilder.buildMeasureReports(
         simpleMeasureBundle,
@@ -149,8 +149,8 @@ describe('MeasureReportBuilder Static', () => {
     test('should set basic options correctly', () => {
       const [mr] = measureReports;
 
-      expect(mr.status).toEqual(R4.MeasureReportStatusKind._complete);
-      expect(mr.type).toEqual(R4.MeasureReportTypeKind._individual);
+      expect(mr.status).toEqual('complete');
+      expect(mr.type).toEqual('individual');
 
       expect(mr.period).toEqual({
         start: calculationOptions.measurementPeriodStart,
@@ -192,9 +192,9 @@ describe('MeasureReportBuilder Static', () => {
       expect(mr.contained).toBeDefined();
       expect(mr.contained).toHaveLength(1);
 
-      const sde = mr.contained?.[0] as R4.IObservation;
+      const sde = mr.contained?.[0] as fhir4.Observation;
 
-      expect(sde.status).toEqual(R4.ObservationStatusKind._final);
+      expect(sde.status).toEqual('final');
       expect(sde.code).toEqual({
         text: 'sde-code'
       });
@@ -215,7 +215,7 @@ describe('MeasureReportBuilder Static', () => {
   });
 
   describe('CV stratifier Measure Report', () => {
-    let measureReports: R4.IMeasureReport[];
+    let measureReports: fhir4.MeasureReport[];
     beforeAll(() => {
       measureReports = MeasureReportBuilder.buildMeasureReports(
         cvMeasureBundle,
@@ -258,12 +258,13 @@ describe('MeasureReportBuilder Static', () => {
 });
 
 describe('MeasureReportBuilder Class', () => {
-  let measureBundle: R4.IBundle;
-  let patientResource: R4.IPatient;
+  let measureBundle: fhir4.Bundle;
+  let patientResource: fhir4.Patient;
   beforeAll(() => {
     measureBundle = {
       resourceType: 'Bundle',
-      entry: [{ resource: simpleMeasure }]
+      entry: [{ resource: simpleMeasure }],
+      type: 'transaction'
     };
 
     patientResource = patient1.entry[0].resource;
@@ -319,8 +320,8 @@ describe('MeasureReportBuilder Class', () => {
       end: '2021-12-31'
     });
 
-    expect(report.status).toEqual(R4.MeasureReportStatusKind._complete);
-    expect(report.type).toEqual(R4.MeasureReportTypeKind._individual);
+    expect(report.status).toEqual('complete');
+    expect(report.type).toEqual('individual');
 
     expect(report.measure).toEqual(simpleMeasure.url);
 
@@ -344,8 +345,8 @@ describe('MeasureReportBuilder Class', () => {
       end: '2021-12-31'
     });
 
-    expect(report.status).toEqual(R4.MeasureReportStatusKind._complete);
-    expect(report.type).toEqual(R4.MeasureReportTypeKind._summary);
+    expect(report.status).toEqual('complete');
+    expect(report.type).toEqual('summary');
 
     expect(report.measure).toEqual(simpleMeasure.url);
 
