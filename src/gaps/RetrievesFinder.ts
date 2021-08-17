@@ -12,7 +12,7 @@ import {
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 import { findLibraryReference, findValueSetReference } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
-import { GracefulError } from '../types/GracefulError';
+import { GracefulError } from '../types/errors/GracefulError';
 
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions

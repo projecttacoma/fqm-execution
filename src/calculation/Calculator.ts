@@ -23,7 +23,7 @@ import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
 import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
-import { GracefulError } from '../types/GracefulError';
+import { GracefulError } from '../types/errors/GracefulError';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.

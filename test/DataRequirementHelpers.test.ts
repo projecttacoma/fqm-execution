@@ -9,7 +9,7 @@ import {
 } from '../src/types/QueryFilterTypes';
 
 import { DataTypeQuery } from '../src/types/Calculator';
-import { GracefulError } from '../src/types/GracefulError';
+import { GracefulError } from '../src/types/errors/GracefulError';
 
 describe('DataRequirementHelpers', () => {
   describe('Flatten Filters', () => {

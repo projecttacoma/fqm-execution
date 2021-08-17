@@ -1,7 +1,7 @@
 import { getELMFixture } from './helpers/testHelpers';
 import { findRetrieves } from '../src/gaps/RetrievesFinder';
 import { DataTypeQuery } from '../src/types/Calculator';
-import { GracefulError } from '../src/types/GracefulError';
+import { GracefulError } from '../src/types/errors/GracefulError';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');

@@ -2,7 +2,7 @@ import { PopulationType, FinalResult, Relevance, CareGapReasonCode } from './Enu
 import * as cql from './CQLTypes';
 import { ELM } from './ELMTypes';
 import { QueryInfo } from './QueryFilterTypes';
-import { GracefulError } from './GracefulError';
+import { GracefulError } from './errors/GracefulError';
 
 /**
  * Options for calculation.

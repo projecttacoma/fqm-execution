@@ -45,7 +45,7 @@ import {
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
-import { GracefulError, isOfTypeGracefulError } from '../types/GracefulError';
+import { GracefulError, isOfTypeGracefulError } from '../types/errors/GracefulError';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
