@@ -1,6 +1,7 @@
 import { PopulationType } from '../types/Enums';
 import { CalculationOptions } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
+import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -59,7 +60,7 @@ export function codeableConceptToPopulationType(concept: fhir4.CodeableConcept |
 export function extractMeasurementPeriod(measureBundle: fhir4.Bundle): CalculationOptions {
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
   if (!measureEntry || !measureEntry.resource) {
-    throw new Error('Measure resource was not found in provided measure bundle');
+    throw new UnexpectedResource('Measure resource was not found in provided measure bundle');
   }
   const measure = measureEntry.resource as fhir4.Measure;
   return {
@@ -140,7 +141,7 @@ export function extractLibrariesFromBundle(
   });
 
   if (rootLibIdentifier.id === '') {
-    throw new Error('No Root Library could be identified in provided measure bundle');
+    throw new UnexpectedResource('No Root Library could be identified in provided measure bundle');
   }
 
   return { cqls, rootLibIdentifier, elmJSONs };
@@ -152,13 +153,13 @@ export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWi
   const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
 
   if (!measureEntry) {
-    throw new Error('Measure resource does not exist in provided measure bundle');
+    throw new UnexpectedResource('Measure resource does not exist in provided measure bundle');
   }
 
   const measure = measureEntry.resource as MeasureWithLibrary;
 
   if (!measure.library) {
-    throw new Error('Measure resource must specify a "library"');
+    throw new UnexpectedProperty('Measure resource must specify a "library"');
   }
 
   return measure;

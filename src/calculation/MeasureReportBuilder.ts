@@ -7,6 +7,7 @@ import {
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import { extractMeasureFromBundle } from '../helpers/MeasureBundleHelpers';
+import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomErrors';
 
 export default class MeasureReportBuilder {
   report: fhir4.MeasureReport;
@@ -129,7 +130,7 @@ export default class MeasureReportBuilder {
     // if this is a individual measure report and we have already received a patient we should throw
     // an error
     if (this.isIndividual && this.patientCount > 0) {
-      throw new Error(
+      throw new UnsupportedProperty(
         'The MeasureReport being built is an individual report and patient results have already been added'
       );
     }
@@ -159,7 +160,7 @@ export default class MeasureReportBuilder {
       // default to index if group is missing an ID
       const group = this.report.group?.find(g => g.id == groupResults.groupId) || this.report.group?.[i];
       if (!group) {
-        throw new Error(`Group ${groupResults.groupId} not found in measure report`);
+        throw new UnexpectedProperty(`Group ${groupResults.groupId} not found in measure report`);
       }
 
       // iterate over population results for episodes and increment the counters
@@ -198,7 +199,7 @@ export default class MeasureReportBuilder {
                     );
                   }
                 } else {
-                  throw new Error(
+                  throw new UnexpectedProperty(
                     `Stratum ${stratResults.strataCode} in group ${group.id} not found in measure reports`
                   );
                 }
@@ -236,7 +237,9 @@ export default class MeasureReportBuilder {
                   );
                 }
               } else {
-                throw new Error(`Stratum ${stratResults.strataCode} in group ${group.id} not found in measure reports`);
+                throw new UnexpectedProperty(
+                  `Stratum ${stratResults.strataCode} in group ${group.id} not found in measure reports`
+                );
               }
             }
           });
@@ -268,7 +271,9 @@ export default class MeasureReportBuilder {
       if (!pop.count) pop.count = 0;
       pop.count += pr.result ? 1 : 0;
     } else {
-      throw new Error(`Population ${pr.populationType} in stratum ${stratum.id} not found in measure report.`);
+      throw new UnexpectedProperty(
+        `Population ${pr.populationType} in stratum ${stratum.id} not found in measure report.`
+      );
     }
   }
 
@@ -279,7 +284,7 @@ export default class MeasureReportBuilder {
       if (!pop.count) pop.count = 0;
       pop.count += pr.result ? 1 : 0;
     } else {
-      throw new Error(`Population ${pr.populationType} in group ${group.id} not found in measure report.`);
+      throw new UnexpectedProperty(`Population ${pr.populationType} in group ${group.id} not found in measure report.`);
     }
   }
 
@@ -379,7 +384,7 @@ export default class MeasureReportBuilder {
         // count	Count	The measure score is determined as the number of observations derived from the measure population.
         return observations.length;
       default:
-        throw new Error(`Measure score aggregation type \"${aggregation}\" not supported`);
+        throw new UnsupportedProperty(`Measure score aggregation type \"${aggregation}\" not supported`);
     }
   }
 
@@ -503,13 +508,13 @@ export default class MeasureReportBuilder {
           value: denominatorCount2 === 0 ? 0 : (numeratorCount2 / denominatorCount2) * 1.0
         };
       default:
-        throw new Error(`Measure score type \"${scoringCode}\" not supported`);
+        throw new UnsupportedProperty(`Measure score type \"${scoringCode}\" not supported`);
     }
   }
 
   private calculateGroupScores() {
     if (!this.isIndividual && this.scoringCode === MeasureScoreType.CV) {
-      throw new Error();
+      throw new UnsupportedProperty('Aggregate measure reports for continuous variable measures not supported');
     }
 
     this.report.group?.forEach(group => {
@@ -520,7 +525,7 @@ export default class MeasureReportBuilder {
           group.measureScore = this.calcMeasureScore(this.scoringCode, group.population);
         }
       } else {
-        throw new Error(`Group ${group.id} is missing population results.`);
+        throw new UnexpectedProperty(`Group ${group.id} is missing population results.`);
       }
 
       // calculate all stratifiers in group
@@ -533,7 +538,7 @@ export default class MeasureReportBuilder {
               stratum.measureScore = this.calcMeasureScore(this.scoringCode, stratum.population);
             }
           } else {
-            throw new Error(`Group ${group.id} Stratifier ${strat.id} is missing population results.`);
+            throw new UnexpectedProperty(`Group ${group.id} Stratifier ${strat.id} is missing population results.`);
           }
         });
       });

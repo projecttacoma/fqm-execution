@@ -4,6 +4,7 @@ import { ClauseResult, StatementResult } from '../types/Calculator';
 import { FinalResult, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
+import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -74,12 +75,12 @@ export function generateHTML(
   relevantStatements.forEach(s => {
     const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
     if (!matchingLibrary) {
-      throw new Error(`Could not find library ${s.libraryName} for statement ${s.statementName}`);
+      throw new UnexpectedResource(`Could not find library ${s.libraryName} for statement ${s.statementName}`);
     }
 
     const matchingExpression = matchingLibrary.library.statements.def.find(e => e.name === s.statementName);
     if (!matchingExpression) {
-      throw new Error(`No statement ${s.statementName} found in library ${s.libraryName}`);
+      throw new UnexpectedProperty(`No statement ${s.statementName} found in library ${s.libraryName}`);
     }
 
     if (matchingExpression.annotation) {

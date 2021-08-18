@@ -1,5 +1,6 @@
 import { CQLCode, ValueSetMap } from '../types/CQLTypes';
 import moment from 'moment';
+import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 
 /**
  * Create the code service valueset database that the cql-execution engine needs.
@@ -103,7 +104,7 @@ export function getMissingDependentValuesets(
   valueSetCache: fhir4.ValueSet[] = []
 ): string[] {
   if (!measureBundle.entry) {
-    throw new Error('Expected measure bundle to contain entries');
+    throw new UnexpectedResource('Expected measure bundle to contain entries');
   }
   const libraryEntries = measureBundle.entry?.filter(
     e => e.resource?.resourceType === 'Library' && e.resource.dataRequirement
@@ -112,8 +113,12 @@ export function getMissingDependentValuesets(
   // create an array of valueset urls
   const vsURLs: string[] = libraryEntries.reduce((acc, lib) => {
     const libraryResource = lib.resource as fhir4.Library;
-    if (!libraryResource || !libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
-      throw new Error('Expected library entry to have resource with dataRequirements that have codeFilters');
+    if (!libraryResource) {
+      throw new UnexpectedResource('Library entry not included in measure bundle');
+    } else if (!libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
+      throw new UnexpectedProperty(
+        'Expected library entry to have resource with dataRequirements that have codeFilters'
+      );
     }
     // pull all valuset urls out of this library's dataRequirements
     const libraryVSURL: string[] = libraryResource.dataRequirement.reduce((accumulator, dr) => {
