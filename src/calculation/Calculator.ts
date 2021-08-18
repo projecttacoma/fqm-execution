@@ -24,7 +24,12 @@ import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
 import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
 import { GracefulError } from '../types/errors/GracefulError';
-import { UnexpectedProperty, UnexpectedResource, UnsupportedProperty } from '../types/errors/CustomErrors';
+import {
+  ErrorWithDebugInfo,
+  UnexpectedProperty,
+  UnexpectedResource,
+  UnsupportedProperty
+} from '../types/errors/CustomErrors';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -310,7 +315,7 @@ export async function calculateRaw(
   if (results.rawResults) {
     return { results: results.rawResults, debugOutput: debugObject, valueSetCache: results.valueSetCache };
   } else {
-    return { results: results.errorMessage ?? 'something happened with no error message', debugOutput: debugObject };
+    throw new ErrorWithDebugInfo(results.errorMessage ?? 'something happened with no error message', debugObject);
   }
 }
 
