@@ -1,5 +1,5 @@
 import { DataTypeQuery } from '../types/Calculator';
-import { GracefulError } from '../types/GracefulError';
+import { GracefulError } from '../types/errors/GracefulError';
 import {
   EqualsFilter,
   InFilter,

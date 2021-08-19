@@ -8,6 +8,7 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { PopulationType } from '../types/Enums';
 import { generateELMJSONFunction } from '../calculation/DetailedResultsBuilder';
 import { ValueSetResolver } from './ValueSetResolver';
+import { UnexpectedResource } from '../types/errors/CustomErrors';
 
 export async function execute(
   measureBundle: fhir4.Bundle,
@@ -20,7 +21,7 @@ export async function execute(
 
   //if there are entries, pb.entry?.length will be > 0 which is truthy. Otherwise falsy
   if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
-    throw new Error('No entries found in passed patient bundles');
+    throw new UnexpectedResource('No entries found in passed patient bundles');
   }
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
@@ -33,7 +34,7 @@ export async function execute(
 
   if (missingVS.length > 0) {
     if (!options.vsAPIKey || options.vsAPIKey.length == 0) {
-      throw new Error(
+      throw new UnexpectedResource(
         `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
       );
     }
@@ -111,6 +112,9 @@ export async function execute(
   const executionDateTime = cql.DateTime.fromJSDate(new Date(), 0);
   const rep = new cql.Repository(elmJSONs);
   const lib = rep.resolve(rootLibIdentifier.id, rootLibIdentifier.version);
+  /**
+   * TODO look more into this if it returns string instead of error
+   */
   const executor = new cql.Executor(lib, codeService, parameters);
   const results = executor.exec(patientSource, executionDateTime);
 

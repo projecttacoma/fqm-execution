@@ -12,7 +12,8 @@ import {
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 import { findLibraryReference, findValueSetReference } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
-import { GracefulError } from '../types/GracefulError';
+import { GracefulError } from '../types/errors/GracefulError';
+import { UnexpectedResource } from '../types/errors/CustomErrors';
 
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions
@@ -65,7 +66,7 @@ export function findRetrieves(
         // check if the outer query is indeed referencing the inner one in the source.
         const queryLib = allELM.find(lib => lib.library.identifier.id === bottomExprs[0].libraryName);
         if (!queryLib) {
-          throw new Error('Referenced query library cannot be found.');
+          throw new UnexpectedResource('Referenced query library cannot be found.');
         }
         const outerQuery = findClauseInLibrary(queryLib, bottomExprs[0].localId) as ELMQuery;
         if (

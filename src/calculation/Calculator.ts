@@ -23,7 +23,13 @@ import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
 import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
-import { GracefulError } from '../types/GracefulError';
+import { GracefulError } from '../types/errors/GracefulError';
+import {
+  ErrorWithDebugInfo,
+  UnexpectedProperty,
+  UnexpectedResource,
+  UnsupportedProperty
+} from '../types/errors/CustomErrors';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -61,7 +67,7 @@ export async function calculate(
   const rawResults = results.rawResults;
 
   if (!results.elmLibraries || !results.mainLibraryName) {
-    throw new Error('no libraries were found');
+    throw new UnexpectedResource('no libraries were found');
   }
   const elmLibraries = results.elmLibraries;
   const mainLibraryName = results.mainLibraryName;
@@ -220,7 +226,7 @@ export async function calculateIndividualMeasureReports(
   valueSetCache: fhir4.ValueSet[] = []
 ): Promise<IMRCalculationOutput> {
   if (options.reportType && options.reportType !== 'individual') {
-    throw new Error('calculateMeasureReports only supports reportType "individual".');
+    throw new UnsupportedProperty('calculateMeasureReports only supports reportType "individual".');
   }
   // options should be updated by this call if measurementPeriod wasn't initially passed in
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
@@ -309,7 +315,7 @@ export async function calculateRaw(
   if (results.rawResults) {
     return { results: results.rawResults, debugOutput: debugObject, valueSetCache: results.valueSetCache };
   } else {
-    return { results: results.errorMessage ?? 'something happened with no error message', debugOutput: debugObject };
+    throw new ErrorWithDebugInfo(results.errorMessage ?? 'something happened with no error message', debugObject);
   }
 }
 
@@ -356,7 +362,7 @@ export async function calculateGapsInCare(
       )?.code;
 
       if (scoringCode !== MeasureScoreType.PROP) {
-        throw new Error(`Gaps in care not supported for measure scoring type ${scoringCode}`);
+        throw new UnsupportedProperty(`Gaps in care not supported for measure scoring type ${scoringCode}`);
       }
 
       const denomResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result;
@@ -364,13 +370,13 @@ export async function calculateGapsInCare(
       const numerRelevance = dr.populationRelevance?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
 
       if (!measureResource.improvementNotation?.coding) {
-        throw new Error('Measure resource must include improvement notation');
+        throw new UnexpectedProperty('Measure resource must include improvement notation');
       }
 
       const improvementNotation = measureResource.improvementNotation.coding[0].code;
 
       if (!improvementNotation) {
-        throw new Error('Improvement notation code not present on measure');
+        throw new UnexpectedProperty('Improvement notation code not present on measure');
       }
 
       // If positive improvement measure, consider patients in denominator but not numerator for gaps
@@ -392,19 +398,19 @@ export async function calculateGapsInCare(
         );
 
         if (!numerCriteria) {
-          throw new Error(`Could not find numerator criteria expression in measure group ${dr.groupId}`);
+          throw new UnexpectedProperty(`Could not find numerator criteria expression in measure group ${dr.groupId}`);
         }
 
         const numerExpressionName = numerCriteria.criteria.expression;
         const mainLibraryELM = elmLibraries?.find(lib => lib.library.identifier.id === mainLibraryName);
 
         if (!mainLibraryELM || !elmLibraries) {
-          throw new Error(`Could not find ELM for ${mainLibraryName}`);
+          throw new UnexpectedResource(`Could not find ELM for ${mainLibraryName}`);
         }
 
         const numerELMExpression = mainLibraryELM.library.statements.def.find(e => e.name === numerExpressionName);
         if (!numerELMExpression) {
-          throw new Error(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
+          throw new UnexpectedProperty(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
         }
 
         // Parse ELM for basic info about queries
@@ -498,7 +504,7 @@ export function calculateDataRequirements(measureBundle: fhir4.Bundle): DRCalcul
 
   // We need a root library to run dataRequirements properly. If we don't have one, error out.
   if (!rootLib?.library) {
-    throw new Error("root library doesn't contain a library object");
+    throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
   }
   const withErrors: GracefulError[] = [];
   // get the retrieves for every statement in the root library

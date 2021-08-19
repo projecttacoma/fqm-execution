@@ -1,5 +1,5 @@
 import * as cql from 'cql-execution';
-import { GracefulError } from './GracefulError';
+import { GracefulError } from './errors/GracefulError';
 
 /** Any type of query filter. */
 export type AnyFilter =

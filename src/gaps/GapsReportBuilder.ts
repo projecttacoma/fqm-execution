@@ -22,7 +22,7 @@ import {
   NotNullFilter,
   AttributeFilter
 } from '../types/QueryFilterTypes';
-import { GracefulError, isOfTypeGracefulError } from '../types/GracefulError';
+import { GracefulError, isOfTypeGracefulError } from '../types/errors/GracefulError';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve

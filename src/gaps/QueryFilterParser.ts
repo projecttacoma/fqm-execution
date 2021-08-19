@@ -45,7 +45,8 @@ import {
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
-import { GracefulError, isOfTypeGracefulError } from '../types/GracefulError';
+import { GracefulError, isOfTypeGracefulError } from '../types/errors/GracefulError';
+import { UnexpectedResource } from '../types/errors/CustomErrors';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
@@ -94,7 +95,7 @@ export function parseQueryInfo(
         queryLib = findLibraryReference(library, allELM, exprRef.libraryName);
       }
       if (!queryLib) {
-        throw new Error(`Cannot Find Referenced Library: ${exprRef.libraryName}`);
+        throw new UnexpectedResource(`Cannot Find Referenced Library: ${exprRef.libraryName}`);
       }
       const statement = queryLib.library.statements.def.find(s => s.name === exprRef.name);
       // if we find the statement and it is a query we can move forward.
