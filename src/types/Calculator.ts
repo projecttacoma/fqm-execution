@@ -219,6 +219,8 @@ export interface DataTypeQuery {
   expressionStack?: ExpressionStackEntry[];
   /** path that the code or valueset object refers to */
   path?: string;
+  /** Info about query and how it is filtered. */
+  queryInfo?: QueryInfo;
 }
 
 export interface GapsDataTypeQuery extends DataTypeQuery {
@@ -226,8 +228,6 @@ export interface GapsDataTypeQuery extends DataTypeQuery {
   retrieveHasResult?: boolean;
   /** whether or not the entire query was truthy */
   parentQueryHasResult?: boolean;
-  /** Info about query and how it is filtered. */
-  queryInfo?: QueryInfo;
   /** Info about the reason detail query */
   reasonDetail?: ReasonDetail;
 }
@@ -295,7 +295,8 @@ export interface CalculatorFunctionOutput {
     | cql.Results
     | string
     | fhir4.Bundle
-    | fhir4.Library;
+    | fhir4.Library
+    | DataTypeQuery[];
   debugOutput?: DebugOutput;
   valueSetCache?: fhir4.ValueSet[];
   withErrors?: GracefulError[];
@@ -351,4 +352,11 @@ export interface GICCalculationOutput extends CalculatorFunctionOutput {
  */
 export interface DRCalculationOutput extends Omit<CalculatorFunctionOutput, 'valueSetCache'> {
   results: fhir4.Library;
+}
+
+/**
+ * dataType for calculateQueryInfo() function
+ */
+export interface QICalculationOutput extends CalculatorFunctionOutput {
+  results: DataTypeQuery[];
 }
