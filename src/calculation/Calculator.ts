@@ -9,7 +9,8 @@ import {
   RCalculationOutput,
   DRCalculationOutput,
   DebugOutput,
-  DataTypeQuery
+  DataTypeQuery,
+  QICalculationOutput
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -496,7 +497,6 @@ export async function calculateGapsInCare(
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @returns FHIR Library of data requirements
  */
-
 export function calculateDataRequirements(measureBundle: fhir4.Bundle): DRCalculationOutput {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
@@ -539,6 +539,54 @@ export function calculateDataRequirements(measureBundle: fhir4.Bundle): DRCalcul
       gaps: {
         retrieves: uniqueRetrieves
       }
+    },
+    withErrors
+  };
+}
+
+/**
+ * Get detailed query info for all statements of a Measure
+ *
+ * @param measureBundle Bundle with a Measure resource and all dependent library resources
+ * @returns Detailed query info object for all statements
+ */
+export function calculateQueryInfo(measureBundle: fhir4.Bundle): QICalculationOutput {
+  // Extract the library ELM, and the id of the root library, from the measure bundle
+  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
+  const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
+
+  if (!rootLib?.library) {
+    throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
+  }
+
+  // get the retrieves for every statement in the root library
+  const withErrors: GracefulError[] = [];
+  const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
+    if (statement.expression && statement.name != 'Patient') {
+      const retrievesOutput = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
+      withErrors.push(...retrievesOutput.withErrors);
+      return retrievesOutput.results;
+    } else {
+      return [] as DataTypeQuery[];
+    }
+  });
+
+  allRetrieves.forEach(retrieve => {
+    // If the retrieves have a localId for the query and a known library name, we can get more info
+    // on how the query filters the sources.
+    if (retrieve.queryLocalId && retrieve.queryLibraryName) {
+      const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
+      if (library) {
+        retrieve.queryInfo = parseQueryInfo(library, elmJSONs, retrieve.queryLocalId);
+      }
+    }
+  });
+
+  return {
+    results: allRetrieves,
+    debugOutput: {
+      cql: cqls,
+      elm: elmJSONs
     },
     withErrors
   };

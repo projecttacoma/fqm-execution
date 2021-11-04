@@ -24,13 +24,13 @@ Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) wr
 `fqm-execution` can be installed into your project with npm:
 
 ``` bash
-npm install --save https://github.com/projecttacoma/fqm-execution.git
+npm install --save fqm-execution
 ```
 
 To install the global command line interface (CLI), use npm global installation:
 
 ``` bash
-npm install -g https://github.com/projecttacoma/fqm-execution.git
+npm install -g fqm-execution
 ```
 
 ## Usage
@@ -47,6 +47,7 @@ const detailedResults = await Calculator.calculate(measureBundle, patientBundles
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
+const queryInfo = Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a meaasure
 ```
 
 #### Require
@@ -59,6 +60,7 @@ const detailedResults = await Calculator.calculate(measureBundle, patientBundles
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
+const queryInfo = Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a meaasure
 ```
 
 #### Arguments
@@ -95,7 +97,7 @@ Usage: fqm-execution [options]
 
 Options:
   -d, --debug                                 enable debug output (default: false)
-  -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps", "dataRequirements" (default: "detailed")
+  -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps", "dataRequirements", "queryInfo" (default: "detailed")
   -r, --report-type <type>                    type of MeasureReport (only for output type "reports"): "summary" or "individual" (default: "individual")
   -m, --measure-bundle <measure-bundle>       path to measure bundle
   -p, --patient-bundles <patient-bundles...>  paths to patient bundle

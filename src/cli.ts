@@ -8,7 +8,8 @@ import {
   calculateMeasureReports,
   calculateGapsInCare,
   calculateRaw,
-  calculateDataRequirements
+  calculateDataRequirements,
+  calculateQueryInfo
 } from './calculation/Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
@@ -17,7 +18,7 @@ program
   .option('-d, --debug', 'enable debug output', false)
   .option(
     '-o, --output-type <type>',
-    'type of output, "raw", "detailed", "reports", "gaps", "dataRequirements"',
+    'type of output, "raw", "detailed", "reports", "gaps", "dataRequirements", "queryInfo"',
     'detailed'
   )
   .option('-r, --report-type <report-type>', 'type of report, "individual", "summary", "subject-list"')
@@ -76,6 +77,9 @@ async function calc(
   } else if (program.outputType === 'dataRequirements') {
     // CalculateDataRequirements doesn't make use of the calcOptions object at this point
     result = calculateDataRequirements(measureBundle);
+  } else if (program.outputType === 'queryInfo') {
+    // calculateQueryInfo doesn't make use of the calcOptions object at this point
+    result = calculateQueryInfo(measureBundle);
   }
   if (!result) {
     throw new Error(`Could not obtain result based on outputType ${program.outputType}`);
@@ -86,7 +90,7 @@ async function calc(
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
 let patientBundles: fhir4.Bundle[];
-if (program.outputType !== 'dataRequirements') {
+if (program.outputType !== 'dataRequirements' && program.outputType !== 'queryInfo') {
   // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
   if (!program.patientBundles) {
     console.error(`Patient bundle is a required option when output type is "${program.outputType}"`);
@@ -94,7 +98,7 @@ if (program.outputType !== 'dataRequirements') {
   }
   patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 } else {
-  // data requirements doesn't care about patient bundles, so just pass an empty array if we're using that report type
+  // data requirements/queryInfo doesn't care about patient bundles, so just pass an empty array if we're using that report type
   patientBundles = [];
 }
 
