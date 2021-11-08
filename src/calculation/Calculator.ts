@@ -31,6 +31,7 @@ import {
   UnexpectedResource,
   UnsupportedProperty
 } from '../types/errors/CustomErrors';
+import cql from 'cql-execution';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -495,17 +496,26 @@ export async function calculateGapsInCare(
  * Get data requirements for this measure
  *
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param options Options for calculation.
+ *
  * @returns FHIR Library of data requirements
  */
-export function calculateDataRequirements(measureBundle: fhir4.Bundle): DRCalculationOutput {
+export function calculateDataRequirements(
+  measureBundle: fhir4.Bundle,
+  options: CalculationOptions
+): DRCalculationOutput {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
+
+  const { startCql, endCql } = Execution.getCQLIntervalEndpoints(options);
 
   // We need a root library to run dataRequirements properly. If we don't have one, error out.
   if (!rootLib?.library) {
     throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
   }
+
+  const parameters = { 'Measurement Period': new cql.Interval(startCql, endCql) };
   const withErrors: GracefulError[] = [];
   // get the retrieves for every statement in the root library
   const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
@@ -524,12 +534,27 @@ export function calculateDataRequirements(measureBundle: fhir4.Bundle): DRCalcul
     return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
   });
 
+  uniqueRetrieves.forEach(retrieve => {
+    // If the retrieves have a localId for the query and a known library name, we can get more info
+    // on how the query filters the sources.
+    if (retrieve.queryLocalId && retrieve.queryLibraryName) {
+      const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
+      if (library) {
+        retrieve.queryInfo = parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
+      }
+    }
+  });
+
   const results: fhir4.Library = {
     resourceType: 'Library',
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
     status: 'unknown'
   };
-  results.dataRequirement = uniqueRetrieves.map(retrieve => generateDataRequirement(retrieve));
+  results.dataRequirement = uniqueRetrieves.map(retrieve => {
+    const dr = generateDataRequirement(retrieve);
+    GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
+    return dr;
+  });
 
   return {
     results: results,
