@@ -67,21 +67,7 @@ export async function execute(
 
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
 
-  // Measure datetime stuff
-  let start;
-  let end;
-  if (options.measurementPeriodStart) {
-    start = parseTimeStringAsUTC(options.measurementPeriodStart);
-  } else {
-    start = new Date('2019-01-01');
-  }
-  if (options.measurementPeriodEnd) {
-    end = parseTimeStringAsUTC(options.measurementPeriodEnd);
-  } else {
-    end = new Date('2019-12-31');
-  }
-  const startCql = cql.DateTime.fromJSDate(start, 0); // No timezone offset for start
-  const endCql = cql.DateTime.fromJSDate(end, 0); // No timezone offset for stop
+  const { startCql, endCql } = getCQLIntervalEndpoints(options);
 
   const patientSource = new PatientSource.FHIRv401();
   patientSource.loadBundles(patientBundles);
@@ -137,4 +123,23 @@ export async function execute(
     parameters: parameters,
     ...(options.useValueSetCaching && { valueSetCache: newCache })
   };
+}
+
+export function getCQLIntervalEndpoints(options: CalculationOptions) {
+  // Measure datetime stuff
+  let start;
+  let end;
+  if (options.measurementPeriodStart) {
+    start = parseTimeStringAsUTC(options.measurementPeriodStart);
+  } else {
+    start = new Date('2019-01-01');
+  }
+  if (options.measurementPeriodEnd) {
+    end = parseTimeStringAsUTC(options.measurementPeriodEnd);
+  } else {
+    end = new Date('2019-12-31');
+  }
+  const startCql = cql.DateTime.fromJSDate(start, 0); // No timezone offset for start
+  const endCql = cql.DateTime.fromJSDate(end, 0); // No timezone offset for stop
+  return { startCql, endCql };
 }

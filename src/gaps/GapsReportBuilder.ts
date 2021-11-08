@@ -236,37 +236,7 @@ export function generateGuidanceResponses(
       codeFilter: [{ ...dataTypeCodeFilter }]
     };
 
-    if (q.queryInfo) {
-      const detailedFilters = flattenFilters(q.queryInfo.filter);
-
-      detailedFilters.forEach(df => {
-        if (df.type === 'equals' || df.type === 'in') {
-          const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter, q.dataType);
-
-          if (cf !== null) {
-            dataRequirement.codeFilter?.push(cf);
-          }
-        } else if (df.type === 'during') {
-          const dateFilter = generateDetailedDateFilter(df as DuringFilter);
-          if (dataRequirement.dateFilter) {
-            dataRequirement.dateFilter.push(dateFilter);
-          } else {
-            dataRequirement.dateFilter = [dateFilter];
-          }
-        } else {
-          const valueFilter = generateDetailedValueFilter(df);
-          if (didEncounterDetailedValueFilterErrors(valueFilter)) {
-            withErrors.push(valueFilter);
-          } else if (valueFilter) {
-            if (dataRequirement.extension) {
-              dataRequirement.extension.push(valueFilter);
-            } else {
-              dataRequirement.extension = [valueFilter];
-            }
-          }
-        }
-      });
-    }
+    addFiltersToDataRequirement(q, dataRequirement, withErrors);
 
     const guidanceResponse: fhir4.GuidanceResponse = {
       resourceType: 'GuidanceResponse',
@@ -532,5 +502,43 @@ function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | GracefulError 
       return CareGapReasonCode.DATEOUTOFRANGE;
     default:
       return { message: `unknown reasonCode mapping for filter type ${filter.type}` } as GracefulError;
+  }
+}
+
+export function addFiltersToDataRequirement(
+  q: GapsDataTypeQuery | DataTypeQuery,
+  dataRequirement: fhir4.DataRequirement,
+  withErrors: GracefulError[]
+) {
+  if (q.queryInfo) {
+    const detailedFilters = flattenFilters(q.queryInfo.filter);
+
+    detailedFilters.forEach(df => {
+      if (df.type === 'equals' || df.type === 'in') {
+        const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter, q.dataType);
+
+        if (cf !== null) {
+          dataRequirement.codeFilter?.push(cf);
+        }
+      } else if (df.type === 'during') {
+        const dateFilter = generateDetailedDateFilter(df as DuringFilter);
+        if (dataRequirement.dateFilter) {
+          dataRequirement.dateFilter.push(dateFilter);
+        } else {
+          dataRequirement.dateFilter = [dateFilter];
+        }
+      } else {
+        const valueFilter = generateDetailedValueFilter(df);
+        if (didEncounterDetailedValueFilterErrors(valueFilter)) {
+          withErrors.push(valueFilter);
+        } else if (valueFilter) {
+          if (dataRequirement.extension) {
+            dataRequirement.extension.push(valueFilter);
+          } else {
+            dataRequirement.extension = [valueFilter];
+          }
+        }
+      }
+    });
   }
 }

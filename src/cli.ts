@@ -76,7 +76,7 @@ async function calc(
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'dataRequirements') {
     // CalculateDataRequirements doesn't make use of the calcOptions object at this point
-    result = calculateDataRequirements(measureBundle);
+    result = calculateDataRequirements(measureBundle, calcOptions);
   } else if (program.outputType === 'queryInfo') {
     // calculateQueryInfo doesn't make use of the calcOptions object at this point
     result = calculateQueryInfo(measureBundle);
