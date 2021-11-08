@@ -125,6 +125,11 @@ export async function execute(
   };
 }
 
+/**
+ * Takes in the calculation options and returns start and end dates to create a cql interval
+ * @param options calculationOptions passed in by the user
+ * @returns {starttCql: Date, endCql: Date}, the start and end date of the calculationOptions
+ */
 export function getCQLIntervalEndpoints(options: CalculationOptions) {
   // Measure datetime stuff
   let start;

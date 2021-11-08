@@ -504,7 +504,13 @@ function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | GracefulError 
       return { message: `unknown reasonCode mapping for filter type ${filter.type}` } as GracefulError;
   }
 }
-
+/**
+ *
+ * @param q The query which contains the filters to add to the data requirement
+ * @param dataRequirement Data requirement to add date filters to
+ * @param withErrors Errors object which will eventually be returned to the user if populated
+ * @returns void, but populated the dataRequirement filters
+ */
 export function addFiltersToDataRequirement(
   q: GapsDataTypeQuery | DataTypeQuery,
   dataRequirement: fhir4.DataRequirement,
