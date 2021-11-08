@@ -497,7 +497,7 @@ export async function calculateGapsInCare(
  *
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @param options Options for calculation.
- * 
+ *
  * @returns FHIR Library of data requirements
  */
 export function calculateDataRequirements(
