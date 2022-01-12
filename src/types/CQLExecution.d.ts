@@ -8,7 +8,7 @@ declare module 'cql-execution' {
 
   export class Executor {
     constructor(library: Library, codeService: CodeService, parameters: { [key: string]: any });
-    exec(patientsource: PatientSource, executionDateTime: any): Results;
+    exec(patientsource: IPatientSource, executionDateTime: any): Results;
   }
 
   export class Repository {
@@ -72,5 +72,19 @@ declare module 'cql-execution' {
 
   export class PatientContext {
     constructor(library: Library, patient: any, codeService: any, parameters: any);
+  }
+
+  export interface IPatientSource {
+    currentPatient(): Patient | undefined;
+    nextPatient(): Patient | undefined;
+  }
+
+  export interface IRecord {
+    get(field: string): any;
+  }
+
+  export interface IPatient extends IRecord {
+    findRecords(profile: string): IRecord;
+    findRecord(profile: string): IRecord;
   }
 }
