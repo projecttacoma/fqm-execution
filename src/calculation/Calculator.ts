@@ -78,28 +78,21 @@ export async function calculate(
   const elmLibraries = results.elmLibraries;
   const mainLibraryName = results.mainLibraryName;
 
+  // Grab all patient IDs from the raw results.
+  const patientIds = Object.keys(rawResults.patientResults);
+
   // Iterate over patient bundles and make results for each of them.
-  patientBundles.forEach(patientBundle => {
-    const patientEntry = patientBundle.entry?.find(e => e.resource?.resourceType === 'Patient');
-    if (!patientEntry || !patientEntry.resource) {
-      // Skip this bundle if no patient was found.
-      return;
-    }
-    const patient = patientEntry.resource as fhir4.Patient;
-    if (!patient.id) {
-      // Patient has no ID
-      return;
-    }
+  patientIds.forEach(patientId => {
     const patientExecutionResult: ExecutionResult = {
-      patientId: patient.id,
+      patientId: patientId,
       detailedResults: [],
-      evaluatedResource: rawResults.patientEvaluatedRecords[patient.id]
+      evaluatedResource: rawResults.patientEvaluatedRecords[patientId]
     };
 
     // Grab statement results for the patient
-    const patientStatementResults = rawResults.patientResults[patient.id];
+    const patientStatementResults = rawResults.patientResults[patientId];
     // Grab localId results for the patient
-    const patientLocalIdResults = rawResults.localIdPatientResultsMap[patient.id];
+    const patientLocalIdResults = rawResults.localIdPatientResultsMap[patientId];
 
     // iterator to use for group ID if they are defined in the population groups
     let i = 1;
