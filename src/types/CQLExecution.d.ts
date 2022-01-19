@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 declare module 'cql-execution' {
-  import { Results, ValueSetMap } from './CQLTypes';
+  import { Results, ValueSetMap, DateTime } from './CQLTypes';
 
   export class Library {
     constructor(elm: any, repo?: Repository);
@@ -86,5 +86,6 @@ declare module 'cql-execution' {
   export interface IPatient extends IRecord {
     findRecords(profile: string): IRecord;
     findRecord(profile: string): IRecord;
+    birthDate?: { value: DateTime };
   }
 }

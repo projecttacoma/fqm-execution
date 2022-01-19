@@ -86,7 +86,8 @@ export async function calculate(
     const patientExecutionResult: ExecutionResult = {
       patientId: patientId,
       detailedResults: [],
-      evaluatedResource: rawResults.patientEvaluatedRecords[patientId]
+      evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
+      patientObject: rawResults.patientResults[patientId]['Patient']
     };
 
     // Grab statement results for the patient
@@ -408,20 +409,6 @@ export async function calculateGapsInCare(
         const retrievesErrors = retrievesOutput.withErrors;
         errorLog.push(...retrievesErrors);
 
-        // find this patient's bundle
-        const patientBundle = patientBundles.find(patientBundle => {
-          const patientEntry = patientBundle.entry?.find(
-            bundleEntry => bundleEntry.resource?.resourceType === 'Patient'
-          );
-          return patientEntry?.resource?.id === res.patientId;
-        });
-
-        const patientEntry = patientBundle?.entry?.find(e => e.resource?.resourceType === 'Patient');
-
-        if (!patientEntry) {
-          throw new Error(`Could not find Patient ${res.patientId} in patientBundles`);
-        }
-
         // Add detailed info to queries based on clause results
         const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
 
@@ -436,7 +423,7 @@ export async function calculateGapsInCare(
                 elmLibraries,
                 retrieve.queryLocalId,
                 parameters,
-                patientEntry.resource as fhir4.Patient
+                res.patientObject
               );
             }
           }
@@ -455,11 +442,8 @@ export async function calculateGapsInCare(
           improvementNotation
         );
         errorLog.push(...detectedIssueErrors);
-        result = GapsInCareHelpers.generateGapsInCareBundle(
-          detectedIssues,
-          matchingMeasureReport,
-          patientEntry.resource as fhir4.Patient
-        );
+        //TODO: fix patient info passing
+        result = GapsInCareHelpers.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, {} as fhir4.Patient);
 
         if (debugOutput && options.enableDebugOutput) {
           debugOutput.gaps = {

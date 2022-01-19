@@ -1,4 +1,4 @@
-import cql from 'cql-execution';
+import cql, { IPatient } from 'cql-execution';
 import {
   ELM,
   ELMEqual,
@@ -66,7 +66,7 @@ export function parseQueryInfo(
   allELM: ELM[],
   queryLocalId: string | undefined,
   parameters: { [key: string]: any } = {},
-  patient?: fhir4.Patient
+  patient?: cql.IPatient
 ): QueryInfo {
   if (!queryLocalId) {
     throw new Error('QueryLocalId was not provided');
@@ -218,7 +218,7 @@ export function interpretExpression(
   expression: ELMExpression,
   library: ELM,
   parameters: any,
-  patient?: fhir4.Patient
+  patient?: cql.IPatient
 ): AnyFilter {
   let returnFilter: AnyFilter = {
     type: 'unknown',
@@ -308,7 +308,7 @@ export function findPropertyUsage(expression: any, unknownLocalId?: string): Unk
  * @param patient The patient resource.
  * @returns The filter tree for this and expression.
  */
-export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient?: fhir4.Patient): AndFilter {
+export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient?: cql.IPatient): AndFilter {
   const andInfo: AndFilter = { type: 'and', children: [] };
   if (andExpression.operand[0].type == 'And') {
     andInfo.children.push(...interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters, patient).children);
@@ -333,7 +333,7 @@ export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: an
  * @param patient The patient resource.
  * @returns The filter tree for this or expression.
  */
-export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient?: fhir4.Patient): OrFilter {
+export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient?: cql.IPatient): OrFilter {
   const orInfo: OrFilter = { type: 'or', children: [] };
   if (orExpression.operand[0].type == 'Or') {
     orInfo.children.push(...interpretOr(orExpression.operand[0] as ELMOr, library, parameters, patient).children);
@@ -782,7 +782,7 @@ export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
   library: ELM,
   parameters: any,
-  patient?: fhir4.Patient
+  patient?: IPatient
 ): AnyFilter {
   // look at first param if it is function ref to calendar age in years at.
   const withError: GracefulError = { message: 'An unknown error occured while interpretting greater or equal filter' };
@@ -838,10 +838,11 @@ export function interpretGreaterOrEqual(
         // as the number of years to add to the birthDate.
         if (greaterOrEqualExpr.operand[1].type === 'Literal') {
           const years = (greaterOrEqualExpr.operand[1] as ELMLiteral).value as number;
+          debugger;
           if (patient.birthDate) {
-            // parse birthDate into cql-execution DateTime. and wipe out hours, minutes, seconds, and miliseconds. Then add
+            // Clone patient cql-execution DateTime. and wipe out hours, minutes, seconds, and miliseconds. Then add
             // the number of years.
-            const birthDate = cql.DateTime.parse(patient.birthDate);
+            const birthDate = patient.birthDate.value.copy() as cql.DateTime;
             birthDate.hour = 0;
             birthDate.minute = 0;
             birthDate.second = 0;

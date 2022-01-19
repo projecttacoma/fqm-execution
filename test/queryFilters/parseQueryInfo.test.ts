@@ -1,5 +1,6 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import { parseQueryInfo } from '../../src/gaps/QueryFilterParser';
+import { FHIRWrapper } from 'cql-exec-fhir';
 import * as cql from 'cql-execution';
 import { QueryInfo, DuringFilter, AndFilter } from '../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
@@ -366,10 +367,10 @@ const EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY: QueryInfo = {
   }
 };
 
-const PATIENT: fhir4.Patient = {
+const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
-};
+}) as cql.IPatient;
 
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
