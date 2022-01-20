@@ -442,8 +442,9 @@ export async function calculateGapsInCare(
           improvementNotation
         );
         errorLog.push(...detectedIssueErrors);
-        //TODO: fix patient info passing
-        result = GapsInCareHelpers.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, {} as fhir4.Patient);
+
+        const patient = res.patientObject?._json as fhir4.Patient;
+        result = GapsInCareHelpers.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, patient);
 
         if (debugOutput && options.enableDebugOutput) {
           debugOutput.gaps = {

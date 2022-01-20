@@ -81,6 +81,7 @@ declare module 'cql-execution' {
 
   export interface IRecord {
     get(field: string): any;
+    _json: any;
   }
 
   export interface IPatient extends IRecord {

@@ -840,9 +840,9 @@ export function interpretGreaterOrEqual(
           const years = (greaterOrEqualExpr.operand[1] as ELMLiteral).value as number;
           debugger;
           if (patient.birthDate) {
-            // Clone patient cql-execution DateTime. and wipe out hours, minutes, seconds, and miliseconds. Then add
-            // the number of years.
-            const birthDate = patient.birthDate.value.copy() as cql.DateTime;
+            // Clone patient cql-execution birthDate ensure it is a DateTime then wipe out hours, minutes, seconds,
+            // and miliseconds. Then add the number of years.
+            const birthDate = patient.birthDate.value.copy().getDateTime() as cql.DateTime;
             birthDate.hour = 0;
             birthDate.minute = 0;
             birthDate.second = 0;
