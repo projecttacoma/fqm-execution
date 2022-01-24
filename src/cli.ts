@@ -13,6 +13,7 @@ import {
 } from './calculation/Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
+import { PatientSource } from 'cql-exec-fhir';
 
 program
   .option('-d, --debug', 'enable debug output', false)
@@ -27,6 +28,7 @@ program
     '-p, --patient-bundles <patient-bundles...>',
     'paths to patient bundles. Required unless output type is dataRequirements'
   )
+  .option('-f, --as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls')
   .option(
     '-s, --measurement-period-start <date>',
     'start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)',
@@ -121,6 +123,15 @@ if (program.measurementPeriodStart) {
 }
 if (program.measurementPeriodEnd) {
   calcOptions.measurementPeriodEnd = program.measurementPeriodEnd;
+}
+
+// if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
+// from patientBundles and wipe patientBundles to be an empty array.
+if (program.asPatientSource) {
+  const patientSource = PatientSource.FHIRv401();
+  patientSource.loadBundles(patientBundles);
+  calcOptions.patientSource = patientSource;
+  patientBundles = [];
 }
 
 // Calculation is now async, so we have to do a callback here
