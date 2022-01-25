@@ -85,7 +85,7 @@ declare module 'cql-execution' {
   }
 
   export interface IPatient extends IRecord {
-    findRecords(profile: string): IRecord;
+    findRecords(profile: string): IRecord[];
     findRecord(profile: string): IRecord;
     birthDate?: { value: DateTime };
   }
