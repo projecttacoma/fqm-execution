@@ -32,6 +32,7 @@ import {
   UnsupportedProperty
 } from '../types/errors/CustomErrors';
 import cql from 'cql-execution';
+import { PatientSource } from 'cql-exec-fhir';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -50,6 +51,9 @@ export async function calculate(
 ): Promise<CalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
+  // Get the PatientSource to use for calculation.
+  const patientSource = resolvePatientSource(patientBundles, options);
+
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
@@ -62,7 +66,7 @@ export async function calculate(
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
   const executionResults: ExecutionResult[] = [];
 
-  const results = await Execution.execute(measureBundle, patientBundles, options, valueSetCache, debugObject);
+  const results = await Execution.execute(measureBundle, patientSource, options, valueSetCache, debugObject);
   if (!results.rawResults) {
     throw new Error(results.errorMessage ?? 'something happened with no error message');
   }
@@ -74,28 +78,22 @@ export async function calculate(
   const elmLibraries = results.elmLibraries;
   const mainLibraryName = results.mainLibraryName;
 
+  // Grab all patient IDs from the raw results.
+  const patientIds = Object.keys(rawResults.patientResults);
+
   // Iterate over patient bundles and make results for each of them.
-  patientBundles.forEach(patientBundle => {
-    const patientEntry = patientBundle.entry?.find(e => e.resource?.resourceType === 'Patient');
-    if (!patientEntry || !patientEntry.resource) {
-      // Skip this bundle if no patient was found.
-      return;
-    }
-    const patient = patientEntry.resource as fhir4.Patient;
-    if (!patient.id) {
-      // Patient has no ID
-      return;
-    }
+  patientIds.forEach(patientId => {
     const patientExecutionResult: ExecutionResult = {
-      patientId: patient.id,
+      patientId: patientId,
       detailedResults: [],
-      evaluatedResource: rawResults.patientEvaluatedRecords[patient.id]
+      evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
+      patientObject: rawResults.patientResults[patientId]['Patient']
     };
 
     // Grab statement results for the patient
-    const patientStatementResults = rawResults.patientResults[patient.id];
+    const patientStatementResults = rawResults.patientResults[patientId];
     // Grab localId results for the patient
-    const patientLocalIdResults = rawResults.localIdPatientResultsMap[patient.id];
+    const patientLocalIdResults = rawResults.localIdPatientResultsMap[patientId];
 
     // iterator to use for group ID if they are defined in the population groups
     let i = 1;
@@ -234,7 +232,7 @@ export async function calculateIndividualMeasureReports(
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
   const { results, debugOutput } = calculationResults;
 
-  const reports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
+  const reports = MeasureReportBuilder.buildMeasureReports(measureBundle, results, options);
 
   if (debugOutput && options.enableDebugOutput) {
     debugOutput.measureReports = reports;
@@ -268,24 +266,7 @@ export async function calculateAggregateMeasureReport(
   const builder = new MeasureReportBuilder(measureBundle, options);
 
   results.forEach(result => {
-    // find this patient's bundle
-    const patientBundle = patientBundles.find(patientBundle => {
-      const patientEntry = patientBundle.entry?.find(bundleEntry => {
-        return bundleEntry.resource?.resourceType === 'Patient';
-      });
-      if (patientEntry && patientEntry.resource) {
-        return patientEntry.resource.id === result.patientId;
-      } else {
-        return false;
-      }
-    });
-    // if the patient bundle was found add their information to the subject
-    if (patientBundle) {
-      const patient = patientBundle.entry?.find(bundleEntry => {
-        return bundleEntry.resource?.resourceType === 'Patient';
-      })?.resource as fhir4.Patient;
-      builder.addPatientResults(patient, result);
-    }
+    builder.addPatientResults(result);
   });
 
   const report = builder.getReport();
@@ -313,7 +294,9 @@ export async function calculateRaw(
   valueSetCache: fhir4.ValueSet[] = []
 ): Promise<RCalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
-  const results = await Execution.execute(measureBundle, patientBundles, options, valueSetCache, debugObject);
+  // Get the PatientSource to use for calculation.
+  const patientSource = resolvePatientSource(patientBundles, options);
+  const results = await Execution.execute(measureBundle, patientSource, options, valueSetCache, debugObject);
   if (results.rawResults) {
     return { results: results.rawResults, debugOutput: debugObject, valueSetCache: results.valueSetCache };
   } else {
@@ -342,7 +325,7 @@ export async function calculateGapsInCare(
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
 
   const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = calculationResults;
-  const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, patientBundles, results, options);
+  const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, results, options);
 
   let result: fhir4.Bundle = <fhir4.Bundle>{};
   const errorLog: GracefulError[] = [];
@@ -426,20 +409,6 @@ export async function calculateGapsInCare(
         const retrievesErrors = retrievesOutput.withErrors;
         errorLog.push(...retrievesErrors);
 
-        // find this patient's bundle
-        const patientBundle = patientBundles.find(patientBundle => {
-          const patientEntry = patientBundle.entry?.find(
-            bundleEntry => bundleEntry.resource?.resourceType === 'Patient'
-          );
-          return patientEntry?.resource?.id === res.patientId;
-        });
-
-        const patientEntry = patientBundle?.entry?.find(e => e.resource?.resourceType === 'Patient');
-
-        if (!patientEntry) {
-          throw new Error(`Could not find Patient ${res.patientId} in patientBundles`);
-        }
-
         // Add detailed info to queries based on clause results
         const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
 
@@ -454,7 +423,7 @@ export async function calculateGapsInCare(
                 elmLibraries,
                 retrieve.queryLocalId,
                 parameters,
-                patientEntry.resource as fhir4.Patient
+                res.patientObject
               );
             }
           }
@@ -473,11 +442,9 @@ export async function calculateGapsInCare(
           improvementNotation
         );
         errorLog.push(...detectedIssueErrors);
-        result = GapsInCareHelpers.generateGapsInCareBundle(
-          detectedIssues,
-          matchingMeasureReport,
-          patientEntry.resource as fhir4.Patient
-        );
+
+        const patient = res.patientObject?._json as fhir4.Patient;
+        result = GapsInCareHelpers.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, patient);
 
         if (debugOutput && options.enableDebugOutput) {
           debugOutput.gaps = {
@@ -615,4 +582,26 @@ export function calculateQueryInfo(measureBundle: fhir4.Bundle): QICalculationOu
     },
     withErrors
   };
+}
+
+/**
+ * Resolve the PatientSource to use for calculation. If a PatientSource was provided, use it. Otherwise use
+ * cql-exec-fhir to make one from Patient Bundles.
+ *
+ * @param patientBundles Patient bundle array passed in.
+ * @param options Options passed into the calculator.
+ * @returns PatientSource to use for calculation.
+ */
+function resolvePatientSource(patientBundles: fhir4.Bundle[], options: CalculationOptions): cql.IPatientSource {
+  if (options.patientSource) {
+    return options.patientSource;
+  } else {
+    //if there are entries, pb.entry?.length will be > 0 which is truthy. Otherwise falsy
+    if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
+      throw new UnexpectedResource('No entries found in passed patient bundles');
+    }
+    const patientSource = PatientSource.FHIRv401();
+    patientSource.loadBundles(patientBundles);
+    return patientSource;
+  }
 }

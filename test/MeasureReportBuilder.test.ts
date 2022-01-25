@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import { PatientSource } from 'cql-exec-fhir';
 import MeasureReportBuilder from '../src/calculation/MeasureReportBuilder';
 import { getJSONFixture } from './helpers/testHelpers';
 import { ExecutionResult, CalculationOptions } from '../src/types/Calculator';
@@ -10,6 +11,9 @@ const patient1 = getJSONFixture(
 );
 
 const patient2 = getJSONFixture('EXM111-9.1.000/Armando772_Almanza534_08fc9439-b7ff-4309-b409-4d143388594c.json');
+
+const patientSource = PatientSource.FHIRv401();
+patientSource.loadBundles([patient1, patient2]);
 
 // ids from fixture patients
 const patient1Id = '3413754c-73f0-4559-9f67-df8e593ce7e1';
@@ -135,7 +139,6 @@ describe('MeasureReportBuilder Static', () => {
     beforeAll(() => {
       measureReports = MeasureReportBuilder.buildMeasureReports(
         simpleMeasureBundle,
-        [patient1],
         executionResults,
         calculationOptions
       );
@@ -219,7 +222,6 @@ describe('MeasureReportBuilder Static', () => {
     beforeAll(() => {
       measureReports = MeasureReportBuilder.buildMeasureReports(
         cvMeasureBundle,
-        [patient2],
         cvExecutionResults,
         calculationOptions
       );
@@ -259,15 +261,13 @@ describe('MeasureReportBuilder Static', () => {
 
 describe('MeasureReportBuilder Class', () => {
   let measureBundle: fhir4.Bundle;
-  let patientResource: fhir4.Patient;
+
   beforeAll(() => {
     measureBundle = {
       resourceType: 'Bundle',
       entry: [{ resource: simpleMeasure }],
       type: 'transaction'
     };
-
-    patientResource = patient1.entry[0].resource;
   });
 
   test('should properly recognize individual propery', () => {
@@ -362,7 +362,7 @@ describe('MeasureReportBuilder Class', () => {
     });
 
     expect(() =>
-      builder.addPatientResults(patientResource, {
+      builder.addPatientResults({
         patientId: patient1Id
       })
     ).toThrowError();
@@ -375,7 +375,7 @@ describe('MeasureReportBuilder Class', () => {
       measurementPeriodEnd: '2021-12-31'
     });
 
-    builder.addPatientResults(patientResource, {
+    builder.addPatientResults({
       patientId: patient1Id,
       detailedResults: []
     });

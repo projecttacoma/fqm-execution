@@ -126,7 +126,7 @@ export default class MeasureReportBuilder {
     });
   }
 
-  public addPatientResults(patient: fhir4.Patient, results: ExecutionResult) {
+  public addPatientResults(results: ExecutionResult) {
     // if this is a individual measure report and we have already received a patient we should throw
     // an error
     if (this.isIndividual && this.patientCount > 0) {
@@ -141,7 +141,7 @@ export default class MeasureReportBuilder {
 
     // if we are creating an individual report create the patient reference.
     if (this.isIndividual) {
-      const patId = `Patient/${patient.id}`;
+      const patId = `Patient/${results.patientId}`;
       const subjectReference: fhir4.Reference = {
         reference: patId
       };
@@ -552,33 +552,14 @@ export default class MeasureReportBuilder {
 
   static buildMeasureReports(
     measureBundle: fhir4.Bundle,
-    patientBundles: fhir4.Bundle[],
     executionResults: ExecutionResult[],
     options: CalculationOptions
   ): fhir4.MeasureReport[] {
     const reports: fhir4.MeasureReport[] = [];
     executionResults.forEach(result => {
-      // find this patient's bundle
-      const patientBundle = patientBundles.find(patientBundle => {
-        const patientEntry = patientBundle.entry?.find(bundleEntry => {
-          return bundleEntry.resource?.resourceType === 'Patient';
-        });
-        if (patientEntry && patientEntry.resource) {
-          return patientEntry.resource.id === result.patientId;
-        } else {
-          return false;
-        }
-      });
-      // if the patient bundle was found add their information to the subject
-      if (patientBundle) {
-        // grab the measure resource
-        const builder = new MeasureReportBuilder(measureBundle, options);
-        const patient = patientBundle.entry?.find(bundleEntry => {
-          return bundleEntry.resource?.resourceType === 'Patient';
-        })?.resource as fhir4.Patient;
-        builder.addPatientResults(patient, result);
-        reports.push(builder.getReport());
-      }
+      const builder = new MeasureReportBuilder(measureBundle, options);
+      builder.addPatientResults(result);
+      reports.push(builder.getReport());
     });
     return reports;
   }

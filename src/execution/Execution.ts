@@ -1,8 +1,6 @@
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
 
-// import { PatientSource } from 'cql-exec-fhir';
 import cql from 'cql-execution';
-import { PatientSource } from 'cql-exec-fhir';
 import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './ValueSetHelper';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { PopulationType } from '../types/Enums';
@@ -12,17 +10,13 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
 
 export async function execute(
   measureBundle: fhir4.Bundle,
-  patientBundles: fhir4.Bundle[],
+  patientSource: cql.IPatientSource,
   options: CalculationOptions,
   valueSetCache: fhir4.ValueSet[] = [],
   debugObject?: DebugOutput
 ): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
 
-  //if there are entries, pb.entry?.length will be > 0 which is truthy. Otherwise falsy
-  if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
-    throw new UnexpectedResource('No entries found in passed patient bundles');
-  }
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
   // check for any missing valuesets
@@ -68,9 +62,6 @@ export async function execute(
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
 
   const { startCql, endCql } = getCQLIntervalEndpoints(options);
-
-  const patientSource = new PatientSource.FHIRv401();
-  patientSource.loadBundles(patientBundles);
 
   // add expressions for collecting for all measure observations
   measure.group?.forEach(group => {
