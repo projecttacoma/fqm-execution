@@ -1,6 +1,5 @@
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
 
-// import { PatientSource } from 'cql-exec-fhir';
 import cql from 'cql-execution';
 import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './ValueSetHelper';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
