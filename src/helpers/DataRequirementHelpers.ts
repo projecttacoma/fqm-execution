@@ -130,11 +130,19 @@ export function addFhirQueryToDataRequirements(dataRequirement: fhir4.DataRequir
     queryString = queryString.concat(`${key}=${value}&`);
   }
 
+  // add on patientContext
   const patientContext = (<any>PatientReferences)[dataRequirement.type][0];
   queryString = queryString.concat(`${patientContext}=Patient/{{context.patientId}}`);
 
-  // create function addPatientContextPath that makes use of compartment definition to see how patient is referenced
-  // and tack that onto the query params here
+  // add on date filters
+  if (dataRequirement.dateFilter && dataRequirement.dateFilter[0].valuePeriod) {
+    if (dataRequirement.dateFilter[0].valuePeriod.start) {
+      queryString = queryString.concat(`&date=ge${dataRequirement.dateFilter[0].valuePeriod.start}`);
+    }
+    if (dataRequirement.dateFilter[0].valuePeriod.end) {
+      queryString = queryString.concat(`&date=le${dataRequirement.dateFilter[0].valuePeriod.end}`);
+    }
+  }
 
   const fhirPathExtension: Extension = {
     url: url,
@@ -148,7 +156,6 @@ export function addFhirQueryToDataRequirements(dataRequirement: fhir4.DataRequir
   }
 }
 
-//TODO: try to figure out in typescript how to make it just the data requirement's codeFilter and type
 function queryForCodeFilter(codeFilters: fhir4.DataRequirementCodeFilter[] | undefined, type: string) {
   const query: codeFilterQuery = { endpoint: type, params: {} };
 
