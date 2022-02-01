@@ -1,3 +1,4 @@
+import { Extension } from 'fhir/r4';
 import { DataTypeQuery } from '../types/Calculator';
 import { GracefulError } from '../types/errors/GracefulError';
 import {
@@ -7,9 +8,10 @@ import {
   AndFilter,
   AnyFilter,
   Filter,
-  NotNullFilter
+  NotNullFilter,
+  codeFilterQuery
 } from '../types/QueryFilterTypes';
-
+import * as PatientReferences from '../compartment-definition/PatientReferences.json';
 /**
  * Take any nesting of base filters and AND filters and flatten into one list
  *
@@ -112,6 +114,57 @@ export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | G
 }
 
 /**
+ *
+ * @param dataRequirement  Data requirement to add FHIR Query Pattern to
+ * @param withErrors Errors object which will eventually be returned to the user if populated
+ */
+export function addFhirQueryToDataRequirements(dataRequirement: fhir4.DataRequirement, withErrors: GracefulError[]) {
+  // TODO: check that type exists on dataRequirement and throw error otherwise
+  const codeFilter = dataRequirement.codeFilter; //&& dataRequirement.codeFilter[0];
+  const query: codeFilterQuery = queryForCodeFilter(codeFilter, dataRequirement.type);
+  const url = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
+
+  // configure query based on json query object that gets created in queryForCodeFilter
+  let queryString = `${query.endpoint}?`;
+  for (const [key, value] of Object.entries(query.params)) {
+    queryString = queryString.concat(`${key}=${value}&`);
+  }
+
+  const patientContext = (<any>PatientReferences)[dataRequirement.type][0];
+  queryString = queryString.concat(`${patientContext}=Patient/{{context.patientId}}`);
+
+  // create function addPatientContextPath that makes use of compartment definition to see how patient is referenced
+  // and tack that onto the query params here
+
+  const fhirPathExtension: Extension = {
+    url: url,
+    valueString: queryString
+  };
+  // add query to data requirements
+  if (dataRequirement.extension) {
+    dataRequirement.extension.push(fhirPathExtension);
+  } else {
+    dataRequirement.extension = [fhirPathExtension];
+  }
+}
+
+//TODO: try to figure out in typescript how to make it just the data requirement's codeFilter and type
+function queryForCodeFilter(codeFilters: fhir4.DataRequirementCodeFilter[] | undefined, type: string) {
+  const query: codeFilterQuery = { endpoint: type, params: {} };
+
+  // Prefer specific code filter over valueSet
+  codeFilters?.map(codeFilter => {
+    if (codeFilter?.code) {
+      query.params[`${codeFilter.path}`] = codeFilter.code[0].code;
+    } else if (codeFilter?.valueSet) {
+      query.params[`${codeFilter.path}:in`] = codeFilter.valueSet;
+    }
+  });
+
+  return query;
+}
+
+/**
  * Given a DataTypeQuery object, create a DataRequirement object that represents the data
  * that would be requested from a FHIR server for that query.
  * Currently supports
@@ -145,6 +198,7 @@ export function generateDataRequirement(retrieve: DataTypeQuery): fhir4.DataRequ
     };
   }
 }
+
 /**
  * Given a fhir dataType as a string and an attribute as a string, returns the url which outlines
  * the code system used to define the valid inputs for the given attribute for the given dataType

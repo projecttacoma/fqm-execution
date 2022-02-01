@@ -129,3 +129,12 @@ export interface ParsedFilterInterval {
   end?: string;
   interval?: cql.Interval;
 }
+
+export interface codeFilterPath {
+  [key: string]: string | undefined;
+}
+
+export interface codeFilterQuery {
+  endpoint: string;
+  params: codeFilterPath;
+}

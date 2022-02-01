@@ -1,0 +1,234 @@
+{
+  "Account": [
+    "subject"
+  ],
+  "AdverseEvent": [
+    "subject"
+  ],
+  "AllergyIntolerance": [
+    "asserter",
+    "patient",
+    "recorder"
+  ],
+  "Appointment": [
+    "participant.actor"
+  ],
+  "AppointmentResponse": [
+    "actor"
+  ],
+  "AuditEvent": [
+    "agent.who"
+  ],
+  "Basic": [
+    "author",
+    "subject"
+  ],
+  "BodyStructure": [
+    "patient"
+  ],
+  "CarePlan": [
+    "subject",
+    "activity.detail.performer"
+  ],
+  "CareTeam": [
+    "subject",
+    "participant.member"
+  ],
+  "ChargeItem": [
+    "subject"
+  ],
+  "Claim": [
+    "patient",
+    "payee.party"
+  ],
+  "ClaimResponse": [
+    "patient"
+  ],
+  "ClinicalImpression": [
+    "subject"
+  ],
+  "Communication": [
+    "recipient",
+    "sender",
+    "subject"
+  ],
+  "CommunicationRequest": [
+    "recipient",
+    "requester",
+    "sender",
+    "subject"
+  ],
+  "Composition": [
+    "attester.party",
+    "author",
+    "subject"
+  ],
+  "Condition": [
+    "subject",
+    "asserter"
+  ],
+  "Consent": [
+    "patient"
+  ],
+  "Coverage": [
+    "beneficiary",
+    "payor",
+    "policyHolder",
+    "subscriber"
+  ],
+  "CoverageEligibilityRequest": [
+    "patient"
+  ],
+  "CoverageEligibilityResponse": [
+    "patient"
+  ],
+  "DetectedIssue": [
+    "patient"
+  ],
+  "DeviceRequest": [
+    "performer",
+    "subject"
+  ],
+  "DeviceUseStatement": [
+    "subject"
+  ],
+  "DiagnosticReport": [
+    "subject"
+  ],
+  "DocumentManifest": [
+    "author",
+    "recipient",
+    "subject"
+  ],
+  "DocumentReference": [
+    "author",
+    "subject"
+  ],
+  "Encounter": [
+    "subject"
+  ],
+  "EnrollmentRequest": [
+    "candidate"
+  ],
+  "EpisodeOfCare": [
+    "patient"
+  ],
+  "ExplanationOfBenefit": [
+    "patient",
+    "payee.party"
+  ],
+  "FamilyMemberHistory": [
+    "patient"
+  ],
+  "Flag": [
+    "subject"
+  ],
+  "Goal": [
+    "subject"
+  ],
+  "Group": [
+    "member.entity"
+  ],
+  "ImagingStudy": [
+    "subject"
+  ],
+  "Immunization": [
+    "patient"
+  ],
+  "ImmunizationEvaluation": [
+    "patient"
+  ],
+  "ImmunizationRecommendation": [
+    "patient"
+  ],
+  "Invoice": [
+    "subject",
+    "recipient",
+    "subject"
+  ],
+  "List": [
+    "source",
+    "subject"
+  ],
+  "MeasureReport": [
+    "subject"
+  ],
+  "Media": [
+    "subject"
+  ],
+  "MedicationAdministration": [
+    "subject",
+    "performer.actor",
+    "subject"
+  ],
+  "MedicationDispense": [
+    "subject",
+    "receiver",
+    "subject"
+  ],
+  "MedicationRequest": [
+    "subject"
+  ],
+  "MedicationStatement": [
+    "subject"
+  ],
+  "MolecularSequence": [
+    "patient"
+  ],
+  "NutritionOrder": [
+    "patient"
+  ],
+  "Observation": [
+    "performer",
+    "subject"
+  ],
+  "Patient": [
+    "link.other"
+  ],
+  "Person": [
+    "link.target"
+  ],
+  "Procedure": [
+    "subject",
+    "performer.actor"
+  ],
+  "Provenance": [
+    "target"
+  ],
+  "QuestionnaireResponse": [
+    "author",
+    "subject"
+  ],
+  "RelatedPerson": [
+    "patient"
+  ],
+  "RequestGroup": [
+    "action.participant",
+    "subject"
+  ],
+  "ResearchSubject": [
+    "individual"
+  ],
+  "RiskAssessment": [
+    "subject"
+  ],
+  "Schedule": [
+    "actor"
+  ],
+  "ServiceRequest": [
+    "performer",
+    "subject"
+  ],
+  "Specimen": [
+    "subject"
+  ],
+  "SupplyDelivery": [
+    "patient"
+  ],
+  "SupplyRequest": [
+    "deliverTo"
+  ],
+  "VisionPrescription": [
+    "patient"
+  ]
+}
