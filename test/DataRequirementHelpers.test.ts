@@ -10,6 +10,7 @@ import {
 
 import { DataTypeQuery } from '../src/types/Calculator';
 import { GracefulError } from '../src/types/errors/GracefulError';
+import { DataRequirement } from 'fhir/r4';
 
 describe('DataRequirementHelpers', () => {
   describe('Flatten Filters', () => {
@@ -415,6 +416,81 @@ describe('DataRequirementHelpers', () => {
     });
     test('retrieves correct system url when dataType is Procedure and attribute is invalid', () => {
       expect(DataRequirementHelpers.codeLookup('Procedure', 'nonsense')).toBeNull();
+    });
+  });
+
+  describe('addFhirQueryPatternToDataRequirements', () => {
+    test('add fhirQueryPattern extension with CodeFilter codes and valueSets', () => {
+      const testDataReq: DataRequirement = {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
+              }
+            ]
+          }
+        ]
+      };
+
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReq);
+      // Procedure should have 2 extensions (there are 2 ways for Procedure to reference Patient)
+      expect(testDataReq.extension?.length).toEqual(2);
+      if (testDataReq.extension) {
+        expect(testDataReq.extension[0].valueString).toEqual(
+          '/Procedure?code:in=http://example.com&status=completed&subject=Patient/{{context.patientId}}'
+        );
+        expect(testDataReq.extension[1].valueString).toEqual(
+          '/Procedure?code:in=http://example.com&status=completed&performer.actor=Patient/{{context.patientId}}'
+        );
+      }
+    });
+
+    test('add fhirQueryPattern extension with CodeFilter codes and valueSets, and date filters', () => {
+      const testDataReqWithDateFilter: DataRequirement = {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed',
+                system: 'http://example.com'
+              }
+            ]
+          }
+        ],
+        dateFilter: [
+          {
+            path: 'performed.end',
+            valuePeriod: {
+              start: '2019-01-01',
+              end: '2019-12-31'
+            }
+          }
+        ]
+      };
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReqWithDateFilter);
+      expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
+      if (testDataReqWithDateFilter.extension) {
+        expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
+          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&subject=Patient/{{context.patientId}}'
+        );
+        expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
+          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&performer.actor=Patient/{{context.patientId}}'
+        );
+      }
     });
   });
 });
