@@ -11,7 +11,7 @@ import {
   NotNullFilter,
   codeFilterQuery
 } from '../types/QueryFilterTypes';
-import * as PatientReferences from '../compartment-definition/PatientReferences.json';
+import { PatientReferences } from '../compartment-definition/PatientReferences';
 
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
