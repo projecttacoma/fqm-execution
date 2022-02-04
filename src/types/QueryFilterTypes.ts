@@ -129,3 +129,12 @@ export interface ParsedFilterInterval {
   end?: string;
   interval?: cql.Interval;
 }
+
+/**
+ * Represents query object containing endpoint and object for query parameters
+ * and their corresponding values.
+ */
+export interface codeFilterQuery {
+  endpoint: string;
+  params: Record<string, string | undefined>;
+}

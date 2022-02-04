@@ -1,3 +1,4 @@
+import { Extension } from 'fhir/r4';
 import { DataTypeQuery } from '../types/Calculator';
 import { GracefulError } from '../types/errors/GracefulError';
 import {
@@ -7,8 +8,12 @@ import {
   AndFilter,
   AnyFilter,
   Filter,
-  NotNullFilter
+  NotNullFilter,
+  codeFilterQuery
 } from '../types/QueryFilterTypes';
+import { PatientReferences } from '../compartment-definition/PatientReferences';
+
+const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
  * Take any nesting of base filters and AND filters and flatten into one list
@@ -112,6 +117,70 @@ export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | G
 }
 
 /**
+ * Creates query string for the data requirement using either the code filter code or valueSet and
+ * the specified endpoint, and adds a fhirQueryPattern extension to the data requirement that
+ * contains the query string.
+ * @param dataRequirement  Data requirement to add FHIR Query Pattern to
+ */
+export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.DataRequirement) {
+  const query: codeFilterQuery = createQueryFromCodeFilter(dataRequirement.codeFilter, dataRequirement.type);
+
+  // Configure query string from query object
+  let queryString = `/${query.endpoint}?`;
+  for (const [key, value] of Object.entries(query.params)) {
+    queryString = queryString.concat(`${key}=${value}&`);
+  }
+
+  // Add on date filters
+  if (dataRequirement.dateFilter && dataRequirement.dateFilter[0].valuePeriod) {
+    if (dataRequirement.dateFilter[0].valuePeriod.start) {
+      queryString = queryString.concat(`date=ge${dataRequirement.dateFilter[0].valuePeriod.start}&`);
+    }
+    if (dataRequirement.dateFilter[0].valuePeriod.end) {
+      queryString = queryString.concat(`date=le${dataRequirement.dateFilter[0].valuePeriod.end}&`);
+    }
+  }
+
+  // Create an extension for each way that exists for referencing the patient
+  (<any>PatientReferences)[dataRequirement.type].forEach((patientContext: string) => {
+    const fhirPathExtension: Extension = {
+      url: FHIR_QUERY_PATTERN_URL,
+      valueString: queryString.concat(`${patientContext}=Patient/{{context.patientId}}`)
+    };
+
+    // Add query to data requirement
+    if (dataRequirement.extension) {
+      dataRequirement.extension.push(fhirPathExtension);
+    } else {
+      dataRequirement.extension = [fhirPathExtension];
+    }
+  });
+}
+
+/**
+ * Parses each element of codeFilter array for either the code or valueSet key, and creates
+ * query object containing each code/valueSet and corresponding value.
+ * @param codeFilterArray codeFilter array from DataRequirement
+ * @param type dataRequirement type
+ * @returns query object consisting of an endpoint and params object containing the code/valueSet
+ * and value pairs
+ */
+function createQueryFromCodeFilter(codeFilterArray: fhir4.DataRequirementCodeFilter[] | undefined, type: string) {
+  const query: codeFilterQuery = { endpoint: type, params: {} };
+
+  codeFilterArray?.map(codeFilter => {
+    // Prefer specific code filter over valueSet
+    if (codeFilter?.code) {
+      query.params[`${codeFilter.path}`] = codeFilter.code[0].code;
+    } else if (codeFilter?.valueSet) {
+      query.params[`${codeFilter.path}:in`] = codeFilter.valueSet;
+    }
+  });
+
+  return query;
+}
+
+/**
  * Given a DataTypeQuery object, create a DataRequirement object that represents the data
  * that would be requested from a FHIR server for that query.
  * Currently supports
@@ -145,6 +214,7 @@ export function generateDataRequirement(retrieve: DataTypeQuery): fhir4.DataRequ
     };
   }
 }
+
 /**
  * Given a fhir dataType as a string and an attribute as a string, returns the url which outlines
  * the code system used to define the valid inputs for the given attribute for the given dataType

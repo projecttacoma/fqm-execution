@@ -23,7 +23,7 @@ import { generateHTML } from './HTMLBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
-import { generateDataRequirement } from '../helpers/DataRequirementHelpers';
+import { generateDataRequirement, addFhirQueryPatternToDataRequirements } from '../helpers/DataRequirementHelpers';
 import { GracefulError } from '../types/errors/GracefulError';
 import {
   ErrorWithDebugInfo,
@@ -520,6 +520,7 @@ export function calculateDataRequirements(
   results.dataRequirement = uniqueRetrieves.map(retrieve => {
     const dr = generateDataRequirement(retrieve);
     GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
+    addFhirQueryPatternToDataRequirements(dr);
     return dr;
   });
 
