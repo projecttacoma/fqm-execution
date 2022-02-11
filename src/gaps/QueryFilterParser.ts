@@ -1,4 +1,4 @@
-import cql from 'cql-execution';
+import cql, { Interval, DateTime } from 'cql-execution';
 import {
   ELM,
   ELMEqual,
@@ -61,13 +61,13 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
  * @param patient The patient resource being calculated for.
  * @returns Information about the query and how it is filtered.
  */
-export function parseQueryInfo(
+export async function parseQueryInfo(
   library: ELM,
   allELM: ELM[],
   queryLocalId: string | undefined,
   parameters: { [key: string]: any } = {},
   patient?: fhir4.Patient
-): QueryInfo {
+): Promise<QueryInfo> {
   if (!queryLocalId) {
     throw new Error('QueryLocalId was not provided');
   }
@@ -82,7 +82,7 @@ export function parseQueryInfo(
     };
 
     if (query.where) {
-      const whereInfo = interpretExpression(query.where, library, parameters, patient);
+      const whereInfo = await interpretExpression(query.where, library, parameters, patient);
       queryInfo.filter = whereInfo;
     }
 
@@ -102,7 +102,7 @@ export function parseQueryInfo(
       if (statement) {
         if (statement.expression.type === 'Query') {
           const innerQuery = statement.expression as ELMQuery;
-          const innerQueryInfo = parseQueryInfo(queryLib, allELM, innerQuery.localId, parameters, patient);
+          const innerQueryInfo = await parseQueryInfo(queryLib, allELM, innerQuery.localId, parameters, patient);
 
           // use sources from inner query
           queryInfo.sources = innerQueryInfo.sources;
@@ -214,12 +214,12 @@ function parseDataType(retrieve: ELMRetrieve): string {
  * @param patient The patient resource.
  * @returns The simpler Filter representation of this clause.
  */
-export function interpretExpression(
+export async function interpretExpression(
   expression: ELMExpression,
   library: ELM,
   parameters: any,
   patient?: fhir4.Patient
-): AnyFilter {
+): Promise<AnyFilter> {
   let returnFilter: AnyFilter = {
     type: 'unknown',
     localId: expression.localId
@@ -232,16 +232,16 @@ export function interpretExpression(
       returnFilter = interpretEquivalent(expression as ELMEquivalent, library);
       break;
     case 'And':
-      returnFilter = interpretAnd(expression as ELMAnd, library, parameters, patient);
+      returnFilter = await interpretAnd(expression as ELMAnd, library, parameters, patient);
       break;
     case 'Or':
-      returnFilter = interpretOr(expression as ELMOr, library, parameters, patient);
+      returnFilter = await interpretOr(expression as ELMOr, library, parameters, patient);
       break;
     case 'IncludedIn':
       returnFilter = interpretIncludedIn(expression as ELMIncludedIn, library, parameters);
       break;
     case 'In':
-      returnFilter = interpretIn(expression as ELMIn, library, parameters);
+      returnFilter = await interpretIn(expression as ELMIn, library, parameters);
       break;
     case 'Not':
       returnFilter = interpretNot(expression as ELMNot);
@@ -308,17 +308,26 @@ export function findPropertyUsage(expression: any, unknownLocalId?: string): Unk
  * @param patient The patient resource.
  * @returns The filter tree for this and expression.
  */
-export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient?: fhir4.Patient): AndFilter {
+export async function interpretAnd(
+  andExpression: ELMAnd,
+  library: ELM,
+  parameters: any,
+  patient?: fhir4.Patient
+): Promise<AndFilter> {
   const andInfo: AndFilter = { type: 'and', children: [] };
   if (andExpression.operand[0].type == 'And') {
-    andInfo.children.push(...interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters, patient).children);
+    andInfo.children.push(
+      ...(await interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters, patient)).children
+    );
   } else {
-    andInfo.children.push(interpretExpression(andExpression.operand[0], library, parameters, patient));
+    andInfo.children.push(await interpretExpression(andExpression.operand[0], library, parameters, patient));
   }
   if (andExpression.operand[1].type == 'And') {
-    andInfo.children.push(...interpretAnd(andExpression.operand[1] as ELMAnd, library, parameters, patient).children);
+    andInfo.children.push(
+      ...(await interpretAnd(andExpression.operand[1] as ELMAnd, library, parameters, patient)).children
+    );
   } else {
-    andInfo.children.push(interpretExpression(andExpression.operand[1], library, parameters, patient));
+    andInfo.children.push(await interpretExpression(andExpression.operand[1], library, parameters, patient));
   }
   andInfo.children = andInfo.children.filter(filter => filter?.type !== 'truth');
   return andInfo;
@@ -333,17 +342,26 @@ export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: an
  * @param patient The patient resource.
  * @returns The filter tree for this or expression.
  */
-export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient?: fhir4.Patient): OrFilter {
+export async function interpretOr(
+  orExpression: ELMOr,
+  library: ELM,
+  parameters: any,
+  patient?: fhir4.Patient
+): Promise<OrFilter> {
   const orInfo: OrFilter = { type: 'or', children: [] };
   if (orExpression.operand[0].type == 'Or') {
-    orInfo.children.push(...interpretOr(orExpression.operand[0] as ELMOr, library, parameters, patient).children);
+    orInfo.children.push(
+      ...(await interpretOr(orExpression.operand[0] as ELMOr, library, parameters, patient)).children
+    );
   } else {
-    orInfo.children.push(interpretExpression(orExpression.operand[0], library, parameters, patient));
+    orInfo.children.push(await interpretExpression(orExpression.operand[0], library, parameters, patient));
   }
   if (orExpression.operand[1].type == 'Or') {
-    orInfo.children.push(...interpretOr(orExpression.operand[1] as ELMOr, library, parameters, patient).children);
+    orInfo.children.push(
+      ...(await interpretOr(orExpression.operand[1] as ELMOr, library, parameters, patient)).children
+    );
   } else {
-    orInfo.children.push(interpretExpression(orExpression.operand[1], library, parameters, patient));
+    orInfo.children.push(await interpretExpression(orExpression.operand[1], library, parameters, patient));
   }
   orInfo.children = orInfo.children.filter(filter => filter?.type !== 'truth');
   return orInfo;
@@ -593,8 +611,8 @@ export function interpretIncludedIn(
     const valuePeriod: { start?: string; end?: string } = {};
     // If this parameter is known and is an interval we can use it
     if (parameters[paramName] && parameters[paramName].isInterval) {
-      valuePeriod.start = (parameters[paramName] as cql.Interval).start().toString().replace('+00:00', 'Z');
-      valuePeriod.end = (parameters[paramName] as cql.Interval).end().toString().replace('+00:00', 'Z');
+      valuePeriod.start = (parameters[paramName] as Interval).start().toString().replace('+00:00', 'Z');
+      valuePeriod.end = (parameters[paramName] as Interval).end().toString().replace('+00:00', 'Z');
     } else {
       withError = {
         message: `could not find parameter "${paramName}" or it was not an interval.`
@@ -630,7 +648,11 @@ export function interpretIncludedIn(
  * @param parameters The parameters used for calculation.
  * @returns Filter representation of the In clause.
  */
-export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFilter | DuringFilter | UnknownFilter {
+export async function interpretIn(
+  inExpr: ELMIn,
+  library: ELM,
+  parameters: any
+): Promise<InFilter | DuringFilter | UnknownFilter> {
   let propRef: ELMProperty | GracefulError | null = null;
   const withError: GracefulError = { message: 'An unknown error occured' };
   if (inExpr.operand[0].type == 'FunctionRef') {
@@ -691,7 +713,7 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
     }
   } else if (inExpr.operand[1].type == 'Interval') {
     // execute the interval creation elm.
-    const period = executeIntervalELM(inExpr.operand[1] as ELMInterval, library, parameters);
+    const period = await executeIntervalELM(inExpr.operand[1] as ELMInterval, library, parameters);
     if (isOfTypeGracefulError(period)) {
       return {
         type: 'unknown',
@@ -725,11 +747,11 @@ export function interpretIn(inExpr: ELMIn, library: ELM, parameters: any): InFil
  * @param parameters The execution parameters.
  * @returns A FHIR Period like structure with start and end of the calculated interval.
  */
-export function executeIntervalELM(
+export async function executeIntervalELM(
   intervalExpr: ELMInterval,
   library: ELM,
   parameters: any
-): ParsedFilterInterval | GracefulError {
+): Promise<ParsedFilterInterval | GracefulError> {
   // make sure the interval created based on property usage from the query source
   const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
   const withError: GracefulError = {
@@ -743,7 +765,7 @@ export function executeIntervalELM(
   // build an expression that has the interval creation and
   const intervalExecExpr = new cql.Expression({ operand: intervalExpr });
   const ctx = new cql.PatientContext(new cql.Library(library), null, null, parameters);
-  const interval: cql.Interval = intervalExecExpr.arg.execute(ctx);
+  const interval: Interval = await intervalExecExpr.arg?.execute(ctx);
   if (interval != null && interval.start() != null && interval.end() != null) {
     return {
       start: interval.start().toString().replace('+00:00', 'Z'),
@@ -841,7 +863,7 @@ export function interpretGreaterOrEqual(
           if (patient.birthDate) {
             // parse birthDate into cql-execution DateTime. and wipe out hours, minutes, seconds, and miliseconds. Then add
             // the number of years.
-            const birthDate = cql.DateTime.parse(patient.birthDate);
+            const birthDate = cql.DateTime.parse(patient.birthDate) as DateTime;
             birthDate.hour = 0;
             birthDate.minute = 0;
             birthDate.second = 0;

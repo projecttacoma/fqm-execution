@@ -346,148 +346,148 @@ export async function calculateGapsInCare(
 
   let result: fhir4.Bundle = <fhir4.Bundle>{};
   const errorLog: GracefulError[] = [];
-  results.forEach(res => {
+  for (const res of results) {
     const matchingMeasureReport = measureReports.find(mr => mr.subject?.reference?.split('/')[1] === res.patientId);
 
     if (!matchingMeasureReport) {
       throw new Error(`No MeasureReport generated during gaps in care for ${res.patientId}`);
     }
 
-    res.detailedResults?.forEach((dr, i) => {
-      const measureResource = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
+    const resultsPromises =
+      res.detailedResults?.map(async (dr, i) => {
+        const measureResource = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
-      // Gaps only supported for proportion/ratio measures
-      const scoringCode = measureResource.scoring?.coding?.find(
-        c =>
-          c.system === 'http://hl7.org/fhir/measure-scoring' ||
-          c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
-      )?.code;
+        // Gaps only supported for proportion/ratio measures
+        const scoringCode = measureResource.scoring?.coding?.find(
+          c =>
+            c.system === 'http://hl7.org/fhir/measure-scoring' ||
+            c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
+        )?.code;
 
-      if (scoringCode !== MeasureScoreType.PROP) {
-        throw new UnsupportedProperty(`Gaps in care not supported for measure scoring type ${scoringCode}`);
-      }
-
-      const denomResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result;
-      const numerResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
-      const numerRelevance = dr.populationRelevance?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
-
-      if (!measureResource.improvementNotation?.coding) {
-        throw new UnexpectedProperty('Measure resource must include improvement notation');
-      }
-
-      const improvementNotation = measureResource.improvementNotation.coding[0].code;
-
-      if (!improvementNotation) {
-        throw new UnexpectedProperty('Improvement notation code not present on measure');
-      }
-
-      // If positive improvement measure, consider patients in denominator but not numerator for gaps
-      // If negative improvement measure, consider patients in numerator for gaps
-      // For either case, ignore patient if numerator isn't relevant
-      const populationCriteria =
-        numerRelevance &&
-        (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
-
-      if (populationCriteria) {
-        const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId) || measureResource.group?.[i];
-
-        if (!matchingGroup) {
-          throw new Error(`Could not find group with id ${dr.groupId} in measure resource`);
+        if (scoringCode !== MeasureScoreType.PROP) {
+          throw new UnsupportedProperty(`Gaps in care not supported for measure scoring type ${scoringCode}`);
         }
 
-        const numerCriteria = matchingGroup.population?.find(
-          pop => pop.code?.coding && pop.code.coding[0].code === PopulationType.NUMER
-        );
+        const denomResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result;
+        const numerResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
+        const numerRelevance = dr.populationRelevance?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
 
-        if (!numerCriteria) {
-          throw new UnexpectedProperty(`Could not find numerator criteria expression in measure group ${dr.groupId}`);
+        if (!measureResource.improvementNotation?.coding) {
+          throw new UnexpectedProperty('Measure resource must include improvement notation');
         }
 
-        const numerExpressionName = numerCriteria.criteria.expression;
-        const mainLibraryELM = elmLibraries?.find(lib => lib.library.identifier.id === mainLibraryName);
+        const improvementNotation = measureResource.improvementNotation.coding[0].code;
 
-        if (!mainLibraryELM || !elmLibraries) {
-          throw new UnexpectedResource(`Could not find ELM for ${mainLibraryName}`);
+        if (!improvementNotation) {
+          throw new UnexpectedProperty('Improvement notation code not present on measure');
         }
 
-        const numerELMExpression = mainLibraryELM.library.statements.def.find(e => e.name === numerExpressionName);
-        if (!numerELMExpression) {
-          throw new UnexpectedProperty(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
-        }
+        // If positive improvement measure, consider patients in denominator but not numerator for gaps
+        // If negative improvement measure, consider patients in numerator for gaps
+        // For either case, ignore patient if numerator isn't relevant
+        const populationCriteria =
+          numerRelevance &&
+          (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
 
-        // Parse ELM for basic info about queries
-        const retrievesOutput = RetrievesHelper.findRetrieves(
-          mainLibraryELM,
-          elmLibraries,
-          numerELMExpression.expression
-        );
+        if (populationCriteria) {
+          const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId) || measureResource.group?.[i];
 
-        const baseRetrieves = retrievesOutput.results;
-        const retrievesErrors = retrievesOutput.withErrors;
-        errorLog.push(...retrievesErrors);
+          if (!matchingGroup) {
+            throw new Error(`Could not find group with id ${dr.groupId} in measure resource`);
+          }
 
-        // find this patient's bundle
-        const patientBundle = patientBundles.find(patientBundle => {
-          const patientEntry = patientBundle.entry?.find(
-            bundleEntry => bundleEntry.resource?.resourceType === 'Patient'
+          const numerCriteria = matchingGroup.population?.find(
+            pop => pop.code?.coding && pop.code.coding[0].code === PopulationType.NUMER
           );
-          return patientEntry?.resource?.id === res.patientId;
-        });
 
-        const patientEntry = patientBundle?.entry?.find(e => e.resource?.resourceType === 'Patient');
+          if (!numerCriteria) {
+            throw new UnexpectedProperty(`Could not find numerator criteria expression in measure group ${dr.groupId}`);
+          }
 
-        if (!patientEntry) {
-          throw new Error(`Could not find Patient ${res.patientId} in patientBundles`);
-        }
+          const numerExpressionName = numerCriteria.criteria.expression;
+          const mainLibraryELM = elmLibraries?.find(lib => lib.library.identifier.id === mainLibraryName);
 
-        // Add detailed info to queries based on clause results
-        const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
+          if (!mainLibraryELM || !elmLibraries) {
+            throw new UnexpectedResource(`Could not find ELM for ${mainLibraryName}`);
+          }
 
-        gapsRetrieves.forEach(retrieve => {
-          // If the retrieves have a localId for the query and a known library name, we can get more info
-          // on how the query filters the sources.
-          if (retrieve.queryLocalId && retrieve.queryLibraryName) {
-            const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
-            if (library) {
-              retrieve.queryInfo = parseQueryInfo(
-                library,
-                elmLibraries,
-                retrieve.queryLocalId,
-                parameters,
-                patientEntry.resource as fhir4.Patient
-              );
+          const numerELMExpression = mainLibraryELM.library.statements.def.find(e => e.name === numerExpressionName);
+          if (!numerELMExpression) {
+            throw new UnexpectedProperty(`Expression ${numerExpressionName} not found in ${mainLibraryName}`);
+          }
+
+          // Parse ELM for basic info about queries
+          const retrievesOutput = RetrievesHelper.findRetrieves(
+            mainLibraryELM,
+            elmLibraries,
+            numerELMExpression.expression
+          );
+
+          const baseRetrieves = retrievesOutput.results;
+          const retrievesErrors = retrievesOutput.withErrors;
+          errorLog.push(...retrievesErrors);
+
+          // find this patient's bundle
+          const patientBundle = patientBundles.find(patientBundle => {
+            const patientEntry = patientBundle.entry?.find(
+              bundleEntry => bundleEntry.resource?.resourceType === 'Patient'
+            );
+            return patientEntry?.resource?.id === res.patientId;
+          });
+
+          const patientEntry = patientBundle?.entry?.find(e => e.resource?.resourceType === 'Patient');
+
+          if (!patientEntry) {
+            throw new Error(`Could not find Patient ${res.patientId} in patientBundles`);
+          }
+
+          // Add detailed info to queries based on clause results
+          const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
+
+          for (const retrieve of gapsRetrieves) {
+            // If the retrieves have a localId for the query and a known library name, we can get more info
+            // on how the query filters the sources.
+            if (retrieve.queryLocalId && retrieve.queryLibraryName) {
+              const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
+              if (library) {
+                retrieve.queryInfo = await parseQueryInfo(
+                  library,
+                  elmLibraries,
+                  retrieve.queryLocalId,
+                  parameters,
+                  patientEntry.resource as fhir4.Patient
+                );
+              }
             }
           }
-        });
 
-        const {
-          results: detailedGapsRetrieves,
-          withErrors: reasonDetailErrors
-        } = GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
+          const { results: detailedGapsRetrieves, withErrors: reasonDetailErrors } =
+            GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
 
-        errorLog.push(...reasonDetailErrors);
+          errorLog.push(...reasonDetailErrors);
 
-        const { detectedIssues, withErrors: detectedIssueErrors } = GapsInCareHelpers.generateDetectedIssueResources(
-          detailedGapsRetrieves,
-          matchingMeasureReport,
-          improvementNotation
-        );
-        errorLog.push(...detectedIssueErrors);
-        result = GapsInCareHelpers.generateGapsInCareBundle(
-          detectedIssues,
-          matchingMeasureReport,
-          patientEntry.resource as fhir4.Patient
-        );
+          const { detectedIssues, withErrors: detectedIssueErrors } = GapsInCareHelpers.generateDetectedIssueResources(
+            detailedGapsRetrieves,
+            matchingMeasureReport,
+            improvementNotation
+          );
+          errorLog.push(...detectedIssueErrors);
+          result = GapsInCareHelpers.generateGapsInCareBundle(
+            detectedIssues,
+            matchingMeasureReport,
+            patientEntry.resource as fhir4.Patient
+          );
 
-        if (debugOutput && options.enableDebugOutput) {
-          debugOutput.gaps = {
-            retrieves: detailedGapsRetrieves,
-            bundle: result
-          };
+          if (debugOutput && options.enableDebugOutput) {
+            debugOutput.gaps = {
+              retrieves: detailedGapsRetrieves,
+              bundle: result
+            };
+          }
         }
-      }
-    });
-  });
+      }) || [];
+    await Promise.all(resultsPromises);
+  }
 
   return { results: result, debugOutput, valueSetCache: calculationResults.valueSetCache, withErrors: errorLog };
 }
@@ -500,10 +500,10 @@ export async function calculateGapsInCare(
  *
  * @returns FHIR Library of data requirements
  */
-export function calculateDataRequirements(
+export async function calculateDataRequirements(
   measureBundle: fhir4.Bundle,
-  options: CalculationOptions
-): DRCalculationOutput {
+  options: CalculationOptions = {}
+): Promise<DRCalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
@@ -534,16 +534,16 @@ export function calculateDataRequirements(
     return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
   });
 
-  uniqueRetrieves.forEach(retrieve => {
+  for (const retrieve of uniqueRetrieves) {
     // If the retrieves have a localId for the query and a known library name, we can get more info
     // on how the query filters the sources.
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
+        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
       }
     }
-  });
+  }
 
   const results: fhir4.Library = {
     resourceType: 'Library',
@@ -575,7 +575,7 @@ export function calculateDataRequirements(
  * @param measureBundle Bundle with a Measure resource and all dependent library resources
  * @returns Detailed query info object for all statements
  */
-export function calculateQueryInfo(measureBundle: fhir4.Bundle): QICalculationOutput {
+export async function calculateQueryInfo(measureBundle: fhir4.Bundle): Promise<QICalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
@@ -596,16 +596,16 @@ export function calculateQueryInfo(measureBundle: fhir4.Bundle): QICalculationOu
     }
   });
 
-  allRetrieves.forEach(retrieve => {
+  for (const retrieve of allRetrieves) {
     // If the retrieves have a localId for the query and a known library name, we can get more info
     // on how the query filters the sources.
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = parseQueryInfo(library, elmJSONs, retrieve.queryLocalId);
+        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId);
       }
     }
-  });
+  }
 
   return {
     results: allRetrieves,
