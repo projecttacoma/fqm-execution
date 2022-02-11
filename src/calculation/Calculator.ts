@@ -469,7 +469,7 @@ export async function calculateGapsInCare(
  */
 export function calculateDataRequirements(
   measureBundle: fhir4.Bundle,
-  options: CalculationOptions
+  options: CalculationOptions = {}
 ): DRCalculationOutput {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
