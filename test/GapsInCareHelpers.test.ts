@@ -1132,7 +1132,7 @@ describe('Guidance Response', () => {
           {
             system: 'CareGapReasonCodeSystem',
             code: 'DateOutOfRange',
-            display: 'Key date was not in the expected range',
+            display: 'Date is out of specified range',
             extension: [
               {
                 url: 'ReasonDetail',
@@ -1175,7 +1175,7 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'Missing',
-      display: 'No Data Element found from Value Set'
+      display: 'Missing Data Element'
     };
     expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
   });
@@ -1188,7 +1188,7 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'Present',
-      display: 'Data element was found',
+      display: 'Data Element is Present',
       extension: [
         {
           url: 'ReasonDetail',
@@ -1215,7 +1215,7 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'DateOutOfRange',
-      display: 'Key date was not in the expected range',
+      display: 'Date is out of specified range',
       extension: [
         {
           url: 'ReasonDetail',

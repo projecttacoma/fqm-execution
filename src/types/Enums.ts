@@ -94,24 +94,34 @@ export enum ImprovementNotation {
  *
  */
 export enum CareGapReasonCode {
+  NOTFOUND = 'NotFound',
   MISSING = 'Missing',
   PRESENT = 'Present',
   INVALIDATTRIBUTE = 'InvalidAttribute',
+  DATEINRANGE = 'DateInRange',
   DATEOUTOFRANGE = 'DateOutOfRange',
+  VALUEINRANGE = 'ValueInRange',
   VALUEOUTOFRANGE = 'ValueOutOfRange',
   VALUEMISSING = 'ValueMissing',
-  COUNTOUTOFRANGE = 'CountOutOfRange'
+  COUNTINRANGE = 'CountInRange',
+  COUNTOUTOFRANGE = 'CountOutOfRange',
+  NOTALLOWED = 'NotAllowed'
 }
 
 /**
  * Lookup object for CareGapReasonCode to display text
  */
 export const CareGapReasonCodeDisplay = {
-  [CareGapReasonCode.MISSING]: 'No Data Element found from Value Set',
-  [CareGapReasonCode.PRESENT]: 'Data element was found',
-  [CareGapReasonCode.INVALIDATTRIBUTE]: 'Attribute on the data element did not equal desired value',
-  [CareGapReasonCode.DATEOUTOFRANGE]: 'Key date was not in the expected range',
-  [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value was not in the expected range',
+  [CareGapReasonCode.NOTFOUND]: 'Data Element Not Found',
+  [CareGapReasonCode.MISSING]: 'Missing Data Element',
+  [CareGapReasonCode.PRESENT]: 'Data Element is Present',
+  [CareGapReasonCode.INVALIDATTRIBUTE]: 'Attribute is Invalid',
+  [CareGapReasonCode.DATEINRANGE]: 'Date is within specified range',
+  [CareGapReasonCode.DATEOUTOFRANGE]: 'Date is out of specified range',
+  [CareGapReasonCode.VALUEINRANGE]: 'Value is within specified range',
+  [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value is out of specified range',
   [CareGapReasonCode.VALUEMISSING]: 'Value was missing or null',
-  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range'
+  [CareGapReasonCode.COUNTINRANGE]: 'Count is within specified range',
+  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range',
+  [CareGapReasonCode.NOTALLOWED]: 'Data Element was not used in care gap calculation due to an external requirement'
 };

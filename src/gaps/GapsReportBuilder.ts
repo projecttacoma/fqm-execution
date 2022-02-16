@@ -214,8 +214,8 @@ export function generateGuidanceResponses(
           ? [
               {
                 system: 'CareGapReasonCodeSystem',
-                code: CareGapReasonCode.MISSING,
-                display: CareGapReasonCodeDisplay[CareGapReasonCode.MISSING]
+                code: CareGapReasonCode.NOTFOUND,
+                display: CareGapReasonCodeDisplay[CareGapReasonCode.NOTFOUND]
               }
             ]
           : [
