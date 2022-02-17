@@ -102,7 +102,6 @@ export enum CareGapReasonCode {
   DATEOUTOFRANGE = 'DateOutOfRange',
   VALUEINRANGE = 'ValueInRange',
   VALUEOUTOFRANGE = 'ValueOutOfRange',
-  VALUEMISSING = 'ValueMissing',
   COUNTINRANGE = 'CountInRange',
   COUNTOUTOFRANGE = 'CountOutOfRange',
   NOTALLOWED = 'NotAllowed'
@@ -120,7 +119,6 @@ export const CareGapReasonCodeDisplay = {
   [CareGapReasonCode.DATEOUTOFRANGE]: 'Date is out of specified range',
   [CareGapReasonCode.VALUEINRANGE]: 'Value is within specified range',
   [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value is out of specified range',
-  [CareGapReasonCode.VALUEMISSING]: 'Value was missing or null',
   [CareGapReasonCode.COUNTINRANGE]: 'Count is within specified range',
   [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range',
   [CareGapReasonCode.NOTALLOWED]: 'Data Element was not used in care gap calculation due to an external requirement'

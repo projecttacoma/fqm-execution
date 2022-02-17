@@ -415,9 +415,9 @@ export function calculateReasonDetail(
                       });
                     }
                   } else {
-                    // if the attribute wasn't found then we can consider it missing
+                    // if the attribute wasn't found then we can consider it NotFound (logical)
                     reasonDetail.reasons.push({
-                      code: CareGapReasonCode.VALUEMISSING,
+                      code: CareGapReasonCode.NOTFOUND,
                       path: duringFilter.attribute,
                       reference: `${resource._json.resourceType}/${resource.id.value}`
                     });
@@ -435,10 +435,14 @@ export function calculateReasonDetail(
                   }
                 });
 
-                // Use VALUEMISSING code if data is null
+                /* 
+                  Use NotFound code if data is null. NotFound is used both when the desired resource
+                  is not found and when the desired resource is found, but the desired attribute is
+                  missing from it
+                */
                 if (desiredAttr === null || desiredAttr === undefined) {
                   reasonDetail.reasons.push({
-                    code: CareGapReasonCode.VALUEMISSING,
+                    code: CareGapReasonCode.NOTFOUND,
                     path: notNullFilter.attribute,
                     reference: `${resource._json.resourceType}/${resource.id.value}`
                   });
