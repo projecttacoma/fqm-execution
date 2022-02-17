@@ -476,9 +476,9 @@ export function calculateReasonDetail(
         }
       }
 
-      // If no specific reason details found, default is missing
+      // If no specific reason details found, default is NotFound
       if (reasonDetail.hasReasonDetail && reasonDetail.reasons.length === 0) {
-        reasonDetail.reasons = [{ code: CareGapReasonCode.MISSING }];
+        reasonDetail.reasons = [{ code: CareGapReasonCode.NOTFOUND }];
       }
     } else {
       // TODO: Handle negative improvement cases, similar to above but it will be a bit more complicated.
