@@ -85,13 +85,17 @@ export enum ImprovementNotation {
 
 /**
  * URL to be defined
- *
- * 'MISSING': Gap is due to missing data
+ * 'NOTFOUND': Gap is detected because desired data cannot be found
+ * 'MISSING': Gap is detected because data is known to exist but cannot be found
  * 'PRESENT': Gap is due to present data
+ * 'INVALIDATTRIBUTE': Gap is detected because data element was found, but value was not equal to expected value
+ * 'DATEINRANGE': Gap is due to a date being within a range
  * 'DATEOUTOFRANGE': Gap is due to a date being out of range
+ * 'VALUEINRANGE = Gap is due to value being within a range
  * 'VALUEOUTOFRANGE': Gap is due to a value being out of range
+ * 'COUNTINRANGE': Gap is due to count of data elements being within a range
  * 'COUNTOUTOFRANGE': Gap is due to a count of resources being out of range
- *
+ * 'NOTALLOWED': Data Element was not used in care gap calculation due to an external requirement
  */
 export enum CareGapReasonCode {
   NOTFOUND = 'NotFound',
