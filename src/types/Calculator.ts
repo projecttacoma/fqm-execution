@@ -286,7 +286,7 @@ export interface DebugOutput {
   measureReports?: fhir4.MeasureReport[];
   gaps?: {
     retrieves?: DataTypeQuery[];
-    bundle?: fhir4.Bundle;
+    bundle?: fhir4.Bundle | fhir4.Bundle[];
   };
 }
 
@@ -301,6 +301,7 @@ export interface CalculatorFunctionOutput {
     | cql.Results
     | string
     | fhir4.Bundle
+    | fhir4.Bundle[]
     | fhir4.Library
     | DataTypeQuery[];
   debugOutput?: DebugOutput;
@@ -350,7 +351,7 @@ export interface RCalculationOutput extends CalculatorFunctionOutput {
  * dataType for calculateGapsInCare() function
  */
 export interface GICCalculationOutput extends CalculatorFunctionOutput {
-  results: fhir4.Bundle;
+  results: fhir4.Bundle | fhir4.Bundle[];
 }
 
 /**
