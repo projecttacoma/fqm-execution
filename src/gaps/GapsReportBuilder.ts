@@ -402,6 +402,10 @@ export function calculateReasonDetail(
                     foundPath.push(key);
                     if (desiredAttr) {
                       desiredAttr = desiredAttr[key];
+                      /*
+                       There's a chance that the desiredAttr isn't exactly at the described point in
+                       the path. For this reason, just take the first attribute whose value is a Datetime
+                      */
                       if (desiredAttr?.value?.isDateTime) {
                         break;
                       }
@@ -415,7 +419,7 @@ export function calculateReasonDetail(
                     if (isAttrContainedInInterval === false) {
                       reasonDetail.reasons.push({
                         code: CareGapReasonCode.DATEOUTOFRANGE,
-                        path: duringFilter.attribute,
+                        path: foundPath.join('.'),
                         reference: `${resource._json.resourceType}/${resource.id.value}`
                       });
                     }
