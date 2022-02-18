@@ -124,6 +124,6 @@ export const CareGapReasonCodeDisplay = {
   [CareGapReasonCode.VALUEINRANGE]: 'Value is within specified range',
   [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value is out of specified range',
   [CareGapReasonCode.COUNTINRANGE]: 'Count is within specified range',
-  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range',
+  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count is out of specified range',
   [CareGapReasonCode.NOTALLOWED]: 'Data Element was not used in care gap calculation due to an external requirement'
 };
