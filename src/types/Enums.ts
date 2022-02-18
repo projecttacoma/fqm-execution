@@ -85,33 +85,45 @@ export enum ImprovementNotation {
 
 /**
  * URL to be defined
- *
- * 'MISSING': Gap is due to missing data
+ * 'NOTFOUND': Gap is detected because desired data cannot be found
+ * 'MISSING': Gap is detected because data is known to exist but cannot be found
  * 'PRESENT': Gap is due to present data
+ * 'INVALIDATTRIBUTE': Gap is detected because data element was found, but value was not equal to expected value
+ * 'DATEINRANGE': Gap is due to a date being within a range
  * 'DATEOUTOFRANGE': Gap is due to a date being out of range
+ * 'VALUEINRANGE = Gap is due to value being within a range
  * 'VALUEOUTOFRANGE': Gap is due to a value being out of range
+ * 'COUNTINRANGE': Gap is due to count of data elements being within a range
  * 'COUNTOUTOFRANGE': Gap is due to a count of resources being out of range
- *
+ * 'NOTALLOWED': Data Element was not used in care gap calculation due to an external requirement
  */
 export enum CareGapReasonCode {
+  NOTFOUND = 'NotFound',
   MISSING = 'Missing',
   PRESENT = 'Present',
   INVALIDATTRIBUTE = 'InvalidAttribute',
+  DATEINRANGE = 'DateInRange',
   DATEOUTOFRANGE = 'DateOutOfRange',
+  VALUEINRANGE = 'ValueInRange',
   VALUEOUTOFRANGE = 'ValueOutOfRange',
-  VALUEMISSING = 'ValueMissing',
-  COUNTOUTOFRANGE = 'CountOutOfRange'
+  COUNTINRANGE = 'CountInRange',
+  COUNTOUTOFRANGE = 'CountOutOfRange',
+  NOTALLOWED = 'NotAllowed'
 }
 
 /**
  * Lookup object for CareGapReasonCode to display text
  */
 export const CareGapReasonCodeDisplay = {
-  [CareGapReasonCode.MISSING]: 'No Data Element found from Value Set',
-  [CareGapReasonCode.PRESENT]: 'Data element was found',
-  [CareGapReasonCode.INVALIDATTRIBUTE]: 'Attribute on the data element did not equal desired value',
-  [CareGapReasonCode.DATEOUTOFRANGE]: 'Key date was not in the expected range',
-  [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value was not in the expected range',
-  [CareGapReasonCode.VALUEMISSING]: 'Value was missing or null',
-  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count of data elements was not in the expected range'
+  [CareGapReasonCode.NOTFOUND]: 'Data Element Not Found',
+  [CareGapReasonCode.MISSING]: 'Missing Data Element',
+  [CareGapReasonCode.PRESENT]: 'Data Element is Present',
+  [CareGapReasonCode.INVALIDATTRIBUTE]: 'Attribute is Invalid',
+  [CareGapReasonCode.DATEINRANGE]: 'Date is within specified range',
+  [CareGapReasonCode.DATEOUTOFRANGE]: 'Date is out of specified range',
+  [CareGapReasonCode.VALUEINRANGE]: 'Value is within specified range',
+  [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value is out of specified range',
+  [CareGapReasonCode.COUNTINRANGE]: 'Count is within specified range',
+  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count is out of specified range',
+  [CareGapReasonCode.NOTALLOWED]: 'Data Element was not used in care gap calculation due to an external requirement'
 };

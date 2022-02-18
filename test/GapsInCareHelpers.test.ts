@@ -556,7 +556,7 @@ describe('Find Reason Detail', () => {
       ]);
     });
 
-    test('retrieve with during filter but missing attribute in resource should be code VALUEMISSING', () => {
+    test('retrieve with during filter but missing attribute in resource should be code NOTFOUND', () => {
       const intervalStart = '2009-12-31';
       const intervalEnd = '2019-12-31';
 
@@ -593,11 +593,11 @@ describe('Find Reason Detail', () => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasons).toEqual([
-        { code: CareGapReasonCode.VALUEMISSING, path: 'performed.end', reference: 'Procedure/proc23' }
+        { code: CareGapReasonCode.NOTFOUND, path: 'performed.end', reference: 'Procedure/proc23' }
       ]);
     });
 
-    test('retrieve with false not null filter should be code VALUEMISSING', () => {
+    test('retrieve with false not null filter should be code NOTFOUND', () => {
       const q: GapsDataTypeQuery = {
         ...baseQuery,
         queryInfo: {
@@ -621,7 +621,7 @@ describe('Find Reason Detail', () => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasons).toEqual([
-        { code: CareGapReasonCode.VALUEMISSING, path: 'result', reference: 'Procedure/proc23' }
+        { code: CareGapReasonCode.NOTFOUND, path: 'result', reference: 'Procedure/proc23' }
       ]);
     });
 
@@ -653,7 +653,7 @@ describe('Find Reason Detail', () => {
 
       expect(r.reasonDetail).toBeDefined();
       // If no specific reason details found, default is missing
-      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.MISSING }]);
+      expect(r.reasonDetail?.reasons).toEqual([{ code: CareGapReasonCode.NOTFOUND }]);
     });
 
     test('retrieve with both false date and attribute filters should be code both INVALIDATTRIBUTE and DATEOUTOFRANGE', () => {
@@ -1132,7 +1132,7 @@ describe('Guidance Response', () => {
           {
             system: 'CareGapReasonCodeSystem',
             code: 'DateOutOfRange',
-            display: 'Key date was not in the expected range',
+            display: 'Date is out of specified range',
             extension: [
               {
                 url: 'ReasonDetail',
@@ -1175,7 +1175,7 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'Missing',
-      display: 'No Data Element found from Value Set'
+      display: 'Missing Data Element'
     };
     expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
   });
@@ -1188,7 +1188,7 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'Present',
-      display: 'Data element was found',
+      display: 'Data Element is Present',
       extension: [
         {
           url: 'ReasonDetail',
@@ -1215,7 +1215,7 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'CareGapReasonCodeSystem',
       code: 'DateOutOfRange',
-      display: 'Key date was not in the expected range',
+      display: 'Date is out of specified range',
       extension: [
         {
           url: 'ReasonDetail',

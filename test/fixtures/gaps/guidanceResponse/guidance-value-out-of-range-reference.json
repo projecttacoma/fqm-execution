@@ -24,11 +24,11 @@
     "id": "example",
     "code": {
       "coding": [
-          {
-            "system": "CareGapReasonCodeSystem",
-            "code": "ValueOutOfRange",
-            "display": "Data element was found, but value was out of range"
-          }
+        {
+          "system": "CareGapReasonCodeSystem",
+          "code": "ValueOutOfRange",
+          "display": "Value is out of specified range"
+        }
       ]
     },
     "referenceRange": [

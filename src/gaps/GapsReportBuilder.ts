@@ -214,8 +214,8 @@ export function generateGuidanceResponses(
           ? [
               {
                 system: 'CareGapReasonCodeSystem',
-                code: CareGapReasonCode.MISSING,
-                display: CareGapReasonCodeDisplay[CareGapReasonCode.MISSING]
+                code: CareGapReasonCode.NOTFOUND,
+                display: CareGapReasonCodeDisplay[CareGapReasonCode.NOTFOUND]
               }
             ]
           : [
@@ -415,9 +415,9 @@ export function calculateReasonDetail(
                       });
                     }
                   } else {
-                    // if the attribute wasn't found then we can consider it missing
+                    // if the attribute wasn't found then we can consider it NotFound (logical)
                     reasonDetail.reasons.push({
-                      code: CareGapReasonCode.VALUEMISSING,
+                      code: CareGapReasonCode.NOTFOUND,
                       path: duringFilter.attribute,
                       reference: `${resource._json.resourceType}/${resource.id.value}`
                     });
@@ -435,10 +435,14 @@ export function calculateReasonDetail(
                   }
                 });
 
-                // Use VALUEMISSING code if data is null
+                /* 
+                  Use NotFound code if data is null. NotFound is used both when the desired resource
+                  is not found and when the desired resource is found, but the desired attribute is
+                  missing from it
+                */
                 if (desiredAttr === null || desiredAttr === undefined) {
                   reasonDetail.reasons.push({
-                    code: CareGapReasonCode.VALUEMISSING,
+                    code: CareGapReasonCode.NOTFOUND,
                     path: notNullFilter.attribute,
                     reference: `${resource._json.resourceType}/${resource.id.value}`
                   });
@@ -476,9 +480,9 @@ export function calculateReasonDetail(
         }
       }
 
-      // If no specific reason details found, default is missing
+      // If no specific reason details found, default is NotFound
       if (reasonDetail.hasReasonDetail && reasonDetail.reasons.length === 0) {
-        reasonDetail.reasons = [{ code: CareGapReasonCode.MISSING }];
+        reasonDetail.reasons = [{ code: CareGapReasonCode.NOTFOUND }];
       }
     } else {
       // TODO: Handle negative improvement cases, similar to above but it will be a bit more complicated.

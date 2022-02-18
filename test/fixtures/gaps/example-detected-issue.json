@@ -1,219 +1,219 @@
 [
-    {
-        "code": {
-            "coding": [
-                {
-                    "code": "care-gap",
-                    "display": "Gap in Care Detected",
-                    "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
-                }
-            ]
-        },
-        "contained": [
-            {
-                "dataRequirement": [
-                    {
-                        "codeFilter": [
-                            {
-                                "path": "code",
-                                "valueSet": "http://example.com/test-vs"
-                            }
-                        ],
-                        "type": "Condition"
-                    }
-                ],
-                "id": "A",
-                "moduleUri": "Measure/example",
-                "reasonCode": [
-                    {
-                        "coding": [
-                            {
-                                "code": "Missing",
-                                "display": "No Data Element found from Value Set",
-                                "system": "CareGapReasonCodeSystem"
-                            }
-                        ]
-                    }
-                ],
-                "resourceType": "GuidanceResponse",
-                "status": "data-required"
-            }
-        ],
-        "evidence": [
-            {
-                "detail": [
-                    {
-                        "reference": "#A"
-                    }
-                ]
-            }
-        ],
-        "id": "example",
-        "resourceType": "DetectedIssue",
-        "status": "final"
+  {
+    "code": {
+      "coding": [
+        {
+          "code": "care-gap",
+          "display": "Gap in Care Detected",
+          "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
+        }
+      ]
     },
-    {
-        "code": {
+    "contained": [
+      {
+        "dataRequirement": [
+          {
+            "codeFilter": [
+              {
+                "path": "code",
+                "valueSet": "http://example.com/test-vs"
+              }
+            ],
+            "type": "Condition"
+          }
+        ],
+        "id": "A",
+        "moduleUri": "Measure/example",
+        "reasonCode": [
+          {
             "coding": [
-                {
-                    "code": "care-gap",
-                    "display": "Gap in Care Detected",
-                    "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
-                }
+              {
+                "code": "NotFound",
+                "display": "Data Element Not Found",
+                "system": "CareGapReasonCodeSystem"
+              }
             ]
-        },
-        "contained": [
-            {
-                "dataRequirement": [
-                    {
-                        "codeFilter": [
-                            {
-                                "path": "code",
-                                "valueSet": "http://example.com/test-vs"
-                            }
-                        ],
-                        "type": "Condition"
-                    }
-                ],
-                "id": "A",
-                "moduleUri": "Measure/example",
-                "reasonCode": [
-                    {
-                        "coding": [
-                            {
-                                "code": "Missing",
-                                "display": "No Data Element found from Value Set",
-                                "system": "CareGapReasonCodeSystem"
-                            }
-                        ]
-                    }
-                ],
-                "resourceType": "GuidanceResponse",
-                "status": "data-required"
-            }
+          }
         ],
-        "evidence": [
-            {
-                "detail": [
-                    {
-                        "reference": "#A"
-                    }
-                ]
-            }
-        ],
-        "id": "example",
-        "resourceType": "DetectedIssue",
-        "status": "final"
+        "resourceType": "GuidanceResponse",
+        "status": "data-required"
+      }
+    ],
+    "evidence": [
+      {
+        "detail": [
+          {
+            "reference": "#A"
+          }
+        ]
+      }
+    ],
+    "id": "example",
+    "resourceType": "DetectedIssue",
+    "status": "final"
+  },
+  {
+    "code": {
+      "coding": [
+        {
+          "code": "care-gap",
+          "display": "Gap in Care Detected",
+          "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
+        }
+      ]
     },
-    {
-        "code": {
+    "contained": [
+      {
+        "dataRequirement": [
+          {
+            "codeFilter": [
+              {
+                "path": "code",
+                "valueSet": "http://example.com/test-vs"
+              }
+            ],
+            "type": "Condition"
+          }
+        ],
+        "id": "A",
+        "moduleUri": "Measure/example",
+        "reasonCode": [
+          {
             "coding": [
-                {
-                    "code": "care-gap",
-                    "display": "Gap in Care Detected",
-                    "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
-                }
+              {
+                "code": "NotFound",
+                "display": "Data Element Not Found",
+                "system": "CareGapReasonCodeSystem"
+              }
             ]
-        },
-        "contained": [
-            {
-                "dataRequirement": [
-                    {
-                        "codeFilter": [
-                            {
-                                "code": [
-                                    {
-                                        "code": "test",
-                                        "system": "EXAMPLE"
-                                    }
-                                ],
-                                "path": "code"
-                            }
-                        ],
-                        "type": "Procedure"
-                    }
-                ],
-                "id": "A",
-                "moduleUri": "Measure/example",
-                "reasonCode": [
-                    {
-                        "coding": [
-                            {
-                                "code": "Missing",
-                                "display": "No Data Element found from Value Set",
-                                "system": "CareGapReasonCodeSystem"
-                            }
-                        ]
-                    }
-                ],
-                "resourceType": "GuidanceResponse",
-                "status": "data-required"
-            }
+          }
         ],
-        "evidence": [
-            {
-                "detail": [
-                    {
-                        "reference": "#A"
-                    }
-                ]
-            }
-        ],
-        "id": "example",
-        "resourceType": "DetectedIssue",
-        "status": "final"
+        "resourceType": "GuidanceResponse",
+        "status": "data-required"
+      }
+    ],
+    "evidence": [
+      {
+        "detail": [
+          {
+            "reference": "#A"
+          }
+        ]
+      }
+    ],
+    "id": "example",
+    "resourceType": "DetectedIssue",
+    "status": "final"
+  },
+  {
+    "code": {
+      "coding": [
+        {
+          "code": "care-gap",
+          "display": "Gap in Care Detected",
+          "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
+        }
+      ]
     },
-    {
-        "code": {
+    "contained": [
+      {
+        "dataRequirement": [
+          {
+            "codeFilter": [
+              {
+                "code": [
+                  {
+                    "code": "test",
+                    "system": "EXAMPLE"
+                  }
+                ],
+                "path": "code"
+              }
+            ],
+            "type": "Procedure"
+          }
+        ],
+        "id": "A",
+        "moduleUri": "Measure/example",
+        "reasonCode": [
+          {
             "coding": [
-                {
-                    "code": "care-gap",
-                    "display": "Gap in Care Detected",
-                    "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
-                }
+              {
+                "code": "NotFound",
+                "display": "Data Element Not Found",
+                "system": "CareGapReasonCodeSystem"
+              }
             ]
-        },
-        "contained": [
-            {
-                "dataRequirement": [
-                    {
-                        "codeFilter": [
-                            {
-                                "path": "code",
-                                "valueSet": "http://example.com/test-vs-2"
-                            }
-                        ],
-                        "type": "Condition"
-                    }
-                ],
-                "id": "A",
-                "moduleUri": "Measure/example",
-                "reasonCode": [
-                    {
-                        "coding": [
-                            {
-                                "code": "Missing",
-                                "display": "No Data Element found from Value Set",
-                                "system": "CareGapReasonCodeSystem"
-                            }
-                        ]
-                    }
-                ],
-                "resourceType": "GuidanceResponse",
-                "status": "data-required"
-            }
+          }
         ],
-        "evidence": [
-            {
-                "detail": [
-                    {
-                        "reference": "#A"
-                    }
-                ]
-            }
+        "resourceType": "GuidanceResponse",
+        "status": "data-required"
+      }
+    ],
+    "evidence": [
+      {
+        "detail": [
+          {
+            "reference": "#A"
+          }
+        ]
+      }
+    ],
+    "id": "example",
+    "resourceType": "DetectedIssue",
+    "status": "final"
+  },
+  {
+    "code": {
+      "coding": [
+        {
+          "code": "care-gap",
+          "display": "Gap in Care Detected",
+          "system": "http://terminology.hl7.org/CodeSystem/detectedissue-category"
+        }
+      ]
+    },
+    "contained": [
+      {
+        "dataRequirement": [
+          {
+            "codeFilter": [
+              {
+                "path": "code",
+                "valueSet": "http://example.com/test-vs-2"
+              }
+            ],
+            "type": "Condition"
+          }
         ],
-        "id": "example",
-        "resourceType": "DetectedIssue",
-        "status": "final"
-    }
+        "id": "A",
+        "moduleUri": "Measure/example",
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "code": "NotFound",
+                "display": "Data Element Not Found",
+                "system": "CareGapReasonCodeSystem"
+              }
+            ]
+          }
+        ],
+        "resourceType": "GuidanceResponse",
+        "status": "data-required"
+      }
+    ],
+    "evidence": [
+      {
+        "detail": [
+          {
+            "reference": "#A"
+          }
+        ]
+      }
+    ],
+    "id": "example",
+    "resourceType": "DetectedIssue",
+    "status": "final"
+  }
 ]

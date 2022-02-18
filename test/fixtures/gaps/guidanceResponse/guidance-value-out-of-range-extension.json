@@ -38,7 +38,7 @@
         {
           "system": "CareGapReasonCodeSystem",
           "code": "ValueOutOfRange",
-          "display": "Data element was found, but value was out of range"
+          "display": "Value is out of specified range"
         }
       ]
     }
