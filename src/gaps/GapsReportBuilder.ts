@@ -397,11 +397,16 @@ export function calculateReasonDetail(
 
                   // Access desired property of FHIRObject
                   let desiredAttr = resource;
-                  path.forEach(key => {
+                  const foundPath: string[] = [];
+                  for (const key of path) {
+                    foundPath.push(key);
                     if (desiredAttr) {
                       desiredAttr = desiredAttr[key];
+                      if (desiredAttr?.value?.isDateTime) {
+                        break;
+                      }
                     }
-                  });
+                  }
 
                   // Use DateOutOfRange code if data point is outside of the desired interval
                   if (desiredAttr?.value?.isDateTime) {
