@@ -10,7 +10,9 @@ import {
   DRCalculationOutput,
   DebugOutput,
   DataTypeQuery,
-  QICalculationOutput
+  QICalculationOutput,
+  OneOrManyBundles,
+  OneOrMultiPatient
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -313,12 +315,12 @@ export async function calculateRaw(
  * @param valueSetCache Cache of existing valuesets
  * @returns gaps bundle of DetectedIssues and GuidanceResponses
  */
-export async function calculateGapsInCare(
+export async function calculateGapsInCare<T extends OneOrMultiPatient>(
   measureBundle: fhir4.Bundle,
-  patientBundles: fhir4.Bundle[],
+  patientBundles: T,
   options: CalculationOptions,
   valueSetCache: fhir4.ValueSet[] = []
-): Promise<GICCalculationOutput> {
+): Promise<GICCalculationOutput<T>> {
   // Detailed results for populations get ELM content back
   options.returnELM = true;
 
@@ -326,8 +328,7 @@ export async function calculateGapsInCare(
 
   const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = calculationResults;
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, results, options);
-
-  let result: fhir4.Bundle = <fhir4.Bundle>{};
+  const result: fhir4.Bundle[] = [];
   const errorLog: GracefulError[] = [];
   results.forEach(res => {
     const matchingMeasureReport = measureReports.find(mr => mr.subject?.reference?.split('/')[1] === res.patientId);
@@ -370,7 +371,6 @@ export async function calculateGapsInCare(
       const populationCriteria =
         numerRelevance &&
         (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
-
       if (populationCriteria) {
         const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId) || measureResource.group?.[i];
 
@@ -444,19 +444,25 @@ export async function calculateGapsInCare(
         errorLog.push(...detectedIssueErrors);
 
         const patient = res.patientObject?._json as fhir4.Patient;
-        result = GapsInCareHelpers.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, patient);
-
+        const gapsBundle = GapsInCareHelpers.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, patient);
+        result.push(gapsBundle);
         if (debugOutput && options.enableDebugOutput) {
           debugOutput.gaps = {
             retrieves: detailedGapsRetrieves,
             bundle: result
           };
         }
+      } else {
+        result.push(<fhir4.Bundle>{});
       }
     });
   });
-
-  return { results: result, debugOutput, valueSetCache: calculationResults.valueSetCache, withErrors: errorLog };
+  return {
+    results: <OneOrManyBundles<T>>(result.length === 1 ? result[0] : result),
+    debugOutput,
+    valueSetCache: calculationResults.valueSetCache,
+    withErrors: errorLog
+  };
 }
 
 /**

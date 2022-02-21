@@ -286,7 +286,7 @@ export interface DebugOutput {
   measureReports?: fhir4.MeasureReport[];
   gaps?: {
     retrieves?: DataTypeQuery[];
-    bundle?: fhir4.Bundle;
+    bundle?: fhir4.Bundle | fhir4.Bundle[];
   };
 }
 
@@ -301,6 +301,7 @@ export interface CalculatorFunctionOutput {
     | cql.Results
     | string
     | fhir4.Bundle
+    | fhir4.Bundle[]
     | fhir4.Library
     | DataTypeQuery[];
   debugOutput?: DebugOutput;
@@ -349,9 +350,19 @@ export interface RCalculationOutput extends CalculatorFunctionOutput {
 /**
  * dataType for calculateGapsInCare() function
  */
-export interface GICCalculationOutput extends CalculatorFunctionOutput {
-  results: fhir4.Bundle;
+export interface GICCalculationOutput<T extends OneOrMultiPatient> extends CalculatorFunctionOutput {
+  results: OneOrManyBundles<T>;
 }
+
+/**
+ * type for declaring whether GICCalculation is for one or multiple patients
+ */
+export type OneOrMultiPatient = [fhir4.Bundle] | fhir4.Bundle[];
+
+/**
+ * conditional type to map OneOrMultiPatient into the return result of GIC calculation
+ */
+export type OneOrManyBundles<T extends OneOrMultiPatient> = T extends [fhir4.Bundle] ? fhir4.Bundle : fhir4.Bundle[];
 
 /**
  * dataType for calculateDataRequirements() function
