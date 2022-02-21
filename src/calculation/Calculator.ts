@@ -10,7 +10,9 @@ import {
   DRCalculationOutput,
   DebugOutput,
   DataTypeQuery,
-  QICalculationOutput
+  QICalculationOutput,
+  OneOrManyBundles,
+  OneOrMultiPatient
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -313,12 +315,12 @@ export async function calculateRaw(
  * @param valueSetCache Cache of existing valuesets
  * @returns gaps bundle of DetectedIssues and GuidanceResponses
  */
-export async function calculateGapsInCare(
+export async function calculateGapsInCare<T extends OneOrMultiPatient>(
   measureBundle: fhir4.Bundle,
-  patientBundles: fhir4.Bundle[],
+  patientBundles: T,
   options: CalculationOptions,
   valueSetCache: fhir4.ValueSet[] = []
-): Promise<GICCalculationOutput> {
+): Promise<GICCalculationOutput<T>> {
   // Detailed results for populations get ELM content back
   options.returnELM = true;
 
@@ -326,7 +328,6 @@ export async function calculateGapsInCare(
 
   const { results, debugOutput, elmLibraries, mainLibraryName, parameters } = calculationResults;
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, results, options);
-
   const result: fhir4.Bundle[] = [];
   const errorLog: GracefulError[] = [];
   results.forEach(res => {
@@ -457,7 +458,7 @@ export async function calculateGapsInCare(
     });
   });
   return {
-    results: result.length === 1 ? result[0] : result,
+    results: <OneOrManyBundles<T>>(result.length === 1 ? result[0] : result),
     debugOutput,
     valueSetCache: calculationResults.valueSetCache,
     withErrors: errorLog
