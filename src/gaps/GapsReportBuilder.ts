@@ -397,11 +397,20 @@ export function calculateReasonDetail(
 
                   // Access desired property of FHIRObject
                   let desiredAttr = resource;
-                  path.forEach(key => {
+                  const foundPath: string[] = [];
+                  for (const key of path) {
+                    foundPath.push(key);
                     if (desiredAttr) {
                       desiredAttr = desiredAttr[key];
+                      /*
+                       There's a chance that the desiredAttr isn't exactly at the described point in
+                       the path. For this reason, just take the first attribute whose value is a Datetime
+                      */
+                      if (desiredAttr?.value?.isDateTime) {
+                        break;
+                      }
                     }
-                  });
+                  }
 
                   // Use DateOutOfRange code if data point is outside of the desired interval
                   if (desiredAttr?.value?.isDateTime) {
@@ -410,7 +419,7 @@ export function calculateReasonDetail(
                     if (isAttrContainedInInterval === false) {
                       reasonDetail.reasons.push({
                         code: CareGapReasonCode.DATEOUTOFRANGE,
-                        path: duringFilter.attribute,
+                        path: foundPath.join('.'),
                         reference: `${resource._json.resourceType}/${resource.id.value}`
                       });
                     }
