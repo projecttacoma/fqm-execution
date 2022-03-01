@@ -69,7 +69,7 @@ const queryInfo = Calculator.calculateQueryInfo(measureBundle); // Get detailed 
 
 #### Arguments
 
-- `measureBundle`: Bundle containing a FHIR Measure and its dependendent Libraries. FHIR ValueSets may be included as well
+- `measureBundle`: Bundle containing a FHIR Measure and its dependent Libraries. FHIR ValueSets may be included as well
 - `patientBundles`: Array of FHIR Bundles containing patient data
 - `options` (optional): Object of calculation options (see below)
 - `valueSetCache` (optional): Array of FHIR ValueSet resources to use for calculation
