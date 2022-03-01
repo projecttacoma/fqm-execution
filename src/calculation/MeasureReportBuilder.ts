@@ -323,6 +323,13 @@ export default class MeasureReportBuilder {
               code: rr.code.value,
               display: rr.display.value
             });
+          } else if (rr.isCode) {
+            // if a CQL system code is returned
+            observation.valueCodeableConcept?.coding?.push({
+              system: rr.system,
+              code: rr.code,
+              display: rr.display
+            });
           }
         });
       } else if (sd.rawResult.isCode) {
