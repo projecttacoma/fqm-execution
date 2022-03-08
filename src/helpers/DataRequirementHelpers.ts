@@ -103,10 +103,11 @@ export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | G
   if (filter.type === 'notnull') {
     const notnullFilter = filter as NotNullFilter;
     return {
-      url: 'http://example.com/dr-value',
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
       extension: [
-        { url: 'dr-value-attribute', valueString: notnullFilter.attribute },
-        { url: 'dr-value-filter', valueString: 'not null' }
+        { url: 'path', valueString: notnullFilter.attribute },
+        { url: 'comparator', valueCode: 'eq' },
+        { url: 'value', valueString: 'not null' }
       ]
     };
   } else if (filter?.withError) {
