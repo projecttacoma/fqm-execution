@@ -297,10 +297,11 @@ describe('DataRequirementHelpers', () => {
       };
 
       const expectedDetailFilter: fhir4.Extension = {
-        url: 'http://example.com/dr-value',
+        url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
         extension: [
-          { url: 'dr-value-attribute', valueString: 'attr-1' },
-          { url: 'dr-value-filter', valueString: 'not null' }
+          { url: 'path', valueString: 'attr-1' },
+          { url: 'comparator', valueCode: 'eq' },
+          { url: 'value', valueString: 'not null' }
         ]
       };
 

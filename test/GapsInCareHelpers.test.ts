@@ -1008,14 +1008,18 @@ describe('Guidance Response', () => {
         ],
         extension: [
           {
-            url: 'http://example.com/dr-value',
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
             extension: [
               {
-                url: 'dr-value-attribute',
+                url: 'path',
                 valueString: 'value'
               },
               {
-                url: 'dr-value-filter',
+                url: 'comparator',
+                valueCode: 'eq'
+              },
+              {
+                url: 'value',
                 valueString: 'not null'
               }
             ]
