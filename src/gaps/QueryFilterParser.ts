@@ -1,4 +1,5 @@
-import cql, { IPatient } from 'cql-execution';
+import { Interval, Expression, PatientContext, Library, DateTime } from 'cql-execution';
+import { CQLPatient } from '../types/CQLPatient';
 import {
   ELM,
   ELMEqual,
@@ -66,7 +67,7 @@ export function parseQueryInfo(
   allELM: ELM[],
   queryLocalId: string | undefined,
   parameters: { [key: string]: any } = {},
-  patient?: cql.IPatient
+  patient?: CQLPatient
 ): QueryInfo {
   if (!queryLocalId) {
     throw new Error('QueryLocalId was not provided');
@@ -218,7 +219,7 @@ export function interpretExpression(
   expression: ELMExpression,
   library: ELM,
   parameters: any,
-  patient?: cql.IPatient
+  patient?: CQLPatient
 ): AnyFilter {
   let returnFilter: AnyFilter = {
     type: 'unknown',
@@ -308,7 +309,7 @@ export function findPropertyUsage(expression: any, unknownLocalId?: string): Unk
  * @param patient The patient resource.
  * @returns The filter tree for this and expression.
  */
-export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient?: cql.IPatient): AndFilter {
+export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: any, patient?: CQLPatient): AndFilter {
   const andInfo: AndFilter = { type: 'and', children: [] };
   if (andExpression.operand[0].type == 'And') {
     andInfo.children.push(...interpretAnd(andExpression.operand[0] as ELMAnd, library, parameters, patient).children);
@@ -333,7 +334,7 @@ export function interpretAnd(andExpression: ELMAnd, library: ELM, parameters: an
  * @param patient The patient resource.
  * @returns The filter tree for this or expression.
  */
-export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient?: cql.IPatient): OrFilter {
+export function interpretOr(orExpression: ELMOr, library: ELM, parameters: any, patient?: CQLPatient): OrFilter {
   const orInfo: OrFilter = { type: 'or', children: [] };
   if (orExpression.operand[0].type == 'Or') {
     orInfo.children.push(...interpretOr(orExpression.operand[0] as ELMOr, library, parameters, patient).children);
@@ -593,8 +594,8 @@ export function interpretIncludedIn(
     const valuePeriod: { start?: string; end?: string } = {};
     // If this parameter is known and is an interval we can use it
     if (parameters[paramName] && parameters[paramName].isInterval) {
-      valuePeriod.start = (parameters[paramName] as cql.Interval).start().toString().replace('+00:00', 'Z');
-      valuePeriod.end = (parameters[paramName] as cql.Interval).end().toString().replace('+00:00', 'Z');
+      valuePeriod.start = (parameters[paramName] as Interval).start().toString().replace('+00:00', 'Z');
+      valuePeriod.end = (parameters[paramName] as Interval).end().toString().replace('+00:00', 'Z');
     } else {
       withError = {
         message: `could not find parameter "${paramName}" or it was not an interval.`
@@ -741,9 +742,9 @@ export function executeIntervalELM(
   }
 
   // build an expression that has the interval creation and
-  const intervalExecExpr = new cql.Expression({ operand: intervalExpr });
-  const ctx = new cql.PatientContext(new cql.Library(library), null, null, parameters);
-  const interval: cql.Interval = intervalExecExpr.arg.execute(ctx);
+  const intervalExecExpr = new Expression({ operand: intervalExpr });
+  const ctx = new PatientContext(new Library(library), null, null, parameters);
+  const interval: Interval = intervalExecExpr.arg.execute(ctx);
   if (interval != null && interval.start() != null && interval.end() != null) {
     return {
       start: interval.start().toString().replace('+00:00', 'Z'),
@@ -782,7 +783,7 @@ export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
   library: ELM,
   parameters: any,
-  patient?: IPatient
+  patient?: CQLPatient
 ): AnyFilter {
   // look at first param if it is function ref to calendar age in years at.
   const withError: GracefulError = { message: 'An unknown error occured while interpretting greater or equal filter' };
@@ -841,17 +842,17 @@ export function interpretGreaterOrEqual(
           if (patient.birthDate) {
             // Clone patient cql-execution birthDate ensure it is a DateTime then wipe out hours, minutes, seconds,
             // and miliseconds. Then add the number of years.
-            const birthDate = patient.birthDate.value.copy().getDateTime() as cql.DateTime;
+            const birthDate = patient.birthDate.value.copy().getDateTime() as DateTime;
             birthDate.hour = 0;
             birthDate.minute = 0;
             birthDate.second = 0;
             birthDate.millisecond = 0;
             birthDate.timezoneOffset = 0;
-            const birthDateOffset = birthDate.add(years, cql.DateTime.Unit.YEAR);
+            const birthDateOffset = birthDate.add(years, DateTime.Unit.YEAR);
             // create an interval with this offset as the start and no end date.
             const period = {
               start: birthDateOffset.toString().replace('+00:00', 'Z'),
-              interval: new cql.Interval(birthDateOffset, null, true, false)
+              interval: new Interval(birthDateOffset, null, true, false)
             };
             // build the DuringFilter to return.
             return {

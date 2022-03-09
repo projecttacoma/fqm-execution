@@ -1,6 +1,7 @@
 import { PopulationType, FinalResult, Relevance, CareGapReasonCode } from './Enums';
 import * as cql from './CQLTypes';
-import { IPatient, IPatientSource } from 'cql-execution';
+import { DataProvider } from 'cql-execution';
+import { CQLPatient } from './CQLPatient';
 import { ELM } from './ELMTypes';
 import { QueryInfo } from './QueryFilterTypes';
 import { GracefulError } from './errors/GracefulError';
@@ -20,7 +21,7 @@ export interface CalculationOptions {
   /** End of measurement period */
   measurementPeriodEnd?: string;
   /** PatientSource to use. If provided, the patientBundles will not be required. */
-  patientSource?: IPatientSource;
+  patientSource?: DataProvider;
   /** Include SDEs in calculation */
   calculateSDEs?: boolean;
   /** Include HTML structure for highlighting */
@@ -75,7 +76,7 @@ export interface ExecutionResult {
    * Patient object found during execution. This is fetched from the "Patient" statement result that is implicitly
    * added to CQL.
    */
-  patientObject?: IPatient;
+  patientObject?: CQLPatient;
 }
 
 /**
