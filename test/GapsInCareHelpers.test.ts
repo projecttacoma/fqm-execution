@@ -1,4 +1,4 @@
-import * as cql from 'cql-execution';
+import { Interval, DateTime } from 'cql-execution';
 import { FHIRWrapper } from 'cql-exec-fhir';
 import {
   processQueriesForGaps,
@@ -541,7 +541,7 @@ describe('Find Reason Detail', () => {
             valuePeriod: {
               start: intervalStart,
               end: intervalEnd,
-              interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
+              interval: new Interval(DateTime.parse(intervalStart), DateTime.parse(intervalEnd))
             }
           }
         }
@@ -582,7 +582,7 @@ describe('Find Reason Detail', () => {
             valuePeriod: {
               start: intervalStart,
               end: intervalEnd,
-              interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
+              interval: new Interval(DateTime.parse(intervalStart), DateTime.parse(intervalEnd))
             }
           }
         }
@@ -687,7 +687,7 @@ describe('Find Reason Detail', () => {
                 valuePeriod: {
                   start: intervalStart,
                   end: intervalEnd,
-                  interval: new cql.Interval(cql.DateTime.parse(intervalStart), cql.DateTime.parse(intervalEnd))
+                  interval: new Interval(DateTime.parse(intervalStart), DateTime.parse(intervalEnd))
                 }
               }
             ]

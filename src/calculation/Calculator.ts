@@ -33,7 +33,7 @@ import {
   UnexpectedResource,
   UnsupportedProperty
 } from '../types/errors/CustomErrors';
-import cql from 'cql-execution';
+import { Interval, DataProvider } from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 
 /**
@@ -488,7 +488,7 @@ export function calculateDataRequirements(
     throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
   }
 
-  const parameters = { 'Measurement Period': new cql.Interval(startCql, endCql) };
+  const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
   const withErrors: GracefulError[] = [];
   // get the retrieves for every statement in the root library
   const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
@@ -599,7 +599,7 @@ export function calculateQueryInfo(measureBundle: fhir4.Bundle): QICalculationOu
  * @param options Options passed into the calculator.
  * @returns PatientSource to use for calculation.
  */
-function resolvePatientSource(patientBundles: fhir4.Bundle[], options: CalculationOptions): cql.IPatientSource {
+function resolvePatientSource(patientBundles: fhir4.Bundle[], options: CalculationOptions): DataProvider {
   if (options.patientSource) {
     return options.patientSource;
   } else {

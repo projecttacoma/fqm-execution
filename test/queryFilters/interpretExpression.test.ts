@@ -1,5 +1,5 @@
 import { FHIRWrapper } from 'cql-exec-fhir';
-import cql from 'cql-execution';
+import { CQLPatient } from '../../src/types/CQLPatient';
 import { getELMFixture } from '../helpers/testHelpers';
 import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMFunctionRef } from '../../src/types/ELMTypes';
@@ -10,7 +10,7 @@ const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
 const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
-}) as cql.IPatient;
+}) as CQLPatient;
 
 describe('interpretExpression', () => {
   test('unknown expression type with property ref', () => {

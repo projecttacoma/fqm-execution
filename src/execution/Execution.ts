@@ -1,6 +1,6 @@
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
 
-import cql from 'cql-execution';
+import { DataProvider, CodeService, DateTime, Interval, Repository, Executor } from 'cql-execution';
 import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './ValueSetHelper';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { PopulationType } from '../types/Enums';
@@ -10,7 +10,7 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
 
 export async function execute(
   measureBundle: fhir4.Bundle,
-  patientSource: cql.IPatientSource,
+  patientSource: DataProvider,
   options: CalculationOptions,
   valueSetCache: fhir4.ValueSet[] = [],
   debugObject?: DebugOutput
@@ -84,15 +84,15 @@ export async function execute(
       });
   });
 
-  const codeService = new cql.CodeService(vsMap);
-  const parameters = { 'Measurement Period': new cql.Interval(startCql, endCql) };
-  const executionDateTime = cql.DateTime.fromJSDate(new Date(), 0);
-  const rep = new cql.Repository(elmJSONs);
+  const codeService = new CodeService(vsMap);
+  const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
+  const executionDateTime = DateTime.fromJSDate(new Date(), 0);
+  const rep = new Repository(elmJSONs);
   const lib = rep.resolve(rootLibIdentifier.id, rootLibIdentifier.version);
   /**
    * TODO look more into this if it returns string instead of error
    */
-  const executor = new cql.Executor(lib, codeService, parameters);
+  const executor = new Executor(lib, codeService, parameters);
   const results = executor.exec(patientSource, executionDateTime);
 
   // Map evaluated resource from engine to the raw FHIR json
@@ -135,7 +135,7 @@ export function getCQLIntervalEndpoints(options: CalculationOptions) {
   } else {
     end = new Date('2019-12-31');
   }
-  const startCql = cql.DateTime.fromJSDate(start, 0); // No timezone offset for start
-  const endCql = cql.DateTime.fromJSDate(end, 0); // No timezone offset for stop
+  const startCql = DateTime.fromJSDate(start, 0); // No timezone offset for start
+  const endCql = DateTime.fromJSDate(end, 0); // No timezone offset for stop
   return { startCql, endCql };
 }

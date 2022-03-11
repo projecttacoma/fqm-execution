@@ -1,4 +1,4 @@
-import * as cql from 'cql-execution';
+import { Interval } from 'cql-execution';
 import { GracefulError } from './errors/GracefulError';
 
 /** Any type of query filter. */
@@ -88,7 +88,7 @@ export interface DuringFilter extends AttributeFilter {
   valuePeriod: {
     start?: string;
     end?: string;
-    interval?: cql.Interval;
+    interval?: Interval;
   };
 }
 
@@ -127,7 +127,7 @@ export interface TautologyFilter extends Filter {
 export interface ParsedFilterInterval {
   start?: string;
   end?: string;
-  interval?: cql.Interval;
+  interval?: Interval;
 }
 
 /**

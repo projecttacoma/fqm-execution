@@ -1,5 +1,5 @@
 import { FHIRWrapper } from 'cql-exec-fhir';
-import cql from 'cql-execution';
+import { CQLPatient } from '../../src/types/CQLPatient';
 import { getELMFixture } from '../helpers/testHelpers';
 import * as QueryFilter from '../../src/gaps/QueryFilterParser';
 import { ELMGreaterOrEqual } from '../../src/types/ELMTypes';
@@ -282,11 +282,11 @@ const GREATEROREQUAL_LITERAL_TO_VALUE: ELMGreaterOrEqual = {
 const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
-}) as cql.IPatient;
+}) as CQLPatient;
 
 const PATIENT_NO_BIRTHDATE = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient'
-}) as cql.IPatient;
+}) as CQLPatient;
 
 describe('interpretGreaterOrEqual', () => {
   test('Start of parameter after 30th birthday', () => {

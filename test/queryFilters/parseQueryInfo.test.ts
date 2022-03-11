@@ -1,7 +1,8 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import { parseQueryInfo } from '../../src/gaps/QueryFilterParser';
 import { FHIRWrapper } from 'cql-exec-fhir';
-import * as cql from 'cql-execution';
+import { DateTime, Interval } from 'cql-execution';
+import { CQLPatient } from '../../src/types/CQLPatient';
 import { QueryInfo, DuringFilter, AndFilter } from '../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
 
@@ -11,9 +12,9 @@ const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDepende
 
 const allELM = [simpleQueryELM, complexQueryELM, simpleQueryELMDependency];
 
-const START_MP = cql.DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
-const END_MP = cql.DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
-const PARAMETERS = { 'Measurement Period': new cql.Interval(START_MP, END_MP, true, false) };
+const START_MP = DateTime.fromJSDate(new Date('2019-01-01T00:00:00Z'), 0);
+const END_MP = DateTime.fromJSDate(new Date('2020-01-01T00:00:00Z'), 0);
+const PARAMETERS = { 'Measurement Period': new Interval(START_MP, END_MP, true, false) };
 
 const EXPECTED_VS_WITH_ID_CHECK_QUERY: QueryInfo = {
   localId: '24',
@@ -370,7 +371,7 @@ const EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY: QueryInfo = {
 const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
-}) as cql.IPatient;
+}) as CQLPatient;
 
 describe('Parse Query Info', () => {
   test('simple valueset with id check', () => {
