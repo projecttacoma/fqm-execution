@@ -1,5 +1,4 @@
 import { FHIRWrapper } from 'cql-exec-fhir';
-import cql from 'cql-execution';
 import { CQLPatient } from '../../src/types/CQLPatient';
 import { getELMFixture } from '../helpers/testHelpers';
 import * as QueryFilter from '../../src/gaps/QueryFilterParser';
