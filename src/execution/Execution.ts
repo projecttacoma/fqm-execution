@@ -93,7 +93,7 @@ export async function execute(
    * TODO look more into this if it returns string instead of error
    */
   const executor = new Executor(lib, codeService, parameters);
-  const results = executor.exec(patientSource, executionDateTime);
+  const results = await executor.exec(patientSource, executionDateTime);
 
   // Map evaluated resource from engine to the raw FHIR json
   Object.keys(results.patientEvaluatedRecords).forEach(patientId => {

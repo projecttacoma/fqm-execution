@@ -330,7 +330,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, results, options);
   const result: fhir4.Bundle[] = [];
   const errorLog: GracefulError[] = [];
-  results.forEach(res => {
+  results.map(async res => {
     const matchingMeasureReport = measureReports.find(mr => mr.subject?.reference?.split('/')[1] === res.patientId);
 
     if (!matchingMeasureReport) {
@@ -412,13 +412,13 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         // Add detailed info to queries based on clause results
         const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
 
-        gapsRetrieves.forEach(retrieve => {
+        gapsRetrieves.map(async retrieve => {
           // If the retrieves have a localId for the query and a known library name, we can get more info
           // on how the query filters the sources.
           if (retrieve.queryLocalId && retrieve.queryLibraryName) {
             const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
             if (library) {
-              retrieve.queryInfo = parseQueryInfo(
+              retrieve.queryInfo = await parseQueryInfo(
                 library,
                 elmLibraries,
                 retrieve.queryLocalId,
@@ -428,11 +428,10 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
             }
           }
         });
+        await Promise.all(gapsRetrieves);
 
-        const {
-          results: detailedGapsRetrieves,
-          withErrors: reasonDetailErrors
-        } = GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
+        const { results: detailedGapsRetrieves, withErrors: reasonDetailErrors } =
+          GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
 
         errorLog.push(...reasonDetailErrors);
 
@@ -457,6 +456,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
       }
     });
   });
+  await Promise.all(results);
   return {
     results: <OneOrManyBundles<T>>(result.length === 1 ? result[0] : result),
     debugOutput,

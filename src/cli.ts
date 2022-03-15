@@ -13,22 +13,36 @@ import {
 } from './calculation/Calculator';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
-import { PatientSource } from 'cql-exec-fhir';
+import { AsyncPatientSource, PatientSource } from 'cql-exec-fhir';
+
+program.command('detailed', { isDefault: true }).action(() => {
+  program.outputType = 'detailed';
+});
+program.command('reports').action(() => {
+  program.outputType = 'reports';
+});
+program.command('raw').action(() => {
+  program.outputType = 'raw';
+});
+program.command('gaps').action(() => {
+  program.outputType = 'gaps';
+});
+program.command('dataRequirements').action(() => {
+  program.outputType = 'dataRequirements';
+});
+program.command('queryInfo').action(() => {
+  program.outputType = 'queryInfo';
+});
 
 program
-  .option('-d, --debug', 'enable debug output', false)
-  .option(
-    '-o, --output-type <type>',
-    'type of output, "raw", "detailed", "reports", "gaps", "dataRequirements", "queryInfo"',
-    'detailed'
-  )
-  .option('-r, --report-type <report-type>', 'type of report, "individual", "summary", "subject-list"')
+  .option('--debug', 'enable debug output', false)
+  .option('--report-type <report-type>', 'type of report, "individual", "summary", "subject-list"')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
     'paths to patient bundles. Required unless output type is dataRequirements'
   )
-  .option('-f, --as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls')
+  .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls')
   .option(
     '-s, --measurement-period-start <date>',
     'start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)',
@@ -40,11 +54,19 @@ program
     undefined
   )
   .option(
-    '-a, --vs-api-key <key>',
+    '--vs-api-key <key>',
     'API key, to authenticate against the valueset service to be used for resolving missing valuesets',
     undefined
   )
-  .option('-c, --cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service', false)
+  .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service', false)
+  .option(
+    '--fhir-server-url <server-url>',
+    '(with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in fhir server url for patient data'
+  )
+  .option(
+    '--patient-ids <ids...>',
+    '(with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data'
+  )
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -90,17 +112,21 @@ async function calc(
 
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
-let patientBundles: fhir4.Bundle[];
+let patientBundles: fhir4.Bundle[] = [];
+// data requirements/queryInfo doesn't care about patient bundles, so just leave as an empty array if we're using that report type
 if (program.outputType !== 'dataRequirements' && program.outputType !== 'queryInfo') {
   // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
-  if (!program.patientBundles) {
-    console.error(`Patient bundle is a required option when output type is "${program.outputType}"`);
+  if (!program.patientBundles && !program.patientIds) {
+    console.error(`Must provide either patient bundle or patient ids when output type is "${program.outputType}"`);
     program.help();
   }
-  patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
-} else {
-  // data requirements/queryInfo doesn't care about patient bundles, so just pass an empty array if we're using that report type
-  patientBundles = [];
+  if (program.patientBundles) {
+    if (program.patientIds) {
+      console.error('Cannot use both --patient-bundles and --patient-ids flags');
+      program.help();
+    }
+    patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+  }
 }
 
 // Only cache valuesets retreived from service
@@ -128,8 +154,19 @@ if (program.measurementPeriodEnd) {
 // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
 // from patientBundles and wipe patientBundles to be an empty array.
 if (program.asPatientSource) {
-  const patientSource = PatientSource.FHIRv401();
-  patientSource.loadBundles(patientBundles);
+  let patientSource;
+  if (program.fhirServerUrl) {
+    if (!program.patientIds) {
+      console.error(
+        'Must provide an array of patient ids with --patient-ids flag for calculation using AsyncPatientSource'
+      );
+    }
+    patientSource = AsyncPatientSource.FHIRv401(program.fhirServerUrl);
+    patientSource.loadPatientIds(program.patientIds);
+  } else {
+    patientSource = PatientSource.FHIRv401();
+    patientSource.loadBundles(patientBundles);
+  }
   calcOptions.patientSource = patientSource;
   patientBundles = [];
 }
@@ -147,7 +184,7 @@ calc(
 
       const debugOutput = result?.debugOutput;
 
-      // Dump raw, detailed, reports, gapt in care objects
+      // Dump raw, detailed, reports, gaps in care objects
       if (debugOutput?.rawResults) {
         dumpObject(debugOutput.rawResults, 'rawResults.json');
       }
