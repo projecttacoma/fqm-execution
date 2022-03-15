@@ -99,15 +99,22 @@ To run the globally installed CLI (see above), use the global `fqm-execution com
 ```bash
 Usage: fqm-execution [options]
 
+Commands:
+ "detailed" (default)
+ "raw"
+ "reports"
+ "gaps"
+ "dataRequirements"
+ "queryInfo"
+
 Options:
   --debug                                 enable debug output (default: false)
-  -o, --output-type <type>                    type of output, "raw", "detailed", "reports", "gaps", "dataRequirements", "queryInfo" (default: "detailed")
   --report-type <report-type>             type of report, "individual", "summary", "subject-list"
   -m, --measure-bundle <measure-bundle>       path to measure bundle
-  -p, --patient-bundles <patient-bundles...>  paths to patient bundles. Required unless output type is dataRequirements
+  -p, --patient-bundles <patient-bundles...>  paths to patient bundles. Required unless output type is dataRequirements. Note: cannot be used with --patient-ids.
+  --patient-ids <ids...>                  (with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles.
   --as-patient-source                     Load bundles by creating cql-exec-fhir PatientSource to pass into library calls
-  --fhir-server-url <url>                 Load bundles by creating a cql-exec-fhir AsyncPatientSource and querying the given fhir server url for patient data (required with --patient-ids)
-  --patient-ids <ids...>                  The ids of patients for which the calculation will be run. A cql-exec-fhir AsyncPatientSource will use these ids to query the fhir server for patient data (required with --fhir-server-url)
+  --fhir-server-url <url>                 (with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in fhir server url for patient data
   -s, --measurement-period-start <date>       start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set
                                               there)
   -e, --measurement-period-end <date>         end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)

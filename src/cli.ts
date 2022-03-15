@@ -40,7 +40,11 @@ program
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
-    'paths to patient bundles. Required unless output type is dataRequirements'
+    'paths to patient bundles. Required unless output type is dataRequirements. Note: cannot be used with --patient-ids.'
+  )
+  .option(
+    '--patient-ids <ids...>',
+    '(with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles.'
   )
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls')
   .option(
@@ -62,10 +66,6 @@ program
   .option(
     '--fhir-server-url <server-url>',
     '(with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in fhir server url for patient data'
-  )
-  .option(
-    '--patient-ids <ids...>',
-    '(with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data'
   )
   .parse(process.argv);
 
