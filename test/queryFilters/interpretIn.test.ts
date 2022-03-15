@@ -298,8 +298,12 @@ const FUNCTION_REF_IN_INTERVAL = {
 };
 
 describe('interpretIn', () => {
-  test('Property starts during two years before end of MP', () => {
-    const filter = QueryFilter.interpretIn(IN_STARTS_CALC_AGAINST_MP, complexQueryELM, EXEC_PARAMS) as DuringFilter;
+  test('Property starts during two years before end of MP', async () => {
+    const filter = (await QueryFilter.interpretIn(
+      IN_STARTS_CALC_AGAINST_MP,
+      complexQueryELM,
+      EXEC_PARAMS
+    )) as DuringFilter;
     if (filter.valuePeriod.interval) {
       delete filter.valuePeriod.interval;
     }
@@ -312,21 +316,21 @@ describe('interpretIn', () => {
     expect(filter.attribute).toEqual('period.start');
   });
 
-  test('Null measurement period causes an unknown filter to be returned', () => {
+  test('Null measurement period causes an unknown filter to be returned', async () => {
     const parameters = { 'Measurement Period': null };
-    const filter = QueryFilter.interpretIn(IN_STARTS_CALC_AGAINST_MP, complexQueryELM, parameters);
+    const filter = await QueryFilter.interpretIn(IN_STARTS_CALC_AGAINST_MP, complexQueryELM, parameters);
     expect(filter.type).toEqual('unknown');
     expect(filter.alias).toEqual('Enc');
     expect(filter.attribute).toEqual('period.start');
   });
 
-  test('does not support non-sensical call to ToList for second operand.', () => {
-    const filter = QueryFilter.interpretIn(IN_PROP_IN_MP_TOLIST as ELMIn, complexQueryELM, EXEC_PARAMS);
+  test('does not support non-sensical call to ToList for second operand.', async () => {
+    const filter = await QueryFilter.interpretIn(IN_PROP_IN_MP_TOLIST as ELMIn, complexQueryELM, EXEC_PARAMS);
     expect(filter.type).toEqual('unknown');
   });
 
-  test('function call to unknown function as first operand not supported but identifies attribute', () => {
-    const filter = QueryFilter.interpretIn(FUNCTION_REF_IN_INTERVAL as ELMIn, complexQueryELM, EXEC_PARAMS);
+  test('function call to unknown function as first operand not supported but identifies attribute', async () => {
+    const filter = await QueryFilter.interpretIn(FUNCTION_REF_IN_INTERVAL as ELMIn, complexQueryELM, EXEC_PARAMS);
     expect(filter.type).toEqual('unknown');
     expect(filter.alias).toEqual('Enc');
     expect(filter.attribute).toEqual('period');

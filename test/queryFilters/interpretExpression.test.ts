@@ -13,7 +13,7 @@ const PATIENT = FHIRWrapper.FHIRv401().wrap({
 }) as CQLPatient;
 
 describe('interpretExpression', () => {
-  test('unknown expression type with property ref', () => {
+  test('unknown expression type with property ref', async () => {
     // using FunctionRef because it is not supported.
     const functionRef: ELMFunctionRef = {
       name: 'ToInterval',
@@ -34,7 +34,7 @@ describe('interpretExpression', () => {
       ]
     };
 
-    expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
+    expect(await QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
       libraryName: 'ComplexQueries',
       localId: undefined,
       type: 'unknown',
@@ -44,7 +44,7 @@ describe('interpretExpression', () => {
     });
   });
 
-  test('unknown expression type with no property ref', () => {
+  test('unknown expression type with no property ref', async () => {
     // using FunctionRef because it is not supported.
     const functionRef: ELMFunctionRef = {
       name: 'ToInterval',
@@ -64,7 +64,7 @@ describe('interpretExpression', () => {
       ]
     };
 
-    expect(QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
+    expect(await QueryFilter.interpretExpression(functionRef, complexQueryELM, {}, PATIENT)).toEqual({
       libraryName: 'ComplexQueries',
       localId: undefined,
       type: 'unknown',
