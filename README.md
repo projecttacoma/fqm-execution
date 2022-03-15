@@ -108,18 +108,18 @@ Commands:
  "queryInfo"
 
 Options:
-  --debug                                 enable debug output (default: false)
-  --report-type <report-type>             type of report, "individual", "summary", "subject-list"
+  --debug                                     enable debug output (default: false)
+  --report-type <report-type>                 type of report, "individual", "summary", "subject-list"
   -m, --measure-bundle <measure-bundle>       path to measure bundle
   -p, --patient-bundles <patient-bundles...>  paths to patient bundles. Required unless output type is dataRequirements. Note: cannot be used with --patient-ids.
-  --patient-ids <ids...>                  (with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles.
-  --as-patient-source                     Load bundles by creating cql-exec-fhir PatientSource to pass into library calls
-  --fhir-server-url <url>                 (with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in fhir server url for patient data
+  --patient-ids <ids...>                      (with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles.
+  --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls
+  --fhir-server-url <url>                     (with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in fhir server url for patient data
   -s, --measurement-period-start <date>       start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set
                                               there)
   -e, --measurement-period-end <date>         end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)
-  --vs-api-key <key>                      API key, to authenticate against the valueset service to be used for resolving missing valuesets
-  --cache-valuesets                       Whether or not to cache ValueSets retrieved from the ValueSet service (default: false)
+  --vs-api-key <key>                          API key, to authenticate against the valueset service to be used for resolving missing valuesets
+  --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service (default: false)
   -h, --help                                  display help for command
 ```
 
