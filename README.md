@@ -126,8 +126,9 @@ Options:
 E.g.
 
 ```bash
-fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json > reports.json
-fqm-execution reports -m /path/to/measure/bundle.json --as-patient-source --fhir-server-url "http://example.com" --patient-ids [test_id_1, test_id_2] > reports.json
+fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle.json > reports.json
+fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle1.json /path/to/patient/bundle.json > reports.json
+fqm-execution reports -m /path/to/measure/bundle.json --as-patient-source --fhir-server-url "http://example.com" --patient-ids test_id_1 test_id_2 > reports.json
 ```
 
 ### ValueSets
