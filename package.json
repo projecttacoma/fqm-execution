@@ -14,7 +14,7 @@
     "atob": "^2.1.2",
     "axios": "^0.21.1",
     "commander": "^6.1.0",
-    "cql-exec-fhir": "git+https://github.com/projecttacoma/cql-exec-fhir.git",
+    "cql-exec-fhir": "^2.0.0",
     "cql-execution": "^2.4.0",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",

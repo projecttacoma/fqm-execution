@@ -100,12 +100,12 @@ To run the globally installed CLI (see above), use the global `fqm-execution com
 Usage: fqm-execution [command] [options]
 
 Commands:
- "detailed" (default)
- "raw"
- "reports"
- "gaps"
- "dataRequirements"
- "queryInfo"
+ detailed (default)
+ raw
+ reports
+ gaps
+ dataRequirements
+ queryInfo
 
 Options:
   --debug                                     enable debug output (default: false)
@@ -127,11 +127,13 @@ E.g.
 
 ```bash
 Generate a MeasureReport by calculating a measure on a patient bundle:
-  fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle.json > reports.json
+  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle.json > reports.json
+
 Generate a MeasureReport by calculating a measure on multiple patient bundles:
-  fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle1.json /path/to/patient/bundle2.json > reports.json
+  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle1.json /path/to/patient/bundle2.json > reports.json
+
 Generate a MeasureReport by calculating a measure on a patient source which pulls its patient data from a fhir server:
-  fqm-execution reports -m /path/to/measure/bundle.json --as-patient-source --fhir-server-url http://example.com --patient-ids test_id_1 test_id_2 > reports.json
+  - fqm-execution reports -m /path/to/measure/bundle.json --as-patient-source --fhir-server-url http://example.com --patient-ids test_id_1 test_id_2 > reports.json
 ```
 
 ### ValueSets
