@@ -358,8 +358,11 @@ describe('Generate DetectedIssue Resource', () => {
       }
     ];
 
-    const resource = generateDetectedIssueResources(queries, SIMPLE_MEASURE_REPORT, ImprovementNotation.POSITIVE)
-      .detectedIssues;
+    const resource = generateDetectedIssueResources(
+      queries,
+      SIMPLE_MEASURE_REPORT,
+      ImprovementNotation.POSITIVE
+    ).detectedIssues;
 
     // above query should be filtered out, which should result in no DetectedIssue resources
     expect(resource).toHaveLength(0);
@@ -376,8 +379,11 @@ describe('Generate DetectedIssue Resource', () => {
       }
     ];
 
-    const resource = generateDetectedIssueResources(queries, SIMPLE_MEASURE_REPORT, ImprovementNotation.NEGATIVE)
-      .detectedIssues;
+    const resource = generateDetectedIssueResources(
+      queries,
+      SIMPLE_MEASURE_REPORT,
+      ImprovementNotation.NEGATIVE
+    ).detectedIssues;
 
     // above query should be present since queries with results are gaps
     expect(resource[0].evidence).toHaveLength(1);
