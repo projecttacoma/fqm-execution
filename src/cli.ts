@@ -44,7 +44,7 @@ program
   )
   .option(
     '--patient-ids <ids...>',
-    '(with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles.'
+    '(with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a FHIR server for patient data. Note: cannot be used with --patient-bundles.'
   )
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls')
   .option(
@@ -65,7 +65,7 @@ program
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service', false)
   .option(
     '--fhir-server-url <server-url>',
-    '(with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in fhir server url for patient data'
+    '(with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data'
   )
   .parse(process.argv);
 

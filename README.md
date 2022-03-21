@@ -114,7 +114,7 @@ Options:
   -p, --patient-bundles <patient-bundles...>  paths to patient bundles. Required unless output type is dataRequirements. Note: cannot be used with --patient-ids.
   --patient-ids <ids...>                      (with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles.
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls
-  --fhir-server-url <url>                     (with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in fhir server url for patient data
+  --fhir-server-url <url>                     (with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data
   -s, --measurement-period-start <date>       start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set
                                               there)
   -e, --measurement-period-end <date>         end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)
@@ -132,7 +132,7 @@ Generate a MeasureReport by calculating a measure on a patient bundle:
 Generate a MeasureReport by calculating a measure on multiple patient bundles:
   - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle1.json /path/to/patient/bundle2.json > reports.json
 
-Generate a MeasureReport by calculating a measure on a patient source which pulls its patient data from a fhir server:
+Generate a MeasureReport by calculating a measure on a patient source which pulls its patient data from a FHIR server:
   - fqm-execution reports -m /path/to/measure/bundle.json --as-patient-source --fhir-server-url http://example.com --patient-ids test_id_1 test_id_2 > reports.json
 ```
 
