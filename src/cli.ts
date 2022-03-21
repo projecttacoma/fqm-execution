@@ -35,37 +35,37 @@ program.command('queryInfo').action(() => {
 });
 
 program
-  .option('--debug', 'enable debug output', false)
-  .option('--report-type <report-type>', 'type of report, "individual", "summary", "subject-list"')
-  .requiredOption('-m, --measure-bundle <measure-bundle>', 'path to measure bundle')
+  .option('--debug', 'Enable debug output.', false)
+  .option('--report-type <report-type>', 'Type of report, "individual", "summary", "subject-list".')
+  .requiredOption('-m, --measure-bundle <measure-bundle>', 'Path to measure bundle.')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
-    'paths to patient bundles. Required unless output type is dataRequirements. Note: cannot be used with --patient-ids.'
+    'Paths to patient bundles. Required unless --patient-ids is provided or output type is dataRequirements. Note: cannot be used with --patient-ids.'
   )
   .option(
     '--patient-ids <ids...>',
-    '(with --fhir-server-url) A list of patient ids an AsyncPatientSource will use to query a FHIR server for patient data. Note: cannot be used with --patient-bundles.'
+    'A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles, --as-patient-source and --fhir-server-url are required when --patient-ids is provided.'
   )
-  .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls')
+  .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(
     '-s, --measurement-period-start <date>',
-    'start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there)',
+    'Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there).',
     undefined
   )
   .option(
     '-e, --measurement-period-end <date>',
-    'end date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there)',
+    'End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).',
     undefined
   )
   .option(
     '--vs-api-key <key>',
-    'API key, to authenticate against the valueset service to be used for resolving missing valuesets',
+    'API key, to authenticate against the valueset service to be used for resolving missing valuesets.',
     undefined
   )
-  .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service', false)
+  .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)
   .option(
     '--fhir-server-url <server-url>',
-    '(with --as-patient-source) Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data'
+    'Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and --patient-ids are required when --fhir-server-url is provided.'
   )
   .parse(process.argv);
 
