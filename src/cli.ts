@@ -36,6 +36,7 @@ program.command('queryInfo').action(() => {
 
 program
   .option('--debug', 'Enable debug output.', false)
+  .option('--slim', 'Use slimmed-down calculation results interfaces', false)
   .option('--report-type <report-type>', 'Type of report, "individual", "summary", "subject-list".')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'Path to measure bundle.')
   .option(
@@ -141,7 +142,7 @@ const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,
   vsAPIKey: program.vsApiKey,
   useValueSetCaching: program.cacheValuesets,
-  verboseCalculationResults: !program.disableVerboseCalculation
+  verboseCalculationResults: !program.slim
 };
 
 // Override the measurement period start/end in the options only if the user specified them
