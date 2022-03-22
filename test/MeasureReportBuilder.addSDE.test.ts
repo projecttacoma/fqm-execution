@@ -68,7 +68,7 @@ const executionResultsTemplate: ExecutionResult<DetailedPopulationGroupResult>[]
 ];
 
 describe('MeasureReportBuilder Class', () => {
-  let builder: MeasureReportBuilder;
+  let builder: MeasureReportBuilder<DetailedPopulationGroupResult>;
   let executionResult: ExecutionResult<DetailedPopulationGroupResult>;
   beforeEach(() => {
     builder = new MeasureReportBuilder(simpleMeasureBundle, {
