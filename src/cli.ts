@@ -140,7 +140,8 @@ const cacheDirectory = 'cache/terminology';
 const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,
   vsAPIKey: program.vsApiKey,
-  useValueSetCaching: program.cacheValuesets
+  useValueSetCaching: program.cacheValuesets,
+  verboseCalculationResults: !program.disableVerboseCalculation
 };
 
 // Override the measurement period start/end in the options only if the user specified them

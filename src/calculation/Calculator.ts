@@ -12,7 +12,9 @@ import {
   DataTypeQuery,
   QICalculationOutput,
   OneOrManyBundles,
-  OneOrMultiPatient
+  OneOrMultiPatient,
+  PopulationGroupResult,
+  DetailedPopulationGroupResult
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -35,6 +37,7 @@ import {
 } from '../types/errors/CustomErrors';
 import { Interval, DataProvider } from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
+import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -45,12 +48,12 @@ import { PatientSource } from 'cql-exec-fhir';
  * @param valueSetCache Cache of existing valuesets
  * @returns Detailed execution results. One for each patient.
  */
-export async function calculate(
+export async function calculate<T extends CalculationOptions>(
   measureBundle: fhir4.Bundle,
   patientBundles: fhir4.Bundle[],
-  options: CalculationOptions,
+  options: T,
   valueSetCache: fhir4.ValueSet[] = []
-): Promise<CalculationOutput> {
+): Promise<CalculationOutput<T>> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
   // Get the PatientSource to use for calculation.
@@ -66,7 +69,7 @@ export async function calculate(
   options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
 
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
-  const executionResults: ExecutionResult[] = [];
+  const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [];
 
   const results = await Execution.execute(measureBundle, patientSource, options, valueSetCache, debugObject);
   if (!results.rawResults) {
@@ -85,7 +88,7 @@ export async function calculate(
 
   // Iterate over patient bundles and make results for each of them.
   patientIds.forEach(patientId => {
-    const patientExecutionResult: ExecutionResult = {
+    const patientExecutionResult: ExecutionResult<DetailedPopulationGroupResult> = {
       patientId: patientId,
       detailedResults: [],
       evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
@@ -173,10 +176,18 @@ export async function calculate(
     debugObject.detailedResults = executionResults;
   }
 
+  let prunedExecutionResults: ExecutionResult<PopulationGroupResult>[];
+  if (options.verboseCalculationResults === false) {
+    // Prune to simple view
+    prunedExecutionResults = pruneDetailedResults(executionResults);
+  } else {
+    prunedExecutionResults = executionResults as ExecutionResult<DetailedPopulationGroupResult>[];
+  }
+
   // return with the ELM libraries and main library name for further processing if requested.
   if (options.returnELM) {
     return {
-      results: executionResults,
+      results: prunedExecutionResults,
       debugOutput: debugObject,
       elmLibraries: results.elmLibraries,
       mainLibraryName: results.mainLibraryName,
@@ -185,7 +196,7 @@ export async function calculate(
     };
   } else {
     return {
-      results: executionResults,
+      results: prunedExecutionResults,
       debugOutput: debugObject,
       ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache })
     };
