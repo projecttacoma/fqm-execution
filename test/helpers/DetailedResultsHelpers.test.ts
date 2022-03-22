@@ -42,18 +42,19 @@ describe('pruneDetailedResults', () => {
 
     // Cast to any to allow assertions on pruned properties
     // Typescript will think they don't exist otherwise
-    (pruned[0].detailedResults as any[]).forEach(er => {
-      // These should be removed
-      expect(er.statementResults).toBeUndefined();
-      expect(er.clauseResults).toBeUndefined();
-      expect(er.html).toBeUndefined();
-      expect(er.populationRelevance).toBeUndefined();
+    const [dr] = pruned[0].detailedResults as any;
+    expect(dr).toBeDefined();
 
-      // These should be persisted
-      expect(er.populationResults).toEqual([]);
-      expect(er.stratifierResults).toEqual([]);
-      expect(er.episodeResults).toEqual([]);
-    });
+    // These should be removed
+    expect(dr.statementResults).toBeUndefined();
+    expect(dr.clauseResults).toBeUndefined();
+    expect(dr.html).toBeUndefined();
+    expect(dr.populationRelevance).toBeUndefined();
+
+    // These should be persisted
+    expect(dr.populationResults).toEqual([]);
+    expect(dr.stratifierResults).toEqual([]);
+    expect(dr.episodeResults).toEqual([]);
   });
 });
 
