@@ -81,9 +81,7 @@ export function isValidLibraryURL(libraryName: string) {
   return r.test(libraryName);
 }
 
-export function extractLibrariesFromBundle(
-  measureBundle: fhir4.Bundle
-): {
+export function extractLibrariesFromBundle(measureBundle: fhir4.Bundle): {
   cqls: { name: string; cql: string }[];
   rootLibIdentifier: ELMIdentifier;
   elmJSONs: ELM[];

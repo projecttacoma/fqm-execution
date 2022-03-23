@@ -330,14 +330,14 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
   const measureReports = MeasureReportBuilder.buildMeasureReports(measureBundle, results, options);
   const result: fhir4.Bundle[] = [];
   const errorLog: GracefulError[] = [];
-  results.forEach(res => {
+  const resultPromises = results.map(async res => {
     const matchingMeasureReport = measureReports.find(mr => mr.subject?.reference?.split('/')[1] === res.patientId);
 
     if (!matchingMeasureReport) {
       throw new Error(`No MeasureReport generated during gaps in care for ${res.patientId}`);
     }
 
-    res.detailedResults?.forEach((dr, i) => {
+    const drPromises = res.detailedResults?.map(async (dr, i) => {
       const measureResource = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
       // Gaps only supported for proportion/ratio measures
@@ -412,13 +412,13 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         // Add detailed info to queries based on clause results
         const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
 
-        gapsRetrieves.forEach(retrieve => {
+        const grPromises = gapsRetrieves.map(async retrieve => {
           // If the retrieves have a localId for the query and a known library name, we can get more info
           // on how the query filters the sources.
           if (retrieve.queryLocalId && retrieve.queryLibraryName) {
             const library = elmLibraries.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
             if (library) {
-              retrieve.queryInfo = parseQueryInfo(
+              retrieve.queryInfo = await parseQueryInfo(
                 library,
                 elmLibraries,
                 retrieve.queryLocalId,
@@ -428,11 +428,10 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
             }
           }
         });
+        await Promise.all(grPromises);
 
-        const {
-          results: detailedGapsRetrieves,
-          withErrors: reasonDetailErrors
-        } = GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
+        const { results: detailedGapsRetrieves, withErrors: reasonDetailErrors } =
+          GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
 
         errorLog.push(...reasonDetailErrors);
 
@@ -456,7 +455,11 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         result.push(<fhir4.Bundle>{});
       }
     });
+    if (drPromises) {
+      await Promise.all(drPromises);
+    }
   });
+  await Promise.all(resultPromises);
   return {
     results: <OneOrManyBundles<T>>(result.length === 1 ? result[0] : result),
     debugOutput,
@@ -473,10 +476,10 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
  *
  * @returns FHIR Library of data requirements
  */
-export function calculateDataRequirements(
+export async function calculateDataRequirements(
   measureBundle: fhir4.Bundle,
   options: CalculationOptions = {}
-): DRCalculationOutput {
+): Promise<DRCalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
@@ -507,16 +510,18 @@ export function calculateDataRequirements(
     return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
   });
 
-  uniqueRetrieves.forEach(retrieve => {
+  const uniqueRetrievesPromises = uniqueRetrieves.map(async retrieve => {
     // If the retrieves have a localId for the query and a known library name, we can get more info
     // on how the query filters the sources.
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
+        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
       }
     }
   });
+
+  await Promise.all(uniqueRetrievesPromises);
 
   const results: fhir4.Library = {
     resourceType: 'Library',
@@ -549,7 +554,7 @@ export function calculateDataRequirements(
  * @param measureBundle Bundle with a Measure resource and all dependent library resources
  * @returns Detailed query info object for all statements
  */
-export function calculateQueryInfo(measureBundle: fhir4.Bundle): QICalculationOutput {
+export async function calculateQueryInfo(measureBundle: fhir4.Bundle): Promise<QICalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
@@ -570,16 +575,18 @@ export function calculateQueryInfo(measureBundle: fhir4.Bundle): QICalculationOu
     }
   });
 
-  allRetrieves.forEach(retrieve => {
+  const allRetrievesPromises = allRetrieves.map(async retrieve => {
     // If the retrieves have a localId for the query and a known library name, we can get more info
     // on how the query filters the sources.
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = parseQueryInfo(library, elmJSONs, retrieve.queryLocalId);
+        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId);
       }
     }
   });
+
+  await Promise.all(allRetrievesPromises);
 
   return {
     results: allRetrieves,

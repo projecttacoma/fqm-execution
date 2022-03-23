@@ -374,29 +374,29 @@ const PATIENT = FHIRWrapper.FHIRv401().wrap({
 }) as CQLPatient;
 
 describe('Parse Query Info', () => {
-  test('simple valueset with id check', () => {
+  test('simple valueset with id check', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
-  test('simple valueset with id check with no parameters passed in', () => {
+  test('simple valueset with id check with no parameters passed in', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
-  test('complex - valueset with code AND interval check', () => {
+  test('complex - valueset with code AND interval check', async () => {
     const statement = complexQueryELM.library.statements.def.find(def => def.name == 'Code And Starts During MP');
     if (!statement) {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_AND_STARTS_DURING_MP);
   });
 
-  test('complex - valueset with status AND value exists AND interval check', () => {
+  test('complex - valueset with status AND value exists AND interval check', async () => {
     const statement = complexQueryELM.library.statements.def.find(
       def => def.name == 'Observation Status Value Exists and During MP'
     );
@@ -404,11 +404,11 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
   });
 
-  test('complex - valueset with period two years before end of MP', () => {
+  test('complex - valueset with period two years before end of MP', async () => {
     const statement = complexQueryELM.library.statements.def.find(
       def => def.name == 'Encounter 2 Years Before End of MP'
     );
@@ -416,7 +416,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
 
     const filter = queryInfo.filter as AndFilter;
 
@@ -430,7 +430,7 @@ describe('Parse Query Info', () => {
     expect(queryInfo).toEqual(EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP);
   });
 
-  test('complex - valueset with code OR interval check OR field not null', () => {
+  test('complex - valueset with code OR interval check OR field not null', async () => {
     const statement = complexQueryELM.library.statements.def.find(
       def => def.name == 'Code Active Or Starts During MP Or Abatement is not null'
     );
@@ -438,37 +438,40 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL);
   });
 
-  test('incorrect localid should throw error', () => {
-    expect(() => {
-      parseQueryInfo(simpleQueryELM, allELM, '360', PARAMETERS, PATIENT);
-    }).toThrow('Clause 360 in SimpleQueries was not a Query or not found.');
+  test('incorrect localid should throw error', async () => {
+    try {
+      await parseQueryInfo(simpleQueryELM, allELM, '360', PARAMETERS, PATIENT);
+      fail('parseQueryInfo failed to throw error when provided incorrect localid');
+    } catch (e) {
+      expect(e.message).toEqual('Clause 360 in SimpleQueries was not a Query or not found.');
+    }
   });
 
-  test('simple - query references query, combines filters', () => {
+  test('simple - query references query, combines filters', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY);
   });
 
-  test('complex - query references query, combines filters', () => {
+  test('complex - query references query, combines filters', async () => {
     const queryLocalId = complexQueryELM.library.statements.def[6].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
   });
 
-  test('complex - query references query, combines filters with ands in both filters and differing alias names', () => {
+  test('complex - query references query, combines filters with ands in both filters and differing alias names', async () => {
     const queryLocalId = complexQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH);
   });
 
-  test('simple - query references query in another library, combines filters', () => {
+  test('simple - query references query in another library, combines filters', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[10].expression.localId; // In simple queries "Nested Query From Another Library"
-    const queryInfo = parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY);
   });
 });

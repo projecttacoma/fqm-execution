@@ -7,6 +7,9 @@ declare module 'cql-exec-fhir' {
     findRecords(profile: string): FHIRObject;
     findRecord(profile: string): FHIRObject;
   }
+  class AsyncPatient extends FHIRObject implements IPatient {
+    findRecords(profile: string): FHIRObject;
+  }
   export class PatientSource implements IPatientSource {
     constructor();
     loadBundles(bundles: fhir4.Bundle[]): void;
@@ -14,6 +17,14 @@ declare module 'cql-exec-fhir' {
     nextPatient(): Patient | undefined;
     reset(): void;
     static FHIRv401(): PatientSource;
+  }
+  export class AsyncPatientSource {
+    constructor(serverInfo: string);
+    loadPatientIds(ids: string[]): void;
+    currentPatient(): AsyncPatient | undefined;
+    nextPatient(): AsyncPatient | undefined;
+    reset: void;
+    static FHIRv401(serverInfo: string): AsyncPatientSource;
   }
   export class FHIRWrapper {
     constructor(filePathOrXML: string);
