@@ -54,6 +54,9 @@ export async function calculate<T extends CalculationOptions>(
   options: T,
   valueSetCache: fhir4.ValueSet[] = []
 ): Promise<CalculationOutput<T>> {
+  // Ensure verboseCalculationResults defaults to true when not provided in options
+  options.verboseCalculationResults = options.verboseCalculationResults ?? true;
+
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
   // Get the PatientSource to use for calculation.
