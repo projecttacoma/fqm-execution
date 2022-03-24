@@ -10,6 +10,10 @@ export function pruneDetailedResults(
 ): ExecutionResult<SimplePopulationGroupResult>[] {
   const prunedExecutionResults: ExecutionResult<SimplePopulationGroupResult>[] = [];
   executionResults.forEach(er => {
+    if (er.evaluatedResource) {
+      delete er.evaluatedResource;
+    }
+
     if (er.detailedResults) {
       const prunedDetailedResults: SimplePopulationGroupResult[] = er.detailedResults.map(dr => {
         return {

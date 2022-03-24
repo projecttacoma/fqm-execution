@@ -4,12 +4,25 @@ import {
   DetailedPopulationGroupResult,
   SimplePopulationGroupResult
 } from '../../src/types/Calculator';
+import { CQLPatient } from '../../src/types/CQLPatient';
 
 describe('pruneDetailedResults', () => {
   test('should not change result with no detailedResults', () => {
     const ers: ExecutionResult<DetailedPopulationGroupResult>[] = [
       {
         patientId: 'test-patient'
+      }
+    ];
+
+    expect(pruneDetailedResults(ers)).toEqual(ers);
+  });
+
+  test('should persist patientObject and supplementalData', () => {
+    const ers: ExecutionResult<DetailedPopulationGroupResult>[] = [
+      {
+        patientId: 'test-patient',
+        patientObject: {} as CQLPatient,
+        supplementalData: []
       }
     ];
 
@@ -55,6 +68,21 @@ describe('pruneDetailedResults', () => {
     expect(dr.populationResults).toEqual([]);
     expect(dr.stratifierResults).toEqual([]);
     expect(dr.episodeResults).toEqual([]);
+  });
+
+  test('should remove evaluatedResource', () => {
+    const ers: ExecutionResult<DetailedPopulationGroupResult>[] = [
+      {
+        patientId: 'test-patient',
+        evaluatedResource: []
+      }
+    ];
+
+    expect(pruneDetailedResults(ers)).toEqual([
+      {
+        patientId: 'test-patient'
+      }
+    ]);
   });
 });
 
