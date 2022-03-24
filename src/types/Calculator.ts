@@ -36,6 +36,8 @@ export interface CalculationOptions {
   reportType?: 'individual' | 'subject-list' | 'summary';
   /** If true, ValueSets retrieved from VSAC will be cached and used in subsequent runs where this is also true */
   useValueSetCaching?: boolean;
+  /** If false, detailed results will only contain information necessary to interpreting simple population results */
+  verboseCalculationResults?: boolean;
 }
 
 /**
@@ -58,16 +60,21 @@ export interface RawExecutionData {
   valueSetCache?: fhir4.ValueSet[];
 }
 
+/* Any group result */
+export type PopulationGroupResult = SimplePopulationGroupResult | DetailedPopulationGroupResult;
+
 /**
  * Execution result object. Contains the results for a single patient.
  */
-export interface ExecutionResult {
+export interface ExecutionResult<T extends PopulationGroupResult> {
   /** ID of the patient this calculation result belongs to. */
   patientId: string;
   /** FHIR MeasureReport of type 'individual' for this patient. */
   measureReport?: fhir4.MeasureReport;
   /** Detailed results for each population group and stratifier. */
-  detailedResults?: DetailedPopulationGroupResult[];
+  detailedResults?: T extends DetailedPopulationGroupResult
+    ? DetailedPopulationGroupResult[]
+    : SimplePopulationGroupResult[];
   /** SDE values, if specified for calculation */
   supplementalData?: SDEResult[];
   /** Resources evaluated during execution */
@@ -92,9 +99,10 @@ export interface SDEResult {
 }
 
 /**
- * Detailed results for a single population group for a single patient.
+ * Stripped-down version of verbose detailed results
+ * Only includes minimal info needed to identify population
  */
-export interface DetailedPopulationGroupResult {
+export interface SimplePopulationGroupResult {
   /** Index of this population group id. */
   groupId: string;
   /**
@@ -103,6 +111,16 @@ export interface DetailedPopulationGroupResult {
    * least one episode in a strata then its result will be true.
    */
   stratifierResults?: StratifierResult[];
+  /** If this is an episode of care measure. Each episode found in IPP will have results. */
+  episodeResults?: EpisodeResults[];
+  /** Results for each population in this group. */
+  populationResults?: PopulationResult[];
+}
+
+/**
+ * Detailed results for a single population group for a single patient.
+ */
+export interface DetailedPopulationGroupResult extends SimplePopulationGroupResult {
   /**
    * Clause results for every CQL/ELM logic clause.
    * Each piece of logic (ex. `and`, `retrieve`, `before`, etc.) will have a result.
@@ -115,10 +133,6 @@ export interface DetailedPopulationGroupResult {
   statementResults: StatementResult[];
   /** Population Relevance. Listing if each population was considered or not. */
   populationRelevance?: PopulationResult[];
-  /** Results for each population in this group. */
-  populationResults?: PopulationResult[];
-  /** If this is an episode of care measure. Each episode found in IPP will have results. */
-  episodeResults?: EpisodeResults[];
   /** HTML markup of the clauses */
   html?: string;
 }
@@ -283,7 +297,7 @@ export interface DebugOutput {
   vs?: cql.ValueSetMap;
   html?: { name: string; html: string }[];
   rawResults?: cql.Results | string;
-  detailedResults?: ExecutionResult[];
+  detailedResults?: ExecutionResult<DetailedPopulationGroupResult>[];
   measureReports?: fhir4.MeasureReport[];
   gaps?: {
     retrieves?: DataTypeQuery[];
@@ -296,7 +310,7 @@ export interface DebugOutput {
  */
 export interface CalculatorFunctionOutput {
   results:
-    | ExecutionResult[]
+    | ExecutionResult<PopulationGroupResult>[]
     | fhir4.MeasureReport
     | fhir4.MeasureReport[]
     | cql.Results
@@ -311,10 +325,20 @@ export interface CalculatorFunctionOutput {
 }
 
 /**
- * dataType for calculate() function
+ * Generic used to identify when detailedResults are verbose or not
  */
-export interface CalculationOutput extends CalculatorFunctionOutput {
-  results: ExecutionResult[];
+type DetailedOrSimpleExecution<T extends CalculationOptions> = T extends CalculationOptions & {
+  verboseCalculationResults: false;
+}
+  ? SimplePopulationGroupResult
+  : DetailedPopulationGroupResult;
+
+/**
+ * dataType for calculate() function
+ * uses calculationOptions to determine verbosity of ExecutionResults
+ */
+export interface CalculationOutput<T extends CalculationOptions> extends CalculatorFunctionOutput {
+  results: ExecutionResult<DetailedOrSimpleExecution<T>>[];
   elmLibraries?: ELM[];
   mainLibraryName?: string;
   parameters?: { [key: string]: any };

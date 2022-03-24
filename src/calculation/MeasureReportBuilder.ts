@@ -1,15 +1,11 @@
-import {
-  ExecutionResult,
-  CalculationOptions,
-  PopulationResult,
-  DetailedPopulationGroupResult
-} from '../types/Calculator';
+import { ExecutionResult, CalculationOptions, PopulationResult, PopulationGroupResult } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import { extractMeasureFromBundle } from '../helpers/MeasureBundleHelpers';
 import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomErrors';
+import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
 
-export default class MeasureReportBuilder {
+export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   report: fhir4.MeasureReport;
   measureBundle: fhir4.Bundle;
   measure: fhir4.Measure;
@@ -126,7 +122,7 @@ export default class MeasureReportBuilder {
     });
   }
 
-  public addPatientResults(results: ExecutionResult) {
+  public addPatientResults(results: ExecutionResult<T>) {
     // if this is a individual measure report and we have already received a patient we should throw
     // an error
     if (this.isIndividual && this.patientCount > 0) {
@@ -151,7 +147,7 @@ export default class MeasureReportBuilder {
     results.detailedResults.forEach((groupResults, i) => {
       if (this.isIndividual) {
         // add narrative for relevant clauses
-        if (this.report.text && groupResults.html) {
+        if (isDetailedResult(groupResults) && this.report.text && groupResults.html) {
           this.report.text.div += groupResults.html;
         }
       }
@@ -288,7 +284,7 @@ export default class MeasureReportBuilder {
     }
   }
 
-  private addSDE(result: ExecutionResult) {
+  private addSDE(result: ExecutionResult<T>) {
     // 	Note that supplemental data are reported as observations for each patient and included in the evaluatedResources bundle. See the MeasureReport resource or the Quality Reporting topic for more information.
     result.supplementalData?.forEach(sd => {
       const observation = <fhir4.Observation>{};
@@ -398,7 +394,7 @@ export default class MeasureReportBuilder {
   // CV requires different input types than other scores
   private calcMeasureScoreCV(
     measure: fhir4.Measure,
-    detail: DetailedPopulationGroupResult,
+    detail: PopulationGroupResult,
     groupID: string,
     strataCode?: string
   ) {
@@ -559,7 +555,7 @@ export default class MeasureReportBuilder {
 
   static buildMeasureReports(
     measureBundle: fhir4.Bundle,
-    executionResults: ExecutionResult[],
+    executionResults: ExecutionResult<PopulationGroupResult>[],
     options: CalculationOptions
   ): fhir4.MeasureReport[] {
     const reports: fhir4.MeasureReport[] = [];

@@ -79,6 +79,7 @@ const queryInfo = Calculator.calculateQueryInfo(measureBundle); // Get detailed 
 The options that we support for calculation are as follows:
 | option | type | optional? | description |
 | :--------------------- | :-----: | :-------: | :--------------------------------------------------------------------------------- |
+| verboseCalculationResults | boolean | yes | Use the detailed results interfaces for calculation. Defaults to true. |
 | enableDebugOutput | boolean | yes | Enable debug output from function calls. Defaults to false. |
 | includeClauseResults | boolean | yes | Option to include clause results. Defaults to false. |
 | includePrettyResults | boolean | yes | Option to include pretty results on statement results. Defaults to false. |
@@ -109,6 +110,7 @@ Commands:
 
 Options:
   --debug                                     Enable debug output (default: false).
+  --slim                                      Use slimmed-down calculation results interfaces (default: false)
   --report-type <report-type>                 Type of report, "individual", "summary", "subject-list".
   -m, --measure-bundle <measure-bundle>       Path to measure bundle.
   -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless --patient-ids is provided or output type is dataRequirements. Note: cannot be used with --patient-ids.

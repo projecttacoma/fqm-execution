@@ -3,7 +3,7 @@
 import { PatientSource } from 'cql-exec-fhir';
 import MeasureReportBuilder from '../src/calculation/MeasureReportBuilder';
 import { getJSONFixture } from './helpers/testHelpers';
-import { ExecutionResult, CalculationOptions } from '../src/types/Calculator';
+import { ExecutionResult, CalculationOptions, DetailedPopulationGroupResult } from '../src/types/Calculator';
 import { PopulationType } from '../src/types/Enums';
 
 const patient1 = getJSONFixture(
@@ -42,7 +42,7 @@ const cvMeasureBundle: fhir4.Bundle = {
   ]
 };
 
-const executionResults: ExecutionResult[] = [
+const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
   {
     patientId: patient1Id,
     detailedResults: [
@@ -84,7 +84,7 @@ const executionResults: ExecutionResult[] = [
   }
 ];
 
-const cvExecutionResults: ExecutionResult[] = [
+const cvExecutionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
   {
     patientId: patient2Id,
     detailedResults: [
