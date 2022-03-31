@@ -49,8 +49,8 @@ const detailedResults = await Calculator.calculate(measureBundle, patientBundles
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache); // Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
-const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
-const queryInfo = Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
+const dataRequirements = await Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
+const queryInfo = await Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
 ```
 
 #### Require
@@ -63,8 +63,8 @@ const detailedResults = await Calculator.calculate(measureBundle, patientBundles
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache); // Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
-const dataRequirements = Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
-const queryInfo = Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
+const dataRequirements = await Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
+const queryInfo = await Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
 ```
 
 #### Arguments
