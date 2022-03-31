@@ -11,6 +11,7 @@
     "build/*"
   ],
   "dependencies": {
+    "@types/fhir": "0.0.34",
     "atob": "^2.1.2",
     "axios": "^0.21.1",
     "commander": "^6.1.0",
@@ -19,8 +20,7 @@
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
     "moment": "^2.29.0",
-    "uuid": "^8.3.1",
-    "@types/fhir": "0.0.34"
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
     "@types/handlebars": "^4.1.0",
