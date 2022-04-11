@@ -16,7 +16,7 @@ declare module 'cql-exec-fhir' {
     currentPatient(): Patient | undefined;
     nextPatient(): Patient | undefined;
     reset(): void;
-    static FHIRv401(): PatientSource;
+    static FHIRv401(shouldCheckProfile?: boolean): PatientSource;
   }
   export class AsyncPatientSource {
     constructor(serverInfo: string);
@@ -24,7 +24,7 @@ declare module 'cql-exec-fhir' {
     currentPatient(): AsyncPatient | undefined;
     nextPatient(): AsyncPatient | undefined;
     reset: void;
-    static FHIRv401(serverInfo: string): AsyncPatientSource;
+    static FHIRv401(serverInfo: string, shouldCheckProfile?: boolean): AsyncPatientSource;
   }
   export class FHIRWrapper {
     constructor(filePathOrXML: string);
