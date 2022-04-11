@@ -103,7 +103,7 @@ async function calc(
     result = calculateDataRequirements(measureBundle, calcOptions);
   } else if (program.outputType === 'queryInfo') {
     // calculateQueryInfo doesn't make use of the calcOptions object at this point
-    result = calculateQueryInfo(measureBundle);
+    result = calculateQueryInfo(measureBundle, calcOptions);
   }
   if (!result) {
     throw new Error(`Could not obtain result based on outputType ${program.outputType}`);

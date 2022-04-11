@@ -380,14 +380,20 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
     const libraryId = findLibraryReferenceId(library, functionRef.libraryName);
 
     // from fhir helpers or MAT Global or fhir common
-    if (libraryId === 'FHIRHelpers' || libraryId === 'MATGlobalCommonFunctions' || libraryId === 'FHIRCommon') {
+    if (
+      libraryId === 'FHIRHelpers' ||
+      libraryId === 'MATGlobalCommonFunctions' ||
+      libraryId === 'FHIRCommon' ||
+      libraryId === 'MATGlobalCommonFunctionsFHIR4'
+    ) {
       switch (functionRef.name) {
         case 'ToString':
         case 'ToConcept':
         case 'ToInterval':
         case 'ToDateTime':
         case 'Normalize Interval':
-          // Act as pass through
+        case 'Latest':
+          // Act as pass through for all of the above
           if (functionRef.operand[0].type == 'Property') {
             return functionRef.operand[0] as ELMProperty;
           } else if (
@@ -655,7 +661,7 @@ export async function interpretIn(
   parameters: any
 ): Promise<InFilter | DuringFilter | UnknownFilter> {
   let propRef: ELMProperty | GracefulError | null = null;
-  const withError: GracefulError = { message: 'An unknown error occured' };
+  let withError: GracefulError = { message: 'An unknown error occured' };
   if (inExpr.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {
@@ -732,6 +738,31 @@ export async function interpretIn(
       };
     } else {
       withError.message = 'could not resolve property scope';
+    }
+  } else if (inExpr.operand[1].type == 'ParameterRef') {
+    // currently handles when the reference exists and is an interval (i.e. Measurement Period)
+    const paramName = (inExpr.operand[1] as ELMParameterRef).name;
+    const valuePeriod: { start?: string; end?: string } = {};
+    // If this parameter is known and is an interval we can use it
+    if (parameters[paramName] && parameters[paramName].isInterval) {
+      valuePeriod.start = (parameters[paramName] as Interval).start().toString().replace('+00:00', 'Z');
+      valuePeriod.end = (parameters[paramName] as Interval).end().toString().replace('+00:00', 'Z');
+    } else {
+      withError = {
+        message: `could not find parameter "${paramName}" or it was not an interval.`
+      };
+      return { type: 'unknown', alias: propRef.scope, attribute: propRef.path, withError };
+    }
+    if (propRef.scope) {
+      return {
+        type: 'during',
+        alias: propRef.scope,
+        valuePeriod: valuePeriod,
+        attribute: propRef.path,
+        localId: inExpr.localId
+      };
+    } else {
+      withError = { message: 'could not find scope of property ref' };
     }
   } else {
     withError.message = 'could not resolve In operand[1] ' + inExpr.operand[1].type;
