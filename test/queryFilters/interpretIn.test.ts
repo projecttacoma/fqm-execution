@@ -297,7 +297,55 @@ const FUNCTION_REF_IN_INTERVAL = {
   ]
 };
 
+/** Same as in IncludedIn to accommodate sometimes interval comparison creates an "In" type, i.e. "Latest" */
+const IN_MP: ELMIn = {
+  localId: '40',
+  locator: '33:11-33:45',
+  type: 'In',
+  operand: [
+    {
+      name: 'ToInterval',
+      libraryName: 'FHIRHelpers',
+      type: 'FunctionRef',
+      operand: [
+        {
+          asType: '{http://hl7.org/fhir}Period',
+          type: 'As',
+          operand: {
+            localId: '38',
+            locator: '33:11-33:17',
+            path: 'onset',
+            scope: 'C',
+            type: 'Property'
+          }
+        }
+      ]
+    },
+    {
+      localId: '39',
+      locator: '33:26-33:45',
+      name: 'Measurement Period',
+      type: 'ParameterRef'
+    }
+  ]
+};
+
 describe('interpretIn', () => {
+  test('valid parameter interval ref', async () => {
+    // Note: Global.Latest generates type:In instead of type:IncludedIn
+    // - > We might want to look at why it generates that way, but this case can account for it for now
+
+    const parameters = { 'Measurement Period': MP_INTERVAL };
+    const filter = (await QueryFilter.interpretIn(IN_MP, complexQueryELM, parameters)) as DuringFilter;
+    expect(filter.type).toEqual('during');
+    expect(filter.valuePeriod).toEqual({
+      start: '2019-01-01T00:00:00.000Z',
+      end: '2019-12-31T23:59:59.999Z'
+    });
+    expect(filter.alias).toEqual('C');
+    expect(filter.attribute).toEqual('onset');
+  });
+
   test('Property starts during two years before end of MP', async () => {
     const filter = (await QueryFilter.interpretIn(
       IN_STARTS_CALC_AGAINST_MP,

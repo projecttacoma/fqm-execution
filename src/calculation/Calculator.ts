@@ -568,15 +568,20 @@ export async function calculateDataRequirements(
  * @param measureBundle Bundle with a Measure resource and all dependent library resources
  * @returns Detailed query info object for all statements
  */
-export async function calculateQueryInfo(measureBundle: fhir4.Bundle): Promise<QICalculationOutput> {
+export async function calculateQueryInfo(
+  measureBundle: fhir4.Bundle,
+  options: CalculationOptions = {}
+): Promise<QICalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
+  const { startCql, endCql } = Execution.getCQLIntervalEndpoints(options);
 
   if (!rootLib?.library) {
     throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
   }
 
+  const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
   // get the retrieves for every statement in the root library
   const withErrors: GracefulError[] = [];
   const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
@@ -595,7 +600,7 @@ export async function calculateQueryInfo(measureBundle: fhir4.Bundle): Promise<Q
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId);
+        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
       }
     }
   });
