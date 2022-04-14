@@ -86,6 +86,7 @@ export async function parseQueryInfo(
       const whereInfo = await interpretExpression(query.where, library, parameters, patient);
       queryInfo.filter = whereInfo;
     }
+    // TODO add case for valueComparison defined
 
     // If this query's source is a reference to an expression that is a query then we should parse it and include
     // the filters from it.
@@ -250,6 +251,8 @@ export async function interpretExpression(
     case 'GreaterOrEqual':
       returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
       break;
+
+    // TODO add case for 'Greater'
     default:
       const withError: GracefulError = { message: `Don't know how to parse ${expression.type} expression.` };
       // Look for a property (source attribute) usage in the expression tree. This can denote an
@@ -839,7 +842,7 @@ export function interpretGreaterOrEqual(
   patient?: CQLPatient
 ): AnyFilter {
   // look at first param if it is function ref to calendar age in years at.
-  const withError: GracefulError = { message: 'An unknown error occured while interpretting greater or equal filter' };
+  const withError: GracefulError = { message: 'An unknown error occurred while interpreting greater or equal filter' };
   if (greaterOrEqualExpr.operand[0].type === 'FunctionRef') {
     const functionRef = greaterOrEqualExpr.operand[0] as ELMFunctionRef;
     // Check if it is "Global.CalendarAgeInYearsAt"
