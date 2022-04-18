@@ -16,6 +16,7 @@ import {
   GapsDataTypeQuery,
   ReasonDetailData
 } from '../src/types/Calculator';
+import { ValueFilter } from '../src/types/QueryFilterTypes';
 import { FinalResult, ImprovementNotation, CareGapReasonCode } from '../src/types/Enums';
 import { getJSONFixture } from './helpers/testHelpers';
 
@@ -425,13 +426,21 @@ describe('Find Reason Detail', () => {
   });
 
   describe('Reason Details', () => {
-    const baseQuery: GapsDataTypeQuery = {
+    const baseProcedureQuery: GapsDataTypeQuery = {
       dataType: 'Procedure',
       valueSet: 'http://example.com/test-vs',
       retrieveHasResult: true,
       parentQueryHasResult: false,
       retrieveLibraryName: 'example',
       retrieveLocalId: 'procedure'
+    };
+
+    const baseObservationQuery: GapsDataTypeQuery = {
+      dataType: 'Observation',
+      valueSet: 'http://example.com/test-vs',
+      retrieveHasResult: true,
+      parentQueryHasResult: true,
+      retrieveLibraryName: 'example'
     };
 
     const dr: DetailedResultWithClause = {
@@ -491,14 +500,279 @@ describe('Find Reason Detail', () => {
               valueBoolean: false
             })
           ]
+        },
+        {
+          localId: 'obs-with-high-value',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Observation',
+              id: 'obs-with-high-value',
+              valueQuantity: {
+                value: 2.0,
+                unit: '%'
+              }
+            })
+          ]
+        },
+        {
+          localId: 'obs-with-low-value',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Observation',
+              id: 'obs-with-low-value',
+              valueQuantity: {
+                value: 0.0,
+                unit: '%'
+              }
+            })
+          ]
+        },
+        {
+          localId: 'external-value-compare',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: true
         }
       ],
       statementResults: []
     };
 
+    test('should report ValueOutOfRange for negative improvement high value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-high-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-high-value' },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+      const [r] = calculateReasonDetail([q], ImprovementNotation.NEGATIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
+      ]);
+    });
+
+    test('should report ValueOutOfRange for positive improvement high value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-high-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-high-value', parentQueryHasResult: false },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
+      ]);
+    });
+
+    test('should report ValueOutOfRange for positive improvement low value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'lt',
+        valueQuantity: {
+          value: 5.0,
+          unit: '%'
+        },
+        localId: 'obs-with-low-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-low-value', parentQueryHasResult: false },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
+      ]);
+    });
+
+    test('should report ValueOutOfRange for negative improvement low value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'lt',
+        valueQuantity: {
+          value: 5.0,
+          unit: '%'
+        },
+        localId: 'obs-with-low-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-low-value' },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.NEGATIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
+      ]);
+    });
+
+    test('should resolve value comparison from external clause for positive improvement', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'ge',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-high-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{
+          ...baseObservationQuery,
+          retrieveLocalId: 'obs-with-high-value',
+          valueComparisonLocalId: 'false-clause',
+          parentQueryHasResult: false
+        },
+        queryInfo: {
+          fromExternalClause: true,
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
+      ]);
+    });
+
+    test('should resolve value comparison from external clause for negative improvement', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'ge',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-high-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{
+          ...baseObservationQuery,
+          retrieveLocalId: 'obs-with-high-value',
+          valueComparisonLocalId: 'true-clause'
+        },
+        queryInfo: {
+          fromExternalClause: true,
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.NEGATIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
+      ]);
+    });
+
     test('retrieve with false attribute filter should be code INVALIDATTRIBUTE', () => {
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
@@ -531,7 +805,7 @@ describe('Find Reason Detail', () => {
       const intervalEnd = '2019-12-31';
 
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
@@ -605,7 +879,7 @@ describe('Find Reason Detail', () => {
 
     test('retrieve with false not null filter should be code NOTFOUND', () => {
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
@@ -667,7 +941,7 @@ describe('Find Reason Detail', () => {
       const intervalEnd = '2019-12-31';
 
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
