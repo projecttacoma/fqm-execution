@@ -412,7 +412,7 @@ export function setValueSetVersionsToUndefined(elm: ELM[]): ELM[] {
 }
 
 /**
- * Returns an ELM function to add to the ELM before it is used for calculation. This function is genereated
+ * Returns an ELM function to add to the ELM before it is used for calculation. This function is generated
  * for each observation on the measure. It returns a list of tuples, with each episode being observed and the
  * observation for the episode.
  *

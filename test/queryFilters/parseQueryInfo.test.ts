@@ -376,7 +376,7 @@ const PATIENT = FHIRWrapper.FHIRv401().wrap({
 describe('Parse Query Info', () => {
   test('simple valueset with id check', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -392,7 +392,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_AND_STARTS_DURING_MP);
   });
 
@@ -404,7 +404,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
   });
 
@@ -416,7 +416,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
 
     const filter = queryInfo.filter as AndFilter;
 
@@ -438,13 +438,13 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL);
   });
 
   test('incorrect localid should throw error', async () => {
     try {
-      await parseQueryInfo(simpleQueryELM, allELM, '360', PARAMETERS, PATIENT);
+      await parseQueryInfo(simpleQueryELM, allELM, '360', undefined, PARAMETERS, PATIENT);
       fail('parseQueryInfo failed to throw error when provided incorrect localid');
     } catch (e) {
       expect(e.message).toEqual('Clause 360 in SimpleQueries was not a Query or not found.');
@@ -453,19 +453,19 @@ describe('Parse Query Info', () => {
 
   test('simple - query references query, combines filters', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY);
   });
 
   test('complex - query references query, combines filters', async () => {
     const queryLocalId = complexQueryELM.library.statements.def[6].expression.localId; // query that references another query
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
   });
 
   test('complex - query references query, combines filters with ands in both filters and differing alias names', async () => {
     const queryLocalId = complexQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH);
   });
 

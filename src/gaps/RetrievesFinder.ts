@@ -44,9 +44,6 @@ export function findRetrieves(
   }
 
   // Base case, get data type and code/valueset off the expression
-  if ((expr as any).name === 'Has Most Recent Elevated HbA1c') {
-    console.log('hey');
-  }
   if (expr.type === 'Retrieve' && (expr as ELMRetrieve).dataType) {
     const exprRet = expr as ELMRetrieve;
     // If present, strip off HL7 prefix to data type

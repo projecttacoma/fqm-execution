@@ -30,7 +30,10 @@ import {
   ELMExpressionRef,
   ELMGreater,
   ELMQuantity,
-  ELMComparator
+  ELMComparator,
+  ELMLess,
+  ELMLessOrEqual,
+  ELMRatio
 } from '../types/ELMTypes';
 import {
   AndFilter,
@@ -278,10 +281,10 @@ export async function interpretExpression(
       returnFilter = interpretGreater(expression as ELMGreater, library, parameters, patient);
       break;
     case 'Less':
-      returnFilter = interpretLess(expression as ELMGreater, library, parameters, patient);
+      returnFilter = interpretLess(expression as ELMLess, library, parameters, patient);
       break;
     case 'LessOrEqual':
-      returnFilter = interpretLessOrEqual(expression as ELMGreater, library, parameters, patient);
+      returnFilter = interpretLessOrEqual(expression as ELMLessOrEqual, library, parameters, patient);
       break;
     default:
       const withError: GracefulError = { message: `Don't know how to parse ${expression.type} expression.` };
@@ -985,7 +988,7 @@ export function interpretGreater(
 }
 
 export function interpretLess(
-  greater: ELMGreater,
+  greater: ELMLess,
   library: ELM,
   parameters: any,
   patient?: CQLPatient
@@ -994,7 +997,7 @@ export function interpretLess(
 }
 
 export function interpretLessOrEqual(
-  greater: ELMGreater,
+  greater: ELMLessOrEqual,
   library: ELM,
   parameters: any,
   patient?: CQLPatient
@@ -1031,12 +1034,26 @@ export function interpretComparator(
   };
   const op = comparatorELM.operand[1];
 
-  // TODO break out cases for other op.types like Integer
   switch (op.type) {
+    case 'Literal':
+      const literal = op as ELMLiteral;
+      if (literal.valueType === 'Boolean') {
+        valueFilter.valueBoolean = literal.value as boolean;
+      } else if (literal.valueType === 'Integer') {
+        valueFilter.valueInteger = literal.value as number;
+      } else {
+        valueFilter.valueString = literal.value as string;
+      }
+      break;
     case 'Quantity':
       const quantity = op as ELMQuantity;
       valueFilter.valueQuantity = { value: quantity.value, unit: quantity.unit };
       break;
+    case 'Ratio':
+      const ratio = op as ELMRatio;
+      valueFilter.valueRatio = { denominator: ratio.denominator, numerator: ratio.numerator };
+      break;
+    // TODO: Add handling for ELMRange here
     default:
       return { type: 'unknown' };
   }
@@ -1049,5 +1066,3 @@ export function interpretComparator(
   }
   return valueFilter;
 }
-
-// TODO add Less and LessorEqual (consider interpretComparator?)

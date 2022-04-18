@@ -357,7 +357,7 @@ describe('interpretGreaterOrEqual', () => {
 
     expect(filter).toEqual({
       type: 'unknown',
-      withError: { message: 'An unknown error occured while interpretting greater or equal filter' }
+      withError: { message: 'An unknown error occurred while interpreting greater or equal filter' }
     });
   });
 

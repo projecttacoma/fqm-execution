@@ -380,13 +380,19 @@ export interface ELMConceptRef extends ELMExpression {
 export interface ELMLiteral extends ELMExpression {
   type: 'Literal';
   valueType: string;
-  value?: string | number;
+  value?: string | number | boolean;
 }
 
 export interface ELMQuantity extends ELMExpression {
   type: 'Quantity';
   unit?: string;
   value?: number;
+}
+
+export interface ELMRatio extends ELMExpression {
+  type: 'Ratio';
+  numerator: ELMQuantity;
+  denominator: ELMQuantity;
 }
 
 export interface ELMInterval extends ELMExpression {

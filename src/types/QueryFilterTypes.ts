@@ -104,7 +104,7 @@ export interface NotNullFilter extends AttributeFilter {
  */
 export interface EqualsFilter extends AttributeFilter {
   type: 'equals';
-  value: string | number;
+  value: string | number | boolean;
 }
 
 /**
