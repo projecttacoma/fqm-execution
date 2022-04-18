@@ -138,3 +138,18 @@ export interface codeFilterQuery {
   endpoint: string;
   params: Record<string, string | undefined>;
 }
+
+export interface ValueFilter extends Filter {
+  type: 'value';
+  attribute?: string;
+  alias?: string;
+  comparator?: ValueFilterComparator;
+  valueBoolean?: boolean;
+  valueString?: string;
+  valueInteger?: number;
+  valueQuantity?: fhir4.Quantity;
+  valueRatio?: fhir4.Ratio;
+  valueRange?: fhir4.Range;
+}
+
+export type ValueFilterComparator = 'eq' | 'gt' | 'lt' | 'ge' | 'le' | 'sa' | 'eb';

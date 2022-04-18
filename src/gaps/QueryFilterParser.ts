@@ -1,4 +1,4 @@
-import { Interval, Expression, PatientContext, Library, DateTime } from 'cql-execution';
+import { Interval, Expression, PatientContext, Library, DateTime, ValueSet } from 'cql-execution';
 import { CQLPatient } from '../types/CQLPatient';
 import {
   ELM,
@@ -27,7 +27,10 @@ import {
   ELMToDateTime,
   ELMStart,
   ELMEnd,
-  ELMExpressionRef
+  ELMExpressionRef,
+  ELMGreater,
+  ELMQuantity,
+  ELMComparator
 } from '../types/ELMTypes';
 import {
   AndFilter,
@@ -42,7 +45,9 @@ import {
   QueryInfo,
   SourceInfo,
   TautologyFilter,
-  UnknownFilter
+  UnknownFilter,
+  ValueFilter,
+  ValueFilterComparator
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
@@ -65,7 +70,8 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
 export async function parseQueryInfo(
   library: ELM,
   allELM: ELM[],
-  queryLocalId: string | undefined,
+  queryLocalId?: string,
+  valueComparisonLocalId?: string,
   parameters: { [key: string]: any } = {},
   patient?: CQLPatient
 ): Promise<QueryInfo> {
@@ -87,7 +93,17 @@ export async function parseQueryInfo(
       queryInfo.filter = whereInfo;
     }
     // TODO add case for valueComparison defined
-
+    if (valueComparisonLocalId) {
+      const valueExpression = findClauseInLibrary(library, valueComparisonLocalId);
+      if (valueExpression) {
+        const comparisonInfo = await interpretExpression(valueExpression, library, parameters, patient);
+        if (queryInfo.filter) {
+          queryInfo.filter = { type: 'and', children: [queryInfo.filter, comparisonInfo] };
+        } else {
+          queryInfo.filter = comparisonInfo;
+        }
+      }
+    }
     // If this query's source is a reference to an expression that is a query then we should parse it and include
     // the filters from it.
     if (query.source[0].expression.type === 'ExpressionRef') {
@@ -104,7 +120,14 @@ export async function parseQueryInfo(
       if (statement) {
         if (statement.expression.type === 'Query') {
           const innerQuery = statement.expression as ELMQuery;
-          const innerQueryInfo = await parseQueryInfo(queryLib, allELM, innerQuery.localId, parameters, patient);
+          const innerQueryInfo = await parseQueryInfo(
+            queryLib,
+            allELM,
+            innerQuery.localId,
+            valueComparisonLocalId,
+            parameters,
+            patient
+          );
 
           // use sources from inner query
           queryInfo.sources = innerQueryInfo.sources;
@@ -251,8 +274,15 @@ export async function interpretExpression(
     case 'GreaterOrEqual':
       returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
       break;
-
-    // TODO add case for 'Greater'
+    case 'Greater':
+      returnFilter = interpretGreater(expression as ELMGreater, library, parameters, patient);
+      break;
+    case 'Less':
+      returnFilter = interpretLess(expression as ELMGreater, library, parameters, patient);
+      break;
+    case 'LessOrEqual':
+      returnFilter = interpretLessOrEqual(expression as ELMGreater, library, parameters, patient);
+      break;
     default:
       const withError: GracefulError = { message: `Don't know how to parse ${expression.type} expression.` };
       // Look for a property (source attribute) usage in the expression tree. This can denote an
@@ -396,6 +426,7 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
         case 'ToDateTime':
         case 'Normalize Interval':
         case 'Latest':
+        case 'ToQuantity':
           // Act as pass through for all of the above
           if (functionRef.operand[0].type == 'Property') {
             return functionRef.operand[0] as ELMProperty;
@@ -937,8 +968,86 @@ export function interpretGreaterOrEqual(
       withError.message = 'Function referenced is not "CalendarAgeInYearsAt"';
       return { type: 'unknown', withError };
     }
+  } else {
+    return interpretComparator(greaterOrEqualExpr, library, parameters, 'ge', patient);
   }
-
   // Fallback if the first operand cannot be parsed or parsing falls through.
   return { type: 'unknown', withError };
 }
+
+export function interpretGreater(
+  greater: ELMGreater,
+  library: ELM,
+  parameters: any,
+  patient?: CQLPatient
+): ValueFilter | UnknownFilter {
+  return interpretComparator(greater, library, parameters, 'gt', patient);
+}
+
+export function interpretLess(
+  greater: ELMGreater,
+  library: ELM,
+  parameters: any,
+  patient?: CQLPatient
+): ValueFilter | UnknownFilter {
+  return interpretComparator(greater, library, parameters, 'lt', patient);
+}
+
+export function interpretLessOrEqual(
+  greater: ELMGreater,
+  library: ELM,
+  parameters: any,
+  patient?: CQLPatient
+): ValueFilter | UnknownFilter {
+  return interpretComparator(greater, library, parameters, 'le', patient);
+}
+
+export function interpretComparator(
+  comparatorELM: ELMComparator,
+  library: ELM,
+  parameters: any,
+  comparatorString: ValueFilterComparator,
+  patient?: CQLPatient
+): ValueFilter | UnknownFilter {
+  let propRef: ELMProperty | GracefulError | null = null;
+  if (comparatorELM.operand[0].type == 'FunctionRef') {
+    propRef = interpretFunctionRef(comparatorELM.operand[0] as ELMFunctionRef, library);
+  } else if (comparatorELM.operand[0].type == 'Property') {
+    propRef = comparatorELM.operand[0] as ELMProperty;
+  }
+
+  if (propRef == null) {
+    const withError: GracefulError = { message: 'could not resolve property ref for Equivalent' };
+    return { type: 'unknown', withError };
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
+  }
+
+  const valueFilter: ValueFilter = {
+    type: 'value',
+    comparator: comparatorString
+  };
+  const op = comparatorELM.operand[1];
+
+  // TODO break out cases for other op.types like Integer
+  switch (op.type) {
+    case 'Quantity':
+      const quantity = op as ELMQuantity;
+      valueFilter.valueQuantity = { value: quantity.value, unit: quantity.unit };
+      break;
+    default:
+      return { type: 'unknown' };
+  }
+
+  if (propRef.scope) {
+    valueFilter.alias = propRef.scope;
+  }
+  if (propRef.path) {
+    valueFilter.attribute = propRef.path;
+  }
+  return valueFilter;
+}
+
+// TODO add Less and LessorEqual (consider interpretComparator?)

@@ -178,6 +178,9 @@ export type AnyELMExpression =
   | ELMAs
   | ELMEqual
   | ELMGreaterOrEqual
+  | ELMGreater
+  | ELMLess
+  | ELMLessOrEqual
   | ELMEquivalent
   | ELMAnd
   | ELMOr
@@ -281,6 +284,18 @@ export interface ELMEqual extends ELMBinaryExpression {
 
 export interface ELMGreaterOrEqual extends ELMBinaryExpression {
   type: 'GreaterOrEqual';
+}
+
+export interface ELMGreater extends ELMBinaryExpression {
+  type: 'Greater';
+}
+
+export interface ELMLess extends ELMBinaryExpression {
+  type: 'Less';
+}
+
+export interface ELMLessOrEqual extends ELMBinaryExpression {
+  type: 'LessOrEqual';
 }
 
 export interface ELMEquivalent extends ELMBinaryExpression {
@@ -431,3 +446,5 @@ export interface AnnotationStatement {
   s?: AnnotationStatement[];
   value?: string[];
 }
+
+export type ELMComparator = ELMGreaterOrEqual | ELMLessOrEqual | ELMGreater | ELMLess;

@@ -436,6 +436,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
                 library,
                 elmLibraries,
                 retrieve.queryLocalId,
+                retrieve.valueComparisonLocalId,
                 parameters,
                 res.patientObject
               );
@@ -520,9 +521,12 @@ export async function calculateDataRequirements(
 
   // Only use "unique" retrieves
   // The array of strings specifies the set of prop values to use in stringification
-  const uniqueRetrieves = uniqBy(allRetrieves, retrieve => {
-    return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
-  });
+  // const uniqueRetrieves = uniqBy(allRetrieves, retrieve => {
+  //   return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
+  // });
+
+  // TODO figure out uniquification
+  const uniqueRetrieves = allRetrieves;
 
   const uniqueRetrievesPromises = uniqueRetrieves.map(async retrieve => {
     // If the retrieves have a localId for the query and a known library name, we can get more info
@@ -530,7 +534,13 @@ export async function calculateDataRequirements(
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
+        retrieve.queryInfo = await parseQueryInfo(
+          library,
+          elmJSONs,
+          retrieve.queryLocalId,
+          retrieve.valueComparisonLocalId,
+          parameters
+        );
       }
     }
   });
@@ -548,6 +558,8 @@ export async function calculateDataRequirements(
     addFhirQueryPatternToDataRequirements(dr);
     return dr;
   });
+
+  // TODO uniquify down here ( do this last )
 
   return {
     results: results,
@@ -600,7 +612,13 @@ export async function calculateQueryInfo(
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
+        retrieve.queryInfo = await parseQueryInfo(
+          library,
+          elmJSONs,
+          retrieve.queryLocalId,
+          retrieve.valueComparisonLocalId,
+          parameters
+        );
       }
     }
   });
