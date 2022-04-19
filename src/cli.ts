@@ -68,6 +68,7 @@ program
     '--fhir-server-url <server-url>',
     'Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and --patient-ids are required when --fhir-server-url is provided.'
   )
+  .option('--profile-validation', 'To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against.', false)
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -136,6 +137,7 @@ if (program.cacheValuesets && !program.vsApiKey) {
   program.help();
 }
 
+
 const cacheDirectory = 'cache/terminology';
 
 const calcOptions: CalculationOptions = {
@@ -163,16 +165,18 @@ if (program.asPatientSource) {
         'Must provide an array of patient ids with --patient-ids flag for calculation using AsyncPatientSource'
       );
     }
-    patientSource = AsyncPatientSource.FHIRv401(program.fhirServerUrl);
+    patientSource = AsyncPatientSource.FHIRv401(program.fhirServerUrl, program.profileValidation);
     patientSource.loadPatientIds(program.patientIds);
   } else {
-    patientSource = PatientSource.FHIRv401();
+    patientSource = PatientSource.FHIRv401(program.profileValidation);
     patientSource.loadBundles(patientBundles);
   }
   calcOptions.patientSource = patientSource;
   patientBundles = [];
 }
-
+if(program.profileValidation){
+  calcOptions.trustMetaProfile= program.profileValidation;
+}
 // Calculation is now async, so we have to do a callback here
 calc(
   measureBundle,
