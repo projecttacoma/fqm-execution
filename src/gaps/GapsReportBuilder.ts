@@ -444,7 +444,7 @@ export function calculateReasonDetail(
                 }
 
                 // Resource caused gap
-                if (comparisonResult === true) {
+                if (isPositiveImprovement ? comparisonResult === false : comparisonResult === true) {
                   reason.reference = `${resource._json.resourceType}/${resource._json.id}`;
                   reason.code = CareGapReasonCode.VALUEOUTOFRANGE;
                   reasonDetail.reasons.push(reason);

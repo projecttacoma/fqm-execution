@@ -579,7 +579,43 @@ describe('Find Reason Detail', () => {
       ]);
     });
 
-    test('should report ValueOutOfRange for positive improvement high value', () => {
+    test('should report ValueOutOfRange for positive improvement low value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-low-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-low-value', parentQueryHasResult: false },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
+      ]);
+    });
+
+    test('should report NotFound for positive improvement high value', () => {
       const filter: ValueFilter = {
         type: 'value',
         attribute: 'value',
@@ -610,45 +646,15 @@ describe('Find Reason Detail', () => {
 
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasons).toEqual([
-        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
-      ]);
-    });
 
-    test('should report ValueOutOfRange for positive improvement low value', () => {
-      const filter: ValueFilter = {
-        type: 'value',
-        attribute: 'value',
-        alias: 'O',
-        comparator: 'lt',
-        valueQuantity: {
-          value: 5.0,
-          unit: '%'
-        },
-        localId: 'obs-with-low-value'
-      };
-
-      const q: GapsDataTypeQuery = {
-        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-low-value', parentQueryHasResult: false },
-        queryInfo: {
-          sources: [
-            {
-              alias: 'O',
-              resourceType: 'Observation',
-              retrieveLocalId: 'true-clause'
-            }
-          ],
-          filter
-        }
-      };
-
-      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
-
-      expect(r.reasonDetail).toBeDefined();
-      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
-      expect(r.reasonDetail?.reasons).toEqual([
-        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
-      ]);
+      // There shouldn't be any out of range values computed by reasonDetail since the obs-with-high-value satisfies the requirements
+      expect(r.reasonDetail?.reasons).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: CareGapReasonCode.VALUEOUTOFRANGE
+          })
+        ])
+      );
     });
 
     test('should report ValueOutOfRange for negative improvement low value', () => {
@@ -697,13 +703,13 @@ describe('Find Reason Detail', () => {
           value: 1.0,
           unit: '%'
         },
-        localId: 'obs-with-high-value'
+        localId: 'obs-with-low-value'
       };
 
       const q: GapsDataTypeQuery = {
         ...{
           ...baseObservationQuery,
-          retrieveLocalId: 'obs-with-high-value',
+          retrieveLocalId: 'obs-with-low-value',
           valueComparisonLocalId: 'false-clause',
           parentQueryHasResult: false
         },
@@ -725,7 +731,7 @@ describe('Find Reason Detail', () => {
       expect(r.reasonDetail).toBeDefined();
       expect(r.reasonDetail?.hasReasonDetail).toBe(true);
       expect(r.reasonDetail?.reasons).toEqual([
-        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
       ]);
     });
 
