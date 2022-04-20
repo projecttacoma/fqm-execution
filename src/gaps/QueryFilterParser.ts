@@ -1,4 +1,4 @@
-import { Interval, Expression, PatientContext, Library, DateTime, ValueSet } from 'cql-execution';
+import { Interval, Expression, PatientContext, Library, DateTime } from 'cql-execution';
 import { CQLPatient } from '../types/CQLPatient';
 import {
   ELM,
@@ -278,13 +278,13 @@ export async function interpretExpression(
       returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
       break;
     case 'Greater':
-      returnFilter = interpretGreater(expression as ELMGreater, library, parameters, patient);
+      returnFilter = interpretGreater(expression as ELMGreater, library);
       break;
     case 'Less':
-      returnFilter = interpretLess(expression as ELMLess, library, parameters, patient);
+      returnFilter = interpretLess(expression as ELMLess, library);
       break;
     case 'LessOrEqual':
-      returnFilter = interpretLessOrEqual(expression as ELMLessOrEqual, library, parameters, patient);
+      returnFilter = interpretLessOrEqual(expression as ELMLessOrEqual, library);
       break;
     default:
       const withError: GracefulError = { message: `Don't know how to parse ${expression.type} expression.` };
@@ -824,7 +824,7 @@ export async function executeIntervalELM(
   // make sure the interval created based on property usage from the query source
   const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
   const withError: GracefulError = {
-    message: 'An unknown error occured while calculating CQL intervals based on measurement period'
+    message: 'An unknown error occurred while calculating CQL intervals based on measurement period'
   };
   if (propRefInInterval) {
     withError.message = 'cannot handle intervals constructed on query data right now';
@@ -931,7 +931,7 @@ export function interpretGreaterOrEqual(
           const years = (greaterOrEqualExpr.operand[1] as ELMLiteral).value as number;
           if (patient.birthDate) {
             // Clone patient cql-execution birthDate ensure it is a DateTime then wipe out hours, minutes, seconds,
-            // and miliseconds. Then add the number of years.
+            // and milliseconds. Then add the number of years.
             const birthDate = patient.birthDate.value.copy().getDateTime() as DateTime;
             birthDate.hour = 0;
             birthDate.minute = 0;
@@ -966,51 +966,33 @@ export function interpretGreaterOrEqual(
           }
         }
       }
+      // Fallback if the first operand cannot be parsed or parsing falls through.
+      return { type: 'unknown', withError };
     } else {
       // If the function referenced is not "CalendarAgeInYearsAt".
-      withError.message = 'Function referenced is not "CalendarAgeInYearsAt"';
-      return { type: 'unknown', withError };
+      return interpretComparator(greaterOrEqualExpr, library, 'ge');
     }
   } else {
-    return interpretComparator(greaterOrEqualExpr, library, parameters, 'ge', patient);
+    return interpretComparator(greaterOrEqualExpr, library, 'ge');
   }
-  // Fallback if the first operand cannot be parsed or parsing falls through.
-  return { type: 'unknown', withError };
 }
 
-export function interpretGreater(
-  greater: ELMGreater,
-  library: ELM,
-  parameters: any,
-  patient?: CQLPatient
-): ValueFilter | UnknownFilter {
-  return interpretComparator(greater, library, parameters, 'gt', patient);
+export function interpretGreater(greater: ELMGreater, library: ELM): ValueFilter | UnknownFilter {
+  return interpretComparator(greater, library, 'gt');
 }
 
-export function interpretLess(
-  greater: ELMLess,
-  library: ELM,
-  parameters: any,
-  patient?: CQLPatient
-): ValueFilter | UnknownFilter {
-  return interpretComparator(greater, library, parameters, 'lt', patient);
+export function interpretLess(less: ELMLess, library: ELM): ValueFilter | UnknownFilter {
+  return interpretComparator(less, library, 'lt');
 }
 
-export function interpretLessOrEqual(
-  greater: ELMLessOrEqual,
-  library: ELM,
-  parameters: any,
-  patient?: CQLPatient
-): ValueFilter | UnknownFilter {
-  return interpretComparator(greater, library, parameters, 'le', patient);
+export function interpretLessOrEqual(lessOrEqual: ELMLessOrEqual, library: ELM): ValueFilter | UnknownFilter {
+  return interpretComparator(lessOrEqual, library, 'le');
 }
 
 export function interpretComparator(
   comparatorELM: ELMComparator,
   library: ELM,
-  parameters: any,
-  comparatorString: ValueFilterComparator,
-  patient?: CQLPatient
+  comparatorString: ValueFilterComparator
 ): ValueFilter | UnknownFilter {
   let propRef: ELMProperty | GracefulError | null = null;
   if (comparatorELM.operand[0].type == 'FunctionRef') {
@@ -1020,7 +1002,9 @@ export function interpretComparator(
   }
 
   if (propRef == null) {
-    const withError: GracefulError = { message: 'could not resolve property ref for Equivalent' };
+    const withError: GracefulError = {
+      message: `could not resolve property ref for comparator: ${comparatorELM.type}`
+    };
     return { type: 'unknown', withError };
   }
 
@@ -1055,7 +1039,10 @@ export function interpretComparator(
       break;
     // TODO: Add handling for ELMRange here
     default:
-      return { type: 'unknown' };
+      const withError: GracefulError = {
+        message: `cannot handle unsupported operand type: ${op.type} in comparator: ${comparatorELM.type}`
+      };
+      return { type: 'unknown', withError };
   }
 
   if (propRef.scope) {

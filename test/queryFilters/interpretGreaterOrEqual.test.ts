@@ -224,7 +224,7 @@ const GREATEROREQUAL_BIRTHDATE_UNEXPECTED_OPERAND: ELMGreaterOrEqual = {
   ]
 };
 
-/** From ExtraQueries.cql "GreaterThanOrEqual Obeservation Value": */
+/** From ExtraQueries.cql "GreaterThanOrEqual Observation Value": */
 const GREATEROREQUAL_VALUE: ELMGreaterOrEqual = {
   localId: '151',
   locator: '74:5-74:30',
@@ -258,7 +258,7 @@ const GREATEROREQUAL_VALUE: ELMGreaterOrEqual = {
   ]
 };
 
-/** Modified from ExtraQueries.cql "GreaterThanOrEqual Obeservation Value" to compare a literal to a quantity. This is to test unexpected first operand. */
+/** Modified from ExtraQueries.cql "GreaterThanOrEqual Observation Value" to compare a literal to a quantity. This is to test unexpected first operand. */
 const GREATEROREQUAL_LITERAL_TO_VALUE: ELMGreaterOrEqual = {
   localId: '151',
   locator: '74:5-74:30',
@@ -371,11 +371,11 @@ describe('interpretGreaterOrEqual', () => {
 
     expect(filter).toEqual({
       type: 'unknown',
-      withError: { message: 'An unknown error occured while interpretting greater or equal filter' }
+      withError: { message: 'could not resolve property ref for comparator: GreaterOrEqual' }
     });
   });
 
-  test('attribute quantity comparison - not supported yet', () => {
+  test('attribute quantity comparison', () => {
     const filter: UnknownFilter = QueryFilter.interpretGreaterOrEqual(
       GREATEROREQUAL_VALUE,
       EXTRA_QUERIES_ELM,
@@ -384,8 +384,14 @@ describe('interpretGreaterOrEqual', () => {
     ) as UnknownFilter;
 
     expect(filter).toEqual({
-      type: 'unknown',
-      withError: { message: 'Function referenced is not "CalendarAgeInYearsAt"' }
+      type: 'value',
+      alias: 'Test',
+      comparator: 'ge',
+      attribute: 'value',
+      valueQuantity: {
+        unit: 'mg',
+        value: 2
+      }
     });
   });
 });

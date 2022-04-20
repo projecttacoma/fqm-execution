@@ -552,14 +552,15 @@ export async function calculateDataRequirements(
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
     status: 'unknown'
   };
-  results.dataRequirement = uniqueRetrieves.map(retrieve => {
-    const dr = generateDataRequirement(retrieve);
-    GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
-    addFhirQueryPatternToDataRequirements(dr);
-    return dr;
-  });
-
-  // TODO uniquify down here ( do this last )
+  results.dataRequirement = uniqBy(
+    uniqueRetrieves.map(retrieve => {
+      const dr = generateDataRequirement(retrieve);
+      GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
+      addFhirQueryPatternToDataRequirements(dr);
+      return dr;
+    }),
+    JSON.stringify
+  );
 
   return {
     results: results,

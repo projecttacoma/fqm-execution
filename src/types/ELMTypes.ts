@@ -266,7 +266,8 @@ export interface ELMReturnClause {
 
 export interface ELMAs extends ELMExpression {
   type: 'As';
-  asType: string;
+  asType?: string;
+  asTypeSpecifier?: any;
   operand: AnyELMExpression;
 }
 

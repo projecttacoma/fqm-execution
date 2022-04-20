@@ -1,0 +1,877 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "41",
+          "s": [
+            {
+              "value": ["", "library ValueQuery version '0.0.1'"]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "ValueQuery",
+      "version": "0.0.1"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "1",
+          "locator": "3:1-3:26",
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "1",
+                "s": [
+                  {
+                    "value": ["", "using "]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": ["FHIR"]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" version ", "'4.0.1'"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "2",
+          "locator": "5:1-5:35",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "2",
+                "s": [
+                  {
+                    "value": ["", "include "]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": ["FHIRHelpers"]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" version ", "'4.0.1'"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "localId": "3",
+          "locator": "7:1-7:48",
+          "name": "test-vs",
+          "id": "http://example.com/test-vs",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "3",
+                "s": [
+                  {
+                    "value": ["", "valueset ", "\"test-vs\"", ": ", "'http://example.com/test-vs'"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "contexts": {
+      "def": [
+        {
+          "locator": "9:1-9:15",
+          "name": "Patient"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "locator": "9:1-9:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "locator": "9:1-9:15",
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "15",
+          "locator": "14:1-16:58",
+          "name": "Simple Observation Query",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "15",
+                "s": [
+                  {
+                    "value": ["", "define ", "\"Simple Observation Query\"", ":\n    "]
+                  },
+                  {
+                    "r": "14",
+                    "s": [
+                      {
+                        "value": ["Last", "("]
+                      },
+                      {
+                        "r": "13",
+                        "s": [
+                          {
+                            "s": [
+                              {
+                                "r": "5",
+                                "s": [
+                                  {
+                                    "r": "4",
+                                    "s": [
+                                      {
+                                        "r": "4",
+                                        "s": [
+                                          {
+                                            "value": ["[", "Observation", ": "]
+                                          },
+                                          {
+                                            "s": [
+                                              {
+                                                "value": ["\"test-vs\""]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": ["]"]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [" ", "O"]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": ["\n      "]
+                          },
+                          {
+                            "r": "12",
+                            "s": [
+                              {
+                                "value": ["where "]
+                              },
+                              {
+                                "r": "12",
+                                "s": [
+                                  {
+                                    "r": "7",
+                                    "s": [
+                                      {
+                                        "r": "6",
+                                        "s": [
+                                          {
+                                            "value": ["O"]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": ["."]
+                                      },
+                                      {
+                                        "r": "7",
+                                        "s": [
+                                          {
+                                            "value": ["status"]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [" in "]
+                                  },
+                                  {
+                                    "r": "11",
+                                    "s": [
+                                      {
+                                        "value": ["{"]
+                                      },
+                                      {
+                                        "r": "8",
+                                        "s": [
+                                          {
+                                            "value": ["'final'"]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [", "]
+                                      },
+                                      {
+                                        "r": "9",
+                                        "s": [
+                                          {
+                                            "value": ["'amended'"]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [", "]
+                                      },
+                                      {
+                                        "r": "10",
+                                        "s": [
+                                          {
+                                            "value": ["'corrected'"]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": ["}"]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [")"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "14",
+            "locator": "15:5-16:58",
+            "type": "Last",
+            "source": {
+              "localId": "13",
+              "locator": "15:10-16:57",
+              "type": "Query",
+              "source": [
+                {
+                  "localId": "5",
+                  "locator": "15:10-15:35",
+                  "alias": "O",
+                  "expression": {
+                    "localId": "4",
+                    "locator": "15:10-15:33",
+                    "dataType": "{http://hl7.org/fhir}Observation",
+                    "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                    "codeProperty": "code",
+                    "codeComparator": "in",
+                    "type": "Retrieve",
+                    "codes": {
+                      "locator": "15:24-15:32",
+                      "name": "test-vs",
+                      "type": "ValueSetRef"
+                    }
+                  }
+                }
+              ],
+              "relationship": [],
+              "where": {
+                "localId": "12",
+                "locator": "16:7-16:57",
+                "type": "In",
+                "operand": [
+                  {
+                    "name": "ToString",
+                    "libraryName": "FHIRHelpers",
+                    "type": "FunctionRef",
+                    "operand": [
+                      {
+                        "localId": "7",
+                        "locator": "16:13-16:20",
+                        "path": "status",
+                        "scope": "O",
+                        "type": "Property"
+                      }
+                    ]
+                  },
+                  {
+                    "localId": "11",
+                    "locator": "16:25-16:57",
+                    "type": "List",
+                    "element": [
+                      {
+                        "localId": "8",
+                        "locator": "16:26-16:32",
+                        "valueType": "{urn:hl7-org:elm-types:r1}String",
+                        "value": "final",
+                        "type": "Literal"
+                      },
+                      {
+                        "localId": "9",
+                        "locator": "16:35-16:43",
+                        "valueType": "{urn:hl7-org:elm-types:r1}String",
+                        "value": "amended",
+                        "type": "Literal"
+                      },
+                      {
+                        "localId": "10",
+                        "locator": "16:46-16:56",
+                        "valueType": "{urn:hl7-org:elm-types:r1}String",
+                        "value": "corrected",
+                        "type": "Literal"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "localId": "22",
+          "locator": "11:1-12:56",
+          "name": "Query ExpressionRef with Value Comparison",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "22",
+                "s": [
+                  {
+                    "value": ["", "define ", "\"Query ExpressionRef with Value Comparison\"", ":\n  "]
+                  },
+                  {
+                    "r": "21",
+                    "s": [
+                      {
+                        "r": "19",
+                        "s": [
+                          {
+                            "value": ["("]
+                          },
+                          {
+                            "r": "19",
+                            "s": [
+                              {
+                                "r": "17",
+                                "s": [
+                                  {
+                                    "r": "16",
+                                    "s": [
+                                      {
+                                        "value": ["\"Simple Observation Query\""]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": ["."]
+                                  },
+                                  {
+                                    "r": "17",
+                                    "s": [
+                                      {
+                                        "value": ["value"]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [" as "]
+                              },
+                              {
+                                "r": "18",
+                                "s": [
+                                  {
+                                    "value": ["Quantity"]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [")"]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [" ", ">", " "]
+                      },
+                      {
+                        "r": "20",
+                        "s": [
+                          {
+                            "value": ["9 ", "'%'"]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "21",
+            "locator": "12:3-12:56",
+            "type": "Greater",
+            "operand": [
+              {
+                "name": "ToQuantity",
+                "libraryName": "FHIRHelpers",
+                "type": "FunctionRef",
+                "operand": [
+                  {
+                    "localId": "19",
+                    "locator": "12:3-12:48",
+                    "strict": false,
+                    "type": "As",
+                    "operand": {
+                      "localId": "17",
+                      "locator": "12:4-12:35",
+                      "path": "value",
+                      "type": "Property",
+                      "source": {
+                        "localId": "16",
+                        "locator": "12:4-12:29",
+                        "name": "Simple Observation Query",
+                        "type": "ExpressionRef"
+                      }
+                    },
+                    "asTypeSpecifier": {
+                      "localId": "18",
+                      "locator": "12:40-12:47",
+                      "name": "{http://hl7.org/fhir}Quantity",
+                      "type": "NamedTypeSpecifier"
+                    }
+                  }
+                ]
+              },
+              {
+                "localId": "20",
+                "locator": "12:52-12:56",
+                "value": 9,
+                "unit": "%",
+                "type": "Quantity"
+              }
+            ]
+          }
+        },
+        {
+          "localId": "41",
+          "locator": "18:1-21:40",
+          "name": "Has Elevated Value With Where",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "41",
+                "s": [
+                  {
+                    "value": ["", "define ", "\"Has Elevated Value With Where\"", ":\n    "]
+                  },
+                  {
+                    "r": "40",
+                    "s": [
+                      {
+                        "value": ["Last", "("]
+                      },
+                      {
+                        "r": "39",
+                        "s": [
+                          {
+                            "s": [
+                              {
+                                "r": "24",
+                                "s": [
+                                  {
+                                    "r": "23",
+                                    "s": [
+                                      {
+                                        "r": "23",
+                                        "s": [
+                                          {
+                                            "value": ["[", "Observation", ": "]
+                                          },
+                                          {
+                                            "s": [
+                                              {
+                                                "value": ["\"test-vs\""]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": ["]"]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [" ", "O"]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": ["\n      "]
+                          },
+                          {
+                            "r": "38",
+                            "s": [
+                              {
+                                "value": ["where "]
+                              },
+                              {
+                                "r": "38",
+                                "s": [
+                                  {
+                                    "r": "31",
+                                    "s": [
+                                      {
+                                        "r": "26",
+                                        "s": [
+                                          {
+                                            "r": "25",
+                                            "s": [
+                                              {
+                                                "value": ["O"]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": ["."]
+                                          },
+                                          {
+                                            "r": "26",
+                                            "s": [
+                                              {
+                                                "value": ["status"]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [" in "]
+                                      },
+                                      {
+                                        "r": "30",
+                                        "s": [
+                                          {
+                                            "value": ["{"]
+                                          },
+                                          {
+                                            "r": "27",
+                                            "s": [
+                                              {
+                                                "value": ["'final'"]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [", "]
+                                          },
+                                          {
+                                            "r": "28",
+                                            "s": [
+                                              {
+                                                "value": ["'amended'"]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [", "]
+                                          },
+                                          {
+                                            "r": "29",
+                                            "s": [
+                                              {
+                                                "value": ["'corrected'"]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": ["}"]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": ["\n      and "]
+                                  },
+                                  {
+                                    "r": "37",
+                                    "s": [
+                                      {
+                                        "r": "35",
+                                        "s": [
+                                          {
+                                            "value": ["("]
+                                          },
+                                          {
+                                            "r": "35",
+                                            "s": [
+                                              {
+                                                "r": "33",
+                                                "s": [
+                                                  {
+                                                    "r": "32",
+                                                    "s": [
+                                                      {
+                                                        "value": ["O"]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": ["."]
+                                                  },
+                                                  {
+                                                    "r": "33",
+                                                    "s": [
+                                                      {
+                                                        "value": ["value"]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [" as "]
+                                              },
+                                              {
+                                                "r": "34",
+                                                "s": [
+                                                  {
+                                                    "value": ["Quantity"]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [")"]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [" ", ">", " "]
+                                      },
+                                      {
+                                        "r": "36",
+                                        "s": [
+                                          {
+                                            "value": ["9 ", "'%'"]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [")"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "40",
+            "locator": "19:5-21:40",
+            "type": "Last",
+            "source": {
+              "localId": "39",
+              "locator": "19:10-21:39",
+              "type": "Query",
+              "source": [
+                {
+                  "localId": "24",
+                  "locator": "19:10-19:35",
+                  "alias": "O",
+                  "expression": {
+                    "localId": "23",
+                    "locator": "19:10-19:33",
+                    "dataType": "{http://hl7.org/fhir}Observation",
+                    "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                    "codeProperty": "code",
+                    "codeComparator": "in",
+                    "type": "Retrieve",
+                    "codes": {
+                      "locator": "19:24-19:32",
+                      "name": "test-vs",
+                      "type": "ValueSetRef"
+                    }
+                  }
+                }
+              ],
+              "relationship": [],
+              "where": {
+                "localId": "38",
+                "locator": "20:7-21:39",
+                "type": "And",
+                "operand": [
+                  {
+                    "localId": "31",
+                    "locator": "20:13-20:57",
+                    "type": "In",
+                    "operand": [
+                      {
+                        "name": "ToString",
+                        "libraryName": "FHIRHelpers",
+                        "type": "FunctionRef",
+                        "operand": [
+                          {
+                            "localId": "26",
+                            "locator": "20:13-20:20",
+                            "path": "status",
+                            "scope": "O",
+                            "type": "Property"
+                          }
+                        ]
+                      },
+                      {
+                        "localId": "30",
+                        "locator": "20:25-20:57",
+                        "type": "List",
+                        "element": [
+                          {
+                            "localId": "27",
+                            "locator": "20:26-20:32",
+                            "valueType": "{urn:hl7-org:elm-types:r1}String",
+                            "value": "final",
+                            "type": "Literal"
+                          },
+                          {
+                            "localId": "28",
+                            "locator": "20:35-20:43",
+                            "valueType": "{urn:hl7-org:elm-types:r1}String",
+                            "value": "amended",
+                            "type": "Literal"
+                          },
+                          {
+                            "localId": "29",
+                            "locator": "20:46-20:56",
+                            "valueType": "{urn:hl7-org:elm-types:r1}String",
+                            "value": "corrected",
+                            "type": "Literal"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "localId": "37",
+                    "locator": "21:11-21:39",
+                    "type": "Greater",
+                    "operand": [
+                      {
+                        "name": "ToQuantity",
+                        "libraryName": "FHIRHelpers",
+                        "type": "FunctionRef",
+                        "operand": [
+                          {
+                            "localId": "35",
+                            "locator": "21:11-21:31",
+                            "strict": false,
+                            "type": "As",
+                            "operand": {
+                              "localId": "33",
+                              "locator": "21:12-21:18",
+                              "path": "value",
+                              "scope": "O",
+                              "type": "Property"
+                            },
+                            "asTypeSpecifier": {
+                              "localId": "34",
+                              "locator": "21:23-21:30",
+                              "name": "{http://hl7.org/fhir}Quantity",
+                              "type": "NamedTypeSpecifier"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "localId": "36",
+                        "locator": "21:35-21:39",
+                        "value": 9,
+                        "unit": "%",
+                        "type": "Quantity"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
