@@ -147,7 +147,8 @@ const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,
   vsAPIKey: program.vsApiKey,
   useValueSetCaching: program.cacheValuesets,
-  verboseCalculationResults: !program.slim
+  verboseCalculationResults: !program.slim,
+  trustMetaProfile: program.profileValidation
 };
 
 // Override the measurement period start/end in the options only if the user specified them
@@ -176,9 +177,6 @@ if (program.asPatientSource) {
   }
   calcOptions.patientSource = patientSource;
   patientBundles = [];
-}
-if (program.profileValidation) {
-  calcOptions.trustMetaProfile = program.profileValidation;
 }
 // Calculation is now async, so we have to do a callback here
 calc(

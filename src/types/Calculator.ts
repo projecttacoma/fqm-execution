@@ -38,7 +38,7 @@ export interface CalculationOptions {
   useValueSetCaching?: boolean;
   /** If false, detailed results will only contain information necessary to interpreting simple population results */
   verboseCalculationResults?: boolean;
-  /** if true the he content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against */
+  /** if true trust the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against */
   trustMetaProfile?: boolean;
 }
 
@@ -169,7 +169,7 @@ export interface StatementResult {
   localId?: string;
   /** Final, processed result of raw calculation */
   final: FinalResult;
-  /** The relevance of this statement for the poulation group */
+  /** The relevance of this statement for the population group */
   relevance: Relevance;
   /** Raw result from the engine */
   raw?: any;
@@ -178,7 +178,7 @@ export interface StatementResult {
 }
 
 /**
- * Result for a particular stratifer for a patient or episode.
+ * Result for a particular stratifier for a patient or episode.
  */
 export interface StratifierResult {
   /**
@@ -234,7 +234,7 @@ export interface DataTypeQuery {
   retrieveLocalId?: string;
   /** localId in ELM for the query statement */
   queryLocalId?: string;
-  /** name of the library where the statment can be looked up */
+  /** name of the library where the statement can be looked up */
   retrieveLibraryName?: string;
   /** name of library where the outermost query is */
   queryLibraryName?: string;
