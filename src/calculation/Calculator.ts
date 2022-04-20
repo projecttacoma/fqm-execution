@@ -559,7 +559,7 @@ export async function calculateDataRequirements(
       cql: cqls,
       elm: elmJSONs,
       gaps: {
-        retrieves: uniqueRetrieves
+        retrieves: allRetrieves
       }
     },
     withErrors
