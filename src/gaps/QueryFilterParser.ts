@@ -867,7 +867,7 @@ interface CalendarAgeInYearsDateTime extends ELMToDateTime {
  * @param library The library it belongs in. This is needed to identify parameters.
  * @param parameters The execution parameters.
  * @param patient The patient we are executing for. This is where the birthDate is fetched if referenced.
- * @returns Filter representation of the GreaterOrEqual clause. This will be Unknown or During depending on if it can be parsed or not.
+ * @returns Filter representation of the GreaterOrEqual clause. This will be Unknown, During, or Value depending on if it can be parsed or not.
  */
 export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
@@ -977,18 +977,46 @@ export function interpretGreaterOrEqual(
   }
 }
 
+/**
+ * Parses a `Greater` expression. Currently used as a wrapper for interpretComparator but may become more robust if functionality
+ * specific to 'Greater' expressions is needed
+ * @param greater The Greater expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @returns Filter representation of the Greater clause. This will be Unknown or Value depending on if it can be parsed or not.
+ */
 export function interpretGreater(greater: ELMGreater, library: ELM): ValueFilter | UnknownFilter {
   return interpretComparator(greater, library, 'gt');
 }
 
+/**
+ * Parses a `Less` expression. Currently used as a wrapper for interpretComparator but may become more robust if functionality
+ * specific to 'Less' expressions is needed
+ * @param less The Less expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @returns Filter representation of the Less clause. This will be Unknown or Value depending on if it can be parsed or not.
+ */
 export function interpretLess(less: ELMLess, library: ELM): ValueFilter | UnknownFilter {
   return interpretComparator(less, library, 'lt');
 }
 
+/**
+ * Parses a `LessOrEqual` expression. Currently used as a wrapper for interpretComparator but may become more robust if functionality
+ * specific to 'LessOrEqual' expressions is needed
+ * @param less The LessOrEqual expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @returns Filter representation of the LessOrEqual clause. This will be Unknown or Value depending on if it can be parsed or not.
+ */
 export function interpretLessOrEqual(lessOrEqual: ELMLessOrEqual, library: ELM): ValueFilter | UnknownFilter {
   return interpretComparator(lessOrEqual, library, 'le');
 }
 
+/**
+ * Default code for parsing a miscellaneous comparator expression
+ * @param comparatorELM The LessOrEqual expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @param comparatorString a string determining the type of comparator passed into the function
+ * @returns Filter representation of the comparator clause this will be Unknown or Value depending on if it can be parsed or not.
+ */
 export function interpretComparator(
   comparatorELM: ELMComparator,
   library: ELM,
