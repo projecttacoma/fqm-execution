@@ -95,7 +95,6 @@ export async function parseQueryInfo(
       const whereInfo = await interpretExpression(query.where, library, parameters, patient);
       queryInfo.filter = whereInfo;
     }
-    // TODO add case for valueComparison defined
     if (valueComparisonLocalId) {
       const valueExpression = findClauseInLibrary(library, valueComparisonLocalId);
       if (valueExpression) {

@@ -519,16 +519,7 @@ export async function calculateDataRequirements(
     }
   });
 
-  // Only use "unique" retrieves
-  // The array of strings specifies the set of prop values to use in stringification
-  // const uniqueRetrieves = uniqBy(allRetrieves, retrieve => {
-  //   return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
-  // });
-
-  // TODO figure out uniquification
-  const uniqueRetrieves = allRetrieves;
-
-  const uniqueRetrievesPromises = uniqueRetrieves.map(async retrieve => {
+  const allRetrievesPromises = allRetrieves.map(async retrieve => {
     // If the retrieves have a localId for the query and a known library name, we can get more info
     // on how the query filters the sources.
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
@@ -545,7 +536,7 @@ export async function calculateDataRequirements(
     }
   });
 
-  await Promise.all(uniqueRetrievesPromises);
+  await Promise.all(allRetrievesPromises);
 
   const results: fhir4.Library = {
     resourceType: 'Library',
@@ -553,7 +544,7 @@ export async function calculateDataRequirements(
     status: 'unknown'
   };
   results.dataRequirement = uniqBy(
-    uniqueRetrieves.map(retrieve => {
+    allRetrieves.map(retrieve => {
       const dr = generateDataRequirement(retrieve);
       GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
       addFhirQueryPatternToDataRequirements(dr);
