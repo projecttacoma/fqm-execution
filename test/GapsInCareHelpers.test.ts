@@ -7,7 +7,8 @@ import {
   calculateReasonDetail,
   groupGapQueries,
   generateGuidanceResponses,
-  generateReasonCoding
+  generateReasonCoding,
+  hasDetailedReasonCode
 } from '../src/gaps/GapsReportBuilder';
 import {
   DataTypeQuery,
@@ -1525,5 +1526,110 @@ describe('Guidance Response ReasonCode Coding', () => {
       ]
     };
     expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+  });
+
+  describe('hasDetailedReasonCode', () => {
+    test('should return false for empty reasonCode', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: []
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return false for no reasonCode', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required'
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return true for GuidanceResponse with ValueOutOfRange', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.VALUEOUTOFRANGE
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(true);
+    });
+
+    test('should return false for GuidanceResponse with NotFound', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.NOTFOUND
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return false for GuidanceResponse with Present', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.PRESENT
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return true for GuidanceResponse with ValueOutOfRange and Present', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.VALUEOUTOFRANGE
+              }
+            ]
+          },
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.PRESENT
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(true);
+    });
   });
 });

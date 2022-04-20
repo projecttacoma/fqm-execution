@@ -250,6 +250,17 @@ export function generateGuidanceResponses(
     };
     return guidanceResponse;
   });
+
+  // Prefer GRs to be sorted by ones with more specific reasonCodes other than PRESENT or MISSING
+  guidanceResponses.sort((gr1, gr2) => {
+    if (hasDetailedReasonCode(gr1)) {
+      return -1;
+    } else if (hasDetailedReasonCode(gr2)) {
+      return 1;
+    }
+    return 0;
+  });
+
   return { guidanceResponses, withErrors };
 }
 
@@ -618,4 +629,12 @@ export function addFiltersToDataRequirement(
       }
     });
   }
+}
+
+export function hasDetailedReasonCode(gr: fhir4.GuidanceResponse) {
+  return (
+    gr.reasonCode?.some(c => {
+      return c.coding?.[0]?.code !== CareGapReasonCode.NOTFOUND && c.coding?.[0]?.code !== CareGapReasonCode.PRESENT;
+    }) || false
+  );
 }
