@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
   DataTypeQuery,
@@ -75,11 +76,20 @@ export function generateDetectedIssueResources(
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
   );
+
   const groupedQueries = groupGapQueries(relevantGapQueries);
   const guidanceResponses = groupedQueries.map(q =>
     generateGuidanceResponses(q, measureReport.measure, improvementNotation)
   );
+
   const formattedResponses: fhir4.DetectedIssue[] = guidanceResponses.map(gr => {
+    // Uniquify a DetectedIssue's contained GuidanceResponses by deep equality on reasonCode and dataRequirement
+    // a duplicate here indicates the exact same gap that could theoretically be parsed from different measure logic clauses
+    const filteredGrs = _.uniqWith(
+      gr.guidanceResponses,
+      (gr1, gr2) => _.isEqual(gr1.dataRequirement, gr2.dataRequirement) && _.isEqual(gr1.reasonCode, gr2.reasonCode)
+    );
+
     return {
       resourceType: 'DetectedIssue',
       id: uuidv4(),
@@ -93,12 +103,12 @@ export function generateDetectedIssueResources(
           }
         ]
       },
-      evidence: gr.guidanceResponses.map(gr => {
+      evidence: filteredGrs.map(gr => {
         return {
           detail: [{ reference: `#${gr.id}` }]
         };
       }),
-      contained: gr.guidanceResponses
+      contained: filteredGrs
     };
   });
   //accumulate all error info into a single array

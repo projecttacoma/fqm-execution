@@ -390,6 +390,110 @@ describe('Generate DetectedIssue Resource', () => {
     // above query should be present since queries with results are gaps
     expect(resource[0].evidence).toHaveLength(1);
   });
+
+  test('should filter duplicate dataRequirements and reasonCodes', () => {
+    // Two ORed queries will generate identical data requirements
+    const queries: GapsDataTypeQuery[] = [
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '4',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      },
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '5',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      }
+    ];
+    const resource = generateDetectedIssueResources(
+      queries,
+      SIMPLE_MEASURE_REPORT,
+      ImprovementNotation.POSITIVE
+    ).detectedIssues;
+
+    expect(resource[0]).toBeDefined();
+    expect(resource[0].evidence).toHaveLength(1);
+  });
+
+  test('should not filter GuidanceResponses when dataRequirements differ', () => {
+    // Two ORed queries will generate identical data requirements
+    const queries: GapsDataTypeQuery[] = [
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '4',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      },
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs-2',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '5',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      }
+    ];
+    const resource = generateDetectedIssueResources(
+      queries,
+      SIMPLE_MEASURE_REPORT,
+      ImprovementNotation.POSITIVE
+    ).detectedIssues;
+
+    expect(resource[0]).toBeDefined();
+    expect(resource[0].evidence).toHaveLength(2);
+  });
 });
 
 describe('Find grouped queries', () => {
