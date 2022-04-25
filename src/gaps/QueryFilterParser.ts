@@ -274,7 +274,7 @@ export async function interpretExpression(
       returnFilter = interpretNot(expression as ELMNot);
       break;
     case 'GreaterOrEqual':
-      returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
+      returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, patient);
       break;
     case 'Greater':
       returnFilter = interpretGreater(expression as ELMGreater, library);
@@ -871,7 +871,6 @@ interface CalendarAgeInYearsDateTime extends ELMToDateTime {
 export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
   library: ELM,
-  parameters: any,
   patient?: CQLPatient
 ): AnyFilter {
   // look at first param if it is function ref to calendar age in years at.
@@ -1001,7 +1000,7 @@ export function interpretLess(less: ELMLess, library: ELM): ValueFilter | Unknow
 /**
  * Parses a `LessOrEqual` expression. Currently used as a wrapper for interpretComparator but may become more robust if functionality
  * specific to 'LessOrEqual' expressions is needed
- * @param less The LessOrEqual expression to interpret.
+ * @param lessOrEqual The LessOrEqual expression to interpret.
  * @param library The library it belongs in. This is needed to identify parameters.
  * @returns Filter representation of the LessOrEqual clause. This will be Unknown or Value depending on if it can be parsed or not.
  */
@@ -1011,7 +1010,7 @@ export function interpretLessOrEqual(lessOrEqual: ELMLessOrEqual, library: ELM):
 
 /**
  * Default code for parsing a miscellaneous comparator expression
- * @param comparatorELM The LessOrEqual expression to interpret.
+ * @param comparatorELM The elm comparator expression to interpret.
  * @param library The library it belongs in. This is needed to identify parameters.
  * @param comparatorString a string determining the type of comparator passed into the function
  * @returns Filter representation of the comparator clause this will be Unknown or Value depending on if it can be parsed or not.
