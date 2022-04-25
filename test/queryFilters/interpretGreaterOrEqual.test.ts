@@ -293,7 +293,6 @@ describe('interpretGreaterOrEqual', () => {
     let filter: DuringFilter = QueryFilter.interpretGreaterOrEqual(
       GREATEROREQUAL_BIRTHDATE_START,
       EXTRA_QUERIES_ELM,
-      {},
       PATIENT
     ) as DuringFilter;
     filter = removeIntervalFromFilter(filter);
@@ -313,7 +312,6 @@ describe('interpretGreaterOrEqual', () => {
     let filter: DuringFilter = QueryFilter.interpretGreaterOrEqual(
       GREATEROREQUAL_BIRTHDATE_END,
       EXTRA_QUERIES_ELM,
-      {},
       PATIENT
     ) as DuringFilter;
     filter = removeIntervalFromFilter(filter);
@@ -333,7 +331,6 @@ describe('interpretGreaterOrEqual', () => {
     const filter: UnknownFilter = QueryFilter.interpretGreaterOrEqual(
       GREATEROREQUAL_BIRTHDATE_START,
       EXTRA_QUERIES_ELM,
-      {},
       PATIENT_NO_BIRTHDATE
     ) as UnknownFilter;
 
@@ -351,7 +348,6 @@ describe('interpretGreaterOrEqual', () => {
     const filter: UnknownFilter = QueryFilter.interpretGreaterOrEqual(
       GREATEROREQUAL_BIRTHDATE_UNEXPECTED_OPERAND,
       EXTRA_QUERIES_ELM,
-      {},
       PATIENT
     ) as UnknownFilter;
 
@@ -365,7 +361,6 @@ describe('interpretGreaterOrEqual', () => {
     const filter: UnknownFilter = QueryFilter.interpretGreaterOrEqual(
       GREATEROREQUAL_LITERAL_TO_VALUE,
       EXTRA_QUERIES_ELM,
-      {},
       PATIENT
     ) as UnknownFilter;
 
@@ -379,7 +374,6 @@ describe('interpretGreaterOrEqual', () => {
     const filter: UnknownFilter = QueryFilter.interpretGreaterOrEqual(
       GREATEROREQUAL_VALUE,
       EXTRA_QUERIES_ELM,
-      {},
       PATIENT
     ) as UnknownFilter;
 
