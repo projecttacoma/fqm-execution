@@ -884,6 +884,7 @@ export function interpretGreaterOrEqual(
   library: ELM,
   patient?: CQLPatient
 ): AnyFilter {
+  // TODO: Consider breaking out a compareBirthdate function and calling it in interpretComparator instead
   // look at first param if it is function ref to calendar age in years at.
   const withError: GracefulError = { message: 'An unknown error occurred while interpreting greater or equal filter' };
   if (greaterOrEqualExpr.operand[0].type === 'FunctionRef') {

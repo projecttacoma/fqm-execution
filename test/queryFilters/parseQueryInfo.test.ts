@@ -5,7 +5,7 @@ import { DateTime, Interval } from 'cql-execution';
 import { CQLPatient } from '../../src/types/CQLPatient';
 import { QueryInfo, DuringFilter, AndFilter } from '../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
-import { ELM, ELMLast } from '../../src/types/ELMTypes';
+import { ELMLast } from '../../src/types/ELMTypes';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
