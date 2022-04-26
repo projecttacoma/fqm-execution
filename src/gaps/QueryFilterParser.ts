@@ -106,7 +106,11 @@ export async function parseQueryInfo(
           if (queryInfo.filter.type === 'and') {
             (queryInfo.filter as AndFilter).children.push(comparisonInfo);
           } else {
-            queryInfo.filter = { type: 'and', children: [queryInfo.filter, comparisonInfo] };
+            queryInfo.filter = {
+              type: 'and',
+              children: [queryInfo.filter, comparisonInfo],
+              libraryName: library.library.identifier.id
+            };
           }
         } else {
           queryInfo.filter = comparisonInfo;

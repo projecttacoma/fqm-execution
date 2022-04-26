@@ -279,6 +279,15 @@ export interface ELMUnaryExpression extends ELMExpression {
   operand: AnyELMExpression;
 }
 
+export interface ELMOperatorExpression extends ELMExpression {
+  source: AnyELMExpression;
+  orderBy?: any;
+}
+
+export interface ELMLast extends ELMOperatorExpression {
+  type: 'Last';
+}
+
 export interface ELMEqual extends ELMBinaryExpression {
   type: 'Equal';
 }
