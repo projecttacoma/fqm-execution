@@ -436,6 +436,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
                 library,
                 elmLibraries,
                 retrieve.queryLocalId,
+                retrieve.valueComparisonLocalId,
                 parameters,
                 res.patientObject
               );
@@ -518,36 +519,39 @@ export async function calculateDataRequirements(
     }
   });
 
-  // Only use "unique" retrieves
-  // The array of strings specifies the set of prop values to use in stringification
-  const uniqueRetrieves = uniqBy(allRetrieves, retrieve => {
-    return JSON.stringify(retrieve, ['dataType', 'valueSet', 'code', 'path']);
-  });
-
-  const uniqueRetrievesPromises = uniqueRetrieves.map(async retrieve => {
+  const allRetrievesPromises = allRetrieves.map(async retrieve => {
     // If the retrieves have a localId for the query and a known library name, we can get more info
     // on how the query filters the sources.
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
+        retrieve.queryInfo = await parseQueryInfo(
+          library,
+          elmJSONs,
+          retrieve.queryLocalId,
+          retrieve.valueComparisonLocalId,
+          parameters
+        );
       }
     }
   });
 
-  await Promise.all(uniqueRetrievesPromises);
+  await Promise.all(allRetrievesPromises);
 
   const results: fhir4.Library = {
     resourceType: 'Library',
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
     status: 'unknown'
   };
-  results.dataRequirement = uniqueRetrieves.map(retrieve => {
-    const dr = generateDataRequirement(retrieve);
-    GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
-    addFhirQueryPatternToDataRequirements(dr);
-    return dr;
-  });
+  results.dataRequirement = uniqBy(
+    allRetrieves.map(retrieve => {
+      const dr = generateDataRequirement(retrieve);
+      GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
+      addFhirQueryPatternToDataRequirements(dr);
+      return dr;
+    }),
+    JSON.stringify
+  );
 
   return {
     results: results,
@@ -555,7 +559,7 @@ export async function calculateDataRequirements(
       cql: cqls,
       elm: elmJSONs,
       gaps: {
-        retrieves: uniqueRetrieves
+        retrieves: allRetrieves
       }
     },
     withErrors
@@ -600,7 +604,13 @@ export async function calculateQueryInfo(
     if (retrieve.queryLocalId && retrieve.queryLibraryName) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
-        retrieve.queryInfo = await parseQueryInfo(library, elmJSONs, retrieve.queryLocalId, parameters);
+        retrieve.queryInfo = await parseQueryInfo(
+          library,
+          elmJSONs,
+          retrieve.queryLocalId,
+          retrieve.valueComparisonLocalId,
+          parameters
+        );
       }
     }
   });

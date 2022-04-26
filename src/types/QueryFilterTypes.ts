@@ -12,7 +12,8 @@ export type AnyFilter =
   | DuringFilter
   | NotNullFilter
   | EqualsFilter
-  | TautologyFilter;
+  | TautologyFilter
+  | ValueFilter;
 
 /**
  * Detailed information about a query and the filtering it does.
@@ -104,7 +105,7 @@ export interface NotNullFilter extends AttributeFilter {
  */
 export interface EqualsFilter extends AttributeFilter {
   type: 'equals';
-  value: string | number;
+  value: string | number | boolean;
 }
 
 /**
@@ -138,3 +139,19 @@ export interface codeFilterQuery {
   endpoint: string;
   params: Record<string, string | undefined>;
 }
+
+export interface ValueFilter extends Filter {
+  type: 'value';
+  attribute?: string;
+  alias?: string;
+  comparator?: ValueFilterComparator;
+  valueBoolean?: boolean;
+  valueString?: string;
+  valueInteger?: number;
+  valueQuantity?: fhir4.Quantity;
+  valueRatio?: fhir4.Ratio;
+  valueRange?: fhir4.Range;
+}
+
+// Information on these comparators found here: http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-value-filter-comparator.html
+export type ValueFilterComparator = 'eq' | 'gt' | 'lt' | 'ge' | 'le' | 'sa' | 'eb';

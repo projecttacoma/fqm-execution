@@ -234,6 +234,8 @@ export interface DataTypeQuery {
   retrieveLocalId?: string;
   /** localId in ELM for the query statement */
   queryLocalId?: string;
+  /** localId in ELM for comparison operator */
+  valueComparisonLocalId?: string;
   /** name of the library where the statement can be looked up */
   retrieveLibraryName?: string;
   /** name of library where the outermost query is */

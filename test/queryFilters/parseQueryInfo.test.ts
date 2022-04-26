@@ -5,10 +5,12 @@ import { DateTime, Interval } from 'cql-execution';
 import { CQLPatient } from '../../src/types/CQLPatient';
 import { QueryInfo, DuringFilter, AndFilter } from '../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
+import { ELMLast } from '../../src/types/ELMTypes';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
 const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
+const valueComparatorELM = getELMFixture('elm/queries/ValueQueries.json');
 
 const allELM = [simpleQueryELM, complexQueryELM, simpleQueryELMDependency];
 
@@ -368,6 +370,81 @@ const EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY: QueryInfo = {
   }
 };
 
+const EXPECTED_INTERNAL_VALUE_COMPARISON_QUERY: QueryInfo = {
+  localId: '39',
+  sources: [
+    {
+      sourceLocalId: '24',
+      retrieveLocalId: '23',
+      alias: 'O',
+      resourceType: 'Observation'
+    }
+  ],
+  filter: {
+    type: 'and',
+    libraryName: 'ValueQuery',
+    children: [
+      {
+        type: 'in',
+        alias: 'O',
+        attribute: 'status',
+        valueList: ['final', 'amended', 'corrected'],
+        localId: '31',
+        libraryName: 'ValueQuery'
+      },
+      {
+        type: 'value',
+        alias: 'O',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 9,
+          unit: '%'
+        },
+        attribute: 'value',
+        libraryName: 'ValueQuery'
+      }
+    ]
+  },
+  libraryName: 'ValueQuery'
+};
+
+const EXPECTED_EXTERNAL_VALUE_COMPARISON_QUERY: QueryInfo = {
+  localId: '13',
+  sources: [
+    {
+      sourceLocalId: '5',
+      retrieveLocalId: '4',
+      alias: 'O',
+      resourceType: 'Observation'
+    }
+  ],
+  filter: {
+    type: 'and',
+    libraryName: 'ValueQuery',
+    children: [
+      {
+        type: 'in',
+        alias: 'O',
+        attribute: 'status',
+        valueList: ['final', 'amended', 'corrected'],
+        localId: '12',
+        libraryName: 'ValueQuery'
+      },
+      {
+        type: 'value',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 9,
+          unit: '%'
+        },
+        attribute: 'value',
+        libraryName: 'ValueQuery'
+      }
+    ]
+  },
+  libraryName: 'ValueQuery'
+};
+
 const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
@@ -376,7 +453,7 @@ const PATIENT = FHIRWrapper.FHIRv401().wrap({
 describe('Parse Query Info', () => {
   test('simple valueset with id check', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -392,7 +469,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_AND_STARTS_DURING_MP);
   });
 
@@ -404,7 +481,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_STATUS_VALUE_EXISTS_DURING_MP);
   });
 
@@ -416,7 +493,7 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
 
     const filter = queryInfo.filter as AndFilter;
 
@@ -438,13 +515,13 @@ describe('Parse Query Info', () => {
       fail('Could not find statement.');
     }
     const queryLocalId = statement.expression.localId;
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL);
   });
 
   test('incorrect localid should throw error', async () => {
     try {
-      await parseQueryInfo(simpleQueryELM, allELM, '360', PARAMETERS, PATIENT);
+      await parseQueryInfo(simpleQueryELM, allELM, '360', undefined, PARAMETERS, PATIENT);
       fail('parseQueryInfo failed to throw error when provided incorrect localid');
     } catch (e) {
       expect(e.message).toEqual('Clause 360 in SimpleQueries was not a Query or not found.');
@@ -453,19 +530,19 @@ describe('Parse Query Info', () => {
 
   test('simple - query references query, combines filters', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY);
   });
 
   test('complex - query references query, combines filters', async () => {
     const queryLocalId = complexQueryELM.library.statements.def[6].expression.localId; // query that references another query
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
   });
 
   test('complex - query references query, combines filters with ands in both filters and differing alias names', async () => {
     const queryLocalId = complexQueryELM.library.statements.def[7].expression.localId; // query that references another query
-    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, PARAMETERS, PATIENT);
+    const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH);
   });
 
@@ -473,5 +550,30 @@ describe('Parse Query Info', () => {
     const queryLocalId = simpleQueryELM.library.statements.def[10].expression.localId; // In simple queries "Nested Query From Another Library"
     const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY);
+  });
+
+  test('simple - query references query in another library, combines filters', async () => {
+    const queryLocalId = simpleQueryELM.library.statements.def[10].expression.localId; // In simple queries "Nested Query From Another Library"
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY);
+  });
+
+  test('Value Comparison queries produces value filter with tracked valueComparisonLocalId when comparison is done outside of a query', async () => {
+    const valueComparisonLocalId = valueComparatorELM.library.statements.def[2].expression.localId;
+    const queryLocalId = (valueComparatorELM.library.statements.def[1].expression as ELMLast).source.localId;
+    const queryInfo = await parseQueryInfo(
+      valueComparatorELM,
+      [valueComparatorELM],
+      queryLocalId,
+      valueComparisonLocalId,
+      PATIENT
+    );
+    expect(queryInfo).toEqual(EXPECTED_EXTERNAL_VALUE_COMPARISON_QUERY);
+  });
+
+  test('Value Comparison queries produces value filter with tracked valueComparisonLocalId when comparison is done inside of a query', async () => {
+    const queryLocalId = (valueComparatorELM.library.statements.def[3].expression as ELMLast).source.localId;
+    const queryInfo = await parseQueryInfo(valueComparatorELM, [valueComparatorELM], queryLocalId, undefined, PATIENT);
+    expect(queryInfo).toEqual(EXPECTED_INTERNAL_VALUE_COMPARISON_QUERY);
   });
 });

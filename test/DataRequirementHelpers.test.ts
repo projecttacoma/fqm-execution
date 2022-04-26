@@ -5,7 +5,8 @@ import {
   DuringFilter,
   InFilter,
   NotNullFilter,
-  UnknownFilter
+  UnknownFilter,
+  ValueFilter
 } from '../src/types/QueryFilterTypes';
 
 import { DataTypeQuery } from '../src/types/Calculator';
@@ -306,6 +307,23 @@ describe('DataRequirementHelpers', () => {
       };
 
       expect(DataRequirementHelpers.generateDetailedValueFilter(nnf)).toEqual(expectedDetailFilter);
+    });
+    test('filter of type value should create value filter', () => {
+      const valueFilter: ValueFilter = {
+        type: 'value',
+        attribute: 'attr-1',
+        comparator: 'gt',
+        valueBoolean: true
+      };
+      const expectedDetailFilter: fhir4.Extension = {
+        url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
+        extension: [
+          { url: 'path', valueString: 'attr-1' },
+          { url: 'comparator', valueCode: 'gt' },
+          { url: 'value', valueBoolean: true }
+        ]
+      };
+      expect(DataRequirementHelpers.generateDetailedValueFilter(valueFilter)).toEqual(expectedDetailFilter);
     });
 
     test('unknown filter should create a null for filter creation', () => {

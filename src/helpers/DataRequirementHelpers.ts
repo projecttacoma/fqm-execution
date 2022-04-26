@@ -9,7 +9,8 @@ import {
   AnyFilter,
   Filter,
   NotNullFilter,
-  codeFilterQuery
+  codeFilterQuery,
+  ValueFilter
 } from '../types/QueryFilterTypes';
 import { PatientReferences } from '../compartment-definition/PatientReferences';
 
@@ -108,6 +109,26 @@ export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | G
         { url: 'path', valueString: notnullFilter.attribute },
         { url: 'comparator', valueCode: 'eq' },
         { url: 'value', valueString: 'not null' }
+      ]
+    };
+  } else if (filter.type === 'value') {
+    const valueFilter = filter as ValueFilter;
+    const valueExtension = {
+      url: 'value',
+      valueBoolean: valueFilter.valueBoolean,
+      valueInteger: valueFilter.valueInteger,
+      valueString: valueFilter.valueString,
+      valueQuantity: valueFilter.valueQuantity,
+      valueRange: valueFilter.valueRange,
+      valueRatio: valueFilter.valueRatio
+    };
+    return {
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
+      extension: [
+        { url: 'path', valueString: valueFilter.attribute },
+        { url: 'comparator', valueCode: valueFilter.comparator },
+        // Remove undefineds
+        JSON.parse(JSON.stringify(valueExtension))
       ]
     };
   } else if (filter?.withError) {

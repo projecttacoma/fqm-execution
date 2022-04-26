@@ -29,6 +29,7 @@ export function findRetrieves(
   allELM: ELM[],
   expr: ELMStatement | AnyELMExpression,
   queryLocalId?: string,
+  valueComparisonLocalId?: string,
   expressionStack: ExpressionStackEntry[] = [],
   withErrors: GracefulError[] = []
 ): { results: DataTypeQuery[]; withErrors: GracefulError[] } {
@@ -92,6 +93,7 @@ export function findRetrieves(
           dataType,
           valueSet: valueSet.id,
           queryLocalId,
+          valueComparisonLocalId,
           retrieveLocalId: exprRet.localId,
           retrieveLibraryName: elm.library.identifier.id,
           queryLibraryName,
@@ -121,6 +123,7 @@ export function findRetrieves(
             code: code.id
           },
           queryLocalId,
+          valueComparisonLocalId,
           retrieveLocalId: exprRet.localId,
           retrieveLibraryName: elm.library.identifier.id,
           queryLibraryName,
@@ -138,6 +141,7 @@ export function findRetrieves(
         allELM,
         s.expression,
         (expr as ELMQuery).localId,
+        valueComparisonLocalId,
         [...expressionStack],
         [...withErrors]
       );
@@ -155,6 +159,7 @@ export function findRetrieves(
           allELM,
           exprRef.expression,
           queryLocalId,
+          valueComparisonLocalId,
           [...expressionStack],
           [...withErrors]
         );
@@ -170,6 +175,7 @@ export function findRetrieves(
           allELM,
           exprRef.expression,
           queryLocalId,
+          valueComparisonLocalId,
           [...expressionStack],
           [...withErrors]
         );
@@ -181,8 +187,18 @@ export function findRetrieves(
     // Operand can be array or object. Recurse on either
     const anyExpr = expr as any;
     if (Array.isArray(anyExpr.operand)) {
+      // Should expand to types beyond greater
+      const newValueComparisonLocalId = expr.type === 'Greater' ? expr.localId : valueComparisonLocalId;
       anyExpr.operand.forEach((e: any) => {
-        const retrieves = findRetrieves(elm, allELM, e, queryLocalId, [...expressionStack], [...withErrors]);
+        const retrieves = findRetrieves(
+          elm,
+          allELM,
+          e,
+          queryLocalId,
+          newValueComparisonLocalId,
+          [...expressionStack],
+          [...withErrors]
+        );
         results.push(...retrieves.results);
         withErrors.push(...retrieves.withErrors);
       });
@@ -192,12 +208,26 @@ export function findRetrieves(
         allELM,
         anyExpr.operand,
         queryLocalId,
+        valueComparisonLocalId,
         [...expressionStack],
         [...withErrors]
       );
       results.push(...retrieves.results);
       withErrors.push(...retrieves.withErrors);
     }
+    // Pass through the source expression if no other cases have been satisfied
+  } else if ((expr as any).source) {
+    const retrieves = findRetrieves(
+      elm,
+      allELM,
+      (expr as any).source,
+      queryLocalId,
+      valueComparisonLocalId,
+      [...expressionStack],
+      [...withErrors]
+    );
+    results.push(...retrieves.results);
+    withErrors.push(...retrieves.withErrors);
   }
   return { results, withErrors };
 }

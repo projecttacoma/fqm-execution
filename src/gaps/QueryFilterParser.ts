@@ -27,7 +27,13 @@ import {
   ELMToDateTime,
   ELMStart,
   ELMEnd,
-  ELMExpressionRef
+  ELMExpressionRef,
+  ELMGreater,
+  ELMQuantity,
+  ELMComparator,
+  ELMLess,
+  ELMLessOrEqual,
+  ELMRatio
 } from '../types/ELMTypes';
 import {
   AndFilter,
@@ -42,7 +48,9 @@ import {
   QueryInfo,
   SourceInfo,
   TautologyFilter,
-  UnknownFilter
+  UnknownFilter,
+  ValueFilter,
+  ValueFilterComparator
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
@@ -56,6 +64,9 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
  * @param library The library ELM the query resides in.
  * @param allELM An array of all the ELM libraries accessible to fqm-execution (includes library from library param)
  * @param queryLocalId The localId for the query we want to get information on.
+ * @param valueComparisonLocalId The localId for the initial expression that contained a comparator. Used for tracking
+ *                               which clause is the "source" of the comparator in the case of nested expressions outside
+ *                                of where statements.
  * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
  *                    "Measurement Period" is the only supported parameter at the moment as it is the only parameter
  *                    seen in eCQMs.
@@ -65,7 +76,8 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
 export async function parseQueryInfo(
   library: ELM,
   allELM: ELM[],
-  queryLocalId: string | undefined,
+  queryLocalId?: string,
+  valueComparisonLocalId?: string,
   parameters: { [key: string]: any } = {},
   patient?: CQLPatient
 ): Promise<QueryInfo> {
@@ -86,7 +98,25 @@ export async function parseQueryInfo(
       const whereInfo = await interpretExpression(query.where, library, parameters, patient);
       queryInfo.filter = whereInfo;
     }
-
+    if (valueComparisonLocalId) {
+      const valueExpression = findClauseInLibrary(library, valueComparisonLocalId);
+      if (valueExpression) {
+        const comparisonInfo = await interpretExpression(valueExpression, library, parameters, patient);
+        if (queryInfo.filter) {
+          if (queryInfo.filter.type === 'and') {
+            (queryInfo.filter as AndFilter).children.push(comparisonInfo);
+          } else {
+            queryInfo.filter = {
+              type: 'and',
+              children: [queryInfo.filter, comparisonInfo],
+              libraryName: library.library.identifier.id
+            };
+          }
+        } else {
+          queryInfo.filter = comparisonInfo;
+        }
+      }
+    }
     // If this query's source is a reference to an expression that is a query then we should parse it and include
     // the filters from it.
     if (query.source[0].expression.type === 'ExpressionRef') {
@@ -103,7 +133,14 @@ export async function parseQueryInfo(
       if (statement) {
         if (statement.expression.type === 'Query') {
           const innerQuery = statement.expression as ELMQuery;
-          const innerQueryInfo = await parseQueryInfo(queryLib, allELM, innerQuery.localId, parameters, patient);
+          const innerQueryInfo = await parseQueryInfo(
+            queryLib,
+            allELM,
+            innerQuery.localId,
+            valueComparisonLocalId,
+            parameters,
+            patient
+          );
 
           // use sources from inner query
           queryInfo.sources = innerQueryInfo.sources;
@@ -248,7 +285,16 @@ export async function interpretExpression(
       returnFilter = interpretNot(expression as ELMNot);
       break;
     case 'GreaterOrEqual':
-      returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, parameters, patient);
+      returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, patient);
+      break;
+    case 'Greater':
+      returnFilter = interpretGreater(expression as ELMGreater, library);
+      break;
+    case 'Less':
+      returnFilter = interpretLess(expression as ELMLess, library);
+      break;
+    case 'LessOrEqual':
+      returnFilter = interpretLessOrEqual(expression as ELMLessOrEqual, library);
       break;
     default:
       const withError: GracefulError = { message: `Don't know how to parse ${expression.type} expression.` };
@@ -393,6 +439,7 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
         case 'ToDateTime':
         case 'Normalize Interval':
         case 'Latest':
+        case 'ToQuantity':
           // Act as pass through for all of the above
           if (functionRef.operand[0].type == 'Property') {
             return functionRef.operand[0] as ELMProperty;
@@ -787,7 +834,7 @@ export async function executeIntervalELM(
   // make sure the interval created based on property usage from the query source
   const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
   const withError: GracefulError = {
-    message: 'An unknown error occured while calculating CQL intervals based on measurement period'
+    message: 'An unknown error occurred while calculating CQL intervals based on measurement period'
   };
   if (propRefInInterval) {
     withError.message = 'cannot handle intervals constructed on query data right now';
@@ -830,16 +877,16 @@ interface CalendarAgeInYearsDateTime extends ELMToDateTime {
  * @param library The library it belongs in. This is needed to identify parameters.
  * @param parameters The execution parameters.
  * @param patient The patient we are executing for. This is where the birthDate is fetched if referenced.
- * @returns Filter representation of the GreaterOrEqual clause. This will be Unknown or During depending on if it can be parsed or not.
+ * @returns Filter representation of the GreaterOrEqual clause. This will be Unknown, During, or Value depending on if it can be parsed or not.
  */
 export function interpretGreaterOrEqual(
   greaterOrEqualExpr: ELMGreaterOrEqual,
   library: ELM,
-  parameters: any,
   patient?: CQLPatient
 ): AnyFilter {
+  // TODO: Consider breaking out a compareBirthdate function and calling it in interpretComparator instead
   // look at first param if it is function ref to calendar age in years at.
-  const withError: GracefulError = { message: 'An unknown error occured while interpretting greater or equal filter' };
+  const withError: GracefulError = { message: 'An unknown error occurred while interpreting greater or equal filter' };
   if (greaterOrEqualExpr.operand[0].type === 'FunctionRef') {
     const functionRef = greaterOrEqualExpr.operand[0] as ELMFunctionRef;
     // Check if it is "Global.CalendarAgeInYearsAt"
@@ -894,7 +941,7 @@ export function interpretGreaterOrEqual(
           const years = (greaterOrEqualExpr.operand[1] as ELMLiteral).value as number;
           if (patient.birthDate) {
             // Clone patient cql-execution birthDate ensure it is a DateTime then wipe out hours, minutes, seconds,
-            // and miliseconds. Then add the number of years.
+            // and milliseconds. Then add the number of years.
             const birthDate = patient.birthDate.value.copy().getDateTime() as DateTime;
             birthDate.hour = 0;
             birthDate.minute = 0;
@@ -929,13 +976,118 @@ export function interpretGreaterOrEqual(
           }
         }
       }
+      // Fallback if the first operand cannot be parsed or parsing falls through.
+      return { type: 'unknown', withError };
     } else {
       // If the function referenced is not "CalendarAgeInYearsAt".
-      withError.message = 'Function referenced is not "CalendarAgeInYearsAt"';
-      return { type: 'unknown', withError };
+      return interpretComparator(greaterOrEqualExpr, library, 'ge');
     }
+  } else {
+    return interpretComparator(greaterOrEqualExpr, library, 'ge');
+  }
+}
+
+/**
+ * Parses a `Greater` expression. Currently used as a wrapper for interpretComparator but may become more robust if functionality
+ * specific to 'Greater' expressions is needed
+ * @param greater The Greater expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @returns Filter representation of the Greater clause. This will be Unknown or Value depending on if it can be parsed or not.
+ */
+export function interpretGreater(greater: ELMGreater, library: ELM): ValueFilter | UnknownFilter {
+  return interpretComparator(greater, library, 'gt');
+}
+
+/**
+ * Parses a `Less` expression. Currently used as a wrapper for interpretComparator but may become more robust if functionality
+ * specific to 'Less' expressions is needed
+ * @param less The Less expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @returns Filter representation of the Less clause. This will be Unknown or Value depending on if it can be parsed or not.
+ */
+export function interpretLess(less: ELMLess, library: ELM): ValueFilter | UnknownFilter {
+  return interpretComparator(less, library, 'lt');
+}
+
+/**
+ * Parses a `LessOrEqual` expression. Currently used as a wrapper for interpretComparator but may become more robust if functionality
+ * specific to 'LessOrEqual' expressions is needed
+ * @param lessOrEqual The LessOrEqual expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @returns Filter representation of the LessOrEqual clause. This will be Unknown or Value depending on if it can be parsed or not.
+ */
+export function interpretLessOrEqual(lessOrEqual: ELMLessOrEqual, library: ELM): ValueFilter | UnknownFilter {
+  return interpretComparator(lessOrEqual, library, 'le');
+}
+
+/**
+ * Default code for parsing a miscellaneous comparator expression
+ * @param comparatorELM The elm comparator expression to interpret.
+ * @param library The library it belongs in. This is needed to identify parameters.
+ * @param comparatorString a string determining the type of comparator passed into the function
+ * @returns Filter representation of the comparator clause this will be Unknown or Value depending on if it can be parsed or not.
+ */
+export function interpretComparator(
+  comparatorELM: ELMComparator,
+  library: ELM,
+  comparatorString: ValueFilterComparator
+): ValueFilter | UnknownFilter {
+  let propRef: ELMProperty | GracefulError | null = null;
+  if (comparatorELM.operand[0].type == 'FunctionRef') {
+    propRef = interpretFunctionRef(comparatorELM.operand[0] as ELMFunctionRef, library);
+  } else if (comparatorELM.operand[0].type == 'Property') {
+    propRef = comparatorELM.operand[0] as ELMProperty;
   }
 
-  // Fallback if the first operand cannot be parsed or parsing falls through.
-  return { type: 'unknown', withError };
+  if (propRef == null) {
+    const withError: GracefulError = {
+      message: `could not resolve property ref for comparator: ${comparatorELM.type}`
+    };
+    return { type: 'unknown', withError };
+  }
+
+  if (isOfTypeGracefulError(propRef)) {
+    return { type: 'unknown', withError: propRef };
+  }
+
+  const valueFilter: ValueFilter = {
+    type: 'value',
+    comparator: comparatorString
+  };
+  const op = comparatorELM.operand[1];
+
+  switch (op.type) {
+    case 'Literal':
+      const literal = op as ELMLiteral;
+      if (literal.valueType === 'Boolean') {
+        valueFilter.valueBoolean = literal.value as boolean;
+      } else if (literal.valueType === 'Integer') {
+        valueFilter.valueInteger = literal.value as number;
+      } else {
+        valueFilter.valueString = literal.value as string;
+      }
+      break;
+    case 'Quantity':
+      const quantity = op as ELMQuantity;
+      valueFilter.valueQuantity = { value: quantity.value, unit: quantity.unit };
+      break;
+    case 'Ratio':
+      const ratio = op as ELMRatio;
+      valueFilter.valueRatio = { denominator: ratio.denominator, numerator: ratio.numerator };
+      break;
+    // TODO: Add handling for ELMRange here
+    default:
+      const withError: GracefulError = {
+        message: `cannot handle unsupported operand type: ${op.type} in comparator: ${comparatorELM.type}`
+      };
+      return { type: 'unknown', withError };
+  }
+
+  if (propRef.scope) {
+    valueFilter.alias = propRef.scope;
+  }
+  if (propRef.path) {
+    valueFilter.attribute = propRef.path;
+  }
+  return valueFilter;
 }

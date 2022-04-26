@@ -178,6 +178,9 @@ export type AnyELMExpression =
   | ELMAs
   | ELMEqual
   | ELMGreaterOrEqual
+  | ELMGreater
+  | ELMLess
+  | ELMLessOrEqual
   | ELMEquivalent
   | ELMAnd
   | ELMOr
@@ -263,7 +266,8 @@ export interface ELMReturnClause {
 
 export interface ELMAs extends ELMExpression {
   type: 'As';
-  asType: string;
+  asType?: string;
+  asTypeSpecifier?: any;
   operand: AnyELMExpression;
 }
 
@@ -275,12 +279,33 @@ export interface ELMUnaryExpression extends ELMExpression {
   operand: AnyELMExpression;
 }
 
+export interface ELMOperatorExpression extends ELMExpression {
+  source: AnyELMExpression;
+  orderBy?: any;
+}
+
+export interface ELMLast extends ELMOperatorExpression {
+  type: 'Last';
+}
+
 export interface ELMEqual extends ELMBinaryExpression {
   type: 'Equal';
 }
 
 export interface ELMGreaterOrEqual extends ELMBinaryExpression {
   type: 'GreaterOrEqual';
+}
+
+export interface ELMGreater extends ELMBinaryExpression {
+  type: 'Greater';
+}
+
+export interface ELMLess extends ELMBinaryExpression {
+  type: 'Less';
+}
+
+export interface ELMLessOrEqual extends ELMBinaryExpression {
+  type: 'LessOrEqual';
 }
 
 export interface ELMEquivalent extends ELMBinaryExpression {
@@ -365,13 +390,19 @@ export interface ELMConceptRef extends ELMExpression {
 export interface ELMLiteral extends ELMExpression {
   type: 'Literal';
   valueType: string;
-  value?: string | number;
+  value?: string | number | boolean;
 }
 
 export interface ELMQuantity extends ELMExpression {
   type: 'Quantity';
   unit?: string;
   value?: number;
+}
+
+export interface ELMRatio extends ELMExpression {
+  type: 'Ratio';
+  numerator: ELMQuantity;
+  denominator: ELMQuantity;
 }
 
 export interface ELMInterval extends ELMExpression {
@@ -431,3 +462,5 @@ export interface AnnotationStatement {
   s?: AnnotationStatement[];
   value?: string[];
 }
+
+export type ELMComparator = ELMGreaterOrEqual | ELMLessOrEqual | ELMGreater | ELMLess;
