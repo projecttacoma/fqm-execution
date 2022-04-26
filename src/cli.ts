@@ -41,11 +41,15 @@ program
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'Path to measure bundle.')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
-    'Paths to patient bundles. Required unless --patient-ids is provided or output type is dataRequirements. Note: cannot be used with --patient-ids.'
+    'Paths to patient bundles. Required unless --patient-ids or --group-id is provided or output type is dataRequirements. Note: cannot be used with --patient-ids or --group-id.'
   )
   .option(
     '--patient-ids <ids...>',
-    'A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles, --as-patient-source and --fhir-server-url are required when --patient-ids is provided.'
+    'A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --group-id; --as-patient-source and --fhir-server-url are required when --patient-ids is provided.'
+  )
+  .option(
+    '--group-id <id>',
+    'A group id an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --patient-ids; --as-patient-source and --fhir-server-url are required when --group-id is provided.'
   )
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(
@@ -66,7 +70,7 @@ program
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)
   .option(
     '--fhir-server-url <server-url>',
-    'Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and --patient-ids are required when --fhir-server-url is provided.'
+    'Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and --patient-ids (or --group-id) are required when --fhir-server-url is provided.'
   )
   .option(
     '--profile-validation',
@@ -116,24 +120,61 @@ async function calc(
   return result;
 }
 
-const measureBundle = parseBundle(path.resolve(program.measureBundle));
-
-let patientBundles: fhir4.Bundle[] = [];
-// data requirements/queryInfo doesn't care about patient bundles, so just leave as an empty array if we're using that report type
-if (program.outputType !== 'dataRequirements' && program.outputType !== 'queryInfo') {
-  // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
-  if (!program.patientBundles && !program.patientIds) {
-    console.error(`Must provide either patient bundle or patient ids when output type is "${program.outputType}"`);
-    program.help();
-  }
-  if (program.patientBundles) {
-    if (program.patientIds) {
-      console.error('Cannot use both --patient-bundles and --patient-ids flags');
+async function populatePatientBundles() {
+  let patientBundles: fhir4.Bundle[] = [];
+  // data requirements/queryInfo doesn't care about patient bundles, so just leave as an empty array if we're using that report type
+  if (program.outputType !== 'dataRequirements' && program.outputType !== 'queryInfo') {
+    // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
+    if (!program.patientBundles && !program.patientIds && !program.groupId) {
+      console.error(
+        `Must provide either patient bundle, patient ids, or group id when output type is "${program.outputType}"`
+      );
       program.help();
     }
-    patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+    // patient bundles is provided -- should not use patientIds or groupId to populate patient bundles
+    if (program.patientBundles) {
+      if (program.patientIds) {
+        console.error('Cannot use both --patient-bundles and --patient-ids flags');
+        program.help();
+      }
+      if (program.groupId) {
+        console.error('Cannot use both --patient-bundles and --group-id flags');
+        program.help();
+      }
+      patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+    }
+
+    // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
+    // from patientBundles and wipe patientBundles to be an empty array.
+    if (program.asPatientSource) {
+      let patientSource;
+      if (program.fhirServerUrl) {
+        if (!program.patientIds && !program.groupId) {
+          console.error(
+            'Must provide an array of patient ids with --patient-ids flag or group id with --group-id flag for calculation using AsyncPatientSource'
+          );
+        }
+        if (program.patientIds && program.groupId) {
+          console.error('Cannot provide both --patient-ids and --group-id flags.');
+        }
+        patientSource = AsyncPatientSource.FHIRv401(program.fhirServerUrl, program.profileValidation);
+        if (program.patientIds) {
+          patientSource.loadPatientIds(program.patientIds);
+        } else {
+          await patientSource.loadGroupId(program.groupId);
+        }
+      } else {
+        patientSource = PatientSource.FHIRv401(program.profileValidation);
+        patientSource.loadBundles(patientBundles);
+      }
+      calcOptions.patientSource = patientSource;
+      patientBundles = [];
+    }
   }
+  return patientBundles;
 }
+
+const measureBundle = parseBundle(path.resolve(program.measureBundle));
 
 // Only cache valuesets retreived from service
 if (program.cacheValuesets && !program.vsApiKey) {
@@ -159,93 +200,76 @@ if (program.measurementPeriodEnd) {
   calcOptions.measurementPeriodEnd = program.measurementPeriodEnd;
 }
 
-// if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
-// from patientBundles and wipe patientBundles to be an empty array.
-if (program.asPatientSource) {
-  let patientSource;
-  if (program.fhirServerUrl) {
-    if (!program.patientIds) {
-      console.error(
-        'Must provide an array of patient ids with --patient-ids flag for calculation using AsyncPatientSource'
-      );
-    }
-    patientSource = AsyncPatientSource.FHIRv401(program.fhirServerUrl, program.profileValidation);
-    patientSource.loadPatientIds(program.patientIds);
-  } else {
-    patientSource = PatientSource.FHIRv401(program.profileValidation);
-    patientSource.loadBundles(patientBundles);
-  }
-  calcOptions.patientSource = patientSource;
-  patientBundles = [];
-}
 // Calculation is now async, so we have to do a callback here
-calc(
-  measureBundle,
-  patientBundles,
-  calcOptions,
-  calcOptions.useValueSetCaching ? getCachedValueSets(cacheDirectory) : []
-)
-  .then(result => {
-    if (program.debug) {
-      clearDebugFolder();
+populatePatientBundles().then(patientBundles => {
+  calc(
+    measureBundle,
+    patientBundles,
+    calcOptions,
+    calcOptions.useValueSetCaching ? getCachedValueSets(cacheDirectory) : []
+  )
+    .then(result => {
+      if (program.debug) {
+        clearDebugFolder();
 
-      const debugOutput = result?.debugOutput;
+        const debugOutput = result?.debugOutput;
 
-      // Dump raw, detailed, reports, gaps in care objects
-      if (debugOutput?.rawResults) {
-        dumpObject(debugOutput.rawResults, 'rawResults.json');
+        // Dump raw, detailed, reports, gaps in care objects
+        if (debugOutput?.rawResults) {
+          dumpObject(debugOutput.rawResults, 'rawResults.json');
+        }
+
+        if (debugOutput?.detailedResults) {
+          dumpObject(debugOutput.detailedResults, 'detailedResults.json');
+        }
+
+        if (debugOutput?.measureReports) {
+          dumpObject(debugOutput.measureReports, 'measureReports.json');
+        }
+
+        if (debugOutput?.gaps) {
+          dumpObject(debugOutput.gaps, 'gaps.json');
+        }
+
+        // Dump ELM
+        if (debugOutput?.elm) {
+          dumpELMJSONs(debugOutput.elm);
+        }
+
+        // Dump CQL
+        if (debugOutput?.cql) {
+          dumpCQLs(debugOutput.cql);
+        }
+
+        // Dump VS Map
+        if (debugOutput?.vs) {
+          dumpVSMap(debugOutput.vs);
+        }
+
+        // Dump HTML
+        if (debugOutput?.html) {
+          dumpHTMLs(debugOutput.html);
+        }
       }
 
-      if (debugOutput?.detailedResults) {
-        dumpObject(debugOutput.detailedResults, 'detailedResults.json');
+      // Update cache
+      if (program.cacheValuesets && result.valueSetCache) {
+        if (!fs.existsSync('./cache/terminology')) {
+          fs.mkdirSync('./cache/terminology/', { recursive: true });
+        }
+        (result.valueSetCache as fhir4.ValueSet[]).forEach(vs => {
+          fs.writeFileSync(`./cache/terminology/${vs.id}.json`, JSON.stringify(vs), 'utf8');
+        });
       }
 
-      if (debugOutput?.measureReports) {
-        dumpObject(debugOutput.measureReports, 'measureReports.json');
-      }
-
-      if (debugOutput?.gaps) {
-        dumpObject(debugOutput.gaps, 'gaps.json');
-      }
-
-      // Dump ELM
-      if (debugOutput?.elm) {
-        dumpELMJSONs(debugOutput.elm);
-      }
-
-      // Dump CQL
-      if (debugOutput?.cql) {
-        dumpCQLs(debugOutput.cql);
-      }
-
-      // Dump VS Map
-      if (debugOutput?.vs) {
-        dumpVSMap(debugOutput.vs);
-      }
-
-      // Dump HTML
-      if (debugOutput?.html) {
-        dumpHTMLs(debugOutput.html);
-      }
-    }
-
-    // Update cache
-    if (program.cacheValuesets && result.valueSetCache) {
-      if (!fs.existsSync('./cache/terminology')) {
-        fs.mkdirSync('./cache/terminology/', { recursive: true });
-      }
-      (result.valueSetCache as fhir4.ValueSet[]).forEach(vs => {
-        fs.writeFileSync(`./cache/terminology/${vs.id}.json`, JSON.stringify(vs), 'utf8');
-      });
-    }
-
-    console.log(JSON.stringify(result?.results, null, 2));
-  })
-  .catch(error => {
-    console.error(error.message);
-    console.error(error.stack);
-  });
-if (program.outputType !== 'reports' && program.reportType) {
-  console.error('Report type was specified when not asking for reports.');
-  program.help();
-}
+      console.log(JSON.stringify(result?.results, null, 2));
+    })
+    .catch(error => {
+      console.error(error.message);
+      console.error(error.stack);
+    });
+  if (program.outputType !== 'reports' && program.reportType) {
+    console.error('Report type was specified when not asking for reports.');
+    program.help();
+  }
+});

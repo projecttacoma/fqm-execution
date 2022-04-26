@@ -21,6 +21,7 @@ declare module 'cql-exec-fhir' {
   export class AsyncPatientSource {
     constructor(serverInfo: string);
     loadPatientIds(ids: string[]): void;
+    async loadGroupId(id: string): void;
     currentPatient(): AsyncPatient | undefined;
     nextPatient(): AsyncPatient | undefined;
     reset: void;
