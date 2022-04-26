@@ -11,10 +11,7 @@
           "r": "41",
           "s": [
             {
-              "value": [
-                "",
-                "library ValueQuery version '0.0.1'"
-              ]
+              "value": ["", "library ValueQuery version '0.0.1'"]
             }
           ]
         }
@@ -47,25 +44,17 @@
                 "r": "1",
                 "s": [
                   {
-                    "value": [
-                      "",
-                      "using "
-                    ]
+                    "value": ["", "using "]
                   },
                   {
                     "s": [
                       {
-                        "value": [
-                          "FHIR"
-                        ]
+                        "value": ["FHIR"]
                       }
                     ]
                   },
                   {
-                    "value": [
-                      " version ",
-                      "'4.0.1'"
-                    ]
+                    "value": [" version ", "'4.0.1'"]
                   }
                 ]
               }
@@ -89,25 +78,17 @@
                 "r": "2",
                 "s": [
                   {
-                    "value": [
-                      "",
-                      "include "
-                    ]
+                    "value": ["", "include "]
                   },
                   {
                     "s": [
                       {
-                        "value": [
-                          "FHIRHelpers"
-                        ]
+                        "value": ["FHIRHelpers"]
                       }
                     ]
                   },
                   {
-                    "value": [
-                      " version ",
-                      "'4.0.1'"
-                    ]
+                    "value": [" version ", "'4.0.1'"]
                   }
                 ]
               }
@@ -131,13 +112,7 @@
                 "r": "3",
                 "s": [
                   {
-                    "value": [
-                      "",
-                      "valueset ",
-                      "\"test-vs\"",
-                      ": ",
-                      "'http://example.com/test-vs'"
-                    ]
+                    "value": ["", "valueset ", "\"test-vs\"", ": ", "'http://example.com/test-vs'"]
                   }
                 ]
               }
@@ -183,21 +158,13 @@
                 "r": "15",
                 "s": [
                   {
-                    "value": [
-                      "",
-                      "define ",
-                      "\"Simple Observation Query\"",
-                      ":\n    "
-                    ]
+                    "value": ["", "define ", "\"Simple Observation Query\"", ":\n    "]
                   },
                   {
                     "r": "14",
                     "s": [
                       {
-                        "value": [
-                          "Last",
-                          "("
-                        ]
+                        "value": ["Last", "("]
                       },
                       {
                         "r": "13",
@@ -214,52 +181,37 @@
                                         "r": "4",
                                         "s": [
                                           {
-                                            "value": [
-                                              "[",
-                                              "Observation",
-                                              ": "
-                                            ]
+                                            "value": ["[", "Observation", ": "]
                                           },
                                           {
                                             "s": [
                                               {
-                                                "value": [
-                                                  "\"test-vs\""
-                                                ]
+                                                "value": ["\"test-vs\""]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [
-                                              "]"
-                                            ]
+                                            "value": ["]"]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [
-                                      " ",
-                                      "O"
-                                    ]
+                                    "value": [" ", "O"]
                                   }
                                 ]
                               }
                             ]
                           },
                           {
-                            "value": [
-                              "\n      "
-                            ]
+                            "value": ["\n      "]
                           },
                           {
                             "r": "12",
                             "s": [
                               {
-                                "value": [
-                                  "where "
-                                ]
+                                "value": ["where "]
                               },
                               {
                                 "r": "12",
@@ -271,86 +223,64 @@
                                         "r": "6",
                                         "s": [
                                           {
-                                            "value": [
-                                              "O"
-                                            ]
+                                            "value": ["O"]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [
-                                          "."
-                                        ]
+                                        "value": ["."]
                                       },
                                       {
                                         "r": "7",
                                         "s": [
                                           {
-                                            "value": [
-                                              "status"
-                                            ]
+                                            "value": ["status"]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [
-                                      " in "
-                                    ]
+                                    "value": [" in "]
                                   },
                                   {
                                     "r": "11",
                                     "s": [
                                       {
-                                        "value": [
-                                          "{"
-                                        ]
+                                        "value": ["{"]
                                       },
                                       {
                                         "r": "8",
                                         "s": [
                                           {
-                                            "value": [
-                                              "'final'"
-                                            ]
+                                            "value": ["'final'"]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [
-                                          ", "
-                                        ]
+                                        "value": [", "]
                                       },
                                       {
                                         "r": "9",
                                         "s": [
                                           {
-                                            "value": [
-                                              "'amended'"
-                                            ]
+                                            "value": ["'amended'"]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [
-                                          ", "
-                                        ]
+                                        "value": [", "]
                                       },
                                       {
                                         "r": "10",
                                         "s": [
                                           {
-                                            "value": [
-                                              "'corrected'"
-                                            ]
+                                            "value": ["'corrected'"]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [
-                                          "}"
-                                        ]
+                                        "value": ["}"]
                                       }
                                     ]
                                   }
@@ -361,9 +291,7 @@
                         ]
                       },
                       {
-                        "value": [
-                          ")"
-                        ]
+                        "value": [")"]
                       }
                     ]
                   }
@@ -466,12 +394,7 @@
                 "r": "22",
                 "s": [
                   {
-                    "value": [
-                      "",
-                      "define ",
-                      "\"Query ExpressionRef with Value Comparison\"",
-                      ":\n  "
-                    ]
+                    "value": ["", "define ", "\"Query ExpressionRef with Value Comparison\"", ":\n  "]
                   },
                   {
                     "r": "21",
@@ -480,9 +403,7 @@
                         "r": "19",
                         "s": [
                           {
-                            "value": [
-                              "("
-                            ]
+                            "value": ["("]
                           },
                           {
                             "r": "19",
@@ -494,68 +415,49 @@
                                     "r": "16",
                                     "s": [
                                       {
-                                        "value": [
-                                          "\"Simple Observation Query\""
-                                        ]
+                                        "value": ["\"Simple Observation Query\""]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [
-                                      "."
-                                    ]
+                                    "value": ["."]
                                   },
                                   {
                                     "r": "17",
                                     "s": [
                                       {
-                                        "value": [
-                                          "value"
-                                        ]
+                                        "value": ["value"]
                                       }
                                     ]
                                   }
                                 ]
                               },
                               {
-                                "value": [
-                                  " as "
-                                ]
+                                "value": [" as "]
                               },
                               {
                                 "r": "18",
                                 "s": [
                                   {
-                                    "value": [
-                                      "Quantity"
-                                    ]
+                                    "value": ["Quantity"]
                                   }
                                 ]
                               }
                             ]
                           },
                           {
-                            "value": [
-                              ")"
-                            ]
+                            "value": [")"]
                           }
                         ]
                       },
                       {
-                        "value": [
-                          " ",
-                          ">",
-                          " "
-                        ]
+                        "value": [" ", ">", " "]
                       },
                       {
                         "r": "20",
                         "s": [
                           {
-                            "value": [
-                              "9 ",
-                              "'%'"
-                            ]
+                            "value": ["9 ", "'%'"]
                           }
                         ]
                       }
@@ -624,21 +526,13 @@
                 "r": "41",
                 "s": [
                   {
-                    "value": [
-                      "",
-                      "define ",
-                      "\"Has Elevated Value With Where\"",
-                      ":\n    "
-                    ]
+                    "value": ["", "define ", "\"Has Elevated Value With Where\"", ":\n    "]
                   },
                   {
                     "r": "40",
                     "s": [
                       {
-                        "value": [
-                          "Last",
-                          "("
-                        ]
+                        "value": ["Last", "("]
                       },
                       {
                         "r": "39",
@@ -655,52 +549,37 @@
                                         "r": "23",
                                         "s": [
                                           {
-                                            "value": [
-                                              "[",
-                                              "Observation",
-                                              ": "
-                                            ]
+                                            "value": ["[", "Observation", ": "]
                                           },
                                           {
                                             "s": [
                                               {
-                                                "value": [
-                                                  "\"test-vs\""
-                                                ]
+                                                "value": ["\"test-vs\""]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [
-                                              "]"
-                                            ]
+                                            "value": ["]"]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [
-                                      " ",
-                                      "O"
-                                    ]
+                                    "value": [" ", "O"]
                                   }
                                 ]
                               }
                             ]
                           },
                           {
-                            "value": [
-                              "\n      "
-                            ]
+                            "value": ["\n      "]
                           },
                           {
                             "r": "38",
                             "s": [
                               {
-                                "value": [
-                                  "where "
-                                ]
+                                "value": ["where "]
                               },
                               {
                                 "r": "38",
@@ -715,95 +594,71 @@
                                             "r": "25",
                                             "s": [
                                               {
-                                                "value": [
-                                                  "O"
-                                                ]
+                                                "value": ["O"]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [
-                                              "."
-                                            ]
+                                            "value": ["."]
                                           },
                                           {
                                             "r": "26",
                                             "s": [
                                               {
-                                                "value": [
-                                                  "status"
-                                                ]
+                                                "value": ["status"]
                                               }
                                             ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [
-                                          " in "
-                                        ]
+                                        "value": [" in "]
                                       },
                                       {
                                         "r": "30",
                                         "s": [
                                           {
-                                            "value": [
-                                              "{"
-                                            ]
+                                            "value": ["{"]
                                           },
                                           {
                                             "r": "27",
                                             "s": [
                                               {
-                                                "value": [
-                                                  "'final'"
-                                                ]
+                                                "value": ["'final'"]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [
-                                              ", "
-                                            ]
+                                            "value": [", "]
                                           },
                                           {
                                             "r": "28",
                                             "s": [
                                               {
-                                                "value": [
-                                                  "'amended'"
-                                                ]
+                                                "value": ["'amended'"]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [
-                                              ", "
-                                            ]
+                                            "value": [", "]
                                           },
                                           {
                                             "r": "29",
                                             "s": [
                                               {
-                                                "value": [
-                                                  "'corrected'"
-                                                ]
+                                                "value": ["'corrected'"]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [
-                                              "}"
-                                            ]
+                                            "value": ["}"]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [
-                                      "\n      and "
-                                    ]
+                                    "value": ["\n      and "]
                                   },
                                   {
                                     "r": "37",
@@ -812,9 +667,7 @@
                                         "r": "35",
                                         "s": [
                                           {
-                                            "value": [
-                                              "("
-                                            ]
+                                            "value": ["("]
                                           },
                                           {
                                             "r": "35",
@@ -826,68 +679,49 @@
                                                     "r": "32",
                                                     "s": [
                                                       {
-                                                        "value": [
-                                                          "O"
-                                                        ]
+                                                        "value": ["O"]
                                                       }
                                                     ]
                                                   },
                                                   {
-                                                    "value": [
-                                                      "."
-                                                    ]
+                                                    "value": ["."]
                                                   },
                                                   {
                                                     "r": "33",
                                                     "s": [
                                                       {
-                                                        "value": [
-                                                          "value"
-                                                        ]
+                                                        "value": ["value"]
                                                       }
                                                     ]
                                                   }
                                                 ]
                                               },
                                               {
-                                                "value": [
-                                                  " as "
-                                                ]
+                                                "value": [" as "]
                                               },
                                               {
                                                 "r": "34",
                                                 "s": [
                                                   {
-                                                    "value": [
-                                                      "Quantity"
-                                                    ]
+                                                    "value": ["Quantity"]
                                                   }
                                                 ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [
-                                              ")"
-                                            ]
+                                            "value": [")"]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [
-                                          " ",
-                                          ">",
-                                          " "
-                                        ]
+                                        "value": [" ", ">", " "]
                                       },
                                       {
                                         "r": "36",
                                         "s": [
                                           {
-                                            "value": [
-                                              "9 ",
-                                              "'%'"
-                                            ]
+                                            "value": ["9 ", "'%'"]
                                           }
                                         ]
                                       }
@@ -900,9 +734,7 @@
                         ]
                       },
                       {
-                        "value": [
-                          ")"
-                        ]
+                        "value": [")"]
                       }
                     ]
                   }

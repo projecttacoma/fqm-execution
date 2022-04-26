@@ -64,6 +64,9 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
  * @param library The library ELM the query resides in.
  * @param allELM An array of all the ELM libraries accessible to fqm-execution (includes library from library param)
  * @param queryLocalId The localId for the query we want to get information on.
+ * @param valueComparisonLocalId The localId for the initial expression that contained a comparator. Used for tracking
+ *                               which clause is the "source" of the comparator in the case of nested expressions outside
+ *                                of where statements.
  * @param parameters The parameters used for calculation so they could be reused for re-calculating small bits for CQL.
  *                    "Measurement Period" is the only supported parameter at the moment as it is the only parameter
  *                    seen in eCQMs.
@@ -100,7 +103,11 @@ export async function parseQueryInfo(
       if (valueExpression) {
         const comparisonInfo = await interpretExpression(valueExpression, library, parameters, patient);
         if (queryInfo.filter) {
-          queryInfo.filter = { type: 'and', children: [queryInfo.filter, comparisonInfo] };
+          if (queryInfo.filter.type === 'and') {
+            (queryInfo.filter as AndFilter).children.push(comparisonInfo);
+          } else {
+            queryInfo.filter = { type: 'and', children: [queryInfo.filter, comparisonInfo] };
+          }
         } else {
           queryInfo.filter = comparisonInfo;
         }
