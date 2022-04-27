@@ -14,7 +14,7 @@ export function compareValues(actualValue: number, desiredValue: number, compara
     case 'lt':
       return actualValue < desiredValue;
     case 'eq':
-      return actualValue == desiredValue;
+      return actualValue === desiredValue;
     default:
       throw new Error(`Unsupported comparator "${comparator}" when comparing values`);
   }
