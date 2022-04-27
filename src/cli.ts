@@ -70,7 +70,7 @@ program
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)
   .option(
     '--fhir-server-url <server-url>',
-    'Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and --patient-ids (or --group-id) are required when --fhir-server-url is provided.'
+    'Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and either --patient-ids or --group-id are required when --fhir-server-url is provided.'
   )
   .option(
     '--profile-validation',
