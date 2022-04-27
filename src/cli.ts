@@ -153,9 +153,11 @@ async function populatePatientBundles() {
           console.error(
             'Must provide an array of patient ids with --patient-ids flag or group id with --group-id flag for calculation using AsyncPatientSource'
           );
+          program.help();
         }
         if (program.patientIds && program.groupId) {
           console.error('Cannot provide both --patient-ids and --group-id flags.');
+          program.help();
         }
         patientSource = AsyncPatientSource.FHIRv401(program.fhirServerUrl, program.profileValidation);
         if (program.patientIds) {
@@ -200,7 +202,6 @@ if (program.measurementPeriodEnd) {
   calcOptions.measurementPeriodEnd = program.measurementPeriodEnd;
 }
 
-// Calculation is now async, so we have to do a callback here
 populatePatientBundles().then(async patientBundles => {
   try {
     const result = await calc(
