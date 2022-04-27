@@ -118,7 +118,7 @@ Options:
   --patient-ids <ids...>                      A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --group-id; --as-patient-source and --fhir-server-url are required when --patient-ids is provided.
   --group-id <id>                             A group id an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --patient-ids; --as-patient-source and --fhir-server-url are required when --group-id is provided.
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
-  --fhir-server-url <url>                     Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and --patient-ids (or --group-id) are required when --fhir-server-url is provided.
+  --fhir-server-url <url>                     Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and either --patient-ids or --group-id are required when --fhir-server-url is provided.
   -s, --measurement-period-start <date>       Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set.
                                               there)
   -e, --measurement-period-end <date>         End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).
