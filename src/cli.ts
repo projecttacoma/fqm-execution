@@ -201,75 +201,78 @@ if (program.measurementPeriodEnd) {
 }
 
 // Calculation is now async, so we have to do a callback here
-populatePatientBundles().then(patientBundles => {
-  calc(
-    measureBundle,
-    patientBundles,
-    calcOptions,
-    calcOptions.useValueSetCaching ? getCachedValueSets(cacheDirectory) : []
-  )
-    .then(result => {
-      if (program.debug) {
-        clearDebugFolder();
+populatePatientBundles().then(async patientBundles => {
+  try {
+    const result = await calc(
+      measureBundle,
+      patientBundles,
+      calcOptions,
+      calcOptions.useValueSetCaching ? getCachedValueSets(cacheDirectory) : []
+    );
 
-        const debugOutput = result?.debugOutput;
+    if (program.debug) {
+      clearDebugFolder();
 
-        // Dump raw, detailed, reports, gaps in care objects
-        if (debugOutput?.rawResults) {
-          dumpObject(debugOutput.rawResults, 'rawResults.json');
-        }
+      const debugOutput = result?.debugOutput;
 
-        if (debugOutput?.detailedResults) {
-          dumpObject(debugOutput.detailedResults, 'detailedResults.json');
-        }
-
-        if (debugOutput?.measureReports) {
-          dumpObject(debugOutput.measureReports, 'measureReports.json');
-        }
-
-        if (debugOutput?.gaps) {
-          dumpObject(debugOutput.gaps, 'gaps.json');
-        }
-
-        // Dump ELM
-        if (debugOutput?.elm) {
-          dumpELMJSONs(debugOutput.elm);
-        }
-
-        // Dump CQL
-        if (debugOutput?.cql) {
-          dumpCQLs(debugOutput.cql);
-        }
-
-        // Dump VS Map
-        if (debugOutput?.vs) {
-          dumpVSMap(debugOutput.vs);
-        }
-
-        // Dump HTML
-        if (debugOutput?.html) {
-          dumpHTMLs(debugOutput.html);
-        }
+      // Dump raw, detailed, reports, gaps in care objects
+      if (debugOutput?.rawResults) {
+        dumpObject(debugOutput.rawResults, 'rawResults.json');
       }
 
-      // Update cache
-      if (program.cacheValuesets && result.valueSetCache) {
-        if (!fs.existsSync('./cache/terminology')) {
-          fs.mkdirSync('./cache/terminology/', { recursive: true });
-        }
-        (result.valueSetCache as fhir4.ValueSet[]).forEach(vs => {
-          fs.writeFileSync(`./cache/terminology/${vs.id}.json`, JSON.stringify(vs), 'utf8');
-        });
+      if (debugOutput?.detailedResults) {
+        dumpObject(debugOutput.detailedResults, 'detailedResults.json');
       }
 
-      console.log(JSON.stringify(result?.results, null, 2));
-    })
-    .catch(error => {
+      if (debugOutput?.measureReports) {
+        dumpObject(debugOutput.measureReports, 'measureReports.json');
+      }
+
+      if (debugOutput?.gaps) {
+        dumpObject(debugOutput.gaps, 'gaps.json');
+      }
+
+      // Dump ELM
+      if (debugOutput?.elm) {
+        dumpELMJSONs(debugOutput.elm);
+      }
+
+      // Dump CQL
+      if (debugOutput?.cql) {
+        dumpCQLs(debugOutput.cql);
+      }
+
+      // Dump VS Map
+      if (debugOutput?.vs) {
+        dumpVSMap(debugOutput.vs);
+      }
+
+      // Dump HTML
+      if (debugOutput?.html) {
+        dumpHTMLs(debugOutput.html);
+      }
+    }
+
+    // Update cache
+    if (program.cacheValuesets && result.valueSetCache) {
+      if (!fs.existsSync('./cache/terminology')) {
+        fs.mkdirSync('./cache/terminology/', { recursive: true });
+      }
+      (result.valueSetCache as fhir4.ValueSet[]).forEach(vs => {
+        fs.writeFileSync(`./cache/terminology/${vs.id}.json`, JSON.stringify(vs), 'utf8');
+      });
+    }
+
+    console.log(JSON.stringify(result?.results, null, 2));
+  } catch (error) {
+    if (error instanceof Error) {
       console.error(error.message);
       console.error(error.stack);
-    });
-  if (program.outputType !== 'reports' && program.reportType) {
-    console.error('Report type was specified when not asking for reports.');
-    program.help();
+    }
   }
 });
+
+if (program.outputType !== 'reports' && program.reportType) {
+  console.error('Report type was specified when not asking for reports.');
+  program.help();
+}
