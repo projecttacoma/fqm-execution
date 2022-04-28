@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import {
   DataTypeQuery,
@@ -20,9 +21,11 @@ import {
   DuringFilter,
   AnyFilter,
   NotNullFilter,
-  AttributeFilter
+  AttributeFilter,
+  ValueFilter
 } from '../types/QueryFilterTypes';
 import { GracefulError, isOfTypeGracefulError } from '../types/errors/GracefulError';
+import { compareValues } from '../helpers/ValueComparisonHelpers';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -73,11 +76,20 @@ export function generateDetectedIssueResources(
     // If positive improvement, we want queries with results as gaps. Vice versa for negative
     improvementNotation === ImprovementNotation.POSITIVE ? !q.parentQueryHasResult : q.parentQueryHasResult
   );
+
   const groupedQueries = groupGapQueries(relevantGapQueries);
   const guidanceResponses = groupedQueries.map(q =>
     generateGuidanceResponses(q, measureReport.measure, improvementNotation)
   );
+
   const formattedResponses: fhir4.DetectedIssue[] = guidanceResponses.map(gr => {
+    // Uniquify a DetectedIssue's contained GuidanceResponses by deep equality on reasonCode and dataRequirement
+    // a duplicate here indicates the exact same gap that could theoretically be parsed from different measure logic clauses
+    const filteredGrs = _.uniqWith(
+      gr.guidanceResponses,
+      (gr1, gr2) => _.isEqual(gr1.dataRequirement, gr2.dataRequirement) && _.isEqual(gr1.reasonCode, gr2.reasonCode)
+    );
+
     return {
       resourceType: 'DetectedIssue',
       id: uuidv4(),
@@ -91,12 +103,12 @@ export function generateDetectedIssueResources(
           }
         ]
       },
-      evidence: gr.guidanceResponses.map(gr => {
+      evidence: filteredGrs.map(gr => {
         return {
           detail: [{ reference: `#${gr.id}` }]
         };
       }),
-      contained: gr.guidanceResponses
+      contained: filteredGrs
     };
   });
   //accumulate all error info into a single array
@@ -248,6 +260,17 @@ export function generateGuidanceResponses(
     };
     return guidanceResponse;
   });
+
+  // Prefer GRs to be sorted by ones with more specific reasonCodes other than PRESENT or MISSING
+  guidanceResponses.sort((gr1, gr2) => {
+    if (hasDetailedReasonCode(gr1)) {
+      return -1;
+    } else if (hasDetailedReasonCode(gr2)) {
+      return 1;
+    }
+    return 0;
+  });
+
   return { guidanceResponses, withErrors };
 }
 
@@ -363,32 +386,91 @@ export function calculateReasonDetail(
   detailedResult?: DetailedPopulationGroupResult
 ): { results: GapsDataTypeQuery[]; withErrors: GracefulError[] } {
   const withErrors: GracefulError[] = [];
+  const isPositiveImprovement = improvementNotation === ImprovementNotation.POSITIVE;
   const results = retrieves.map(r => {
-    let reasonDetail: ReasonDetail;
-    // If this is a positive improvement notation measure then we can look for reasons why the query wasn't satisfied
-    if (improvementNotation === ImprovementNotation.POSITIVE) {
-      // Create the initial reasonDetail information. There will be detail if the retrieve has a result but the query
-      // that filters on the retrieve does not have any results.
-      reasonDetail = {
-        hasReasonDetail: r.retrieveHasResult === true && r.parentQueryHasResult === false,
-        reasons: []
-      };
+    const reasonDetail: ReasonDetail = {
+      hasReasonDetail: false,
+      reasons: []
+    };
 
-      // If there are results for this clause and we have queryInfo then we can look at each of the
-      // resources from the retrieve results and record reasons for each filter they did not satisfy
-      if (reasonDetail.hasReasonDetail && r.queryInfo && detailedResult?.clauseResults) {
+    // If this is a positive improvement notation measure then we can look for reasons why the query wasn't satisfied
+    let shouldCalculateReasonDetail = false;
+    if (r.queryInfo?.fromExternalClause === true) {
+      // Clause doing the comparison of values
+      const valueClauseResult = detailedResult?.clauseResults?.find(
+        cr => cr.libraryName === r.retrieveLibraryName && cr.localId === r.valueComparisonLocalId
+      );
+
+      // reasonDetail occurs in this cause if the clause doing the comparison of some value
+      // has a truthy result for negative imporve, falsy for pos,
+      shouldCalculateReasonDetail = isPositiveImprovement
+        ? valueClauseResult?.final === FinalResult.FALSE
+        : valueClauseResult?.final === FinalResult.TRUE;
+    } else {
+      // Else, clause has come from the where part of a query
+      // compute reasonDetail if the overall query was truthy for negative improve, falsy for pos
+      shouldCalculateReasonDetail = shouldCalculateReasonDetail = isPositiveImprovement
+        ? r.parentQueryHasResult === false
+        : r.parentQueryHasResult === true;
+    }
+
+    // If we detect more going on, set the boolean to true
+    // NOTE: this may still result in a basic reason code, but it allows the engine to recognize
+    // that more information was processed
+    reasonDetail.hasReasonDetail = shouldCalculateReasonDetail;
+
+    if (shouldCalculateReasonDetail === true) {
+      if (r.queryInfo && detailedResult?.clauseResults) {
         const flattenedFilters = flattenFilters(r.queryInfo.filter);
         const resources = detailedResult.clauseResults?.find(
           cr => cr.libraryName === r.retrieveLibraryName && cr.localId === r.retrieveLocalId
         );
 
         if (resources) {
-          // loop through resources from the results
+          // Compute reason detail for every filter present on the found raw data from a retrieve
           resources.raw.forEach((resource: any) => {
-            // loop through each filter
             flattenedFilters.forEach(f => {
-              // Separate interval handling for 'during' filters
-              if (f.type === 'during') {
+              // ValueFilters are handled for both positive and negative improvement measures
+              if (f.type === 'value') {
+                const valueFilter = f as ValueFilter;
+                const reason: ReasonDetailData = <ReasonDetailData>{
+                  path: valueFilter.attribute
+                };
+
+                // TODO: might need to check if we get an array or a singleton
+                // a query could return either
+                const attrPath = valueFilter.attribute?.split('.');
+
+                // Access desired property of FHIRObject
+                let desiredAttr = resource;
+                attrPath?.forEach(key => {
+                  if (desiredAttr) {
+                    desiredAttr = desiredAttr[key];
+                  }
+                });
+
+                let comparisonResult: boolean | null = null;
+                if (valueFilter.valueQuantity?.value) {
+                  const quantity = desiredAttr.value;
+                  const actualValue = quantity.value as number;
+                  const requiredValue = valueFilter.valueQuantity.value;
+
+                  comparisonResult = compareValues(actualValue, requiredValue, valueFilter.comparator);
+                } else if (valueFilter.valueInteger) {
+                  comparisonResult = compareValues(
+                    desiredAttr.value as number,
+                    valueFilter.valueInteger,
+                    valueFilter.comparator
+                  );
+                }
+
+                // Resource caused gap
+                if (isPositiveImprovement ? comparisonResult === false : comparisonResult === true) {
+                  reason.reference = `${resource._json.resourceType}/${resource._json.id}`;
+                  reason.code = CareGapReasonCode.VALUEOUTOFRANGE;
+                  reasonDetail.reasons.push(reason);
+                }
+              } else if (isPositiveImprovement && f.type === 'during') {
                 const duringFilter = f as DuringFilter;
 
                 if (duringFilter.valuePeriod.interval) {
@@ -432,7 +514,7 @@ export function calculateReasonDetail(
                     });
                   }
                 }
-              } else if (f.type === 'notnull') {
+              } else if (isPositiveImprovement && f.type === 'notnull') {
                 const notNullFilter = f as NotNullFilter;
                 const attrPath = notNullFilter.attribute.split('.');
 
@@ -456,7 +538,7 @@ export function calculateReasonDetail(
                     reference: `${resource._json.resourceType}/${resource.id.value}`
                   });
                 }
-              } else {
+              } else if (isPositiveImprovement) {
                 // TODO: This logic is not perfect, and can be corrupted by multiple resources spanning truthy values for all filters
                 // For non-during filters, look up clause result by localId
                 // Ideally we can look to modify cql-execution to help us with this flaw
@@ -488,18 +570,15 @@ export function calculateReasonDetail(
           });
         }
       }
-
-      // If no specific reason details found, default is NotFound
-      if (reasonDetail.hasReasonDetail && reasonDetail.reasons.length === 0) {
-        reasonDetail.reasons = [{ code: CareGapReasonCode.NOTFOUND }];
-      }
-    } else {
-      // TODO: Handle negative improvement cases, similar to above but it will be a bit more complicated.
-      reasonDetail = {
-        hasReasonDetail: false,
-        reasons: []
-      };
     }
+
+    // If no specific reason details found, default is NotFound or Present based on ImprovementNotation
+    if (reasonDetail.reasons.length === 0) {
+      reasonDetail.reasons = isPositiveImprovement
+        ? [{ code: CareGapReasonCode.NOTFOUND }]
+        : [{ code: CareGapReasonCode.PRESENT }];
+    }
+
     // add the reason detail we calculated to the query info and retrieve and return it
     return { ...r, reasonDetail };
   });
@@ -560,4 +639,12 @@ export function addFiltersToDataRequirement(
       }
     });
   }
+}
+
+export function hasDetailedReasonCode(gr: fhir4.GuidanceResponse) {
+  return (
+    gr.reasonCode?.some(c => {
+      return c.coding?.[0]?.code !== CareGapReasonCode.NOTFOUND && c.coding?.[0]?.code !== CareGapReasonCode.PRESENT;
+    }) || false
+  );
 }

@@ -115,6 +115,8 @@ export async function parseQueryInfo(
         } else {
           queryInfo.filter = comparisonInfo;
         }
+
+        queryInfo.fromExternalClause = true;
       }
     }
     // If this query's source is a reference to an expression that is a query then we should parse it and include

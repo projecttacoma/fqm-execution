@@ -410,6 +410,7 @@ const EXPECTED_INTERNAL_VALUE_COMPARISON_QUERY: QueryInfo = {
 
 const EXPECTED_EXTERNAL_VALUE_COMPARISON_QUERY: QueryInfo = {
   localId: '13',
+  fromExternalClause: true,
   sources: [
     {
       sourceLocalId: '5',

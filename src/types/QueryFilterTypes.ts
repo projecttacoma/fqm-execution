@@ -24,6 +24,7 @@ export interface QueryInfo {
   filter: AnyFilter;
   libraryName?: string;
   withError?: GracefulError;
+  fromExternalClause?: boolean;
 }
 
 /**
@@ -144,7 +145,7 @@ export interface ValueFilter extends Filter {
   type: 'value';
   attribute?: string;
   alias?: string;
-  comparator?: ValueFilterComparator;
+  comparator: ValueFilterComparator;
   valueBoolean?: boolean;
   valueString?: string;
   valueInteger?: number;

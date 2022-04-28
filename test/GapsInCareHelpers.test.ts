@@ -7,7 +7,8 @@ import {
   calculateReasonDetail,
   groupGapQueries,
   generateGuidanceResponses,
-  generateReasonCoding
+  generateReasonCoding,
+  hasDetailedReasonCode
 } from '../src/gaps/GapsReportBuilder';
 import {
   DataTypeQuery,
@@ -16,6 +17,7 @@ import {
   GapsDataTypeQuery,
   ReasonDetailData
 } from '../src/types/Calculator';
+import { ValueFilter } from '../src/types/QueryFilterTypes';
 import { FinalResult, ImprovementNotation, CareGapReasonCode } from '../src/types/Enums';
 import { getJSONFixture } from './helpers/testHelpers';
 
@@ -388,6 +390,110 @@ describe('Generate DetectedIssue Resource', () => {
     // above query should be present since queries with results are gaps
     expect(resource[0].evidence).toHaveLength(1);
   });
+
+  test('should filter duplicate dataRequirements and reasonCodes', () => {
+    // Two ORed queries will generate identical data requirements
+    const queries: GapsDataTypeQuery[] = [
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '4',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      },
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '5',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      }
+    ];
+    const resource = generateDetectedIssueResources(
+      queries,
+      SIMPLE_MEASURE_REPORT,
+      ImprovementNotation.POSITIVE
+    ).detectedIssues;
+
+    expect(resource[0]).toBeDefined();
+    expect(resource[0].evidence).toHaveLength(1);
+  });
+
+  test('should not filter GuidanceResponses when dataRequirements differ', () => {
+    // Two ORed queries will generate identical data requirements
+    const queries: GapsDataTypeQuery[] = [
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '4',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      },
+      {
+        dataType: 'Procedure',
+        valueSet: 'http://example.com/test-vs-2',
+        retrieveHasResult: false,
+        parentQueryHasResult: false,
+        retrieveLibraryName: 'SimpleDep',
+        expressionStack: [
+          {
+            localId: '29',
+            libraryName: 'SimpleQueries',
+            type: 'Or'
+          },
+          {
+            localId: '5',
+            libraryName: 'SimpleDep',
+            type: 'Retrieve'
+          }
+        ]
+      }
+    ];
+    const resource = generateDetectedIssueResources(
+      queries,
+      SIMPLE_MEASURE_REPORT,
+      ImprovementNotation.POSITIVE
+    ).detectedIssues;
+
+    expect(resource[0]).toBeDefined();
+    expect(resource[0].evidence).toHaveLength(2);
+  });
 });
 
 describe('Find grouped queries', () => {
@@ -425,13 +531,21 @@ describe('Find Reason Detail', () => {
   });
 
   describe('Reason Details', () => {
-    const baseQuery: GapsDataTypeQuery = {
+    const baseProcedureQuery: GapsDataTypeQuery = {
       dataType: 'Procedure',
       valueSet: 'http://example.com/test-vs',
       retrieveHasResult: true,
       parentQueryHasResult: false,
       retrieveLibraryName: 'example',
       retrieveLocalId: 'procedure'
+    };
+
+    const baseObservationQuery: GapsDataTypeQuery = {
+      dataType: 'Observation',
+      valueSet: 'http://example.com/test-vs',
+      retrieveHasResult: true,
+      parentQueryHasResult: true,
+      retrieveLibraryName: 'example'
     };
 
     const dr: DetailedResultWithClause = {
@@ -491,14 +605,285 @@ describe('Find Reason Detail', () => {
               valueBoolean: false
             })
           ]
+        },
+        {
+          localId: 'obs-with-high-value',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Observation',
+              id: 'obs-with-high-value',
+              valueQuantity: {
+                value: 2.0,
+                unit: '%'
+              }
+            })
+          ]
+        },
+        {
+          localId: 'obs-with-low-value',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: [
+            FHIRWrapper.FHIRv401().wrap({
+              resourceType: 'Observation',
+              id: 'obs-with-low-value',
+              valueQuantity: {
+                value: 0.0,
+                unit: '%'
+              }
+            })
+          ]
+        },
+        {
+          localId: 'external-value-compare',
+          libraryName: 'example',
+          statementName: '',
+          final: FinalResult.TRUE,
+          raw: true
         }
       ],
       statementResults: []
     };
 
+    test('should report ValueOutOfRange for negative improvement high value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-high-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-high-value' },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+      const [r] = calculateReasonDetail([q], ImprovementNotation.NEGATIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
+      ]);
+    });
+
+    test('should report ValueOutOfRange for positive improvement low value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-low-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-low-value', parentQueryHasResult: false },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
+      ]);
+    });
+
+    test('should report NotFound for positive improvement high value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'gt',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-high-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-high-value', parentQueryHasResult: false },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+
+      // There shouldn't be any out of range values computed by reasonDetail since the obs-with-high-value satisfies the requirements
+      expect(r.reasonDetail?.reasons).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            code: CareGapReasonCode.VALUEOUTOFRANGE
+          })
+        ])
+      );
+    });
+
+    test('should report ValueOutOfRange for negative improvement low value', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'lt',
+        valueQuantity: {
+          value: 5.0,
+          unit: '%'
+        },
+        localId: 'obs-with-low-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{ ...baseObservationQuery, retrieveLocalId: 'obs-with-low-value' },
+        queryInfo: {
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.NEGATIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
+      ]);
+    });
+
+    test('should resolve value comparison from external clause for positive improvement', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'ge',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-low-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{
+          ...baseObservationQuery,
+          retrieveLocalId: 'obs-with-low-value',
+          valueComparisonLocalId: 'false-clause',
+          parentQueryHasResult: false
+        },
+        queryInfo: {
+          fromExternalClause: true,
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.POSITIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-low-value' }
+      ]);
+    });
+
+    test('should resolve value comparison from external clause for negative improvement', () => {
+      const filter: ValueFilter = {
+        type: 'value',
+        attribute: 'value',
+        alias: 'O',
+        comparator: 'ge',
+        valueQuantity: {
+          value: 1.0,
+          unit: '%'
+        },
+        localId: 'obs-with-high-value'
+      };
+
+      const q: GapsDataTypeQuery = {
+        ...{
+          ...baseObservationQuery,
+          retrieveLocalId: 'obs-with-high-value',
+          valueComparisonLocalId: 'true-clause'
+        },
+        queryInfo: {
+          fromExternalClause: true,
+          sources: [
+            {
+              alias: 'O',
+              resourceType: 'Observation',
+              retrieveLocalId: 'true-clause'
+            }
+          ],
+          filter
+        }
+      };
+
+      const [r] = calculateReasonDetail([q], ImprovementNotation.NEGATIVE, dr).results;
+
+      expect(r.reasonDetail).toBeDefined();
+      expect(r.reasonDetail?.hasReasonDetail).toBe(true);
+      expect(r.reasonDetail?.reasons).toEqual([
+        { code: CareGapReasonCode.VALUEOUTOFRANGE, path: 'value', reference: 'Observation/obs-with-high-value' }
+      ]);
+    });
+
     test('retrieve with false attribute filter should be code INVALIDATTRIBUTE', () => {
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
@@ -531,7 +916,7 @@ describe('Find Reason Detail', () => {
       const intervalEnd = '2019-12-31';
 
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
@@ -605,7 +990,7 @@ describe('Find Reason Detail', () => {
 
     test('retrieve with false not null filter should be code NOTFOUND', () => {
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
@@ -667,7 +1052,7 @@ describe('Find Reason Detail', () => {
       const intervalEnd = '2019-12-31';
 
       const q: GapsDataTypeQuery = {
-        ...baseQuery,
+        ...baseProcedureQuery,
         queryInfo: {
           sources: [
             {
@@ -1245,5 +1630,110 @@ describe('Guidance Response ReasonCode Coding', () => {
       ]
     };
     expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+  });
+
+  describe('hasDetailedReasonCode', () => {
+    test('should return false for empty reasonCode', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: []
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return false for no reasonCode', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required'
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return true for GuidanceResponse with ValueOutOfRange', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.VALUEOUTOFRANGE
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(true);
+    });
+
+    test('should return false for GuidanceResponse with NotFound', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.NOTFOUND
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return false for GuidanceResponse with Present', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.PRESENT
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(false);
+    });
+
+    test('should return true for GuidanceResponse with ValueOutOfRange and Present', () => {
+      const gr: fhir4.GuidanceResponse = {
+        resourceType: 'GuidanceResponse',
+        status: 'data-required',
+        reasonCode: [
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.VALUEOUTOFRANGE
+              }
+            ]
+          },
+          {
+            coding: [
+              {
+                system: 'CareGapReasonCodeSystem',
+                code: CareGapReasonCode.PRESENT
+              }
+            ]
+          }
+        ]
+      };
+
+      expect(hasDetailedReasonCode(gr)).toBe(true);
+    });
   });
 });
