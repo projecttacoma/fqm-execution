@@ -103,6 +103,7 @@ function writeToFile(filePath: string, results: string) {
   fs.writeFile(filePath, results, err => {
     if (err) throw err;
   });
+  console.log(`Calculation results written to file path: ${filePath}`);
 }
 
 async function calc(
