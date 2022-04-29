@@ -77,6 +77,7 @@ program
     'To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against.',
     false
   )
+  .option('-o, --out-file <file-path>', ' Path to a file that fqm-execution will write the calculation results to')
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -90,6 +91,18 @@ function getCachedValueSets(cacheDir: string): fhir4.ValueSet[] {
   }
 
   return [];
+}
+
+function writeToFile(filePath: string, results: string) {
+  if (!filePath) {
+    console.error(
+      'Must provide a path to a file for fqm-execution to write the caculation results to when the -o/--out-file flag is specified'
+    );
+    program.help();
+  }
+  fs.writeFile(filePath, results, err => {
+    if (err) throw err;
+  });
 }
 
 async function calc(
@@ -264,7 +277,11 @@ populatePatientBundles().then(async patientBundles => {
       });
     }
 
-    console.log(JSON.stringify(result?.results, null, 2));
+    if (program.outFile) {
+      writeToFile(program.outFile, JSON.stringify(result?.results, null, 2));
+    } else {
+      console.log(JSON.stringify(result?.results, null, 2));
+    }
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
