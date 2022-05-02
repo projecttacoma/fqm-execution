@@ -125,7 +125,7 @@ Options:
   --vs-api-key <key>                          API key, to authenticate against the valueset service to be used for resolving missing valuesets.
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service (default: false)
   --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against
-  -o, --output-file <file-path>               Path to a file that fqm-execution will write the calculation results to
+  -o, --output-file [file-path]               Path to a file that fqm-execution will write the calculation results to (default: output.json)
   -h, --help                                  Display help for command.
 ```
 

@@ -79,7 +79,7 @@ program
   )
   .option(
     '-o, --out-file [file-path]',
-    ' Path to a file that fqm-execution will write the calculation results to',
+    'Path to a file that fqm-execution will write the calculation results to (default: output.json)',
     'output.json'
   )
   .parse(process.argv);
