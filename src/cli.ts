@@ -79,8 +79,7 @@ program
   )
   .option(
     '-o, --out-file [file-path]',
-    'Path to a file that fqm-execution will write the calculation results to (default: output.json)',
-    'output.json'
+    'Path to a file that fqm-execution will write the calculation results to (default: output.json)'
   )
   .parse(process.argv);
 
@@ -277,8 +276,14 @@ populatePatientBundles().then(async patientBundles => {
     }
 
     if (program.outFile) {
-      writeToFile(program.outFile, JSON.stringify(result?.results, null, 2));
+      if (program.outFile === true) {
+        // use default output.json since no file path was provided
+        writeToFile('output.json', JSON.stringify(result?.results, null, 2));
+      } else {
+        writeToFile(program.outFile, JSON.stringify(result?.results, null, 2));
+      }
     } else {
+      // log results to stdout instead of file
       console.log(JSON.stringify(result?.results, null, 2));
     }
   } catch (error) {
