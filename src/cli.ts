@@ -275,15 +275,15 @@ populatePatientBundles().then(async patientBundles => {
       });
     }
 
-    if (program.outFile) {
-      if (program.outFile === true) {
-        // use default output.json since no file path was provided
-        writeToFile('output.json', JSON.stringify(result?.results, null, 2));
-      } else {
-        writeToFile(program.outFile, JSON.stringify(result?.results, null, 2));
-      }
+    // --out-file flag specified but no file path provided
+    if (program.outFile === true) {
+      // use output.json (default file path) since no file path was provided
+      writeToFile('output.json', JSON.stringify(result?.results, null, 2));
+      // --out-file flag specified with a file path
+    } else if (program.outFile) {
+      writeToFile(program.outFile, JSON.stringify(result?.results, null, 2));
+      // log results to stdout instead of file path (--out-file flag not specified)
     } else {
-      // log results to stdout instead of file
       console.log(JSON.stringify(result?.results, null, 2));
     }
   } catch (error) {
