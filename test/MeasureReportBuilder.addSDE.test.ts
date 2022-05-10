@@ -189,7 +189,6 @@ describe('MeasureReportBuilder Class', () => {
       const report = builder.getReport();
 
       expect(report.contained as fhir4.FhirResource[]).toHaveLength(0);
-
     });
   });
 });
