@@ -287,60 +287,62 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   private addSDE(result: ExecutionResult<T>) {
     // 	Note that supplemental data are reported as observations for each patient and included in the evaluatedResources bundle. See the MeasureReport resource or the Quality Reporting topic for more information.
     result.supplementalData?.forEach(sd => {
-      const observation = <fhir4.Observation>{};
-      observation.resourceType = 'Observation';
-      observation.code = { text: sd.name };
-      observation.id = uuidv4();
-      observation.status = 'final';
-      observation.extension = [
-        {
-          url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
-          extension: [
-            {
-              url: 'measure',
-              valueCanonical: this.measure.url
-            },
-            {
-              url: 'populationId',
-              valueString: sd.name
-            }
-          ]
-        }
-      ];
-
-      // add coding to valueCodeableConcept
-      if ('forEach' in sd.rawResult) {
-        observation.valueCodeableConcept = { coding: [] };
-        sd.rawResult?.forEach((rr: any) => {
-          if (rr.code?.value && rr.system?.value && rr.display?.value) {
-            // create supplemental data elements
-            observation.valueCodeableConcept?.coding?.push({
-              system: rr.system.value,
-              code: rr.code.value,
-              display: rr.display.value
-            });
-          } else if (rr.isCode) {
-            // if a CQL system code is returned
-            observation.valueCodeableConcept?.coding?.push({
-              system: rr.system,
-              code: rr.code,
-              display: rr.display
-            });
+      if (sd && sd.rawResult) {
+        const observation = <fhir4.Observation>{};
+        observation.resourceType = 'Observation';
+        observation.code = { text: sd.name };
+        observation.id = uuidv4();
+        observation.status = 'final';
+        observation.extension = [
+          {
+            url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
+            extension: [
+              {
+                url: 'measure',
+                valueCanonical: this.measure.url
+              },
+              {
+                url: 'populationId',
+                valueString: sd.name
+              }
+            ]
           }
-        });
-      } else if (sd.rawResult.isCode) {
-        observation.valueCodeableConcept = { coding: [] };
-        observation.valueCodeableConcept?.coding?.push({
-          system: sd.rawResult.system,
-          code: sd.rawResult.code,
-          display: sd.rawResult.display
+        ];
+
+        // add coding to valueCodeableConcept
+        if ('forEach' in sd.rawResult) {
+          observation.valueCodeableConcept = { coding: [] };
+          sd.rawResult?.forEach((rr: any) => {
+            if (rr.code?.value && rr.system?.value && rr.display?.value) {
+              // create supplemental data elements
+              observation.valueCodeableConcept?.coding?.push({
+                system: rr.system.value,
+                code: rr.code.value,
+                display: rr.display.value
+              });
+            } else if (rr.isCode) {
+              // if a CQL system code is returned
+              observation.valueCodeableConcept?.coding?.push({
+                system: rr.system,
+                code: rr.code,
+                display: rr.display
+              });
+            }
+          });
+        } else if (sd.rawResult.isCode) {
+          observation.valueCodeableConcept = { coding: [] };
+          observation.valueCodeableConcept?.coding?.push({
+            system: sd.rawResult.system,
+            code: sd.rawResult.code,
+            display: sd.rawResult.display
+          });
+        }
+        // add as evaluated resource reference
+        this.report.contained?.push(observation);
+        this.report.evaluatedResource?.push({
+          reference: `#${observation.id}`
         });
       }
-      // add as evaluated resource reference
-      this.report.contained?.push(observation);
-      this.report.evaluatedResource?.push({
-        reference: `#${observation.id}`
-      });
     });
   }
 

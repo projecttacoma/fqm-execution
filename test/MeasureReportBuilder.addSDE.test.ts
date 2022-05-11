@@ -177,5 +177,18 @@ describe('MeasureReportBuilder Class', () => {
         ]
       });
     });
+
+    test('Should create observation only if SDE and SDE raw results are defined', () => {
+      executionResult.supplementalData = [
+        {
+          name: 'sde-code',
+          rawResult: undefined
+        }
+      ];
+      builder.addPatientResults(executionResult);
+      const report = builder.getReport();
+
+      expect(report.contained as fhir4.FhirResource[]).toHaveLength(0);
+    });
   });
 });
