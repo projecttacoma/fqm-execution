@@ -16,6 +16,11 @@ import { GracefulError } from '../types/errors/GracefulError';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
 
 /**
+ * List of possible expressions that could be doing extra filtering on the result of a query
+ */
+const VALUE_COMPARISON_TYPES = ['Greater', 'IsNull'];
+
+/**
  * Get all data types, and codes/valuesets used in Query ELM expressions
  *
  * @param elm main ELM library with expressions to traverse
@@ -186,9 +191,11 @@ export function findRetrieves(
   } else if ((expr as any).operand) {
     // Operand can be array or object. Recurse on either
     const anyExpr = expr as any;
+    const newValueComparisonLocalId = VALUE_COMPARISON_TYPES.includes(expr.type as string)
+      ? expr.localId
+      : valueComparisonLocalId;
     if (Array.isArray(anyExpr.operand)) {
       // Should expand to types beyond greater
-      const newValueComparisonLocalId = expr.type === 'Greater' ? expr.localId : valueComparisonLocalId;
       anyExpr.operand.forEach((e: any) => {
         const retrieves = findRetrieves(
           elm,
@@ -208,7 +215,7 @@ export function findRetrieves(
         allELM,
         anyExpr.operand,
         queryLocalId,
-        valueComparisonLocalId,
+        newValueComparisonLocalId,
         [...expressionStack],
         [...withErrors]
       );

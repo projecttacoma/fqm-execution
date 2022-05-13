@@ -50,7 +50,8 @@ import {
   TautologyFilter,
   UnknownFilter,
   ValueFilter,
-  ValueFilterComparator
+  ValueFilterComparator,
+  IsNullFilter
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
@@ -286,6 +287,9 @@ export async function interpretExpression(
     case 'Not':
       returnFilter = interpretNot(expression as ELMNot);
       break;
+    case 'IsNull':
+      returnFilter = interpretIsNull(expression as ELMIsNull);
+      break;
     case 'GreaterOrEqual':
       returnFilter = interpretGreaterOrEqual(expression as ELMGreaterOrEqual, library, patient);
       break;
@@ -500,6 +504,23 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
     }
   } else {
     errorInfo.message = `could not handle 'not' for expression type ${not.operand.type}`;
+  }
+  return { type: 'unknown', withError: errorInfo };
+}
+
+export function interpretIsNull(isNull: ELMIsNull): IsNullFilter | TautologyFilter | UnknownFilter {
+  const errorInfo = {} as GracefulError;
+  if (isNull.operand.type === 'Property') {
+    const propRef = isNull.operand as ELMProperty;
+    // TODO: This alias needs to be re-examined with multi-sourced queries
+    return {
+      type: 'isnull',
+      attribute: propRef.path,
+      alias: propRef.scope || '',
+      localId: isNull.localId
+    };
+  } else {
+    errorInfo.message = `could not handle 'IsNull' for expression type ${isNull.operand.type}`;
   }
   return { type: 'unknown', withError: errorInfo };
 }
