@@ -140,7 +140,7 @@ export interface ELMCode {
 export interface ELMCodeSystem {
   /** CodeSystem id */
   id: string;
-  /** The name of the codesystem taht is used to locally reference this codesystem */
+  /** The name of the codesystem that is used to locally reference this codesystem */
   name: string;
   /** versioned name of the codesystem */
   version?: string;
@@ -167,6 +167,7 @@ export interface ELMExpression {
   localId?: string;
   /** Locator in the original CQL file. Only exists if compiled with this info. */
   locator?: string;
+  source?: any;
 }
 
 export type AnyELMExpression =

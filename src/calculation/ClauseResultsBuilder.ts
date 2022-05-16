@@ -17,7 +17,7 @@ import {
 } from '../types/Calculator';
 
 /**
- * Contains helpers that generate useful data for coverage and highlighing.
+ * Contains helpers that generate useful data for coverage and highlighting.
  */
 
 /**
