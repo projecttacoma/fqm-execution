@@ -287,39 +287,37 @@ describe('MeasureBundleHelpers', () => {
   });
 
   describe('addValueSetsToMeasureBundle', () => {
-
-    // beforeAll(() => {
-    //   ValueSetResolver.mockImplementation(() => {
-    //     return {
-    //       getExpansionForValueSetUrls: () => {
-
-    //       }
-    //     }
-    //   });
-    // });
-
-    test('throws an error if no API key is provided for retrieving the ValueSet resources', async() => {
+    test('throws an error if no API key is provided for retrieving the ValueSet resource(s)', async () => {
       const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
 
       try {
         await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle);
       } catch (e) {
-        expect(e.message).toEqual('Missing the following valuesets: http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016, and no API key was provided to resolve them');
+        expect(e.message).toEqual(
+          'Missing the following valuesets: http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016, and no API key was provided to resolve them'
+        );
       }
     });
 
-    test('returns original measure bundle if measure bundle is not missing any ValueSet resources', async() => {
+    test('returns original measure bundle if measure bundle is not missing any ValueSet resources', async () => {
       const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json');
       const returnedBundle = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');
       expect(returnedBundle).toEqual(measureBundle);
     });
 
-    test('returns new bundle with added ValueSet resources when measure bundle is missing ValueSets', async() => {
+    test('returns new bundle with added ValueSet resource when measure bundle is missing one ValueSet resource', async () => {
+      // measure bundle with one missing ValueSet
       const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
+      // missing ValueSet resource
       const missingVS = getJSONFixture('valuesets/example-missing-EXM130-vs.json');
-      const vsrSpy = jest.spyOn(ValueSetResolver.prototype, 'getExpansionForValuesetUrls').mockImplementation(async() => {
-        {return [[missingVS], []];}
-      });
+
+      const vsrSpy = jest
+        .spyOn(ValueSetResolver.prototype, 'getExpansionForValuesetUrls')
+        .mockImplementation(async () => {
+          {
+            return [[missingVS], []];
+          }
+        });
       const returnedBundle = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');
 
       expect(vsrSpy).toHaveBeenCalledWith(getMissingDependentValuesets(measureBundle));
