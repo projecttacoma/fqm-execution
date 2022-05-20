@@ -2,6 +2,8 @@ import { PopulationType } from '../types/Enums';
 import { CalculationOptions } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
+import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
+import { ValueSetResolver } from '../execution/ValueSetResolver';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -161,4 +163,43 @@ export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWi
   }
 
   return measure;
+}
+
+/**
+ * Detects missing ValueSets in the given measure bundle, retrieves them from VSAC, and adds
+ * them as entries to the measure bundle.
+ * @param {fhir4.Bundle} measureBundle the FHIR Bundle object containing the Measure resource
+ * @param {string|undefined} vsAPIKey API key used to access a ValueSet API for downloading missing valuesets
+ * @return {fhir4.Bundle} measure bundle with entries for missing ValueSets (fetched from VSAC)
+ */
+export async function addValueSetsToMeasureBundle(
+  measureBundle: fhir4.Bundle,
+  vsAPIKey?: string
+): Promise<fhir4.Bundle> {
+  const missingVS = getMissingDependentValuesets(measureBundle);
+  if (missingVS.length > 0) {
+    const valueSets: fhir4.ValueSet[] = [];
+    if (!vsAPIKey) {
+      throw new UnexpectedResource(
+        `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
+      );
+    }
+
+    const vsr = new ValueSetResolver(vsAPIKey);
+    const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
+
+    if (errorMessages.length > 0) {
+      throw new Error(errorMessages.join('\n'));
+    }
+
+    valueSets.push(...expansions);
+
+    const newBundle: fhir4.Bundle = measureBundle;
+    valueSets.map(vs => {
+      newBundle.entry?.push(vs);
+    });
+    return newBundle;
+  }
+  // measure bundle is not missing any value sets
+  return measureBundle;
 }
