@@ -299,6 +299,30 @@ describe('MeasureBundleHelpers', () => {
       }
     });
 
+    test('throws an error if error messages array from ValueSetResolver.getExpansionForValuesetUrls is populated', async () => {
+      // EXM 130 bundle with one missing valueset and one missing valueset with invalid url
+      const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-no-codes-modified-missingVS.json');
+      const errorMessage =
+        'Valueset with URL http://no.valueset/url could not be retrieved. Reason: Request failed with status code 404';
+      // missing VS that has valid URL in the measure bundle
+      const missingVS = getJSONFixture('valuesets/example-missing-EXM130-vs.json');
+
+      const vsrSpy = jest
+        .spyOn(ValueSetResolver.prototype, 'getExpansionForValuesetUrls')
+        .mockImplementation(async () => {
+          {
+            return [[missingVS], [errorMessage]];
+          }
+        });
+
+      try {
+        await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');
+      } catch (e) {
+        expect(e.message).toEqual(errorMessage);
+        expect(vsrSpy).toHaveBeenCalledWith(getMissingDependentValuesets(measureBundle));
+      }
+    });
+
     test('returns original measure bundle if measure bundle is not missing any ValueSet resources', async () => {
       const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json');
       const returnedBundle = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');

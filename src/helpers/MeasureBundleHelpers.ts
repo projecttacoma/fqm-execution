@@ -195,7 +195,7 @@ export async function addValueSetsToMeasureBundle(
     valueSets.push(...expansions);
 
     const newBundle: fhir4.Bundle = measureBundle;
-    valueSets.map(vs => {
+    valueSets.forEach(vs => {
       newBundle.entry?.push(vs);
     });
     return newBundle;
