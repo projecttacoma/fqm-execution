@@ -333,6 +333,7 @@ describe('MeasureBundleHelpers', () => {
       // measure bundle with one missing ValueSet
       const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
       // missing ValueSet resource
+      const missingVSUrl = getMissingDependentValuesets(measureBundle);
       const missingVS = getJSONFixture('valuesets/example-missing-EXM130-vs.json');
 
       const vsrSpy = jest
@@ -344,9 +345,9 @@ describe('MeasureBundleHelpers', () => {
         });
       const returnedBundle = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');
 
-      expect(vsrSpy).toHaveBeenCalledWith(getMissingDependentValuesets(measureBundle));
+      expect(vsrSpy).toHaveBeenCalledWith(missingVSUrl);
       expect(returnedBundle.entry?.length).toEqual(measureBundle.entry?.length);
-      expect(returnedBundle.entry?.slice(returnedBundle.entry?.length - 1)[0]).toEqual(missingVS);
+      expect(returnedBundle.entry?.slice(returnedBundle.entry?.length - 1)[0]).toEqual({ resource: missingVS });
     });
 
     afterAll(() => {
