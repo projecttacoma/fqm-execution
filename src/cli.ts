@@ -11,6 +11,7 @@ import {
   calculateDataRequirements,
   calculateQueryInfo
 } from './calculation/Calculator';
+import { addValueSetsToMeasureBundle } from './helpers/MeasureBundleHelpers';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
 import { AsyncPatientSource, PatientSource } from 'cql-exec-fhir';
@@ -32,6 +33,9 @@ program.command('dataRequirements').action(() => {
 });
 program.command('queryInfo').action(() => {
   program.outputType = 'queryInfo';
+});
+program.command('valueSets').action(() => {
+  program.outputType = 'valueSets';
 });
 
 program
@@ -124,6 +128,8 @@ async function calc(
   } else if (program.outputType === 'queryInfo') {
     // calculateQueryInfo doesn't make use of the calcOptions object at this point
     result = calculateQueryInfo(measureBundle, calcOptions);
+  } else if (program.outputType === 'valueSets') {
+    result = await addValueSetsToMeasureBundle(measureBundle, calcOptions);
   }
   if (!result) {
     throw new Error(`Could not obtain result based on outputType ${program.outputType}`);
@@ -133,8 +139,8 @@ async function calc(
 
 async function populatePatientBundles() {
   let patientBundles: fhir4.Bundle[] = [];
-  // data requirements/queryInfo doesn't care about patient bundles, so just leave as an empty array if we're using that report type
-  if (program.outputType !== 'dataRequirements' && program.outputType !== 'queryInfo') {
+  // data requirements/queryInfo/valueSets doesn't care about patient bundles, so just leave as an empty array if we're using that report type
+  if (!['dataRequirements', 'queryInfo', 'valueSets'].includes(program.outputType)) {
     // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
     if (!program.patientBundles && !program.patientIds && !program.groupId) {
       console.error(
@@ -276,7 +282,7 @@ populatePatientBundles().then(async patientBundles => {
     }
 
     // --out-file flag specified but no file path provided
-    if (program.outFile === true) {
+    if (program.outFile === true || program.outputType === 'valueSets') {
       // use output.json (default file path) since no file path was provided
       writeToFile('output.json', JSON.stringify(result?.results, null, 2));
       // --out-file flag specified with a file path

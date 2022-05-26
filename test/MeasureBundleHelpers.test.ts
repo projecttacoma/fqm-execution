@@ -291,7 +291,7 @@ describe('MeasureBundleHelpers', () => {
       const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
 
       try {
-        await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle);
+        await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, {});
       } catch (e) {
         expect(e.message).toEqual(
           'Missing the following valuesets: http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016, and no API key was provided to resolve them'
@@ -316,7 +316,7 @@ describe('MeasureBundleHelpers', () => {
         });
 
       try {
-        await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');
+        await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, { vsAPIKey: 'an_api_key' });
       } catch (e) {
         expect(e.message).toEqual(errorMessage);
         expect(vsrSpy).toHaveBeenCalledWith(getMissingDependentValuesets(measureBundle));
@@ -325,7 +325,11 @@ describe('MeasureBundleHelpers', () => {
 
     test('returns original measure bundle if measure bundle is not missing any ValueSet resources', async () => {
       const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json');
-      const returnedBundle = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');
+      const returnedBundle = (
+        await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, {
+          vsAPIKey: 'an_api_key'
+        })
+      ).results;
       expect(returnedBundle).toEqual(measureBundle);
     });
 
@@ -343,7 +347,9 @@ describe('MeasureBundleHelpers', () => {
             return [[missingVS], []];
           }
         });
-      const returnedBundle = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, 'an_api_key');
+      const returnedBundle = (
+        await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, { vsAPIKey: 'an_api_key' })
+      ).results;
 
       expect(vsrSpy).toHaveBeenCalledWith(missingVSUrl);
       expect(returnedBundle.entry?.length).toEqual(measureBundle.entry?.length);

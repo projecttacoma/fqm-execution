@@ -1,5 +1,5 @@
 import { PopulationType } from '../types/Enums';
-import { CalculationOptions } from '../types/Calculator';
+import { CalculationOptions, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
@@ -174,18 +174,18 @@ export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWi
  */
 export async function addValueSetsToMeasureBundle(
   measureBundle: fhir4.Bundle,
-  vsAPIKey?: string
-): Promise<fhir4.Bundle> {
+  options: CalculationOptions
+): Promise<valueSetOutput> {
   const missingVS = getMissingDependentValuesets(measureBundle);
   if (missingVS.length > 0) {
     const valueSets: fhir4.ValueSet[] = [];
-    if (!vsAPIKey) {
+    if (!options.vsAPIKey) {
       throw new UnexpectedResource(
         `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
       );
     }
 
-    const vsr = new ValueSetResolver(vsAPIKey);
+    const vsr = new ValueSetResolver(options.vsAPIKey);
     const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
 
     if (errorMessages.length > 0) {
@@ -198,8 +198,10 @@ export async function addValueSetsToMeasureBundle(
     valueSets.forEach(vs => {
       newBundle.entry?.push({ resource: vs });
     });
-    return newBundle;
+    return {
+      results: newBundle
+    };
   }
   // measure bundle is not missing any value sets
-  return measureBundle;
+  return { results: measureBundle };
 }
