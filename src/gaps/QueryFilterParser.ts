@@ -508,6 +508,12 @@ export function interpretNot(not: ELMNot): NotNullFilter | TautologyFilter | Unk
   return { type: 'unknown', withError: errorInfo };
 }
 
+/**
+ * Parses an ELM isNull expression into a filter
+ * @param equal The ELM isNull clause to parse.
+ * @param library The library the clause resides in.
+ * @returns The filter representation.
+ */
 export function interpretIsNull(isNull: ELMIsNull): IsNullFilter | TautologyFilter | UnknownFilter {
   const errorInfo = {} as GracefulError;
   if (isNull.operand.type === 'Property') {
