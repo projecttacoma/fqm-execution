@@ -353,7 +353,10 @@ describe('MeasureBundleHelpers', () => {
 
       expect(vsrSpy).toHaveBeenCalledWith(missingVSUrl);
       expect(returnedBundle.entry?.length).toEqual(measureBundle.entry?.length);
-      expect(returnedBundle.entry?.slice(returnedBundle.entry?.length - 1)[0]).toEqual({ resource: missingVS });
+      expect(returnedBundle.entry?.slice(returnedBundle.entry?.length - 1)[0]).toEqual({
+        resource: missingVS,
+        request: { method: 'PUT', url: `ValueSet/${missingVS.id}` }
+      });
     });
 
     afterAll(() => {

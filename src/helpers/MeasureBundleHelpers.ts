@@ -169,7 +169,7 @@ export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWi
  * Detects missing ValueSets in the given measure bundle, retrieves them from VSAC, and adds
  * them as entries to the measure bundle.
  * @param {fhir4.Bundle} measureBundle the FHIR Bundle object containing the Measure resource
- * @param {string|undefined} vsAPIKey API key used to access a ValueSet API for downloading missing valuesets
+ * @param {CalculationOptions} options Options for calculation (may contain API key as an attribute)
  * @return {fhir4.Bundle} measure bundle with entries for missing ValueSets (fetched from VSAC)
  */
 export async function addValueSetsToMeasureBundle(
@@ -196,7 +196,7 @@ export async function addValueSetsToMeasureBundle(
 
     const newBundle: fhir4.Bundle = measureBundle;
     valueSets.forEach(vs => {
-      newBundle.entry?.push({ resource: vs });
+      newBundle.entry?.push({ resource: vs, request: { method: 'PUT', url: `ValueSet/${vs.id}` } });
     });
     return {
       results: newBundle
