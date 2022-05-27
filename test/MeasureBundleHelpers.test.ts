@@ -292,6 +292,7 @@ describe('MeasureBundleHelpers', () => {
 
       try {
         await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, {});
+        fail('addValueSetsToMeasureBundle failed to throw error for missing API key');
       } catch (e) {
         expect(e.message).toEqual(
           'Missing the following valuesets: http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016, and no API key was provided to resolve them'
@@ -317,6 +318,7 @@ describe('MeasureBundleHelpers', () => {
 
       try {
         await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, { vsAPIKey: 'an_api_key' });
+        fail('addValueSetsToMeasureBundle failed to throw error from getExpansionForValuesetUrls');
       } catch (e) {
         expect(e.message).toEqual(errorMessage);
         expect(vsrSpy).toHaveBeenCalledWith(getMissingDependentValuesets(measureBundle));
