@@ -384,6 +384,13 @@ export interface GICCalculationOutput<T extends OneOrMultiPatient> extends Calcu
 }
 
 /**
+ * dataType for addValueSetsToMeasureBundle() function
+ */
+export interface valueSetOutput {
+  results: fhir4.Bundle;
+}
+
+/**
  * type for declaring whether GICCalculation is for one or multiple patients
  */
 export type OneOrMultiPatient = [fhir4.Bundle] | fhir4.Bundle[];

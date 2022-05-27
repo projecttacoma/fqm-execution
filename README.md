@@ -42,7 +42,7 @@ npm install -g fqm-execution
 #### ES6
 
 ```JavaScript
-import { Calculator } from 'fqm-execution';
+import { Calculator, MeasureBundleHelpers } from 'fqm-execution';
 
 const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
 const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
@@ -51,12 +51,13 @@ const measureReports = await Calculator.calculateMeasureReports(measureBundle, [
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = await Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
 const queryInfo = await Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
+const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options); // Add missing ValueSet resources to a measure bundle
 ```
 
 #### Require
 
 ```JavaScript
-const { Calculator } = require('fqm-execution');
+const { Calculator, MeasureBundleHelpers } = require('fqm-execution');
 
 const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
 const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
@@ -65,6 +66,7 @@ const measureReports = await Calculator.calculateMeasureReports(measureBundle, [
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
 const dataRequirements = await Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
 const queryInfo = await Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
+const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options); // Add missing ValueSet resources to a measure bundle
 ```
 
 #### Arguments
@@ -108,6 +110,7 @@ Commands:
  gaps
  dataRequirements
  queryInfo
+ valueSets
 
 Options:
   --debug                                     Enable debug output (default: false).

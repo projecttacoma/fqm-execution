@@ -1,7 +1,9 @@
 import { PopulationType } from '../types/Enums';
-import { CalculationOptions } from '../types/Calculator';
+import { CalculationOptions, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
+import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
+import { ValueSetResolver } from '../execution/ValueSetResolver';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -161,4 +163,45 @@ export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWi
   }
 
   return measure;
+}
+
+/**
+ * Detects missing ValueSets in the given measure bundle, retrieves them from VSAC, and adds
+ * them as entries to the measure bundle.
+ * @param {fhir4.Bundle} measureBundle the FHIR Bundle object containing the Measure resource
+ * @param {CalculationOptions} options Options for calculation (may contain API key as an attribute)
+ * @return {fhir4.Bundle} measure bundle with entries for missing ValueSets (fetched from VSAC)
+ */
+export async function addValueSetsToMeasureBundle(
+  measureBundle: fhir4.Bundle,
+  options: CalculationOptions
+): Promise<valueSetOutput> {
+  const missingVS = getMissingDependentValuesets(measureBundle);
+  if (missingVS.length > 0) {
+    const valueSets: fhir4.ValueSet[] = [];
+    if (!options.vsAPIKey) {
+      throw new UnexpectedResource(
+        `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
+      );
+    }
+
+    const vsr = new ValueSetResolver(options.vsAPIKey);
+    const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
+
+    if (errorMessages.length > 0) {
+      throw new Error(errorMessages.join('\n'));
+    }
+
+    valueSets.push(...expansions);
+
+    const newBundle: fhir4.Bundle = measureBundle;
+    valueSets.forEach(vs => {
+      newBundle.entry?.push({ resource: vs, request: { method: 'PUT', url: `ValueSet/${vs.id}` } });
+    });
+    return {
+      results: newBundle
+    };
+  }
+  // measure bundle is not missing any value sets
+  return { results: measureBundle };
 }
