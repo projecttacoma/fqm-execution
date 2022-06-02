@@ -25,7 +25,7 @@ const IS_NULL_ELM: ELMIsNull = {
   }
 };
 
-const IS_NULL_INVALID_TYPE_ELM: ELMIsNull = {
+const IS_NULL_INVALID_TYPE_ELM = {
   localId: '70',
   locator: '56:3-56:42',
   type: 'IsNull',
@@ -33,7 +33,7 @@ const IS_NULL_INVALID_TYPE_ELM: ELMIsNull = {
     localId: '69',
     locator: '56:3-56:34',
     path: 'recordedDate',
-    type: 'Property',
+    type: 'INVALID',
     source: {
       localId: '68',
       locator: '56:3-56:21',
@@ -55,6 +55,12 @@ describe('interpretIsNull cases', () => {
       attribute: 'recordedDate',
       alias: '',
       localId: '70'
+    });
+  });
+  test('ELM with valid type returns proper filter', () => {
+    expect(QueryFilter.interpretIsNull(IS_NULL_INVALID_TYPE_ELM as ELMIsNull)).toEqual({
+      type: 'unknown',
+      withError: { message: "could not handle 'IsNull' for expression type INVALID" }
     });
   });
 });

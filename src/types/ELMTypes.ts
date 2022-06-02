@@ -167,7 +167,6 @@ export interface ELMExpression {
   localId?: string;
   /** Locator in the original CQL file. Only exists if compiled with this info. */
   locator?: string;
-  source?: any;
 }
 
 export type AnyELMExpression =
@@ -202,7 +201,8 @@ export type AnyELMExpression =
   | ELMQuantity
   | ELMInterval
   | ELMList
-  | ELMTuple;
+  | ELMTuple
+  | ELMLast;
 
 export interface ELMRetrieve extends ELMExpression {
   type: 'Retrieve';
