@@ -10,6 +10,7 @@ export type AnyFilter =
   | UnknownFilter
   | InFilter
   | DuringFilter
+  | IsNullFilter
   | NotNullFilter
   | EqualsFilter
   | TautologyFilter
@@ -92,6 +93,13 @@ export interface DuringFilter extends AttributeFilter {
     end?: string;
     interval?: Interval;
   };
+}
+
+/**
+ * Represents a filter that checks if a value is null.
+ */
+export interface IsNullFilter extends AttributeFilter {
+  type: 'isnull';
 }
 
 /**

@@ -10,7 +10,7 @@ import { ELM, ELMStatement } from '../types/ELMTypes';
 export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName: string): any {
   // create place for aliases and their usages to be placed to be filled in later. Aliases and their usages (aka scope)
   // and returns do not have localIds in the elm but do in elm_annotations at a consistent calculable offset.
-  // BE WARY of this calaculable offset.
+  // BE WARY of this calculable offset.
   const emptyResultClauses: any[] = [];
   const statement = libraryElm.library.statements.def.find(stat => stat.name === statementName);
   const libraryName = libraryElm.library.identifier.id;
@@ -96,7 +96,7 @@ export function findAllLocalIdsInStatement(
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[v] });
       }
     } else if (k === 'scope') {
-      // The scope entry references an alias but does not have an ELM local ID. Hoever it DOES have an elm_annotations localId
+      // The scope entry references an alias but does not have an ELM local ID. However it DOES have an elm_annotations localId
       // The elm_annotation localId of the alias variable is the localId of it's parent (one less than)
       // because the result of the scope clause should be equal to the clause that the scope is referencing
       alId = parseInt(statement.localId, 10) - 1;
@@ -270,13 +270,13 @@ export function findLocalIdForLibraryRef(
         if (annotation.s[0].r != null) {
           return annotation.s[0].r;
         }
-        // otherwise return null because the library ref is in the same clause as extpression ref.
+        // otherwise return null because the library ref is in the same clause as expression ref.
         // this is common with expressionRefs for some reason.
         return null;
       }
     }
 
-    // if we made it here, we should travserse down the child nodes
+    // if we made it here, we should traverse down the child nodes
     if (Array.isArray(annotation.s)) {
       for (child of Array.from(annotation.s)) {
         // in the case of a list of children only return if there is a non null result

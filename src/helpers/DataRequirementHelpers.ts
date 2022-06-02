@@ -10,7 +10,8 @@ import {
   Filter,
   NotNullFilter,
   codeFilterQuery,
-  ValueFilter
+  ValueFilter,
+  IsNullFilter
 } from '../types/QueryFilterTypes';
 import { PatientReferences } from '../compartment-definition/PatientReferences';
 
@@ -101,14 +102,14 @@ export function generateDetailedDateFilter(filter: DuringFilter): fhir4.DataRequ
  * @returns extension for the valueFilter list of dataRequirement
  */
 export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | GracefulError {
-  if (filter.type === 'notnull') {
-    const notnullFilter = filter as NotNullFilter;
+  if (filter.type === 'notnull' || filter.type === 'isnull') {
+    const nullFilter = filter as NotNullFilter | IsNullFilter;
     return {
       url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
       extension: [
-        { url: 'path', valueString: notnullFilter.attribute },
+        { url: 'path', valueString: nullFilter.attribute },
         { url: 'comparator', valueCode: 'eq' },
-        { url: 'value', valueString: 'not null' }
+        { url: 'value', valueString: nullFilter.type === 'notnull' ? 'not null' : 'null' }
       ]
     };
   } else if (filter.type === 'value') {

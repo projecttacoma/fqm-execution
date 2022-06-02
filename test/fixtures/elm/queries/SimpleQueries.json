@@ -8,7 +8,7 @@
       {
         "type": "Annotation",
         "s": {
-          "r": "66",
+          "r": "71",
           "s": [
             {
               "value": [
@@ -1682,6 +1682,109 @@
                   "type": "Literal"
                 }
               ]
+            }
+          }
+        },
+        {
+          "localId": "71",
+          "locator": "55:1-56:42",
+          "name": "Last of Referenced Query is Null",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "71",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Last of Referenced Query is Null\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "70",
+                    "s": [
+                      {
+                        "r": "69",
+                        "s": [
+                          {
+                            "r": "68",
+                            "s": [
+                              {
+                                "value": [
+                                  "Last",
+                                  "("
+                                ]
+                              },
+                              {
+                                "r": "67",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"SimpleQuery\""
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  ")"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "."
+                            ]
+                          },
+                          {
+                            "r": "69",
+                            "s": [
+                              {
+                                "value": [
+                                  "recordedDate"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          " is null"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "70",
+            "locator": "56:3-56:42",
+            "type": "IsNull",
+            "operand": {
+              "localId": "69",
+              "locator": "56:3-56:34",
+              "path": "recordedDate",
+              "type": "Property",
+              "source": {
+                "localId": "68",
+                "locator": "56:3-56:21",
+                "type": "Last",
+                "source": {
+                  "localId": "67",
+                  "locator": "56:8-56:20",
+                  "name": "SimpleQuery",
+                  "type": "ExpressionRef"
+                }
+              }
             }
           }
         }

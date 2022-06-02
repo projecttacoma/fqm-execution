@@ -94,7 +94,7 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
    * Numerator (NUMER): A subset of the Denominator. The Numerator criteria are the processes or outcomes expected for each patient,
    * procedure, or other unit of measurement defined in the Denominator.
    * Numerator Exclusions (NUMEX): A subset of the Numerator that should not be considered for calculation.
-   * Measure Poplation Exclusions (MSRPOPLEX): Identify that subset of the MSRPOPL that meet the MSRPOPLEX criteria.
+   * Measure Population Exclusions (MSRPOPLEX): Identify that subset of the MSRPOPL that meet the MSRPOPLEX criteria.
    */
   const populationResultsHandled = populationResults;
   // Cannot be in all populations if not in IPP.
@@ -306,13 +306,13 @@ export function createEpisodePopulationValues(
     episodeResults.populationResults = handlePopulationValues(episodeResults.populationResults);
   });
 
-  // TODO: Remove any episode that dont fall in any populations or stratifications after the above code
+  // TODO: Remove any episode that don't fall in any populations or stratifications after the above code
 
   return episodeResultsSet;
 }
 
 /**
- * Process the raw results from an episode of care population defining statement and fill or create the appropiate
+ * Process the raw results from an episode of care population defining statement and fill or create the appropriate
  * entry in the episodeResultsSet
  *
  * @param {any} rawEpisodeResults - Raw population defining statement result. This result should be a list.

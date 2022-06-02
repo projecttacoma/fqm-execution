@@ -140,7 +140,7 @@ export interface ELMCode {
 export interface ELMCodeSystem {
   /** CodeSystem id */
   id: string;
-  /** The name of the codesystem taht is used to locally reference this codesystem */
+  /** The name of the codesystem that is used to locally reference this codesystem */
   name: string;
   /** versioned name of the codesystem */
   version?: string;
@@ -201,7 +201,8 @@ export type AnyELMExpression =
   | ELMQuantity
   | ELMInterval
   | ELMList
-  | ELMTuple;
+  | ELMTuple
+  | ELMLast;
 
 export interface ELMRetrieve extends ELMExpression {
   type: 'Retrieve';

@@ -51,3 +51,6 @@ define "Retrieve Using ValueSet In Dependency":
 define "Nested Query From Another Library":
   SimpleDep."SimpleQuery" S
     where S.status = 'completed'
+
+define "Last of Referenced Query is Null":
+  Last("SimpleQuery").recordedDate is null
