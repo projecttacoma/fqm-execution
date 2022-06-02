@@ -282,7 +282,7 @@ populatePatientBundles().then(async patientBundles => {
     }
 
     // --out-file flag specified but no file path provided
-    if (program.outFile === true || program.outputType === 'valueSets') {
+    if (program.outFile === true || (!program.outFile && program.outputType === 'valueSets')) {
       // use output.json (default file path) since no file path was provided
       writeToFile('output.json', JSON.stringify(result?.results, null, 2));
       // --out-file flag specified with a file path
