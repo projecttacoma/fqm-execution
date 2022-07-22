@@ -15,22 +15,27 @@ const mainLibraryId = exampleELM.library.identifier.id;
 const populationResults: PopulationResult[] = [
   {
     populationType: PopulationType.IPP,
+    criteriaExpression: 'Initial Population',
     result: true
   },
   {
     populationType: PopulationType.DENOM,
+    criteriaExpression: 'Denominator',
     result: true
   },
   {
     populationType: PopulationType.NUMER,
+    criteriaExpression: 'Numerator',
     result: true
   },
   {
     populationType: PopulationType.NUMEX,
+    criteriaExpression: 'Numerator Exclusion',
     result: false
   },
   {
     populationType: PopulationType.DENEX,
+    criteriaExpression: 'Denominator Exclusion',
     result: false
   }
 ];
@@ -210,27 +215,27 @@ describe('ResultsHelper', () => {
   describe('episodes', () => {
     test('should mark master results relevant if any episode is true', () => {
       const truePopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.NUMER, result: true },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: true },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const falsePopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: false },
-        { populationType: PopulationType.DENOM, result: false },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: false },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: false },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const expectedMasterResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: true },
-        { populationType: PopulationType.NUMER, result: true },
-        { populationType: PopulationType.NUMEX, result: true }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: true },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: true },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: true }
       ];
 
       const results = ClauseResultsBuilder.buildPopulationRelevanceForAllEpisodes(simpleMeasure.group[0], [
@@ -284,20 +289,20 @@ describe('ResultsHelper', () => {
   describe('buildStatementRelevanceMap', () => {
     test('marks all false when IPP is false', () => {
       const populationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: false },
-        { populationType: PopulationType.DENOM, result: false },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: false },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: false },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
       const expectedRelevanceMap: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: false },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: false },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
@@ -306,20 +311,20 @@ describe('ResultsHelper', () => {
 
     test('marks DENEX, DENEXCP, NUMER, NUMEX all false when DENOM is false', () => {
       const populationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: false },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: false },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
       const expectedRelevanceMap: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
@@ -328,20 +333,20 @@ describe('ResultsHelper', () => {
 
     test('marks DENEXCP, NUMER, NUMEX all false when DENEX is false', () => {
       const populationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: true },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: true },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
       const expectedRelevanceMap: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: true },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: true },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
@@ -350,20 +355,20 @@ describe('ResultsHelper', () => {
 
     test('marks DENEXCP false when NUMER is true', () => {
       const populationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: true },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: true },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
       const expectedRelevanceMap: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: true },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: true },
-        { populationType: PopulationType.NUMEX, result: true }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: true },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: true },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: true }
       ];
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
@@ -372,20 +377,20 @@ describe('ResultsHelper', () => {
 
     test('marks NUMEX false when NUMER is false', () => {
       const populationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.DENEXCEP, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
       const expectedRelevanceMap: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: true },
-        { populationType: PopulationType.DENEXCEP, result: true },
-        { populationType: PopulationType.NUMER, result: true },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: true },
+        { populationType: PopulationType.DENEXCEP, criteriaExpression: 'Denominator Exception', result: true },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: true },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
@@ -394,14 +399,14 @@ describe('ResultsHelper', () => {
 
     test('marks OBSERV, MSRPOPLEX false when MSRPOPL is false', () => {
       const populationResults: PopulationResult[] = [
-        { populationType: PopulationType.MSRPOPL, result: false },
-        { populationType: PopulationType.OBSERV, result: false },
-        { populationType: PopulationType.MSRPOPLEX, result: false }
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: false },
+        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false },
+        { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: false }
       ];
       const expectedRelevanceMap: PopulationResult[] = [
-        { populationType: PopulationType.MSRPOPL, result: false },
-        { populationType: PopulationType.OBSERV, result: false },
-        { populationType: PopulationType.MSRPOPLEX, result: false }
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: false },
+        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false },
+        { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: false }
       ];
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
@@ -410,14 +415,14 @@ describe('ResultsHelper', () => {
 
     test('marks OBSERV false when MSRPOPLEX is true', () => {
       const populationResults: PopulationResult[] = [
-        { populationType: PopulationType.MSRPOPL, result: true },
-        { populationType: PopulationType.OBSERV, result: false },
-        { populationType: PopulationType.MSRPOPLEX, result: true }
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: true },
+        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false },
+        { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: true }
       ];
       const expectedRelevanceMap: PopulationResult[] = [
-        { populationType: PopulationType.MSRPOPL, result: false },
-        { populationType: PopulationType.OBSERV, result: false },
-        { populationType: PopulationType.MSRPOPLEX, result: false }
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: false },
+        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false },
+        { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: false }
       ];
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);

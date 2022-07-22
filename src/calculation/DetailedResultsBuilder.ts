@@ -49,7 +49,12 @@ export function createPopulationValues(
       // create patient level population and stratifier results based on episodes
       episodeResults.forEach(episodeResult => {
         episodeResult.populationResults.forEach(popResult => {
-          createOrSetResult(popResult.populationType, popResult.result, populationResults);
+          createOrSetResult(
+            popResult.populationType,
+            popResult.criteriaExpression,
+            popResult.result,
+            populationResults
+          );
         });
 
         episodeResult.stratifierResults?.forEach(strat => {
@@ -177,6 +182,7 @@ export function createPatientPopulationValues(
       const result = isStatementValueTruthy(value);
       const newPopulationResult: PopulationResult = {
         populationType: populationType,
+        criteriaExpression: population.criteria.expression || 'Unknown',
         result: result
       };
       populationResults.push(newPopulationResult);
@@ -274,6 +280,7 @@ export function createEpisodePopulationValues(
               } else {
                 episodeResult.populationResults.push({
                   populationType: PopulationType.OBSERV,
+                  criteriaExpression: population.criteria.expression || 'Unknown',
                   result: true,
                   observations: [observation]
                 });
@@ -363,6 +370,7 @@ function createOrSetValueOfEpisodes(
           populationGroup.population?.forEach(population => {
             newEpisodeResults.populationResults.push({
               populationType: <PopulationType>MeasureBundleHelpers.codeableConceptToPopulationType(population.code),
+              criteriaExpression: population.criteria.expression || 'Unknown',
               result: false
             });
           });

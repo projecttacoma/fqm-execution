@@ -25,13 +25,12 @@ describe('DetailedResultsBuilder', () => {
         Numerator: true,
         'Numerator Exclusion': true
       };
-
       const expectedPopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.NUMER, result: true },
-        { populationType: PopulationType.NUMEX, result: true }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: true },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: true }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(
@@ -55,11 +54,11 @@ describe('DetailedResultsBuilder', () => {
       };
 
       const expectedPopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(
@@ -83,11 +82,11 @@ describe('DetailedResultsBuilder', () => {
       };
 
       const expectedPopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: false },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: false },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(
@@ -111,11 +110,11 @@ describe('DetailedResultsBuilder', () => {
       };
 
       const expectedPopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: true },
-        { populationType: PopulationType.DENEX, result: true },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: true },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: true },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(
@@ -139,11 +138,11 @@ describe('DetailedResultsBuilder', () => {
       };
 
       const expectedPopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.DENOM, result: false },
-        { populationType: PopulationType.DENEX, result: false },
-        { populationType: PopulationType.NUMER, result: false },
-        { populationType: PopulationType.NUMEX, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.DENOM, criteriaExpression: 'Denominator', result: false },
+        { populationType: PopulationType.DENEX, criteriaExpression: 'Denominator Exclusion', result: false },
+        { populationType: PopulationType.NUMER, criteriaExpression: 'Numerator', result: false },
+        { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(
@@ -166,10 +165,14 @@ describe('DetailedResultsBuilder', () => {
       };
 
       const expectedPopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.MSRPOPL, result: false },
-        { populationType: PopulationType.MSRPOPLEX, result: false },
-        { populationType: PopulationType.OBSERV, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: false },
+        {
+          populationType: PopulationType.MSRPOPLEX,
+          criteriaExpression: 'Measure Population Exclusions',
+          result: false
+        },
+        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
@@ -188,10 +191,10 @@ describe('DetailedResultsBuilder', () => {
       };
 
       const expectedPopulationResults: PopulationResult[] = [
-        { populationType: PopulationType.IPP, result: true },
-        { populationType: PopulationType.MSRPOPL, result: true },
-        { populationType: PopulationType.MSRPOPLEX, result: true },
-        { populationType: PopulationType.OBSERV, result: false }
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: true },
+        { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: true },
+        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
