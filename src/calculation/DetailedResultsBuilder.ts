@@ -1,5 +1,6 @@
 import { DetailedPopulationGroupResult, EpisodeResults, PopulationResult, StratifierResult } from '../types/Calculator';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
+import * as DetailedResultsHelpers from '../helpers/DetailedResultsHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ClauseResultsBuilder';
 import { ELM, ELMStatement } from '../types/ELMTypes';
 import { PopulationType } from '../types/Enums';
@@ -248,9 +249,7 @@ export function createEpisodePopulationValues(
       // handle observation population
       if (populationType === PopulationType.OBSERV) {
         // find the MSRPOPL for this population because we need to know its name
-        const msrPopl = populationGroup.population?.find(
-          pop => MeasureBundleHelpers.codeableConceptToPopulationType(pop.code) === PopulationType.MSRPOPL
-        );
+        const msrPopl = DetailedResultsHelpers.findObsMsrPopl(populationGroup, population);
         if (msrPopl?.criteria.expression) {
           const episodesRawResults = patientResults[`obs_func_${cqlPopulation}_${msrPopl?.criteria.expression}`];
           // loop through observation results and create observations
@@ -267,20 +266,23 @@ export function createEpisodePopulationValues(
                 };
                 episodeResultsSet.push(episodeResult);
               }
-              // if there already is a result for observation, add to the list
-              if (hasResult(PopulationType.OBSERV, episodeResult.populationResults)) {
-                const observResult = <PopulationResult>(
-                  episodeResult.populationResults.find(popResult => popResult.populationType === PopulationType.OBSERV)
-                );
+
+              // check if there is already an observation result with this cqlPopulation
+              const observResult = episodeResult.populationResults.find(
+                result => result.populationType == populationType && result.criteriaExpression == cqlPopulation
+              );
+              if (observResult !== undefined) {
+                // push obs onto an existing populationResult
                 if (!observResult.observations) {
                   observResult.observations = [];
                 }
                 observResult.observations.push(observation);
                 observResult.result = true;
               } else {
+                // create new populationResult with obs
                 episodeResult.populationResults.push({
                   populationType: PopulationType.OBSERV,
-                  criteriaExpression: population.criteria.expression || 'Unknown',
+                  criteriaExpression: cqlPopulation,
                   result: true,
                   observations: [observation]
                 });
