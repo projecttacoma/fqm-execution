@@ -1,4 +1,6 @@
-import { pruneDetailedResults, isDetailedResult } from '../../src/helpers/DetailedResultsHelpers';
+import { MeasureGroup, MeasureGroupPopulation } from 'fhir/r4';
+import { MeasureBundleHelpers } from '../../src';
+import { pruneDetailedResults, isDetailedResult, findObsMsrPopl } from '../../src/helpers/DetailedResultsHelpers';
 import {
   ExecutionResult,
   DetailedPopulationGroupResult,
@@ -151,5 +153,101 @@ describe('isDetailedResult', () => {
     };
 
     expect(isDetailedResult(sr)).toBe(false);
+  });
+});
+
+describe('findObsMsrPopl', () => {
+  test('should find basic measure population', () => {
+    const group: MeasureGroup = {
+      population: [
+        {
+          criteria: { language: 'text/cql.identifier', expression: 'Measure Population' },
+          code: {
+            coding: [
+              {
+                code: 'measure-population',
+                system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+              }
+            ]
+          }
+        }
+      ]
+    };
+    const observationPop: MeasureGroupPopulation = {
+      criteria: { language: 'text/cql.identifier', expression: 'Irrelevant' }
+    };
+
+    const msrPop = findObsMsrPopl(group, observationPop);
+
+    expect(msrPop).toBeDefined();
+    expect(MeasureBundleHelpers.codeableConceptToPopulationType(msrPop?.code)).toBe('measure-population');
+  });
+
+  test('should find numerator population for Numerator Observations', () => {
+    const group: MeasureGroup = {
+      population: [
+        {
+          criteria: { language: 'text/cql.identifier', expression: 'Numerator' },
+          code: {
+            coding: [
+              {
+                code: 'numerator',
+                system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+              }
+            ]
+          }
+        }
+      ]
+    };
+    const observationPop: MeasureGroupPopulation = {
+      criteria: { language: 'text/cql.identifier', expression: 'Numerator Observations' },
+      code: {
+        coding: [
+          {
+            code: 'measure-observation',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      }
+    };
+
+    const msrPop = findObsMsrPopl(group, observationPop);
+
+    expect(msrPop).toBeDefined();
+    expect(MeasureBundleHelpers.codeableConceptToPopulationType(msrPop?.code)).toBe('numerator');
+  });
+
+  test('should find denominator population for Denominator Observations', () => {
+    const group: MeasureGroup = {
+      population: [
+        {
+          criteria: { language: 'text/cql.identifier', expression: 'Denominator' },
+          code: {
+            coding: [
+              {
+                code: 'denominator',
+                system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+              }
+            ]
+          }
+        }
+      ]
+    };
+    const observationPop: MeasureGroupPopulation = {
+      criteria: { language: 'text/cql.identifier', expression: 'Denominator Observations' },
+      code: {
+        coding: [
+          {
+            code: 'measure-observation',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      }
+    };
+
+    const msrPop = findObsMsrPopl(group, observationPop);
+
+    expect(msrPop).toBeDefined();
+    expect(MeasureBundleHelpers.codeableConceptToPopulationType(msrPop?.code)).toBe('denominator');
   });
 });
