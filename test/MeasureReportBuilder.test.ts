@@ -52,18 +52,22 @@ const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
         populationResults: [
           {
             populationType: PopulationType.NUMER,
+            criteriaExpression: 'Numerator',
             result: false
           },
           {
             populationType: PopulationType.DENOM,
+            criteriaExpression: 'Denominator',
             result: true
           },
           {
             populationType: PopulationType.IPP,
+            criteriaExpression: 'Initial Population',
             result: true
           },
           {
             populationType: PopulationType.DENEX,
+            criteriaExpression: 'Denominator Exclusion',
             result: false
           }
         ],
@@ -94,18 +98,22 @@ const cvExecutionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
         populationResults: [
           {
             populationType: PopulationType.MSRPOPL,
+            criteriaExpression: 'Measure Population',
             result: false
           },
           {
             populationType: PopulationType.MSRPOPLEX,
+            criteriaExpression: 'Measure Population Exclusions',
             result: true
           },
           {
             populationType: PopulationType.IPP,
+            criteriaExpression: 'Initial Population',
             result: true
           },
           {
             populationType: PopulationType.OBSERV,
+            criteriaExpression: 'MeasureObservation',
             result: false
           }
         ],
