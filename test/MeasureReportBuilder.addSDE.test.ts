@@ -35,18 +35,22 @@ const executionResultsTemplate: ExecutionResult<DetailedPopulationGroupResult>[]
         populationResults: [
           {
             populationType: PopulationType.NUMER,
+            criteriaExpression: 'Numerator',
             result: false
           },
           {
             populationType: PopulationType.DENOM,
+            criteriaExpression: 'Denominator',
             result: true
           },
           {
             populationType: PopulationType.IPP,
+            criteriaExpression: 'Initial Population',
             result: true
           },
           {
             populationType: PopulationType.DENEX,
+            criteriaExpression: 'Denominator Exclusion',
             result: false
           }
         ],

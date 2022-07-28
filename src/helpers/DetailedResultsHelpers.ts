@@ -1,9 +1,12 @@
+import { MeasureGroup, MeasureGroupPopulation } from 'fhir/r4';
+import { MeasureBundleHelpers } from '..';
 import {
   ExecutionResult,
   DetailedPopulationGroupResult,
   SimplePopulationGroupResult,
   PopulationGroupResult
 } from '../types/Calculator';
+import { PopulationType } from '../types/Enums';
 
 export function pruneDetailedResults(
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
@@ -48,4 +51,28 @@ export function isDetailedResult(result: PopulationGroupResult): result is Detai
     candidate.clauseResults != null ||
     candidate.statementResults != null
   );
+}
+
+export function findObsMsrPopl(
+  group: MeasureGroup,
+  obsrvPop: MeasureGroupPopulation
+): MeasureGroupPopulation | undefined {
+  let msrPop = group.population?.find(
+    population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
+  );
+  // special handling of ratio measure without specified populations for the observations
+  if (!msrPop) {
+    if (obsrvPop.criteria.expression === 'Denominator Observations') {
+      // denominator assumed population
+      msrPop = group.population?.find(
+        population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.DENOM
+      );
+    } else if (obsrvPop.criteria.expression === 'Numerator Observations') {
+      // numerator assumed population
+      msrPop = group.population?.find(
+        population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.NUMER
+      );
+    }
+  }
+  return msrPop;
 }

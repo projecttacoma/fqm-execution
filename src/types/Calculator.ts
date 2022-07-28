@@ -197,6 +197,8 @@ export interface StratifierResult {
 export interface PopulationResult {
   /** Type of population matching http://hl7.org/fhir/ValueSet/measure-population */
   populationType: PopulationType;
+  /** The population criteria expression, which may be used to further identify the population (i.e. a cql identifier) */
+  criteriaExpression: string | undefined;
   /** True if this patient or episode calculates with membership in this population. */
   result: boolean;
   /** Observations made for this population. */

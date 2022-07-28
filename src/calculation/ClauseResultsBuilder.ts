@@ -596,6 +596,7 @@ export function buildPopulationRelevanceForAllEpisodes(
     populationGroup.population?.map(population => {
       return <PopulationResult>{
         populationType: MeasureBundleHelpers.codeableConceptToPopulationType(population.code),
+        criteriaExpression: population.criteria.expression,
         result: false
       };
     }) || []; // Should not end up becoming an empty list.
@@ -635,6 +636,7 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
   const relevantResults: PopulationResult[] = results.map(result => {
     return {
       populationType: result.populationType,
+      criteriaExpression: result.criteriaExpression,
       result: true
     };
   });
@@ -772,6 +774,7 @@ export function setResult(populationType: PopulationType, newResult: boolean, re
 // create a result for the given population type and result or update the existing value to true if newResult is true
 export function createOrSetResult(
   populationType: PopulationType,
+  criteriaExpression: string | undefined,
   newResult: boolean,
   results: PopulationResult[]
 ): void {
@@ -783,6 +786,7 @@ export function createOrSetResult(
   } else {
     results.push({
       populationType,
+      criteriaExpression,
       result: newResult
     });
   }

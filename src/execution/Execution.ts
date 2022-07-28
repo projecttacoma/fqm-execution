@@ -3,6 +3,7 @@ import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calc
 import { DataProvider, CodeService, DateTime, Interval, Repository, Executor } from 'cql-execution';
 import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './ValueSetHelper';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
+import * as DetailedResultsHelpers from '../helpers/DetailedResultsHelpers';
 import { PopulationType } from '../types/Enums';
 import { generateELMJSONFunction } from '../calculation/DetailedResultsBuilder';
 import { ValueSetResolver } from './ValueSetResolver';
@@ -70,25 +71,7 @@ export async function execute(
         population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.OBSERV
       )
       ?.forEach(obsrvPop => {
-        let msrPop = group.population?.find(
-          population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
-        );
-        // special handling of ratio measure without specified populations for the observations
-        if (!msrPop) {
-          if (obsrvPop.criteria.expression === 'Denominator Observations') {
-            // denominator assumed population
-            msrPop = group.population?.find(
-              population =>
-                MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.DENOM
-            );
-          } else if (obsrvPop.criteria.expression === 'Numerator Observations') {
-            // numerator assumed population
-            msrPop = group.population?.find(
-              population =>
-                MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.NUMER
-            );
-          }
-        }
+        const msrPop = DetailedResultsHelpers.findObsMsrPopl(group, obsrvPop);
         if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
           const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifier.id);
           if (mainLib) {
