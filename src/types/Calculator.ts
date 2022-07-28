@@ -5,8 +5,6 @@ import { CQLPatient } from './CQLPatient';
 import { ELM } from './ELMTypes';
 import { QueryInfo } from './QueryFilterTypes';
 import { GracefulError } from './errors/GracefulError';
-import { RightCurriedFunction4 } from 'lodash';
-import { FHIRObject } from 'cql-exec-fhir';
 
 /**
  * Options for calculation.
