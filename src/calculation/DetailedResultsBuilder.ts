@@ -183,7 +183,7 @@ export function createPatientPopulationValues(
       const result = isStatementValueTruthy(value);
       const newPopulationResult: PopulationResult = {
         populationType: populationType,
-        criteriaExpression: population.criteria.expression || 'Unknown',
+        criteriaExpression: population.criteria.expression,
         result: result
       };
       populationResults.push(newPopulationResult);
@@ -372,7 +372,7 @@ function createOrSetValueOfEpisodes(
           populationGroup.population?.forEach(population => {
             newEpisodeResults.populationResults.push({
               populationType: <PopulationType>MeasureBundleHelpers.codeableConceptToPopulationType(population.code),
-              criteriaExpression: population.criteria.expression || 'Unknown',
+              criteriaExpression: population.criteria.expression,
               result: false
             });
           });

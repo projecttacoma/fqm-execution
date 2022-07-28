@@ -596,7 +596,7 @@ export function buildPopulationRelevanceForAllEpisodes(
     populationGroup.population?.map(population => {
       return <PopulationResult>{
         populationType: MeasureBundleHelpers.codeableConceptToPopulationType(population.code),
-        criteriaExpression: population.criteria.expression || 'Unknown',
+        criteriaExpression: population.criteria.expression,
         result: false
       };
     }) || []; // Should not end up becoming an empty list.
@@ -774,7 +774,7 @@ export function setResult(populationType: PopulationType, newResult: boolean, re
 // create a result for the given population type and result or update the existing value to true if newResult is true
 export function createOrSetResult(
   populationType: PopulationType,
-  criteriaExpression: string,
+  criteriaExpression: string | undefined,
   newResult: boolean,
   results: PopulationResult[]
 ): void {
