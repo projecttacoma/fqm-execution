@@ -20,6 +20,13 @@ export const cqlLogicClauseFalseStyle = {
   'border-bottom-style': 'double'
 };
 
+export const cqlLogicClauseCoveredStyle = {
+  'background-color': '#daeaf5',
+  color: '#004e82',
+  'border-bottom-color': '#006cb4',
+  'border-bottom-style': 'dashed'
+};
+
 /**
  * Convert JS object to CSS Style string
  *
@@ -54,19 +61,36 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
   return '';
 });
 
+// apply highlighting style to covered clauses
+Handlebars.registerHelper('highlightCoverage', (localId, context) => {
+  const libraryName: string = context.data.root.libraryName;
+  const clauseResults: ClauseResult[] = context.data.root.clauseResults;
+
+  const clauseResult = clauseResults.find(result => result.libraryName === libraryName && result.localId === localId);
+  if (clauseResult) {
+    if (clauseResult.final === FinalResult.TRUE) {
+      return objToCSS(cqlLogicClauseCoveredStyle);
+    }
+  }
+  return '';
+});
+
 /**
  * Generate HTML structure based on ELM annotations in relevant statements
  *
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param statementResults StatementResult array from calculation
+ * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
+ * @param highlightingType string representing whether to apply coverage highlighting
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
   elmLibraries: ELM[],
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
-  groupId: string
+  groupId: string,
+  highlightingType: string | undefined
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
 
@@ -92,10 +116,13 @@ export function generateHTML(
   });
 
   let result = `<div><h2>Population Group: ${groupId}</h2>`;
+  if (highlightingType === 'coverage') {
+    result += '<h2> Clause Coverage: XX%</h2>';
+  }
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
-    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s });
+    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s, highlight: highlightingType});
     result += res;
   });
 

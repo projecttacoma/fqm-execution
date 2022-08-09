@@ -26,6 +26,8 @@ export interface CalculationOptions {
   calculateSDEs?: boolean;
   /** Include HTML structure for highlighting */
   calculateHTML?: boolean;
+  /** Include HTML structure with coverage highlighting */
+  calculateCoverageHTML?: boolean;
   /** Enable debug output including CQL, ELM, results */
   enableDebugOutput?: boolean;
   /** Enables the return of ELM Libraries and name of main library to be used for further processing. ex. gaps in care */

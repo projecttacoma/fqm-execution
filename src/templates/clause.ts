@@ -1,4 +1,6 @@
-export default `<span{{#if r}} data-ref-id="{{r}}" style="{{highlightClause r}}"{{/if}}>
+export default 
+`{{~#if @root.highlight~}}
+<span{{#if r}} data-ref-id="{{r}}" style="{{highlightCoverage r}}"{{/if}}>
 {{~#if value ~}}
 {{ concat value }}
 {{~/if ~}}
@@ -7,4 +9,16 @@ export default `<span{{#if r}} data-ref-id="{{r}}" style="{{highlightClause r}}"
 {{> clause ~}}
 {{~/each ~}}
 {{~/if~}}
-</span>`;
+</span>
+{{~else~}}
+<span{{#if r}} data-ref-id="{{r}}" style="{{highlightClause r}}"{{/if}}>
+{{~#if value ~}}
+{{ concat value }}
+{{~/if ~}}
+{{~#if s~}}
+{{~#each s~}}
+{{> clause ~}}
+{{~/each ~}}
+{{~/if~}}
+</span>
+{{~/if~}}`;
