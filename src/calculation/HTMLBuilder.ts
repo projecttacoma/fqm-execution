@@ -82,7 +82,7 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
  * @param statementResults StatementResult array from calculation
  * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
- * @param highlightingType string representing whether to apply coverage highlighting
+ * @param highlightCoverage boolean representing whether to apply coverage highlighting
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
@@ -90,7 +90,7 @@ export function generateHTML(
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
   groupId: string,
-  highlightingType: string | undefined
+  highlightCoverage: boolean
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
 
@@ -116,13 +116,13 @@ export function generateHTML(
   });
 
   let result = `<div><h2>Population Group: ${groupId}</h2>`;
-  if (highlightingType === 'coverage') {
+  if (highlightCoverage) {
     result += '<h2> Clause Coverage: XX%</h2>';
   }
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
-    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s, highlight: highlightingType});
+    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s, highlightCoverage: highlightCoverage});
     result += res;
   });
 

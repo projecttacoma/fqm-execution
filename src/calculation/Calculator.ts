@@ -65,7 +65,7 @@ export async function calculate<T extends CalculationOptions>(
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
-  options.calculateCoverageHTML = options.calculateCoverageHTML ?? true;
+  //options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
   
   // Get the default measurement period out of the Measure object
   const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measureBundle);
@@ -143,18 +143,18 @@ export async function calculate<T extends CalculationOptions>(
         true,
         true
       );
-
-      if (options.calculateHTML || options.calculateCoverageHTML) {
-        let highlightingType;
-        if (options.calculateCoverageHTML) {
-          highlightingType = 'coverage';
-        }
+      
+      if (options.calculateHTML) {
+        let highlightCoverage;
+        if (options.calculateClauseCoverage) {
+          highlightCoverage = true;
+        } else highlightCoverage = false;
         const html = generateHTML(
           elmLibraries,
           detailedGroupResult.statementResults,
           detailedGroupResult.clauseResults,
           detailedGroupResult.groupId,
-          highlightingType
+          highlightCoverage
         );
         detailedGroupResult.html = html;
         if (debugObject && options.enableDebugOutput) {
