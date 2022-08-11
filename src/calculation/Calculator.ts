@@ -65,7 +65,6 @@ export async function calculate<T extends CalculationOptions>(
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
-  
   // Get the default measurement period out of the Measure object
   const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measureBundle);
   // Set the measurement period start/end, but only if the caller didn't specify one
@@ -142,7 +141,7 @@ export async function calculate<T extends CalculationOptions>(
         true,
         true
       );
-      
+
       if (options.calculateHTML) {
         let highlightCoverage;
         if (options.calculateClauseCoverage) {

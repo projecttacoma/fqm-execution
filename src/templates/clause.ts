@@ -1,5 +1,4 @@
-export default 
-`{{~#if @root.highlightCoverage~}}
+export default `{{~#if @root.highlightCoverage~}}
 <span{{#if r}} data-ref-id="{{r}}" style="{{highlightCoverage r}}"{{/if}}>
 {{~#if value ~}}
 {{ concat value }}

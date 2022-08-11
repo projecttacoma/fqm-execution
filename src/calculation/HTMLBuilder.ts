@@ -122,7 +122,12 @@ export function generateHTML(
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
-    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s, highlightCoverage: highlightCoverage || false});
+    const res = main({
+      libraryName: a.libraryName,
+      clauseResults: clauseResults,
+      ...a.annotation[0].s,
+      highlightCoverage: highlightCoverage || false
+    });
     result += res;
   });
 
@@ -136,10 +141,9 @@ export function generateHTML(
  * @param clauseResults ClauseResult array from calculation
  * @returns percentage out of 100, represented as a string
  */
-export function calculateClauseCoverage(
-  clauseResults: ClauseResult[]): string {
-    const coveredClauses = clauseResults.filter((clauseResult) => {
-      return clauseResult.final === FinalResult.TRUE;
-    });
-    return (coveredClauses.length / clauseResults.length * 100).toPrecision(3);
-  }
+export function calculateClauseCoverage(clauseResults: ClauseResult[]): string {
+  const coveredClauses = clauseResults.filter(clauseResult => {
+    return clauseResult.final === FinalResult.TRUE;
+  });
+  return ((coveredClauses.length / clauseResults.length) * 100).toPrecision(3);
+}

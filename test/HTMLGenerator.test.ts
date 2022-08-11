@@ -74,12 +74,12 @@ describe('HTMLGenerator', () => {
   });
 
   test('simple HTML with generation with clause coverage styling', () => {
-     // Ignore tabs and new lines
-     const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');
-     const res = generateHTML([elm], statementResults, trueClauseResults, 'test', true);
- 
-     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
-     expect(res.includes(coverageStyleString)).toBeTruthy();
+    // Ignore tabs and new lines
+    const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');
+    const res = generateHTML([elm], statementResults, trueClauseResults, 'test', true);
+
+    expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.includes(coverageStyleString)).toBeTruthy();
   });
 
   test('no library found should error', () => {
@@ -104,5 +104,4 @@ describe('HTMLGenerator', () => {
       generateHTML([elm], badStatementResults, [], 'test');
     }).toThrowError();
   });
-
 });
