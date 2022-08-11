@@ -2,7 +2,8 @@ import {
   generateHTML,
   objToCSS,
   cqlLogicClauseTrueStyle,
-  cqlLogicClauseFalseStyle
+  cqlLogicClauseFalseStyle,
+  cqlLogicClauseCoveredStyle
 } from '../src/calculation/HTMLBuilder';
 import { StatementResult, ClauseResult } from '../src/types/Calculator';
 import { ELM, ELMStatement } from '../src/types/ELMTypes';
@@ -18,6 +19,7 @@ describe('HTMLGenerator', () => {
   const desiredLocalId = '119';
   const trueStyleString = objToCSS(cqlLogicClauseTrueStyle);
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
+  const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
 
   beforeEach(() => {
     elm = getELMFixture('elm/CMS723v0.json');
@@ -71,6 +73,15 @@ describe('HTMLGenerator', () => {
     expect(res.includes(falseStyleString)).toBeTruthy();
   });
 
+  test('simple HTML with generation with clause coverage styling', () => {
+     // Ignore tabs and new lines
+     const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');
+     const res = generateHTML([elm], statementResults, trueClauseResults, 'test', true);
+ 
+     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
+     expect(res.includes(coverageStyleString)).toBeTruthy();
+  });
+
   test('no library found should error', () => {
     elm.library.identifier.id = 'NOT REAL';
 
@@ -93,4 +104,5 @@ describe('HTMLGenerator', () => {
       generateHTML([elm], badStatementResults, [], 'test');
     }).toThrowError();
   });
+
 });

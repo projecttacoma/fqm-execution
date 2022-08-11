@@ -90,7 +90,7 @@ export function generateHTML(
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
   groupId: string,
-  highlightCoverage: boolean
+  highlightCoverage?: boolean | undefined
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
 
@@ -117,15 +117,29 @@ export function generateHTML(
 
   let result = `<div><h2>Population Group: ${groupId}</h2>`;
   if (highlightCoverage) {
-    result += '<h2> Clause Coverage: XX%</h2>';
+    result += `<h2> Clause Coverage: ${calculateClauseCoverage(clauseResults)}%</h2>`;
   }
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
-    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s, highlightCoverage: highlightCoverage});
+    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s, highlightCoverage: highlightCoverage || false});
     result += res;
   });
 
   result += '</div>';
   return result;
 }
+
+/**
+ * Calculates clause coverage as the percentage of relevant clauses with FinalResult.TRUE
+ * out of all relevant clauses.
+ * @param clauseResults ClauseResult array from calculation
+ * @returns percentage out of 100, represented as a string
+ */
+export function calculateClauseCoverage(
+  clauseResults: ClauseResult[]): string {
+    const coveredClauses = clauseResults.filter((clauseResult) => {
+      return clauseResult.final === FinalResult.TRUE;
+    });
+    return (coveredClauses.length / clauseResults.length * 100).toPrecision(3);
+  }
