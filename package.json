@@ -19,7 +19,7 @@
     "cql-execution": "github:projecttacoma/cql-execution",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "uuid": "^8.3.1"
   },
   "devDependencies": {
