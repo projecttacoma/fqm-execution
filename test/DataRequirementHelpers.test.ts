@@ -13,7 +13,6 @@ import {
 import { DataTypeQuery } from '../src/types/Calculator';
 import { GracefulError } from '../src/types/errors/GracefulError';
 import { DataRequirement } from 'fhir/r4';
-import { rawListeners } from 'process';
 
 describe('DataRequirementHelpers', () => {
   describe('Flatten Filters', () => {
