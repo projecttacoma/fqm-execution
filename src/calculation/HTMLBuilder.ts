@@ -1,10 +1,11 @@
 import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
-import { ClauseResult, StatementResult } from '../types/Calculator';
+import { ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
 import { FinalResult, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
+import { uniqBy } from 'lodash';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -65,10 +66,9 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
 Handlebars.registerHelper('highlightCoverage', (localId, context) => {
   const libraryName: string = context.data.root.libraryName;
   const clauseResults: ClauseResult[] = context.data.root.clauseResults;
-
-  const clauseResult = clauseResults.find(result => result.libraryName === libraryName && result.localId === localId);
+  const clauseResult = clauseResults.filter(result => result.libraryName === libraryName && result.localId === localId);
   if (clauseResult) {
-    if (clauseResult.final === FinalResult.TRUE) {
+    if (clauseResult.some(c => c.final === FinalResult.TRUE)) {
       return objToCSS(cqlLogicClauseCoveredStyle);
     }
   }
@@ -130,20 +130,37 @@ export function generateHTML(
 }
 
 /**
- * Generate HTML structure for all clauses 
+ * Generate HTML structure for all clauses
  * based on ELM annotations in relevant statements
  *
  * @param elmLibraries main ELM and dependencies to lookup statements
- * @param statementResults StatementResult array from calculation
- * @param clauseResults ClauseResult array from calculation
+ * @param executionResults array of detailed results for a single
+ * population group for each patient
  * @returns string of HTML representing the clauses across all groups
  */
- export function generateClauseCoverageHTML(
+export function generateClauseCoverageHTML(
   elmLibraries: ELM[],
-  statementResults: StatementResult[],
-  clauseResults: ClauseResult[]
+  executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
 ): string {
-  const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
+  // get statement results across all patients
+  const statementResults: StatementResult[][] = [];
+  const clauseResults: ClauseResult[][] = [];
+  executionResults.forEach(result => {
+    if (result.detailedResults) {
+      const statements = result.detailedResults.flatMap(s => s.statementResults);
+      statementResults.push(statements);
+
+      const clauses = result.detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
+      clauseResults.push(clauses);
+    }
+  });
+  const flattenedStatementResults = statementResults.flatMap(s => s);
+  const flattenedClauseResults = clauseResults.flatMap(c => c);
+
+  // get all "unique" statements (by library name and localid) with Relevance.TRUE
+  const relevantStatements = uniqBy(flattenedStatementResults, s => JSON.stringify([s.libraryName, s.localId])).filter(
+    s => s.relevance === Relevance.TRUE
+  );
 
   // assemble array of statement annotations to be templated to HTML
   const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
@@ -166,13 +183,16 @@ export function generateHTML(
     }
   });
 
-  let result = `<div><h2> Clause Coverage: ${calculateClauseCoverage(clauseResults)}%</h2>`;
+  let result = `<div><h2> Clause Coverage: ${calculateClauseCoverage(flattenedClauseResults)}%</h2>`;
+
+  // make new array for all relevant clauses across all patients (some will have dup. local ids)
+  //pass in as the clause results below
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
     const res = main({
       libraryName: a.libraryName,
-      clauseResults: clauseResults,
+      clauseResults: flattenedClauseResults,
       ...a.annotation[0].s,
       highlightCoverage: true
     });
@@ -183,7 +203,6 @@ export function generateHTML(
   return result;
 }
 
-
 /**
  * Calculates clause coverage as the percentage of relevant clauses with FinalResult.TRUE
  * out of all relevant clauses.
@@ -191,8 +210,9 @@ export function generateHTML(
  * @returns percentage out of 100, represented as a string
  */
 export function calculateClauseCoverage(clauseResults: ClauseResult[]): string {
-  const coveredClauses = clauseResults.filter(clauseResult => {
-    return clauseResult.final === FinalResult.TRUE;
-  });
-  return ((coveredClauses.length / clauseResults.length) * 100).toPrecision(3);
+  const allUniqueClauses = uniqBy(clauseResults, c => JSON.stringify([c.libraryName, c.localId]));
+
+  const coveredClauses = clauseResults.filter(clause => clause.final === FinalResult.TRUE);
+
+  return ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3);
 }

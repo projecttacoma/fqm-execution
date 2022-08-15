@@ -1,11 +1,12 @@
 import {
   generateHTML,
+  generateClauseCoverageHTML,
   objToCSS,
   cqlLogicClauseTrueStyle,
   cqlLogicClauseFalseStyle,
   cqlLogicClauseCoveredStyle
 } from '../src/calculation/HTMLBuilder';
-import { StatementResult, ClauseResult } from '../src/types/Calculator';
+import { StatementResult, ClauseResult, ExecutionResult, DetailedPopulationGroupResult } from '../src/types/Calculator';
 import { ELM, ELMStatement } from '../src/types/ELMTypes';
 import { FinalResult, Relevance } from '../src/types/Enums';
 import { getELMFixture, getHTMLFixture } from './helpers/testHelpers';
@@ -76,7 +77,19 @@ describe('HTMLGenerator', () => {
   test('simple HTML with generation with clause coverage styling', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML([elm], statementResults, trueClauseResults, 'test', true);
+    const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
+      {
+        patientId: 'testid',
+        detailedResults: [
+          {
+            statementResults: statementResults,
+            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            groupId: 'test'
+          }
+        ]
+      }
+    ];
+    const res = generateClauseCoverageHTML([elm], executionResults);
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(coverageStyleString)).toBeTruthy();
