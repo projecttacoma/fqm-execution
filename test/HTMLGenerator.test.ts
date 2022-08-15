@@ -31,7 +31,8 @@ describe('HTMLGenerator', () => {
         statementName: simpleExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         final: FinalResult.TRUE,
-        relevance: Relevance.TRUE
+        relevance: Relevance.TRUE,
+        localId: desiredLocalId
       }
     ];
 

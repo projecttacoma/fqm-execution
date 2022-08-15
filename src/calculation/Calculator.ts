@@ -163,6 +163,7 @@ export async function calculate<T extends CalculationOptions>(
           }
         }
       }
+
       // add this group result to the patient results
       patientExecutionResult.detailedResults?.push(detailedGroupResult);
     });
