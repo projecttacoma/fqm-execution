@@ -14,6 +14,7 @@ import {
   IsNullFilter
 } from '../types/QueryFilterTypes';
 import { PatientReferences } from '../compartment-definition/PatientReferences';
+import { PatientParameters } from '../compartment-definition/PatientParameters';
 
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
@@ -154,6 +155,7 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
     queryString = queryString.concat(`${key}=${value}&`);
   }
 
+  // TODO: We should change this from hardcoding the parameter as date=... to looking up the proper search parameter
   // Add on date filters
   if (dataRequirement.dateFilter && dataRequirement.dateFilter[0].valuePeriod) {
     if (dataRequirement.dateFilter[0].valuePeriod.start) {
@@ -165,7 +167,7 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
   }
 
   // Create an extension for each way that exists for referencing the patient
-  (<any>PatientReferences)[dataRequirement.type].forEach((patientContext: string) => {
+  (<any>PatientParameters)[dataRequirement.type].forEach((patientContext: string) => {
     const fhirPathExtension: Extension = {
       url: FHIR_QUERY_PATTERN_URL,
       valueString: queryString.concat(`${patientContext}=Patient/{{context.patientId}}`)
