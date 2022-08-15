@@ -14,7 +14,9 @@ import {
   OneOrManyBundles,
   OneOrMultiPatient,
   PopulationGroupResult,
-  DetailedPopulationGroupResult
+  DetailedPopulationGroupResult,
+  StatementResult,
+  ClauseResult
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -23,7 +25,7 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ResultsHelpers from './ClauseResultsBuilder';
 import MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
-import { generateHTML } from './HTMLBuilder';
+import { generateHTML, generateClauseCoverageHTML } from './HTMLBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
@@ -65,6 +67,7 @@ export async function calculate<T extends CalculationOptions>(
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
+  options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
   // Get the default measurement period out of the Measure object
   const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measureBundle);
   // Set the measurement period start/end, but only if the caller didn't specify one
@@ -89,6 +92,8 @@ export async function calculate<T extends CalculationOptions>(
   // Grab all patient IDs from the raw results.
   const patientIds = Object.keys(rawResults.patientResults);
 
+  const allStatementResults: StatementResult[][] = [];
+  const allClauseResults: ClauseResult[][] = [];
   // Iterate over patient bundles and make results for each of them.
   patientIds.forEach(patientId => {
     const patientExecutionResult: ExecutionResult<DetailedPopulationGroupResult> = {
@@ -97,7 +102,7 @@ export async function calculate<T extends CalculationOptions>(
       evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
       patientObject: rawResults.patientResults[patientId]['Patient']
     };
-
+    
     // Grab statement results for the patient
     const patientStatementResults = rawResults.patientResults[patientId];
     // Grab localId results for the patient
@@ -143,16 +148,11 @@ export async function calculate<T extends CalculationOptions>(
       );
 
       if (options.calculateHTML) {
-        let highlightCoverage;
-        if (options.calculateClauseCoverage) {
-          highlightCoverage = true;
-        } else highlightCoverage = false;
         const html = generateHTML(
           elmLibraries,
           detailedGroupResult.statementResults,
           detailedGroupResult.clauseResults,
-          detailedGroupResult.groupId,
-          highlightCoverage
+          detailedGroupResult.groupId
         );
         detailedGroupResult.html = html;
         if (debugObject && options.enableDebugOutput) {
@@ -167,7 +167,8 @@ export async function calculate<T extends CalculationOptions>(
           }
         }
       }
-
+      allStatementResults.push(detailedGroupResult.statementResults);
+      allClauseResults.push(detailedGroupResult.clauseResults);
       // add this group result to the patient results
       patientExecutionResult.detailedResults?.push(detailedGroupResult);
     });
@@ -182,6 +183,25 @@ export async function calculate<T extends CalculationOptions>(
 
   if (debugObject && options.enableDebugOutput) {
     debugObject.detailedResults = executionResults;
+  }
+
+  if (options.calculateClauseCoverage) {
+    const clauseHTML = generateClauseCoverageHTML(
+      elmLibraries,
+      allStatementResults.flatMap(s => s),
+      allClauseResults.flatMap(c => c)
+    );
+    if (debugObject && options.enableDebugOutput) {
+      const debugHtml = {
+        name: 'clause-coverage.html',
+        html: clauseHTML
+      };
+      if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
+        debugObject.html?.push(debugHtml);
+      } else {
+        debugObject.html = [debugHtml];
+      }
+    }
   }
 
   let prunedExecutionResults: ExecutionResult<PopulationGroupResult>[];

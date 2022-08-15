@@ -82,15 +82,13 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
  * @param statementResults StatementResult array from calculation
  * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
- * @param highlightCoverage boolean representing whether to apply coverage highlighting
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
   elmLibraries: ELM[],
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
-  groupId: string,
-  highlightCoverage?: boolean | undefined
+  groupId: string
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
 
@@ -116,17 +114,13 @@ export function generateHTML(
   });
 
   let result = `<div><h2>Population Group: ${groupId}</h2>`;
-  if (highlightCoverage) {
-    result += `<h2> Clause Coverage: ${calculateClauseCoverage(clauseResults)}%</h2>`;
-  }
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
     const res = main({
       libraryName: a.libraryName,
       clauseResults: clauseResults,
-      ...a.annotation[0].s,
-      highlightCoverage: highlightCoverage || false
+      ...a.annotation[0].s
     });
     result += res;
   });
@@ -134,6 +128,61 @@ export function generateHTML(
   result += '</div>';
   return result;
 }
+
+/**
+ * Generate HTML structure for all clauses 
+ * based on ELM annotations in relevant statements
+ *
+ * @param elmLibraries main ELM and dependencies to lookup statements
+ * @param statementResults StatementResult array from calculation
+ * @param clauseResults ClauseResult array from calculation
+ * @returns string of HTML representing the clauses across all groups
+ */
+ export function generateClauseCoverageHTML(
+  elmLibraries: ELM[],
+  statementResults: StatementResult[],
+  clauseResults: ClauseResult[]
+): string {
+  const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
+
+  // assemble array of statement annotations to be templated to HTML
+  const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
+  relevantStatements.forEach(s => {
+    const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
+    if (!matchingLibrary) {
+      throw new UnexpectedResource(`Could not find library ${s.libraryName} for statement ${s.statementName}`);
+    }
+
+    const matchingExpression = matchingLibrary.library.statements.def.find(e => e.name === s.statementName);
+    if (!matchingExpression) {
+      throw new UnexpectedProperty(`No statement ${s.statementName} found in library ${s.libraryName}`);
+    }
+
+    if (matchingExpression.annotation) {
+      statementAnnotations.push({
+        libraryName: s.libraryName,
+        annotation: matchingExpression.annotation
+      });
+    }
+  });
+
+  let result = `<div><h2> Clause Coverage: ${calculateClauseCoverage(clauseResults)}%</h2>`;
+
+  // generate HTML clauses using hbs template for each annotation
+  statementAnnotations.forEach(a => {
+    const res = main({
+      libraryName: a.libraryName,
+      clauseResults: clauseResults,
+      ...a.annotation[0].s,
+      highlightCoverage: true
+    });
+    result += res;
+  });
+
+  result += '</div>';
+  return result;
+}
+
 
 /**
  * Calculates clause coverage as the percentage of relevant clauses with FinalResult.TRUE
