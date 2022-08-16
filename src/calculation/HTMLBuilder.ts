@@ -28,6 +28,13 @@ export const cqlLogicClauseCoveredStyle = {
   'border-bottom-style': 'dashed'
 };
 
+export const cqlLogicUncoveredClauseStyle = {
+  'background-color': 'white',
+  color: 'black',
+  'border-bottom-color': 'white',
+  'border-bottom-style': 'solid'
+};
+
 /**
  * Convert JS object to CSS Style string
  *
@@ -71,6 +78,8 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
   if (clauseResult) {
     if (clauseResult.some(c => c.final === FinalResult.TRUE)) {
       return objToCSS(cqlLogicClauseCoveredStyle);
+    } else if (clauseResult.every(c => c.final === FinalResult.FALSE)) {
+      return objToCSS(cqlLogicUncoveredClauseStyle);
     }
   }
   return '';
