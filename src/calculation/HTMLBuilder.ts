@@ -5,7 +5,7 @@ import { FinalResult, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
-import { uniqBy } from 'lodash';
+import { uniqWith, isEqual } from 'lodash';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -62,7 +62,7 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
   if (clauseResult) {
     if (clauseResult.final === FinalResult.TRUE) {
       return objToCSS(cqlLogicClauseTrueStyle);
-    } else if (clauseResult.final === FinalResult.FALSE) {
+    } else {
       return objToCSS(cqlLogicClauseFalseStyle);
     }
   }
@@ -168,9 +168,10 @@ export function generateClauseCoverageHTML(
   const flattenedClauseResults = clauseResults.flatMap(c => c);
 
   // get all "unique" statements (by library name and localid) and filter by relevance
-  const relevantStatements = uniqBy(flattenedStatementResults, s => JSON.stringify([s.libraryName, s.localId])).filter(
-    s => s.relevance === Relevance.TRUE
-  );
+  const relevantStatements = uniqWith(
+    flattenedStatementResults,
+    (s1, s2) => isEqual(s1.libraryName, s2.libraryName) && isEqual(s1.localId, s2.localId)
+  ).filter(s => s.relevance === Relevance.TRUE);
 
   // assemble array of statement annotations to be templated to HTML
   const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
@@ -226,10 +227,13 @@ export function calculateClauseCoverage(relevantStatements: StatementResult[], c
     relevantStatements.some(s => s.localId === c.localId && s.libraryName === c.libraryName)
   );
   // get all unique clauses to use as denominator in percentage calculation
-  const allUniqueClauses = uniqBy(allRelevantClauses, c => JSON.stringify([c.localId, c.libraryName]));
-  const coveredClauses = uniqBy(
+  const allUniqueClauses = uniqWith(
+    allRelevantClauses,
+    (c1, c2) => isEqual(c1.libraryName, c2.libraryName) && isEqual(c1.localId, c2.localId)
+  );
+  const coveredClauses = uniqWith(
     allRelevantClauses.filter(clause => clause.final === FinalResult.TRUE),
-    c => JSON.stringify([c.libraryName, c.localId])
+    (c1, c2) => isEqual(c1.libraryName, c2.libraryName) && isEqual(c1.localId, c2.localId)
   );
   return ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3);
 }
