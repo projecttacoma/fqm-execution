@@ -1,10 +1,11 @@
 import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
-import { ClauseResult, StatementResult } from '../types/Calculator';
+import { ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
 import { FinalResult, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
+import { uniqWith } from 'lodash';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -18,6 +19,20 @@ export const cqlLogicClauseFalseStyle = {
   color: '#a63b12',
   'border-bottom-color': '#a63b12',
   'border-bottom-style': 'double'
+};
+
+export const cqlLogicClauseCoveredStyle = {
+  'background-color': '#daeaf5',
+  color: '#004e82',
+  'border-bottom-color': '#006cb4',
+  'border-bottom-style': 'dashed'
+};
+
+export const cqlLogicUncoveredClauseStyle = {
+  'background-color': 'white',
+  color: 'black',
+  'border-bottom-color': 'white',
+  'border-bottom-style': 'solid'
 };
 
 /**
@@ -47,8 +62,24 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
   if (clauseResult) {
     if (clauseResult.final === FinalResult.TRUE) {
       return objToCSS(cqlLogicClauseTrueStyle);
-    } else if (clauseResult.final === FinalResult.FALSE) {
+    } else {
       return objToCSS(cqlLogicClauseFalseStyle);
+    }
+  }
+  return '';
+});
+
+// apply highlighting style to covered clauses
+Handlebars.registerHelper('highlightCoverage', (localId, context) => {
+  const libraryName: string = context.data.root.libraryName;
+  const clauseResults: ClauseResult[] = context.data.root.clauseResults;
+
+  const clauseResult = clauseResults.filter(result => result.libraryName === libraryName && result.localId === localId);
+  if (clauseResult) {
+    if (clauseResult.some(c => c.final === FinalResult.TRUE)) {
+      return objToCSS(cqlLogicClauseCoveredStyle);
+    } else if (clauseResult.every(c => c.final === FinalResult.FALSE)) {
+      return objToCSS(cqlLogicUncoveredClauseStyle);
     }
   }
   return '';
@@ -59,6 +90,7 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
  *
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param statementResults StatementResult array from calculation
+ * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
  * @returns string of HTML representing the clauses for this group
  */
@@ -95,10 +127,113 @@ export function generateHTML(
 
   // generate HTML clauses using hbs template for each annotation
   statementAnnotations.forEach(a => {
-    const res = main({ libraryName: a.libraryName, clauseResults: clauseResults, ...a.annotation[0].s });
+    const res = main({
+      libraryName: a.libraryName,
+      clauseResults: clauseResults,
+      ...a.annotation[0].s
+    });
     result += res;
   });
 
   result += '</div>';
   return result;
+}
+
+/**
+ * Generate HTML structure with clause coverage highlighting for all clauses
+ * based on ELM annotations in relevant statements
+ *
+ * @param elmLibraries main ELM and dependencies to lookup statements
+ * @param executionResults array of detailed population group results across
+ * all patients
+ * @returns string of HTML representing the clauses across all groups
+ */
+export function generateClauseCoverageHTML(
+  elmLibraries: ELM[],
+  executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
+): string {
+  // get statement and clause results across all patients
+  const statementResults: StatementResult[][] = [];
+  const clauseResults: ClauseResult[][] = [];
+  executionResults.forEach(result => {
+    if (result.detailedResults) {
+      const statements = result.detailedResults.flatMap(s => s.statementResults);
+      statementResults.push(statements);
+
+      const clauses = result.detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
+      clauseResults.push(clauses);
+    }
+  });
+  const flattenedStatementResults = statementResults.flatMap(s => s);
+  const flattenedClauseResults = clauseResults.flatMap(c => c);
+
+  // get all "unique" statements (by library name and localid) and filter by relevance
+  const relevantStatements = uniqWith(
+    flattenedStatementResults,
+    (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
+  ).filter(s => s.relevance === Relevance.TRUE);
+
+  // assemble array of statement annotations to be templated to HTML
+  const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
+  relevantStatements.forEach(s => {
+    const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
+    if (!matchingLibrary) {
+      throw new UnexpectedResource(`Could not find library ${s.libraryName} for statement ${s.statementName}`);
+    }
+
+    const matchingExpression = matchingLibrary.library.statements.def.find(e => e.name === s.statementName);
+    if (!matchingExpression) {
+      throw new UnexpectedProperty(`No statement ${s.statementName} found in library ${s.libraryName}`);
+    }
+
+    if (matchingExpression.annotation) {
+      statementAnnotations.push({
+        libraryName: s.libraryName,
+        annotation: matchingExpression.annotation
+      });
+    }
+  });
+
+  let result = `<div><h2> Clause Coverage: ${calculateClauseCoverage(
+    relevantStatements,
+    flattenedClauseResults
+  )}%</h2>`;
+
+  // generate HTML clauses using hbs template for each annotation
+  statementAnnotations.forEach(a => {
+    const res = main({
+      libraryName: a.libraryName,
+      clauseResults: flattenedClauseResults,
+      ...a.annotation[0].s,
+      highlightCoverage: true
+    });
+    result += res;
+  });
+
+  result += '</div>';
+  return result;
+}
+
+/**
+ * Calculates clause coverage as the percentage of relevant clauses with FinalResult.TRUE
+ * out of all relevant clauses.
+ * @param relevantStatements StatementResults array from calculation filtered to relevant statements
+ * @param clauseResults ClauseResult array from calculation
+ * @returns percentage out of 100, represented as a string
+ */
+export function calculateClauseCoverage(relevantStatements: StatementResult[], clauseResults: ClauseResult[]): string {
+  // find all relevant clauses using localId and libraryName from relevant statements
+  const allRelevantClauses = clauseResults.filter(c =>
+    relevantStatements.some(s => s.localId === c.localId && s.libraryName === c.libraryName)
+  );
+  // get all unique clauses to use as denominator in percentage calculation
+  const allUniqueClauses = uniqWith(
+    allRelevantClauses,
+    (c1, c2) => c1.libraryName === c2.libraryName && c1.localId === c2.localId
+  );
+  const coveredClauses = uniqWith(
+    allRelevantClauses.filter(clause => clause.final === FinalResult.TRUE),
+    (c1, c2) => c1.libraryName === c2.libraryName && c1.localId === c2.localId
+  );
+  return ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3);
 }

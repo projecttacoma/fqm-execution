@@ -23,7 +23,7 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ResultsHelpers from './ClauseResultsBuilder';
 import MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
-import { generateHTML } from './HTMLBuilder';
+import { generateHTML, generateClauseCoverageHTML } from './HTMLBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
@@ -65,6 +65,7 @@ export async function calculate<T extends CalculationOptions>(
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
+  options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
   // Get the default measurement period out of the Measure object
   const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measureBundle);
   // Set the measurement period start/end, but only if the caller didn't specify one
@@ -179,6 +180,22 @@ export async function calculate<T extends CalculationOptions>(
     debugObject.detailedResults = executionResults;
   }
 
+  let clauseCoverageHTML;
+  if (options.calculateClauseCoverage) {
+    clauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
+    if (debugObject && options.enableDebugOutput) {
+      const debugHtml = {
+        name: 'clause-coverage.html',
+        html: clauseCoverageHTML
+      };
+      if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
+        debugObject.html?.push(debugHtml);
+      } else {
+        debugObject.html = [debugHtml];
+      }
+    }
+  }
+
   let prunedExecutionResults: ExecutionResult<PopulationGroupResult>[];
   if (options.verboseCalculationResults === false) {
     // Prune to simple view
@@ -195,13 +212,15 @@ export async function calculate<T extends CalculationOptions>(
       elmLibraries: results.elmLibraries,
       mainLibraryName: results.mainLibraryName,
       parameters: results.parameters,
-      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache })
+      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
+      ...(clauseCoverageHTML && { coverageHTML: clauseCoverageHTML })
     };
   } else {
     return {
       results: prunedExecutionResults,
       debugOutput: debugObject,
-      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache })
+      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
+      ...(clauseCoverageHTML && { coverageHTML: clauseCoverageHTML })
     };
   }
 }

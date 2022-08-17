@@ -1,10 +1,12 @@
 import {
   generateHTML,
+  generateClauseCoverageHTML,
   objToCSS,
   cqlLogicClauseTrueStyle,
-  cqlLogicClauseFalseStyle
+  cqlLogicClauseFalseStyle,
+  cqlLogicClauseCoveredStyle
 } from '../src/calculation/HTMLBuilder';
-import { StatementResult, ClauseResult } from '../src/types/Calculator';
+import { StatementResult, ClauseResult, ExecutionResult, DetailedPopulationGroupResult } from '../src/types/Calculator';
 import { ELM, ELMStatement } from '../src/types/ELMTypes';
 import { FinalResult, Relevance } from '../src/types/Enums';
 import { getELMFixture, getHTMLFixture } from './helpers/testHelpers';
@@ -18,6 +20,7 @@ describe('HTMLGenerator', () => {
   const desiredLocalId = '119';
   const trueStyleString = objToCSS(cqlLogicClauseTrueStyle);
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
+  const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
 
   beforeEach(() => {
     elm = getELMFixture('elm/CMS723v0.json');
@@ -28,7 +31,8 @@ describe('HTMLGenerator', () => {
         statementName: simpleExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         final: FinalResult.TRUE,
-        relevance: Relevance.TRUE
+        relevance: Relevance.TRUE,
+        localId: desiredLocalId
       }
     ];
 
@@ -69,6 +73,27 @@ describe('HTMLGenerator', () => {
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(falseStyleString)).toBeTruthy();
+  });
+
+  test('simple HTML with generation with clause coverage styling', () => {
+    // Ignore tabs and new lines
+    const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');
+    const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
+      {
+        patientId: 'testid',
+        detailedResults: [
+          {
+            statementResults: statementResults,
+            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            groupId: 'test'
+          }
+        ]
+      }
+    ];
+    const res = generateClauseCoverageHTML([elm], executionResults);
+
+    expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.includes(coverageStyleString)).toBeTruthy();
   });
 
   test('no library found should error', () => {

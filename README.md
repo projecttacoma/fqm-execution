@@ -92,6 +92,7 @@ The options that we support for calculation are as follows:
 | reportType | string | yes | Type of MeasureReport to generate: "summary" or "individual". |
 | calculateSDEs | boolean | yes | Include Supplemental Data Elements in calculation. Defaults to false. |
 | calculateHTML | boolean | yes | Include HTML structure for highlighting. Defaults to false. |
+| calculateClauseCoverage | boolean | yes | Include HTML structure with coverage highlighting. Defaults to false. |
 | vsAPIKey | string | yes | API key, to be used to access a valueset API for downloading any missing valuesets |
 | useValueSetCaching | boolean | yes | Whether to cache valuesets obtained by an API on the filesystem |
 | profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against|

@@ -24,8 +24,10 @@ export interface CalculationOptions {
   patientSource?: DataProvider;
   /** Include SDEs in calculation */
   calculateSDEs?: boolean;
-  /** Include HTML structure for highlighting */
+  /** Include HTML structure for highlighting (defaults to logic highlighting) */
   calculateHTML?: boolean;
+  /** Include HTML structure with clause coverage highlighting */
+  calculateClauseCoverage?: boolean;
   /** Enable debug output including CQL, ELM, results */
   enableDebugOutput?: boolean;
   /** Enables the return of ELM Libraries and name of main library to be used for further processing. ex. gaps in care */
@@ -348,6 +350,7 @@ export interface CalculationOutput<T extends CalculationOptions> extends Calcula
   elmLibraries?: ELM[];
   mainLibraryName?: string;
   parameters?: { [key: string]: any };
+  coverageHTML?: string;
 }
 
 /**
