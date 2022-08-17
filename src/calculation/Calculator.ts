@@ -180,12 +180,13 @@ export async function calculate<T extends CalculationOptions>(
     debugObject.detailedResults = executionResults;
   }
 
+  let clauseCoverageHTML;
   if (options.calculateClauseCoverage) {
-    const clauseHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
+    clauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
     if (debugObject && options.enableDebugOutput) {
       const debugHtml = {
         name: 'clause-coverage.html',
-        html: clauseHTML
+        html: clauseCoverageHTML
       };
       if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
         debugObject.html?.push(debugHtml);
@@ -211,13 +212,15 @@ export async function calculate<T extends CalculationOptions>(
       elmLibraries: results.elmLibraries,
       mainLibraryName: results.mainLibraryName,
       parameters: results.parameters,
-      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache })
+      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
+      ...(clauseCoverageHTML && { coverageHTML: clauseCoverageHTML })
     };
   } else {
     return {
       results: prunedExecutionResults,
       debugOutput: debugObject,
-      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache })
+      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
+      ...(clauseCoverageHTML && { coverageHTML: clauseCoverageHTML })
     };
   }
 }

@@ -5,7 +5,7 @@ import { FinalResult, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
-import { uniqWith, isEqual } from 'lodash';
+import { uniqWith } from 'lodash';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -170,7 +170,7 @@ export function generateClauseCoverageHTML(
   // get all "unique" statements (by library name and localid) and filter by relevance
   const relevantStatements = uniqWith(
     flattenedStatementResults,
-    (s1, s2) => isEqual(s1.libraryName, s2.libraryName) && isEqual(s1.localId, s2.localId)
+    (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
   ).filter(s => s.relevance === Relevance.TRUE);
 
   // assemble array of statement annotations to be templated to HTML
@@ -229,11 +229,11 @@ export function calculateClauseCoverage(relevantStatements: StatementResult[], c
   // get all unique clauses to use as denominator in percentage calculation
   const allUniqueClauses = uniqWith(
     allRelevantClauses,
-    (c1, c2) => isEqual(c1.libraryName, c2.libraryName) && isEqual(c1.localId, c2.localId)
+    (c1, c2) => c1.libraryName === c2.libraryName && c1.localId === c2.localId
   );
   const coveredClauses = uniqWith(
     allRelevantClauses.filter(clause => clause.final === FinalResult.TRUE),
-    (c1, c2) => isEqual(c1.libraryName, c2.libraryName) && isEqual(c1.localId, c2.localId)
+    (c1, c2) => c1.libraryName === c2.libraryName && c1.localId === c2.localId
   );
   return ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3);
 }
