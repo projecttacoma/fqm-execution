@@ -1,6 +1,6 @@
 /*
 The PatientParameters object is the result of parsing the Patient Compartment Definition and gathering the
-search parameters for each resource. The resulting object represents TODO*
+search parameters for each resource.*
 
 The script for parsing the Patient Compartment Definition can be found in projjecttacoma/deqm-test-server.
 

@@ -13,7 +13,6 @@ import {
   ValueFilter,
   IsNullFilter
 } from '../types/QueryFilterTypes';
-import { PatientReferences } from '../compartment-definition/PatientReferences';
 import { PatientParameters } from '../compartment-definition/PatientParameters';
 
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
