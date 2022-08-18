@@ -483,10 +483,10 @@ describe('DataRequirementHelpers', () => {
       expect(testDataReq.extension?.length).toEqual(2);
       if (testDataReq.extension) {
         expect(testDataReq.extension[0].valueString).toEqual(
-          '/Procedure?code:in=http://example.com&status=completed&subject=Patient/{{context.patientId}}'
+          '/Procedure?code:in=http://example.com&status=completed&patient=Patient/{{context.patientId}}'
         );
         expect(testDataReq.extension[1].valueString).toEqual(
-          '/Procedure?code:in=http://example.com&status=completed&performer.actor=Patient/{{context.patientId}}'
+          '/Procedure?code:in=http://example.com&status=completed&performer=Patient/{{context.patientId}}'
         );
       }
     });
@@ -523,10 +523,47 @@ describe('DataRequirementHelpers', () => {
       expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
       if (testDataReqWithDateFilter.extension) {
         expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
-          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&subject=Patient/{{context.patientId}}'
+          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&patient=Patient/{{context.patientId}}'
         );
         expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
-          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&performer.actor=Patient/{{context.patientId}}'
+          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&performer=Patient/{{context.patientId}}'
+        );
+      }
+    });
+
+    test('add fhirQueryPattern extension to data requirement of type Coverage with CodeFilter codes and valueSets', () => {
+      const testCoverageDataReq: DataRequirement = {
+        type: 'Coverage',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
+              }
+            ]
+          }
+        ]
+      };
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testCoverageDataReq);
+      expect(testCoverageDataReq.extension?.length).toEqual(4);
+      if (testCoverageDataReq.extension) {
+        expect(testCoverageDataReq.extension[0].valueString).toEqual(
+          '/Coverage?code:in=http://example.com&status=completed&policy-holder=Patient/{{context.patientId}}'
+        );
+        expect(testCoverageDataReq.extension[1].valueString).toEqual(
+          '/Coverage?code:in=http://example.com&status=completed&subscriber=Patient/{{context.patientId}}'
+        );
+        expect(testCoverageDataReq.extension[2].valueString).toEqual(
+          '/Coverage?code:in=http://example.com&status=completed&beneficiary=Patient/{{context.patientId}}'
+        );
+        expect(testCoverageDataReq.extension[3].valueString).toEqual(
+          '/Coverage?code:in=http://example.com&status=completed&payor=Patient/{{context.patientId}}'
         );
       }
     });
