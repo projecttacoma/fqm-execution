@@ -1,4 +1,10 @@
-import { ExecutionResult, CalculationOptions, PopulationResult, PopulationGroupResult } from '../types/Calculator';
+import {
+  ExecutionResult,
+  CalculationOptions,
+  PopulationResult,
+  PopulationGroupResult,
+  DetailedPopulationGroupResult
+} from '../types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import { extractMeasureFromBundle } from '../helpers/MeasureBundleHelpers';
@@ -81,6 +87,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       group.population = [];
 
       // build each population group with 0 for initial value
+      // TODO: figure out how to represent multiple measure observations
       measureGroup.population?.forEach(measurePopulation => {
         const pop = <fhir4.MeasureReportGroupPopulation>{};
         pop.count = 0;
@@ -172,11 +179,13 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
           if (this.scoringCode === MeasureScoreType.CV) {
             group.measureScore = this.calcMeasureScoreCV(this.measure, groupResults, group.id || '');
             this.addScoreObservation(group.measureScore, this.measure, this.report);
-          }
-
-          if (this.scoringCode === MeasureScoreType.RATIO) {
-            group.measureScore = this.calcMeasureScoreRatio(this.measure, groupResults, group.id || '');
-            this.addScoreObservation(group.measureScore, this.measure, this.report);
+          } else if (this.scoringCode === MeasureScoreType.RATIO) {
+            const measureScore = this.calcMeasureScoreRatio(groupResults);
+            // TODO: update this when we support ratio for summary/subject-list reports
+            if (this.isIndividual) {
+              group.measureScore = measureScore;
+            }
+            this.addScoreObservation(measureScore, this.measure, this.report);
           }
 
           // add to stratifier results if there are any
@@ -198,14 +207,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
                       group.id || '',
                       stratResults.strataCode
                     );
-                  }
-                  if (this.scoringCode === MeasureScoreType.RATIO) {
-                    stratum.measureScore = this.calcMeasureScoreRatio(
-                      this.measure,
-                      groupResults,
-                      group.id || '',
-                      stratResults.strataCode
-                    );
+                  } else if (this.scoringCode === MeasureScoreType.RATIO) {
+                    stratum.measureScore = this.calcMeasureScoreRatio(groupResults, stratResults.strataCode);
                   }
                 } else {
                   throw new UnexpectedProperty(
@@ -224,10 +227,12 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
         if (this.scoringCode === MeasureScoreType.CV) {
           group.measureScore = this.calcMeasureScoreCV(this.measure, groupResults, group.id || '');
           this.addScoreObservation(group.measureScore, this.measure, this.report);
-        }
-        if (this.scoringCode === MeasureScoreType.RATIO) {
-          group.measureScore = this.calcMeasureScoreRatio(this.measure, groupResults, group.id || '');
-          this.addScoreObservation(group.measureScore, this.measure, this.report);
+        } else if (this.scoringCode === MeasureScoreType.RATIO) {
+          const measureScore = this.calcMeasureScoreRatio(groupResults);
+          if (this.isIndividual) {
+            group.measureScore = measureScore;
+          }
+          this.addScoreObservation(measureScore, this.measure, this.report);
         }
         // add to stratifier results if there are any
         if (group.stratifier) {
@@ -248,14 +253,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
                     group.id || '',
                     stratResults.strataCode
                   );
-                }
-                if (this.scoringCode === MeasureScoreType.RATIO) {
-                  stratum.measureScore = this.calcMeasureScoreRatio(
-                    this.measure,
-                    groupResults,
-                    group.id || '',
-                    stratResults.strataCode
-                  );
+                } else if (this.scoringCode === MeasureScoreType.RATIO) {
+                  stratum.measureScore = this.calcMeasureScoreRatio(groupResults, stratResults.strataCode);
                 }
               } else {
                 throw new UnexpectedProperty(
@@ -419,12 +418,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   }
 
   // Ratio requires different input types than other scores
-  private calcMeasureScoreRatio(
-    measure: fhir4.Measure,
-    detail: PopulationGroupResult,
-    groupID: string,
-    strataCode?: string
-  ) {
+  // TODO: figure out what to do for aggregate report
+  private calcMeasureScoreRatio(detail: PopulationGroupResult, strataCode?: string) {
     let observations = [];
     if (detail.episodeResults) {
       // find all episode results with a true measure observation
@@ -448,7 +443,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       // ignore stratification (by setting as true) if stratifier not passed in
       const inStrat = strataCode ? detail.stratifierResults?.find(sr => sr.strataCode === strataCode)?.result : true;
 
-      // CV for patient-based results is untested
+      // Ratio for patient-based results is untested
       const obsResultPop = detail.populationResults?.filter(pr => pr.populationType === PopulationType.OBSERV);
       observations =
         obsResultPop && inStrat
@@ -457,13 +452,77 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
             })
           : [];
     }
-    console.log(observations);
 
-    // (NUMER OBSERVATION) / (DENOM OBSERVATION)`
-    const numeratorCount = observations.find(obs => obs.criteriaExpression === 'Numerator Observations')?.observation;
-    const denominatorCount = observations.find(
-      obs => obs.criteriaExpression === 'Denominator Observations'
-    )?.observation;
+    // Calculate as (NUMER OBSERVATION) / (DENOM OBSERVATION)
+    // TODO: consider aggregate method?
+    const numeratorCount = observations
+      .filter(obs => obs.criteriaExpression === 'Numerator Observations')
+      ?.map(o => o.observation)
+      .reduce((accumulator, currentValue) => accumulator.observation + currentValue.observation);
+    const denominatorCount = observations
+      .filter(obs => obs.criteriaExpression === 'Denominator Observations')
+      ?.map(o => o.observation)
+      .reduce((accumulator, currentValue) => accumulator.observation + currentValue.observation);
+
+    return {
+      // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
+      value: denominatorCount === 0 ? 0 : (numeratorCount / denominatorCount) * 1.0
+    };
+  }
+
+  private calcGroupMeasureScoreRatio(results: ExecutionResult<PopulationGroupResult>[], strataCode?: string) {
+    let numeratorCount = 0;
+    let denominatorCount = 0;
+    results.forEach(detail => {
+      let observations = [];
+      detail?.detailedResults?.forEach(d => {
+        if (d.episodeResults) {
+          const relevantEpisodes =
+            d.episodeResults.filter(er => {
+              const inStrat = strataCode ? er.stratifierResults?.find(sr => sr.strataCode == strataCode)?.result : true;
+              return (
+                er.populationResults.filter(pr => pr.populationType === PopulationType.OBSERV)?.map(pr => pr.result) &&
+                inStrat
+              );
+            }) || [];
+
+          observations = relevantEpisodes.flatMap(er =>
+            er.populationResults
+              .filter(pr => pr.populationType === PopulationType.OBSERV)
+              .map(e => {
+                return {
+                  criteriaExpression: e.criteriaExpression,
+                  observation: e.observations ? e.observations[0] : 0
+                };
+              })
+          );
+        } else {
+          // ignore stratification (by setting as true) if stratifier not passed in
+          const inStrat = strataCode ? d.stratifierResults?.find(sr => sr.strataCode === strataCode)?.result : true;
+          // Ratio for patient-based results is untested
+          const obsResultPop = d.populationResults?.filter(pr => pr.populationType === PopulationType.OBSERV);
+          observations =
+            obsResultPop && inStrat
+              ? obsResultPop.map(e => {
+                  return {
+                    criteriaExpression: e.criteriaExpression,
+                    observation: e.observations ? e.observations[0] : 0
+                  };
+                })
+              : [];
+        }
+        const numCount = observations
+          .filter(obs => obs.criteriaExpression === 'Numerator Observations')
+          ?.map(o => o.observation)
+          .reduce((accumulator, currentValue) => accumulator.observation + currentValue.observation);
+        const denomCount = observations
+          .filter(obs => obs.criteriaExpression === 'Denominator Observations')
+          ?.map(o => o.observation)
+          .reduce((accumulator, currentValue) => accumulator.observation + currentValue.observation);
+        numeratorCount += numCount;
+        denominatorCount += denomCount;
+      });
+    });
 
     return {
       // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
@@ -580,15 +639,19 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     }
   }
 
-  private calculateGroupScores() {
+  public calculateGroupScores(results?: ExecutionResult<PopulationGroupResult>[]) {
     if (!this.isIndividual && this.scoringCode === MeasureScoreType.CV) {
       throw new UnsupportedProperty('Aggregate measure reports for continuous variable measures not supported');
     }
 
     this.report.group?.forEach(group => {
       if (group.population) {
-        if (this.scoringCode === MeasureScoreType.CV || this.scoringCode === MeasureScoreType.RATIO) {
+        if (this.scoringCode === MeasureScoreType.CV) {
           //this...
+        } else if (this.scoringCode === MeasureScoreType.RATIO) {
+          if (results) {
+            group.measureScore = this.calcGroupMeasureScoreRatio(results);
+          }
         } else {
           group.measureScore = this.calcMeasureScore(this.scoringCode, group.population);
         }
@@ -600,7 +663,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       group.stratifier?.forEach(strat => {
         strat.stratum?.forEach(stratum => {
           if (stratum.population) {
-            if (this.scoringCode === MeasureScoreType.CV) {
+            if (this.scoringCode === MeasureScoreType.CV || this.scoringCode === MeasureScoreType.RATIO) {
               //
             } else {
               stratum.measureScore = this.calcMeasureScore(this.scoringCode, stratum.population);
@@ -613,8 +676,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     });
   }
 
-  public getReport(): fhir4.MeasureReport {
-    this.calculateGroupScores();
+  public getReport(results?: ExecutionResult<PopulationGroupResult>[]): fhir4.MeasureReport {
+    this.calculateGroupScores(results);
     return this.report;
   }
 

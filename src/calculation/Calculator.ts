@@ -304,7 +304,7 @@ export async function calculateAggregateMeasureReport(
     builder.addPatientResults(result);
   });
 
-  const report = builder.getReport();
+  const report = builder.getReport(results);
 
   if (debugOutput && options.enableDebugOutput) {
     debugOutput.measureReports = [report];
