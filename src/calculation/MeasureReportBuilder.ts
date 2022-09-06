@@ -87,7 +87,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       group.population = [];
 
       // build each population group with 0 for initial value
-      // TODO: figure out how to represent multiple measure observations
       measureGroup.population?.forEach(measurePopulation => {
         const pop = <fhir4.MeasureReportGroupPopulation>{};
         pop.count = 0;
@@ -181,7 +180,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
             this.addScoreObservation(group.measureScore, this.measure, this.report);
           } else if (this.scoringCode === MeasureScoreType.RATIO) {
             const measureScore = this.calcMeasureScoreRatio(groupResults);
-            // TODO: update this when we support ratio for summary/subject-list reports
             if (this.isIndividual) {
               group.measureScore = measureScore;
             }
@@ -418,7 +416,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   }
 
   // Ratio requires different input types than other scores
-  // TODO: figure out what to do for aggregate report
   private calcMeasureScoreRatio(detail: PopulationGroupResult, strataCode?: string) {
     let observations = [];
     if (detail.episodeResults) {
@@ -454,7 +451,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     }
 
     // Calculate as (NUMER OBSERVATION) / (DENOM OBSERVATION)
-    // TODO: consider aggregate method?
     const numeratorCount = observations
       .filter(obs => obs.criteriaExpression === 'Numerator Observations')
       ?.map(o => o.observation)
@@ -465,7 +461,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       .reduce((accumulator, currentValue) => accumulator.observation + currentValue.observation);
 
     return {
-      // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
       value: denominatorCount === 0 ? 0 : (numeratorCount / denominatorCount) * 1.0
     };
   }
