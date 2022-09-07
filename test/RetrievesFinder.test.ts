@@ -5,6 +5,7 @@ import { GracefulError } from '../src/types/errors/GracefulError';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const simpleQueryELMDependency = getELMFixture('elm/queries/SimpleQueriesDependency.json');
+const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
 
 const allELM = [simpleQueryELM, simpleQueryELMDependency];
 
@@ -264,5 +265,141 @@ describe('Find Numerator Queries', () => {
     const expressionRef = simpleQueryELM.library.statements.def[10];
     const results = findRetrieves(simpleQueryELM, allELM, expressionRef.expression);
     expect(results).toEqual(EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS);
+  });
+
+  describe('Nested Query Tests', () => {
+    it('should find retrieve for query using with', () => {
+      const expressionRef = complexQueryELM.library.statements.def[8];
+      const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
+
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs'
+          }),
+          expect.objectContaining({
+            dataType: 'Procedure',
+            valueSet: 'http://example.com/test-vs2'
+          })
+        ])
+      );
+    });
+
+    it('should find retrieve for query using with and union', () => {
+      const expressionRef = complexQueryELM.library.statements.def[9];
+      const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
+
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs'
+          }),
+          expect.objectContaining({
+            dataType: 'Procedure',
+            valueSet: 'http://example.com/test-vs2'
+          }),
+          expect.objectContaining({
+            dataType: 'Procedure',
+            valueSet: 'http://example.com/test-vs3'
+          })
+        ])
+      );
+    });
+
+    it('should find retrieve for query using without', () => {
+      const expressionRef = complexQueryELM.library.statements.def[10];
+      const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
+
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs'
+          }),
+          expect.objectContaining({
+            dataType: 'Procedure',
+            valueSet: 'http://example.com/test-vs2'
+          })
+        ])
+      );
+    });
+
+    it('should find retrieve for query using retrieve in a such that', () => {
+      const expressionRef = complexQueryELM.library.statements.def[11];
+      const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
+
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs'
+          }),
+          expect.objectContaining({
+            dataType: 'Procedure',
+            valueSet: 'http://example.com/test-vs2'
+          }),
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs3'
+          })
+        ])
+      );
+    });
+
+    it('should find retrieve for query nested within a where', () => {
+      const expressionRef = complexQueryELM.library.statements.def[12];
+      const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
+
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs'
+          }),
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs2'
+          })
+        ])
+      );
+    });
+
+    it('should find retrieve for query using let', () => {
+      const expressionRef = complexQueryELM.library.statements.def[13];
+      const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
+
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs'
+          }),
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs2'
+          })
+        ])
+      );
+    });
+
+    it('should find retrieve for query with a query in the return', () => {
+      const expressionRef = complexQueryELM.library.statements.def[14];
+      const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
+
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs'
+          }),
+          expect.objectContaining({
+            dataType: 'Encounter',
+            valueSet: 'http://example.com/test-vs2'
+          })
+        ])
+      );
+    });
   });
 });

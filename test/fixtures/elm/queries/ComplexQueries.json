@@ -8,7 +8,7 @@
       {
         "type": "Annotation",
         "s": {
-          "r": "135",
+          "r": "212",
           "s": [
             {
               "value": [
@@ -159,15 +159,15 @@
     "parameters": {
       "def": [
         {
-          "localId": "30",
-          "locator": "25:1-26:66",
+          "localId": "32",
+          "locator": "27:1-28:66",
           "name": "Measurement Period",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
               "s": {
-                "r": "30",
+                "r": "32",
                 "s": [
                   {
                     "value": [
@@ -178,7 +178,7 @@
                     ]
                   },
                   {
-                    "r": "29",
+                    "r": "31",
                     "s": [
                       {
                         "value": [
@@ -186,7 +186,7 @@
                         ]
                       },
                       {
-                        "r": "28",
+                        "r": "30",
                         "s": [
                           {
                             "value": [
@@ -208,10 +208,10 @@
                     ]
                   },
                   {
-                    "r": "27",
+                    "r": "29",
                     "s": [
                       {
-                        "r": "25",
+                        "r": "27",
                         "value": [
                           "Interval[",
                           "@2019-01-01T00:00:00.0",
@@ -227,14 +227,14 @@
             }
           ],
           "default": {
-            "localId": "27",
-            "locator": "26:11-26:66",
+            "localId": "29",
+            "locator": "28:11-28:66",
             "lowClosed": true,
             "highClosed": false,
             "type": "Interval",
             "low": {
-              "localId": "25",
-              "locator": "26:20-26:41",
+              "localId": "27",
+              "locator": "28:20-28:41",
               "type": "DateTime",
               "year": {
                 "valueType": "{urn:hl7-org:elm-types:r1}Integer",
@@ -273,8 +273,8 @@
               }
             },
             "high": {
-              "localId": "26",
-              "locator": "26:44-26:65",
+              "localId": "28",
+              "locator": "28:44-28:65",
               "type": "DateTime",
               "year": {
                 "valueType": "{urn:hl7-org:elm-types:r1}Integer",
@@ -314,12 +314,12 @@
             }
           },
           "parameterTypeSpecifier": {
-            "localId": "29",
-            "locator": "25:32-25:49",
+            "localId": "31",
+            "locator": "27:32-27:49",
             "type": "IntervalTypeSpecifier",
             "pointType": {
-              "localId": "28",
-              "locator": "25:41-25:48",
+              "localId": "30",
+              "locator": "27:41-27:48",
               "name": "{urn:hl7-org:elm-types:r1}DateTime",
               "type": "NamedTypeSpecifier"
             }
@@ -436,14 +436,66 @@
               }
             }
           ]
+        },
+        {
+          "localId": "8",
+          "locator": "13:1-13:50",
+          "name": "test-vs2",
+          "id": "http://example.com/test-vs2",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "8",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "valueset ",
+                      "\"test-vs2\"",
+                      ": ",
+                      "'http://example.com/test-vs2'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "localId": "9",
+          "locator": "14:1-14:50",
+          "name": "test-vs3",
+          "id": "http://example.com/test-vs3",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "9",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "valueset ",
+                      "\"test-vs3\"",
+                      ": ",
+                      "'http://example.com/test-vs3'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     "codes": {
       "def": [
         {
-          "localId": "9",
-          "locator": "14:1-14:39",
+          "localId": "11",
+          "locator": "16:1-16:39",
           "name": "test-code",
           "id": "test",
           "accessLevel": "Public",
@@ -451,7 +503,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "9",
+                "r": "11",
                 "s": [
                   {
                     "value": [
@@ -464,7 +516,7 @@
                     ]
                   },
                   {
-                    "r": "8",
+                    "r": "10",
                     "s": [
                       {
                         "value": [
@@ -478,14 +530,14 @@
             }
           ],
           "codeSystem": {
-            "localId": "8",
-            "locator": "14:31-14:39",
+            "localId": "10",
+            "locator": "16:31-16:39",
             "name": "EXAMPLE"
           }
         },
         {
-          "localId": "11",
-          "locator": "15:1-15:45",
+          "localId": "13",
+          "locator": "17:1-17:45",
           "name": "test-code-2",
           "id": "test-2",
           "accessLevel": "Public",
@@ -493,7 +545,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "11",
+                "r": "13",
                 "s": [
                   {
                     "value": [
@@ -506,7 +558,7 @@
                     ]
                   },
                   {
-                    "r": "10",
+                    "r": "12",
                     "s": [
                       {
                         "value": [
@@ -520,58 +572,16 @@
             }
           ],
           "codeSystem": {
-            "localId": "10",
-            "locator": "15:35-15:45",
+            "localId": "12",
+            "locator": "17:35-17:45",
             "name": "EXAMPLE-2"
           }
         },
         {
-          "localId": "13",
-          "locator": "17:1-17:59",
+          "localId": "15",
+          "locator": "19:1-19:59",
           "name": "Active",
           "id": "active",
-          "accessLevel": "Public",
-          "annotation": [
-            {
-              "type": "Annotation",
-              "s": {
-                "r": "13",
-                "s": [
-                  {
-                    "value": [
-                      "",
-                      "code ",
-                      "\"Active\"",
-                      ": ",
-                      "'active'",
-                      " from "
-                    ]
-                  },
-                  {
-                    "r": "12",
-                    "s": [
-                      {
-                        "value": [
-                          "\"ConditionClinicalStatusCodes\""
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            }
-          ],
-          "codeSystem": {
-            "localId": "12",
-            "locator": "17:30-17:59",
-            "name": "ConditionClinicalStatusCodes"
-          }
-        },
-        {
-          "localId": "15",
-          "locator": "18:1-18:67",
-          "name": "Recurrence",
-          "id": "recurrence",
           "accessLevel": "Public",
           "annotation": [
             {
@@ -583,9 +593,9 @@
                     "value": [
                       "",
                       "code ",
-                      "\"Recurrence\"",
+                      "\"Active\"",
                       ": ",
-                      "'recurrence'",
+                      "'active'",
                       " from "
                     ]
                   },
@@ -605,15 +615,15 @@
           ],
           "codeSystem": {
             "localId": "14",
-            "locator": "18:38-18:67",
+            "locator": "19:30-19:59",
             "name": "ConditionClinicalStatusCodes"
           }
         },
         {
           "localId": "17",
-          "locator": "19:1-19:61",
-          "name": "Relapse",
-          "id": "relapse",
+          "locator": "20:1-20:67",
+          "name": "Recurrence",
+          "id": "recurrence",
           "accessLevel": "Public",
           "annotation": [
             {
@@ -625,9 +635,9 @@
                     "value": [
                       "",
                       "code ",
-                      "\"Relapse\"",
+                      "\"Recurrence\"",
                       ": ",
-                      "'relapse'",
+                      "'recurrence'",
                       " from "
                     ]
                   },
@@ -647,7 +657,49 @@
           ],
           "codeSystem": {
             "localId": "16",
-            "locator": "19:32-19:61",
+            "locator": "20:38-20:67",
+            "name": "ConditionClinicalStatusCodes"
+          }
+        },
+        {
+          "localId": "19",
+          "locator": "21:1-21:61",
+          "name": "Relapse",
+          "id": "relapse",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "19",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "code ",
+                      "\"Relapse\"",
+                      ": ",
+                      "'relapse'",
+                      " from "
+                    ]
+                  },
+                  {
+                    "r": "18",
+                    "s": [
+                      {
+                        "value": [
+                          "\"ConditionClinicalStatusCodes\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "18",
+            "locator": "21:32-21:61",
             "name": "ConditionClinicalStatusCodes"
           }
         }
@@ -656,8 +708,8 @@
     "concepts": {
       "def": [
         {
-          "localId": "20",
-          "locator": "21:1-21:77",
+          "localId": "22",
+          "locator": "23:1-23:77",
           "name": "test-concept",
           "display": "test-concept",
           "accessLevel": "Public",
@@ -665,7 +717,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "20",
+                "r": "22",
                 "s": [
                   {
                     "value": [
@@ -676,7 +728,7 @@
                     ]
                   },
                   {
-                    "r": "18",
+                    "r": "20",
                     "s": [
                       {
                         "value": [
@@ -691,7 +743,7 @@
                     ]
                   },
                   {
-                    "r": "19",
+                    "r": "21",
                     "s": [
                       {
                         "value": [
@@ -712,20 +764,20 @@
           ],
           "code": [
             {
-              "localId": "18",
-              "locator": "21:27-21:37",
+              "localId": "20",
+              "locator": "23:27-23:37",
               "name": "test-code"
             },
             {
-              "localId": "19",
-              "locator": "21:40-21:52",
+              "localId": "21",
+              "locator": "23:40-23:52",
               "name": "test-code-2"
             }
           ]
         },
         {
-          "localId": "24",
-          "locator": "23:1-23:82",
+          "localId": "26",
+          "locator": "25:1-25:82",
           "name": "Condition Active",
           "display": "Active",
           "accessLevel": "Public",
@@ -733,7 +785,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "24",
+                "r": "26",
                 "s": [
                   {
                     "value": [
@@ -744,7 +796,7 @@
                     ]
                   },
                   {
-                    "r": "21",
+                    "r": "23",
                     "s": [
                       {
                         "value": [
@@ -759,7 +811,7 @@
                     ]
                   },
                   {
-                    "r": "22",
+                    "r": "24",
                     "s": [
                       {
                         "value": [
@@ -774,7 +826,7 @@
                     ]
                   },
                   {
-                    "r": "23",
+                    "r": "25",
                     "s": [
                       {
                         "value": [
@@ -795,18 +847,18 @@
           ],
           "code": [
             {
-              "localId": "21",
-              "locator": "23:31-23:38",
+              "localId": "23",
+              "locator": "25:31-25:38",
               "name": "Active"
             },
             {
-              "localId": "22",
-              "locator": "23:41-23:52",
+              "localId": "24",
+              "locator": "25:41-25:52",
               "name": "Recurrence"
             },
             {
-              "localId": "23",
-              "locator": "23:55-23:63",
+              "localId": "25",
+              "locator": "25:55-25:63",
               "name": "Relapse"
             }
           ]
@@ -816,7 +868,7 @@
     "contexts": {
       "def": [
         {
-          "locator": "28:1-28:15",
+          "locator": "30:1-30:15",
           "name": "Patient"
         }
       ]
@@ -824,13 +876,13 @@
     "statements": {
       "def": [
         {
-          "locator": "28:1-28:15",
+          "locator": "30:1-30:15",
           "name": "Patient",
           "context": "Patient",
           "expression": {
             "type": "SingletonFrom",
             "operand": {
-              "locator": "28:1-28:15",
+              "locator": "30:1-30:15",
               "dataType": "{http://hl7.org/fhir}Patient",
               "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
               "type": "Retrieve"
@@ -838,8 +890,8 @@
           }
         },
         {
-          "localId": "43",
-          "locator": "30:1-33:45",
+          "localId": "45",
+          "locator": "32:1-35:45",
           "name": "Code And Starts During MP",
           "context": "Patient",
           "accessLevel": "Public",
@@ -847,7 +899,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "43",
+                "r": "45",
                 "s": [
                   {
                     "value": [
@@ -858,18 +910,18 @@
                     ]
                   },
                   {
-                    "r": "42",
+                    "r": "44",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "32",
+                            "r": "34",
                             "s": [
                               {
-                                "r": "31",
+                                "r": "33",
                                 "s": [
                                   {
-                                    "r": "31",
+                                    "r": "33",
                                     "s": [
                                       {
                                         "value": [
@@ -912,7 +964,7 @@
                         ]
                       },
                       {
-                        "r": "41",
+                        "r": "43",
                         "s": [
                           {
                             "value": [
@@ -920,16 +972,16 @@
                             ]
                           },
                           {
-                            "r": "41",
+                            "r": "43",
                             "s": [
                               {
-                                "r": "36",
+                                "r": "38",
                                 "s": [
                                   {
-                                    "r": "34",
+                                    "r": "36",
                                     "s": [
                                       {
-                                        "r": "33",
+                                        "r": "35",
                                         "s": [
                                           {
                                             "value": [
@@ -944,7 +996,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "34",
+                                        "r": "36",
                                         "s": [
                                           {
                                             "value": [
@@ -963,7 +1015,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "35",
+                                    "r": "37",
                                     "s": [
                                       {
                                         "value": [
@@ -980,13 +1032,13 @@
                                 ]
                               },
                               {
-                                "r": "40",
+                                "r": "42",
                                 "s": [
                                   {
-                                    "r": "38",
+                                    "r": "40",
                                     "s": [
                                       {
-                                        "r": "37",
+                                        "r": "39",
                                         "s": [
                                           {
                                             "value": [
@@ -1001,7 +1053,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "38",
+                                        "r": "40",
                                         "s": [
                                           {
                                             "value": [
@@ -1013,7 +1065,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "40",
+                                    "r": "42",
                                     "value": [
                                       " ",
                                       "during",
@@ -1021,7 +1073,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "39",
+                                    "r": "41",
                                     "s": [
                                       {
                                         "value": [
@@ -1043,25 +1095,26 @@
             }
           ],
           "expression": {
-            "localId": "42",
-            "locator": "31:3-33:45",
+            "localId": "44",
+            "locator": "33:3-35:45",
             "type": "Query",
             "source": [
               {
-                "localId": "32",
-                "locator": "31:3-31:26",
+                "localId": "34",
+                "locator": "33:3-33:26",
                 "alias": "C",
                 "expression": {
-                  "localId": "31",
-                  "locator": "31:3-31:24",
+                  "localId": "33",
+                  "locator": "33:3-33:24",
                   "dataType": "{http://hl7.org/fhir}Condition",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
                   "codeProperty": "code",
                   "codeComparator": "in",
                   "type": "Retrieve",
                   "codes": {
-                    "locator": "31:15-31:23",
+                    "locator": "33:15-33:23",
                     "name": "test-vs",
+                    "preserve": true,
                     "type": "ValueSetRef"
                   }
                 }
@@ -1069,13 +1122,13 @@
             ],
             "relationship": [],
             "where": {
-              "localId": "41",
-              "locator": "32:5-33:45",
+              "localId": "43",
+              "locator": "34:5-35:45",
               "type": "And",
               "operand": [
                 {
-                  "localId": "36",
-                  "locator": "32:11-32:47",
+                  "localId": "38",
+                  "locator": "34:11-34:47",
                   "type": "Equivalent",
                   "operand": [
                     {
@@ -1084,8 +1137,8 @@
                       "type": "FunctionRef",
                       "operand": [
                         {
-                          "localId": "34",
-                          "locator": "32:11-32:26",
+                          "localId": "36",
+                          "locator": "34:11-34:26",
                           "path": "clinicalStatus",
                           "scope": "C",
                           "type": "Property"
@@ -1093,16 +1146,16 @@
                       ]
                     },
                     {
-                      "localId": "35",
-                      "locator": "32:30-32:47",
+                      "localId": "37",
+                      "locator": "34:30-34:47",
                       "name": "Condition Active",
                       "type": "ConceptRef"
                     }
                   ]
                 },
                 {
-                  "localId": "40",
-                  "locator": "33:11-33:45",
+                  "localId": "42",
+                  "locator": "35:11-35:45",
                   "type": "IncludedIn",
                   "operand": [
                     {
@@ -1114,8 +1167,8 @@
                           "asType": "{http://hl7.org/fhir}Period",
                           "type": "As",
                           "operand": {
-                            "localId": "38",
-                            "locator": "33:11-33:17",
+                            "localId": "40",
+                            "locator": "35:11-35:17",
                             "path": "onset",
                             "scope": "C",
                             "type": "Property"
@@ -1124,8 +1177,8 @@
                       ]
                     },
                     {
-                      "localId": "39",
-                      "locator": "33:26-33:45",
+                      "localId": "41",
+                      "locator": "35:26-35:45",
                       "name": "Measurement Period",
                       "type": "ParameterRef"
                     }
@@ -1136,8 +1189,8 @@
           }
         },
         {
-          "localId": "66",
-          "locator": "35:1-39:80",
+          "localId": "68",
+          "locator": "37:1-41:80",
           "name": "Observation Status Value Exists and During MP",
           "context": "Patient",
           "accessLevel": "Public",
@@ -1145,7 +1198,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "66",
+                "r": "68",
                 "s": [
                   {
                     "value": [
@@ -1156,18 +1209,18 @@
                     ]
                   },
                   {
-                    "r": "65",
+                    "r": "67",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "45",
+                            "r": "47",
                             "s": [
                               {
-                                "r": "44",
+                                "r": "46",
                                 "s": [
                                   {
-                                    "r": "44",
+                                    "r": "46",
                                     "s": [
                                       {
                                         "value": [
@@ -1210,7 +1263,7 @@
                         ]
                       },
                       {
-                        "r": "64",
+                        "r": "66",
                         "s": [
                           {
                             "value": [
@@ -1218,19 +1271,19 @@
                             ]
                           },
                           {
-                            "r": "64",
+                            "r": "66",
                             "s": [
                               {
-                                "r": "57",
+                                "r": "59",
                                 "s": [
                                   {
-                                    "r": "53",
+                                    "r": "55",
                                     "s": [
                                       {
-                                        "r": "47",
+                                        "r": "49",
                                         "s": [
                                           {
-                                            "r": "46",
+                                            "r": "48",
                                             "s": [
                                               {
                                                 "value": [
@@ -1245,7 +1298,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "47",
+                                            "r": "49",
                                             "s": [
                                               {
                                                 "value": [
@@ -1262,7 +1315,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "52",
+                                        "r": "54",
                                         "s": [
                                           {
                                             "value": [
@@ -1270,7 +1323,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "48",
+                                            "r": "50",
                                             "s": [
                                               {
                                                 "value": [
@@ -1285,7 +1338,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "49",
+                                            "r": "51",
                                             "s": [
                                               {
                                                 "value": [
@@ -1300,7 +1353,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "50",
+                                            "r": "52",
                                             "s": [
                                               {
                                                 "value": [
@@ -1315,7 +1368,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "51",
+                                            "r": "53",
                                             "s": [
                                               {
                                                 "value": [
@@ -1339,13 +1392,13 @@
                                     ]
                                   },
                                   {
-                                    "r": "56",
+                                    "r": "58",
                                     "s": [
                                       {
-                                        "r": "55",
+                                        "r": "57",
                                         "s": [
                                           {
-                                            "r": "54",
+                                            "r": "56",
                                             "s": [
                                               {
                                                 "value": [
@@ -1360,7 +1413,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "55",
+                                            "r": "57",
                                             "s": [
                                               {
                                                 "value": [
@@ -1386,13 +1439,13 @@
                                 ]
                               },
                               {
-                                "r": "63",
+                                "r": "65",
                                 "s": [
                                   {
-                                    "r": "61",
+                                    "r": "63",
                                     "s": [
                                       {
-                                        "r": "58",
+                                        "r": "60",
                                         "s": [
                                           {
                                             "value": [
@@ -1407,7 +1460,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "61",
+                                        "r": "63",
                                         "s": [
                                           {
                                             "value": [
@@ -1416,10 +1469,10 @@
                                             ]
                                           },
                                           {
-                                            "r": "60",
+                                            "r": "62",
                                             "s": [
                                               {
-                                                "r": "59",
+                                                "r": "61",
                                                 "s": [
                                                   {
                                                     "value": [
@@ -1434,7 +1487,7 @@
                                                 ]
                                               },
                                               {
-                                                "r": "60",
+                                                "r": "62",
                                                 "s": [
                                                   {
                                                     "value": [
@@ -1455,7 +1508,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "63",
+                                    "r": "65",
                                     "value": [
                                       " ",
                                       "during",
@@ -1463,7 +1516,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "62",
+                                    "r": "64",
                                     "s": [
                                       {
                                         "value": [
@@ -1485,25 +1538,26 @@
             }
           ],
           "expression": {
-            "localId": "65",
-            "locator": "36:3-39:80",
+            "localId": "67",
+            "locator": "38:3-41:80",
             "type": "Query",
             "source": [
               {
-                "localId": "45",
-                "locator": "36:3-36:30",
+                "localId": "47",
+                "locator": "38:3-38:30",
                 "alias": "Obs",
                 "expression": {
-                  "localId": "44",
-                  "locator": "36:3-36:26",
+                  "localId": "46",
+                  "locator": "38:3-38:26",
                   "dataType": "{http://hl7.org/fhir}Observation",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
                   "codeProperty": "code",
                   "codeComparator": "in",
                   "type": "Retrieve",
                   "codes": {
-                    "locator": "36:17-36:25",
+                    "locator": "38:17-38:25",
                     "name": "test-vs",
+                    "preserve": true,
                     "type": "ValueSetRef"
                   }
                 }
@@ -1511,18 +1565,18 @@
             ],
             "relationship": [],
             "where": {
-              "localId": "64",
-              "locator": "37:5-39:80",
+              "localId": "66",
+              "locator": "39:5-41:80",
               "type": "And",
               "operand": [
                 {
-                  "localId": "57",
-                  "locator": "37:11-38:31",
+                  "localId": "59",
+                  "locator": "39:11-40:31",
                   "type": "And",
                   "operand": [
                     {
-                      "localId": "53",
-                      "locator": "37:11-37:72",
+                      "localId": "55",
+                      "locator": "39:11-39:72",
                       "type": "In",
                       "operand": [
                         {
@@ -1531,8 +1585,8 @@
                           "type": "FunctionRef",
                           "operand": [
                             {
-                              "localId": "47",
-                              "locator": "37:11-37:20",
+                              "localId": "49",
+                              "locator": "39:11-39:20",
                               "path": "status",
                               "scope": "Obs",
                               "type": "Property"
@@ -1540,34 +1594,34 @@
                           ]
                         },
                         {
-                          "localId": "52",
-                          "locator": "37:25-37:72",
+                          "localId": "54",
+                          "locator": "39:25-39:72",
                           "type": "List",
                           "element": [
                             {
-                              "localId": "48",
-                              "locator": "37:26-37:32",
+                              "localId": "50",
+                              "locator": "39:26-39:32",
                               "valueType": "{urn:hl7-org:elm-types:r1}String",
                               "value": "final",
                               "type": "Literal"
                             },
                             {
-                              "localId": "49",
-                              "locator": "37:35-37:43",
+                              "localId": "51",
+                              "locator": "39:35-39:43",
                               "valueType": "{urn:hl7-org:elm-types:r1}String",
                               "value": "amended",
                               "type": "Literal"
                             },
                             {
-                              "localId": "50",
-                              "locator": "37:46-37:56",
+                              "localId": "52",
+                              "locator": "39:46-39:56",
                               "valueType": "{urn:hl7-org:elm-types:r1}String",
                               "value": "corrected",
                               "type": "Literal"
                             },
                             {
-                              "localId": "51",
-                              "locator": "37:59-37:71",
+                              "localId": "53",
+                              "locator": "39:59-39:71",
                               "valueType": "{urn:hl7-org:elm-types:r1}String",
                               "value": "preliminary",
                               "type": "Literal"
@@ -1577,15 +1631,15 @@
                       ]
                     },
                     {
-                      "localId": "56",
-                      "locator": "38:11-38:31",
+                      "localId": "58",
+                      "locator": "40:11-40:31",
                       "type": "Not",
                       "operand": {
-                        "locator": "38:11-38:31",
+                        "locator": "40:11-40:31",
                         "type": "IsNull",
                         "operand": {
-                          "localId": "55",
-                          "locator": "38:11-38:19",
+                          "localId": "57",
+                          "locator": "40:11-40:19",
                           "path": "value",
                           "scope": "Obs",
                           "type": "Property"
@@ -1595,20 +1649,20 @@
                   ]
                 },
                 {
-                  "localId": "63",
-                  "locator": "39:11-39:80",
+                  "localId": "65",
+                  "locator": "41:11-41:80",
                   "type": "IncludedIn",
                   "operand": [
                     {
-                      "localId": "61",
-                      "locator": "39:11-39:52",
+                      "localId": "63",
+                      "locator": "41:11-41:52",
                       "name": "Normalize Interval",
                       "libraryName": "Global",
                       "type": "FunctionRef",
                       "operand": [
                         {
-                          "localId": "60",
-                          "locator": "39:39-39:51",
+                          "localId": "62",
+                          "locator": "41:39-41:51",
                           "path": "effective",
                           "scope": "Obs",
                           "type": "Property"
@@ -1616,8 +1670,8 @@
                       ]
                     },
                     {
-                      "localId": "62",
-                      "locator": "39:61-39:80",
+                      "localId": "64",
+                      "locator": "41:61-41:80",
                       "name": "Measurement Period",
                       "type": "ParameterRef"
                     }
@@ -1628,8 +1682,8 @@
           }
         },
         {
-          "localId": "78",
-          "locator": "41:1-43:105",
+          "localId": "80",
+          "locator": "43:1-45:105",
           "name": "Encounter 2 Years Before End of MP",
           "context": "Patient",
           "accessLevel": "Public",
@@ -1637,7 +1691,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "78",
+                "r": "80",
                 "s": [
                   {
                     "value": [
@@ -1648,18 +1702,18 @@
                     ]
                   },
                   {
-                    "r": "77",
+                    "r": "79",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "68",
+                            "r": "70",
                             "s": [
                               {
-                                "r": "67",
+                                "r": "69",
                                 "s": [
                                   {
-                                    "r": "67",
+                                    "r": "69",
                                     "s": [
                                       {
                                         "value": [
@@ -1702,7 +1756,7 @@
                         ]
                       },
                       {
-                        "r": "76",
+                        "r": "78",
                         "s": [
                           {
                             "value": [
@@ -1710,13 +1764,13 @@
                             ]
                           },
                           {
-                            "r": "76",
+                            "r": "78",
                             "s": [
                               {
-                                "r": "72",
+                                "r": "74",
                                 "s": [
                                   {
-                                    "r": "69",
+                                    "r": "71",
                                     "s": [
                                       {
                                         "value": [
@@ -1731,7 +1785,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "72",
+                                    "r": "74",
                                     "s": [
                                       {
                                         "value": [
@@ -1740,10 +1794,10 @@
                                         ]
                                       },
                                       {
-                                        "r": "71",
+                                        "r": "73",
                                         "s": [
                                           {
-                                            "r": "70",
+                                            "r": "72",
                                             "s": [
                                               {
                                                 "value": [
@@ -1758,7 +1812,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "71",
+                                            "r": "73",
                                             "s": [
                                               {
                                                 "value": [
@@ -1784,7 +1838,7 @@
                                 ]
                               },
                               {
-                                "r": "76",
+                                "r": "78",
                                 "s": [
                                   {
                                     "value": [
@@ -1792,7 +1846,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "75",
+                                    "r": "77",
                                     "s": [
                                       {
                                         "value": [
@@ -1815,7 +1869,7 @@
                                 ]
                               },
                               {
-                                "r": "74",
+                                "r": "76",
                                 "s": [
                                   {
                                     "value": [
@@ -1823,7 +1877,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "73",
+                                    "r": "75",
                                     "s": [
                                       {
                                         "value": [
@@ -1845,25 +1899,26 @@
             }
           ],
           "expression": {
-            "localId": "77",
-            "locator": "42:3-43:105",
+            "localId": "79",
+            "locator": "44:3-45:105",
             "type": "Query",
             "source": [
               {
-                "localId": "68",
-                "locator": "42:3-42:28",
+                "localId": "70",
+                "locator": "44:3-44:28",
                 "alias": "Enc",
                 "expression": {
-                  "localId": "67",
-                  "locator": "42:3-42:24",
+                  "localId": "69",
+                  "locator": "44:3-44:24",
                   "dataType": "{http://hl7.org/fhir}Encounter",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
                   "codeProperty": "type",
                   "codeComparator": "in",
                   "type": "Retrieve",
                   "codes": {
-                    "locator": "42:15-42:23",
+                    "locator": "44:15-44:23",
                     "name": "test-vs",
+                    "preserve": true,
                     "type": "ValueSetRef"
                   }
                 }
@@ -1871,20 +1926,20 @@
             ],
             "relationship": [],
             "where": {
-              "localId": "76",
-              "locator": "43:5-43:105",
+              "localId": "78",
+              "locator": "45:5-45:105",
               "type": "And",
               "operand": [
                 {
-                  "locator": "43:56-43:70",
+                  "locator": "45:56-45:70",
                   "type": "In",
                   "operand": [
                     {
-                      "locator": "43:51-43:54",
+                      "locator": "45:51-45:54",
                       "type": "End",
                       "operand": {
-                        "localId": "72",
-                        "locator": "43:11-43:49",
+                        "localId": "74",
+                        "locator": "45:11-45:49",
                         "name": "Normalize Interval",
                         "libraryName": "Global",
                         "type": "FunctionRef",
@@ -1892,8 +1947,8 @@
                           {
                             "type": "As",
                             "operand": {
-                              "localId": "71",
-                              "locator": "43:39-43:48",
+                              "localId": "73",
+                              "locator": "45:39-45:48",
                               "path": "period",
                               "scope": "Enc",
                               "type": "Property"
@@ -1936,28 +1991,28 @@
                       }
                     },
                     {
-                      "locator": "43:56-43:70",
+                      "locator": "45:56-45:70",
                       "lowClosed": true,
                       "highClosed": false,
                       "type": "Interval",
                       "low": {
-                        "locator": "43:79-43:105",
+                        "locator": "45:79-45:105",
                         "type": "Subtract",
                         "operand": [
                           {
-                            "localId": "74",
-                            "locator": "43:79-43:105",
+                            "localId": "76",
+                            "locator": "45:79-45:105",
                             "type": "End",
                             "operand": {
-                              "localId": "73",
-                              "locator": "43:86-43:105",
+                              "localId": "75",
+                              "locator": "45:86-45:105",
                               "name": "Measurement Period",
                               "type": "ParameterRef"
                             }
                           },
                           {
-                            "localId": "75",
-                            "locator": "43:56-43:62",
+                            "localId": "77",
+                            "locator": "45:56-45:62",
                             "value": 2,
                             "unit": "years",
                             "type": "Quantity"
@@ -1965,12 +2020,12 @@
                         ]
                       },
                       "high": {
-                        "localId": "74",
-                        "locator": "43:79-43:105",
+                        "localId": "76",
+                        "locator": "45:79-45:105",
                         "type": "End",
                         "operand": {
-                          "localId": "73",
-                          "locator": "43:86-43:105",
+                          "localId": "75",
+                          "locator": "45:86-45:105",
                           "name": "Measurement Period",
                           "type": "ParameterRef"
                         }
@@ -1979,18 +2034,18 @@
                   ]
                 },
                 {
-                  "locator": "43:56-43:70",
+                  "locator": "45:56-45:70",
                   "type": "Not",
                   "operand": {
-                    "locator": "43:56-43:70",
+                    "locator": "45:56-45:70",
                     "type": "IsNull",
                     "operand": {
-                      "localId": "74",
-                      "locator": "43:79-43:105",
+                      "localId": "76",
+                      "locator": "45:79-45:105",
                       "type": "End",
                       "operand": {
-                        "localId": "73",
-                        "locator": "43:86-43:105",
+                        "localId": "75",
+                        "locator": "45:86-45:105",
                         "name": "Measurement Period",
                         "type": "ParameterRef"
                       }
@@ -2002,8 +2057,8 @@
           }
         },
         {
-          "localId": "95",
-          "locator": "45:1-49:32",
+          "localId": "97",
+          "locator": "47:1-51:32",
           "name": "Code Active Or Starts During MP Or Abatement is not null",
           "context": "Patient",
           "accessLevel": "Public",
@@ -2011,7 +2066,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "95",
+                "r": "97",
                 "s": [
                   {
                     "value": [
@@ -2022,18 +2077,18 @@
                     ]
                   },
                   {
-                    "r": "94",
+                    "r": "96",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "80",
+                            "r": "82",
                             "s": [
                               {
-                                "r": "79",
+                                "r": "81",
                                 "s": [
                                   {
-                                    "r": "79",
+                                    "r": "81",
                                     "s": [
                                       {
                                         "value": [
@@ -2076,7 +2131,7 @@
                         ]
                       },
                       {
-                        "r": "93",
+                        "r": "95",
                         "s": [
                           {
                             "value": [
@@ -2084,19 +2139,19 @@
                             ]
                           },
                           {
-                            "r": "93",
+                            "r": "95",
                             "s": [
                               {
-                                "r": "89",
+                                "r": "91",
                                 "s": [
                                   {
-                                    "r": "84",
+                                    "r": "86",
                                     "s": [
                                       {
-                                        "r": "82",
+                                        "r": "84",
                                         "s": [
                                           {
-                                            "r": "81",
+                                            "r": "83",
                                             "s": [
                                               {
                                                 "value": [
@@ -2111,7 +2166,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "82",
+                                            "r": "84",
                                             "s": [
                                               {
                                                 "value": [
@@ -2130,7 +2185,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "83",
+                                        "r": "85",
                                         "s": [
                                           {
                                             "value": [
@@ -2147,13 +2202,13 @@
                                     ]
                                   },
                                   {
-                                    "r": "88",
+                                    "r": "90",
                                     "s": [
                                       {
-                                        "r": "86",
+                                        "r": "88",
                                         "s": [
                                           {
-                                            "r": "85",
+                                            "r": "87",
                                             "s": [
                                               {
                                                 "value": [
@@ -2168,7 +2223,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "86",
+                                            "r": "88",
                                             "s": [
                                               {
                                                 "value": [
@@ -2180,7 +2235,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "88",
+                                        "r": "90",
                                         "value": [
                                           " ",
                                           "during",
@@ -2188,7 +2243,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "87",
+                                        "r": "89",
                                         "s": [
                                           {
                                             "value": [
@@ -2207,13 +2262,13 @@
                                 ]
                               },
                               {
-                                "r": "92",
+                                "r": "94",
                                 "s": [
                                   {
-                                    "r": "91",
+                                    "r": "93",
                                     "s": [
                                       {
-                                        "r": "90",
+                                        "r": "92",
                                         "s": [
                                           {
                                             "value": [
@@ -2228,7 +2283,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "91",
+                                        "r": "93",
                                         "s": [
                                           {
                                             "value": [
@@ -2257,25 +2312,26 @@
             }
           ],
           "expression": {
-            "localId": "94",
-            "locator": "46:3-49:32",
+            "localId": "96",
+            "locator": "48:3-51:32",
             "type": "Query",
             "source": [
               {
-                "localId": "80",
-                "locator": "46:3-46:26",
+                "localId": "82",
+                "locator": "48:3-48:26",
                 "alias": "C",
                 "expression": {
-                  "localId": "79",
-                  "locator": "46:3-46:24",
+                  "localId": "81",
+                  "locator": "48:3-48:24",
                   "dataType": "{http://hl7.org/fhir}Condition",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
                   "codeProperty": "code",
                   "codeComparator": "in",
                   "type": "Retrieve",
                   "codes": {
-                    "locator": "46:15-46:23",
+                    "locator": "48:15-48:23",
                     "name": "test-vs",
+                    "preserve": true,
                     "type": "ValueSetRef"
                   }
                 }
@@ -2283,18 +2339,18 @@
             ],
             "relationship": [],
             "where": {
-              "localId": "93",
-              "locator": "47:5-49:32",
+              "localId": "95",
+              "locator": "49:5-51:32",
               "type": "Or",
               "operand": [
                 {
-                  "localId": "89",
-                  "locator": "47:11-48:44",
+                  "localId": "91",
+                  "locator": "49:11-50:44",
                   "type": "Or",
                   "operand": [
                     {
-                      "localId": "84",
-                      "locator": "47:11-47:47",
+                      "localId": "86",
+                      "locator": "49:11-49:47",
                       "type": "Equivalent",
                       "operand": [
                         {
@@ -2303,8 +2359,8 @@
                           "type": "FunctionRef",
                           "operand": [
                             {
-                              "localId": "82",
-                              "locator": "47:11-47:26",
+                              "localId": "84",
+                              "locator": "49:11-49:26",
                               "path": "clinicalStatus",
                               "scope": "C",
                               "type": "Property"
@@ -2312,16 +2368,16 @@
                           ]
                         },
                         {
-                          "localId": "83",
-                          "locator": "47:30-47:47",
+                          "localId": "85",
+                          "locator": "49:30-49:47",
                           "name": "Condition Active",
                           "type": "ConceptRef"
                         }
                       ]
                     },
                     {
-                      "localId": "88",
-                      "locator": "48:10-48:44",
+                      "localId": "90",
+                      "locator": "50:10-50:44",
                       "type": "IncludedIn",
                       "operand": [
                         {
@@ -2333,8 +2389,8 @@
                               "asType": "{http://hl7.org/fhir}Period",
                               "type": "As",
                               "operand": {
-                                "localId": "86",
-                                "locator": "48:10-48:16",
+                                "localId": "88",
+                                "locator": "50:10-50:16",
                                 "path": "onset",
                                 "scope": "C",
                                 "type": "Property"
@@ -2343,8 +2399,8 @@
                           ]
                         },
                         {
-                          "localId": "87",
-                          "locator": "48:25-48:44",
+                          "localId": "89",
+                          "locator": "50:25-50:44",
                           "name": "Measurement Period",
                           "type": "ParameterRef"
                         }
@@ -2353,15 +2409,15 @@
                   ]
                 },
                 {
-                  "localId": "92",
-                  "locator": "49:10-49:32",
+                  "localId": "94",
+                  "locator": "51:10-51:32",
                   "type": "Not",
                   "operand": {
-                    "locator": "49:10-49:32",
+                    "locator": "51:10-51:32",
                     "type": "IsNull",
                     "operand": {
-                      "localId": "91",
-                      "locator": "49:10-49:20",
+                      "localId": "93",
+                      "locator": "51:10-51:20",
                       "path": "abatement",
                       "scope": "C",
                       "type": "Property"
@@ -2373,8 +2429,8 @@
           }
         },
         {
-          "localId": "111",
-          "locator": "51:1-54:31",
+          "localId": "113",
+          "locator": "53:1-56:31",
           "name": "Observation Status and Value",
           "context": "Patient",
           "accessLevel": "Public",
@@ -2382,7 +2438,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "111",
+                "r": "113",
                 "s": [
                   {
                     "value": [
@@ -2393,18 +2449,18 @@
                     ]
                   },
                   {
-                    "r": "110",
+                    "r": "112",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "97",
+                            "r": "99",
                             "s": [
                               {
-                                "r": "96",
+                                "r": "98",
                                 "s": [
                                   {
-                                    "r": "96",
+                                    "r": "98",
                                     "s": [
                                       {
                                         "value": [
@@ -2447,7 +2503,7 @@
                         ]
                       },
                       {
-                        "r": "109",
+                        "r": "111",
                         "s": [
                           {
                             "value": [
@@ -2455,16 +2511,16 @@
                             ]
                           },
                           {
-                            "r": "109",
+                            "r": "111",
                             "s": [
                               {
-                                "r": "105",
+                                "r": "107",
                                 "s": [
                                   {
-                                    "r": "99",
+                                    "r": "101",
                                     "s": [
                                       {
-                                        "r": "98",
+                                        "r": "100",
                                         "s": [
                                           {
                                             "value": [
@@ -2479,7 +2535,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "99",
+                                        "r": "101",
                                         "s": [
                                           {
                                             "value": [
@@ -2496,7 +2552,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "104",
+                                    "r": "106",
                                     "s": [
                                       {
                                         "value": [
@@ -2504,7 +2560,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "100",
+                                        "r": "102",
                                         "s": [
                                           {
                                             "value": [
@@ -2519,7 +2575,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "101",
+                                        "r": "103",
                                         "s": [
                                           {
                                             "value": [
@@ -2534,7 +2590,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "102",
+                                        "r": "104",
                                         "s": [
                                           {
                                             "value": [
@@ -2549,7 +2605,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "103",
+                                        "r": "105",
                                         "s": [
                                           {
                                             "value": [
@@ -2573,13 +2629,13 @@
                                 ]
                               },
                               {
-                                "r": "108",
+                                "r": "110",
                                 "s": [
                                   {
-                                    "r": "107",
+                                    "r": "109",
                                     "s": [
                                       {
-                                        "r": "106",
+                                        "r": "108",
                                         "s": [
                                           {
                                             "value": [
@@ -2594,7 +2650,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "107",
+                                        "r": "109",
                                         "s": [
                                           {
                                             "value": [
@@ -2623,25 +2679,26 @@
             }
           ],
           "expression": {
-            "localId": "110",
-            "locator": "52:3-54:31",
+            "localId": "112",
+            "locator": "54:3-56:31",
             "type": "Query",
             "source": [
               {
-                "localId": "97",
-                "locator": "52:3-52:30",
+                "localId": "99",
+                "locator": "54:3-54:30",
                 "alias": "Obs",
                 "expression": {
-                  "localId": "96",
-                  "locator": "52:3-52:26",
+                  "localId": "98",
+                  "locator": "54:3-54:26",
                   "dataType": "{http://hl7.org/fhir}Observation",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
                   "codeProperty": "code",
                   "codeComparator": "in",
                   "type": "Retrieve",
                   "codes": {
-                    "locator": "52:17-52:25",
+                    "locator": "54:17-54:25",
                     "name": "test-vs",
+                    "preserve": true,
                     "type": "ValueSetRef"
                   }
                 }
@@ -2649,13 +2706,13 @@
             ],
             "relationship": [],
             "where": {
-              "localId": "109",
-              "locator": "53:5-54:31",
+              "localId": "111",
+              "locator": "55:5-56:31",
               "type": "And",
               "operand": [
                 {
-                  "localId": "105",
-                  "locator": "53:11-53:72",
+                  "localId": "107",
+                  "locator": "55:11-55:72",
                   "type": "In",
                   "operand": [
                     {
@@ -2664,8 +2721,8 @@
                       "type": "FunctionRef",
                       "operand": [
                         {
-                          "localId": "99",
-                          "locator": "53:11-53:20",
+                          "localId": "101",
+                          "locator": "55:11-55:20",
                           "path": "status",
                           "scope": "Obs",
                           "type": "Property"
@@ -2673,34 +2730,34 @@
                       ]
                     },
                     {
-                      "localId": "104",
-                      "locator": "53:25-53:72",
+                      "localId": "106",
+                      "locator": "55:25-55:72",
                       "type": "List",
                       "element": [
                         {
-                          "localId": "100",
-                          "locator": "53:26-53:32",
+                          "localId": "102",
+                          "locator": "55:26-55:32",
                           "valueType": "{urn:hl7-org:elm-types:r1}String",
                           "value": "final",
                           "type": "Literal"
                         },
                         {
-                          "localId": "101",
-                          "locator": "53:35-53:43",
+                          "localId": "103",
+                          "locator": "55:35-55:43",
                           "valueType": "{urn:hl7-org:elm-types:r1}String",
                           "value": "amended",
                           "type": "Literal"
                         },
                         {
-                          "localId": "102",
-                          "locator": "53:46-53:56",
+                          "localId": "104",
+                          "locator": "55:46-55:56",
                           "valueType": "{urn:hl7-org:elm-types:r1}String",
                           "value": "corrected",
                           "type": "Literal"
                         },
                         {
-                          "localId": "103",
-                          "locator": "53:59-53:71",
+                          "localId": "105",
+                          "locator": "55:59-55:71",
                           "valueType": "{urn:hl7-org:elm-types:r1}String",
                           "value": "preliminary",
                           "type": "Literal"
@@ -2710,15 +2767,15 @@
                   ]
                 },
                 {
-                  "localId": "108",
-                  "locator": "54:11-54:31",
+                  "localId": "110",
+                  "locator": "56:11-56:31",
                   "type": "Not",
                   "operand": {
-                    "locator": "54:11-54:31",
+                    "locator": "56:11-56:31",
                     "type": "IsNull",
                     "operand": {
-                      "localId": "107",
-                      "locator": "54:11-54:19",
+                      "localId": "109",
+                      "locator": "56:11-56:19",
                       "path": "value",
                       "scope": "Obs",
                       "type": "Property"
@@ -2730,8 +2787,8 @@
           }
         },
         {
-          "localId": "121",
-          "locator": "56:1-58:78",
+          "localId": "123",
+          "locator": "58:1-60:78",
           "name": "Further Refine Observation With During MP",
           "context": "Patient",
           "accessLevel": "Public",
@@ -2739,7 +2796,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "121",
+                "r": "123",
                 "s": [
                   {
                     "value": [
@@ -2750,15 +2807,15 @@
                     ]
                   },
                   {
-                    "r": "120",
+                    "r": "122",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "113",
+                            "r": "115",
                             "s": [
                               {
-                                "r": "112",
+                                "r": "114",
                                 "s": [
                                   {
                                     "s": [
@@ -2787,7 +2844,7 @@
                         ]
                       },
                       {
-                        "r": "119",
+                        "r": "121",
                         "s": [
                           {
                             "value": [
@@ -2795,13 +2852,13 @@
                             ]
                           },
                           {
-                            "r": "119",
+                            "r": "121",
                             "s": [
                               {
-                                "r": "117",
+                                "r": "119",
                                 "s": [
                                   {
-                                    "r": "114",
+                                    "r": "116",
                                     "s": [
                                       {
                                         "value": [
@@ -2816,7 +2873,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "117",
+                                    "r": "119",
                                     "s": [
                                       {
                                         "value": [
@@ -2825,10 +2882,10 @@
                                         ]
                                       },
                                       {
-                                        "r": "116",
+                                        "r": "118",
                                         "s": [
                                           {
-                                            "r": "115",
+                                            "r": "117",
                                             "s": [
                                               {
                                                 "value": [
@@ -2843,7 +2900,7 @@
                                             ]
                                           },
                                           {
-                                            "r": "116",
+                                            "r": "118",
                                             "s": [
                                               {
                                                 "value": [
@@ -2864,7 +2921,7 @@
                                 ]
                               },
                               {
-                                "r": "119",
+                                "r": "121",
                                 "value": [
                                   " ",
                                   "during",
@@ -2872,7 +2929,7 @@
                                 ]
                               },
                               {
-                                "r": "118",
+                                "r": "120",
                                 "s": [
                                   {
                                     "value": [
@@ -2892,17 +2949,17 @@
             }
           ],
           "expression": {
-            "localId": "120",
-            "locator": "57:3-58:78",
+            "localId": "122",
+            "locator": "59:3-60:78",
             "type": "Query",
             "source": [
               {
-                "localId": "113",
-                "locator": "57:3-57:34",
+                "localId": "115",
+                "locator": "59:3-59:34",
                 "alias": "O",
                 "expression": {
-                  "localId": "112",
-                  "locator": "57:3-57:32",
+                  "localId": "114",
+                  "locator": "59:3-59:32",
                   "name": "Observation Status and Value",
                   "type": "ExpressionRef"
                 }
@@ -2910,20 +2967,20 @@
             ],
             "relationship": [],
             "where": {
-              "localId": "119",
-              "locator": "58:5-58:78",
+              "localId": "121",
+              "locator": "60:5-60:78",
               "type": "IncludedIn",
               "operand": [
                 {
-                  "localId": "117",
-                  "locator": "58:11-58:50",
+                  "localId": "119",
+                  "locator": "60:11-60:50",
                   "name": "Normalize Interval",
                   "libraryName": "Global",
                   "type": "FunctionRef",
                   "operand": [
                     {
-                      "localId": "116",
-                      "locator": "58:39-58:49",
+                      "localId": "118",
+                      "locator": "60:39-60:49",
                       "path": "effective",
                       "scope": "O",
                       "type": "Property"
@@ -2931,8 +2988,8 @@
                   ]
                 },
                 {
-                  "localId": "118",
-                  "locator": "58:59-58:78",
+                  "localId": "120",
+                  "locator": "60:59-60:78",
                   "name": "Measurement Period",
                   "type": "ParameterRef"
                 }
@@ -2941,8 +2998,8 @@
           }
         },
         {
-          "localId": "135",
-          "locator": "60:1-63:32",
+          "localId": "137",
+          "locator": "62:1-65:32",
           "name": "Further Refine Observation With During MP and bodySite",
           "context": "Patient",
           "accessLevel": "Public",
@@ -2950,7 +3007,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "135",
+                "r": "137",
                 "s": [
                   {
                     "value": [
@@ -2961,15 +3018,15 @@
                     ]
                   },
                   {
-                    "r": "134",
+                    "r": "136",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "123",
+                            "r": "125",
                             "s": [
                               {
-                                "r": "122",
+                                "r": "124",
                                 "s": [
                                   {
                                     "s": [
@@ -2998,7 +3055,7 @@
                         ]
                       },
                       {
-                        "r": "133",
+                        "r": "135",
                         "s": [
                           {
                             "value": [
@@ -3006,16 +3063,16 @@
                             ]
                           },
                           {
-                            "r": "133",
+                            "r": "135",
                             "s": [
                               {
-                                "r": "129",
+                                "r": "131",
                                 "s": [
                                   {
-                                    "r": "127",
+                                    "r": "129",
                                     "s": [
                                       {
-                                        "r": "124",
+                                        "r": "126",
                                         "s": [
                                           {
                                             "value": [
@@ -3030,7 +3087,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "127",
+                                        "r": "129",
                                         "s": [
                                           {
                                             "value": [
@@ -3039,10 +3096,10 @@
                                             ]
                                           },
                                           {
-                                            "r": "126",
+                                            "r": "128",
                                             "s": [
                                               {
-                                                "r": "125",
+                                                "r": "127",
                                                 "s": [
                                                   {
                                                     "value": [
@@ -3057,7 +3114,7 @@
                                                 ]
                                               },
                                               {
-                                                "r": "126",
+                                                "r": "128",
                                                 "s": [
                                                   {
                                                     "value": [
@@ -3078,7 +3135,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "129",
+                                    "r": "131",
                                     "value": [
                                       " ",
                                       "during",
@@ -3086,7 +3143,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "128",
+                                    "r": "130",
                                     "s": [
                                       {
                                         "value": [
@@ -3103,13 +3160,13 @@
                                 ]
                               },
                               {
-                                "r": "132",
+                                "r": "134",
                                 "s": [
                                   {
-                                    "r": "131",
+                                    "r": "133",
                                     "s": [
                                       {
-                                        "r": "130",
+                                        "r": "132",
                                         "s": [
                                           {
                                             "value": [
@@ -3124,7 +3181,7 @@
                                         ]
                                       },
                                       {
-                                        "r": "131",
+                                        "r": "133",
                                         "s": [
                                           {
                                             "value": [
@@ -3153,17 +3210,17 @@
             }
           ],
           "expression": {
-            "localId": "134",
-            "locator": "61:3-63:32",
+            "localId": "136",
+            "locator": "63:3-65:32",
             "type": "Query",
             "source": [
               {
-                "localId": "123",
-                "locator": "61:3-61:34",
+                "localId": "125",
+                "locator": "63:3-63:34",
                 "alias": "O",
                 "expression": {
-                  "localId": "122",
-                  "locator": "61:3-61:32",
+                  "localId": "124",
+                  "locator": "63:3-63:32",
                   "name": "Observation Status and Value",
                   "type": "ExpressionRef"
                 }
@@ -3171,25 +3228,25 @@
             ],
             "relationship": [],
             "where": {
-              "localId": "133",
-              "locator": "62:5-63:32",
+              "localId": "135",
+              "locator": "64:5-65:32",
               "type": "And",
               "operand": [
                 {
-                  "localId": "129",
-                  "locator": "62:11-62:78",
+                  "localId": "131",
+                  "locator": "64:11-64:78",
                   "type": "IncludedIn",
                   "operand": [
                     {
-                      "localId": "127",
-                      "locator": "62:11-62:50",
+                      "localId": "129",
+                      "locator": "64:11-64:50",
                       "name": "Normalize Interval",
                       "libraryName": "Global",
                       "type": "FunctionRef",
                       "operand": [
                         {
-                          "localId": "126",
-                          "locator": "62:39-62:49",
+                          "localId": "128",
+                          "locator": "64:39-64:49",
                           "path": "effective",
                           "scope": "O",
                           "type": "Property"
@@ -3197,23 +3254,23 @@
                       ]
                     },
                     {
-                      "localId": "128",
-                      "locator": "62:59-62:78",
+                      "localId": "130",
+                      "locator": "64:59-64:78",
                       "name": "Measurement Period",
                       "type": "ParameterRef"
                     }
                   ]
                 },
                 {
-                  "localId": "132",
-                  "locator": "63:11-63:32",
+                  "localId": "134",
+                  "locator": "65:11-65:32",
                   "type": "Not",
                   "operand": {
-                    "locator": "63:11-63:32",
+                    "locator": "65:11-65:32",
                     "type": "IsNull",
                     "operand": {
-                      "localId": "131",
-                      "locator": "63:11-63:20",
+                      "localId": "133",
+                      "locator": "65:11-65:20",
                       "path": "bodySite",
                       "scope": "O",
                       "type": "Property"
@@ -3221,6 +3278,1981 @@
                   }
                 }
               ]
+            }
+          }
+        },
+        {
+          "localId": "148",
+          "locator": "67:1-69:67",
+          "name": "Query Using With",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "148",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query Using With\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "147",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "139",
+                            "s": [
+                              {
+                                "r": "138",
+                                "s": [
+                                  {
+                                    "r": "138",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "146",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "141",
+                            "s": [
+                              {
+                                "r": "140",
+                                "s": [
+                                  {
+                                    "r": "140",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Procedure",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs2\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "P"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              " such that "
+                            ]
+                          },
+                          {
+                            "r": "145",
+                            "s": [
+                              {
+                                "r": "143",
+                                "s": [
+                                  {
+                                    "r": "142",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "P"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "143",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "status"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "144",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "'completed'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "147",
+            "locator": "68:3-69:67",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "139",
+                "locator": "68:3-68:28",
+                "alias": "Enc",
+                "expression": {
+                  "localId": "138",
+                  "locator": "68:3-68:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "68:15-68:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "146",
+                "locator": "69:5-69:67",
+                "alias": "P",
+                "type": "With",
+                "expression": {
+                  "localId": "140",
+                  "locator": "69:10-69:32",
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "69:22-69:31",
+                    "name": "test-vs2",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                },
+                "suchThat": {
+                  "localId": "145",
+                  "locator": "69:46-69:67",
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "name": "ToString",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "localId": "143",
+                          "locator": "69:46-69:53",
+                          "path": "status",
+                          "scope": "P",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "144",
+                      "locator": "69:57-69:67",
+                      "valueType": "{urn:hl7-org:elm-types:r1}String",
+                      "value": "completed",
+                      "type": "Literal"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "161",
+          "locator": "71:1-73:100",
+          "name": "Query Using With and Union",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "161",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query Using With and Union\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "160",
+                    "s": [
+                      {
+                        "value": [
+                          "("
+                        ]
+                      },
+                      {
+                        "r": "160",
+                        "s": [
+                          {
+                            "s": [
+                              {
+                                "r": "150",
+                                "s": [
+                                  {
+                                    "r": "149",
+                                    "s": [
+                                      {
+                                        "r": "149",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "[",
+                                              "Encounter",
+                                              ": "
+                                            ]
+                                          },
+                                          {
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "\"test-vs\""
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "]"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " ",
+                                      "Enc"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n    "
+                            ]
+                          },
+                          {
+                            "r": "159",
+                            "s": [
+                              {
+                                "value": [
+                                  "with "
+                                ]
+                              },
+                              {
+                                "r": "154",
+                                "s": [
+                                  {
+                                    "r": "153",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "("
+                                        ]
+                                      },
+                                      {
+                                        "r": "153",
+                                        "s": [
+                                          {
+                                            "r": "151",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "[",
+                                                  "Procedure",
+                                                  ": "
+                                                ]
+                                              },
+                                              {
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "\"test-vs2\""
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "]"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              " union "
+                                            ]
+                                          },
+                                          {
+                                            "r": "152",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "[",
+                                                  "Procedure",
+                                                  ": "
+                                                ]
+                                              },
+                                              {
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "\"test-vs3\""
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "]"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ")"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " ",
+                                      "P"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " such that "
+                                ]
+                              },
+                              {
+                                "r": "158",
+                                "s": [
+                                  {
+                                    "r": "156",
+                                    "s": [
+                                      {
+                                        "r": "155",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "P"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "156",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "status"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " ",
+                                      "=",
+                                      " "
+                                    ]
+                                  },
+                                  {
+                                    "r": "157",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "'completed'"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          ")"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "160",
+            "locator": "72:3-73:100",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "150",
+                "locator": "72:4-72:29",
+                "alias": "Enc",
+                "expression": {
+                  "localId": "149",
+                  "locator": "72:4-72:25",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "72:16-72:24",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "159",
+                "locator": "73:5-73:99",
+                "alias": "P",
+                "type": "With",
+                "expression": {
+                  "localId": "153",
+                  "locator": "73:10-73:64",
+                  "type": "Union",
+                  "operand": [
+                    {
+                      "localId": "151",
+                      "locator": "73:11-73:33",
+                      "dataType": "{http://hl7.org/fhir}Procedure",
+                      "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                      "codeProperty": "code",
+                      "codeComparator": "in",
+                      "type": "Retrieve",
+                      "codes": {
+                        "locator": "73:23-73:32",
+                        "name": "test-vs2",
+                        "preserve": true,
+                        "type": "ValueSetRef"
+                      }
+                    },
+                    {
+                      "localId": "152",
+                      "locator": "73:41-73:63",
+                      "dataType": "{http://hl7.org/fhir}Procedure",
+                      "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                      "codeProperty": "code",
+                      "codeComparator": "in",
+                      "type": "Retrieve",
+                      "codes": {
+                        "locator": "73:53-73:62",
+                        "name": "test-vs3",
+                        "preserve": true,
+                        "type": "ValueSetRef"
+                      }
+                    }
+                  ]
+                },
+                "suchThat": {
+                  "localId": "158",
+                  "locator": "73:78-73:99",
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "name": "ToString",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "localId": "156",
+                          "locator": "73:78-73:85",
+                          "path": "status",
+                          "scope": "P",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "157",
+                      "locator": "73:89-73:99",
+                      "valueType": "{urn:hl7-org:elm-types:r1}String",
+                      "value": "completed",
+                      "type": "Literal"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "172",
+          "locator": "75:1-77:70",
+          "name": "Query Using Without",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "172",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query Using Without\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "171",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "163",
+                            "s": [
+                              {
+                                "r": "162",
+                                "s": [
+                                  {
+                                    "r": "162",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "170",
+                        "s": [
+                          {
+                            "value": [
+                              "without "
+                            ]
+                          },
+                          {
+                            "r": "165",
+                            "s": [
+                              {
+                                "r": "164",
+                                "s": [
+                                  {
+                                    "r": "164",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Procedure",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs2\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "P"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              " such that "
+                            ]
+                          },
+                          {
+                            "r": "169",
+                            "s": [
+                              {
+                                "r": "167",
+                                "s": [
+                                  {
+                                    "r": "166",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "P"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "167",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "status"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "168",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "'completed'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "171",
+            "locator": "76:3-77:70",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "163",
+                "locator": "76:3-76:28",
+                "alias": "Enc",
+                "expression": {
+                  "localId": "162",
+                  "locator": "76:3-76:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "76:15-76:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "170",
+                "locator": "77:5-77:70",
+                "alias": "P",
+                "type": "Without",
+                "expression": {
+                  "localId": "164",
+                  "locator": "77:13-77:35",
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "77:25-77:34",
+                    "name": "test-vs2",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                },
+                "suchThat": {
+                  "localId": "169",
+                  "locator": "77:49-77:70",
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "name": "ToString",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "localId": "167",
+                          "locator": "77:49-77:56",
+                          "path": "status",
+                          "scope": "P",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "168",
+                      "locator": "77:60-77:70",
+                      "valueType": "{urn:hl7-org:elm-types:r1}String",
+                      "value": "completed",
+                      "type": "Literal"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "181",
+          "locator": "79:1-81:77",
+          "name": "Query Using Such That Retrieve",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "181",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query Using Such That Retrieve\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "180",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "174",
+                            "s": [
+                              {
+                                "r": "173",
+                                "s": [
+                                  {
+                                    "r": "173",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "179",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "176",
+                            "s": [
+                              {
+                                "r": "175",
+                                "s": [
+                                  {
+                                    "r": "175",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Procedure",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs2\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "P"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              " such that "
+                            ]
+                          },
+                          {
+                            "r": "178",
+                            "s": [
+                              {
+                                "value": [
+                                  "("
+                                ]
+                              },
+                              {
+                                "r": "178",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "exists "
+                                    ]
+                                  },
+                                  {
+                                    "r": "177",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs3\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  ")"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "180",
+            "locator": "80:3-81:77",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "174",
+                "locator": "80:3-80:28",
+                "alias": "Enc",
+                "expression": {
+                  "localId": "173",
+                  "locator": "80:3-80:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "80:15-80:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [
+              {
+                "localId": "179",
+                "locator": "81:5-81:77",
+                "alias": "P",
+                "type": "With",
+                "expression": {
+                  "localId": "175",
+                  "locator": "81:10-81:32",
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "81:22-81:31",
+                    "name": "test-vs2",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                },
+                "suchThat": {
+                  "localId": "178",
+                  "locator": "81:46-81:77",
+                  "type": "Exists",
+                  "operand": {
+                    "localId": "177",
+                    "locator": "81:54-81:76",
+                    "dataType": "{http://hl7.org/fhir}Encounter",
+                    "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                    "codeProperty": "type",
+                    "codeComparator": "in",
+                    "type": "Retrieve",
+                    "codes": {
+                      "locator": "81:66-81:75",
+                      "name": "test-vs3",
+                      "preserve": true,
+                      "type": "ValueSetRef"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "194",
+          "locator": "83:1-84:97",
+          "name": "Query Nested In Where",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "194",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query Nested In Where\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "193",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "183",
+                            "s": [
+                              {
+                                "r": "182",
+                                "s": [
+                                  {
+                                    "r": "182",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "E1"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          " "
+                        ]
+                      },
+                      {
+                        "r": "192",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "192",
+                            "s": [
+                              {
+                                "value": [
+                                  "("
+                                ]
+                              },
+                              {
+                                "r": "192",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "exists "
+                                    ]
+                                  },
+                                  {
+                                    "r": "191",
+                                    "s": [
+                                      {
+                                        "s": [
+                                          {
+                                            "r": "185",
+                                            "s": [
+                                              {
+                                                "r": "184",
+                                                "s": [
+                                                  {
+                                                    "r": "184",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "[",
+                                                          "Encounter",
+                                                          ": "
+                                                        ]
+                                                      },
+                                                      {
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "\"test-vs2\""
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          "]"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  " ",
+                                                  "E2"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " "
+                                        ]
+                                      },
+                                      {
+                                        "r": "190",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "where "
+                                            ]
+                                          },
+                                          {
+                                            "r": "190",
+                                            "s": [
+                                              {
+                                                "r": "187",
+                                                "s": [
+                                                  {
+                                                    "r": "186",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "E1"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "."
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "187",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "status"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  " ",
+                                                  "=",
+                                                  " "
+                                                ]
+                                              },
+                                              {
+                                                "r": "189",
+                                                "s": [
+                                                  {
+                                                    "r": "188",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "E2"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "."
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "189",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "status"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  ")"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "193",
+            "locator": "84:3-84:97",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "183",
+                "locator": "84:3-84:27",
+                "alias": "E1",
+                "expression": {
+                  "localId": "182",
+                  "locator": "84:3-84:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "84:15-84:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "localId": "192",
+              "locator": "84:29-84:97",
+              "type": "Exists",
+              "operand": {
+                "localId": "191",
+                "locator": "84:43-84:96",
+                "type": "Query",
+                "source": [
+                  {
+                    "localId": "185",
+                    "locator": "84:43-84:68",
+                    "alias": "E2",
+                    "expression": {
+                      "localId": "184",
+                      "locator": "84:43-84:65",
+                      "dataType": "{http://hl7.org/fhir}Encounter",
+                      "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                      "codeProperty": "type",
+                      "codeComparator": "in",
+                      "type": "Retrieve",
+                      "codes": {
+                        "locator": "84:55-84:64",
+                        "name": "test-vs2",
+                        "preserve": true,
+                        "type": "ValueSetRef"
+                      }
+                    }
+                  }
+                ],
+                "relationship": [],
+                "where": {
+                  "localId": "190",
+                  "locator": "84:70-84:96",
+                  "type": "Equal",
+                  "operand": [
+                    {
+                      "localId": "187",
+                      "locator": "84:76-84:84",
+                      "path": "status",
+                      "scope": "E1",
+                      "type": "Property"
+                    },
+                    {
+                      "localId": "189",
+                      "locator": "84:88-84:96",
+                      "path": "status",
+                      "scope": "E2",
+                      "type": "Property"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "localId": "205",
+          "locator": "86:1-91:3",
+          "name": "Query Using Let",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "205",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query Using Let\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "204",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "196",
+                            "s": [
+                              {
+                                "r": "195",
+                                "s": [
+                                  {
+                                    "r": "195",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "E1"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n  "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "let "
+                            ]
+                          },
+                          {
+                            "r": "199",
+                            "s": [
+                              {
+                                "value": [
+                                  "E2",
+                                  ": "
+                                ]
+                              },
+                              {
+                                "r": "198",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "First",
+                                      "("
+                                    ]
+                                  },
+                                  {
+                                    "r": "197",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs2\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ")"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n  "
+                        ]
+                      },
+                      {
+                        "r": "203",
+                        "s": [
+                          {
+                            "value": [
+                              "return "
+                            ]
+                          },
+                          {
+                            "r": "202",
+                            "s": [
+                              {
+                                "value": [
+                                  "{\n    "
+                                ]
+                              },
+                              {
+                                "s": [
+                                  {
+                                    "value": [
+                                      "id",
+                                      ": "
+                                    ]
+                                  },
+                                  {
+                                    "r": "201",
+                                    "s": [
+                                      {
+                                        "r": "200",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "E2"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "201",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "id"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "\n  }"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "204",
+            "locator": "87:3-91:3",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "196",
+                "locator": "87:3-87:27",
+                "alias": "E1",
+                "expression": {
+                  "localId": "195",
+                  "locator": "87:3-87:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "87:15-87:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "let": [
+              {
+                "localId": "199",
+                "locator": "88:7-88:40",
+                "identifier": "E2",
+                "expression": {
+                  "localId": "198",
+                  "locator": "88:11-88:40",
+                  "type": "First",
+                  "source": {
+                    "localId": "197",
+                    "locator": "88:17-88:39",
+                    "dataType": "{http://hl7.org/fhir}Encounter",
+                    "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                    "codeProperty": "type",
+                    "codeComparator": "in",
+                    "type": "Retrieve",
+                    "codes": {
+                      "locator": "88:29-88:38",
+                      "name": "test-vs2",
+                      "preserve": true,
+                      "type": "ValueSetRef"
+                    }
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "return": {
+              "localId": "203",
+              "locator": "89:3-91:3",
+              "expression": {
+                "localId": "202",
+                "locator": "89:10-91:3",
+                "type": "Tuple",
+                "element": [
+                  {
+                    "name": "id",
+                    "value": {
+                      "localId": "201",
+                      "locator": "90:9-90:13",
+                      "path": "id",
+                      "type": "Property",
+                      "source": {
+                        "localId": "200",
+                        "locator": "90:9-90:10",
+                        "name": "E2",
+                        "type": "QueryLetRef"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "localId": "212",
+          "locator": "93:1-97:3",
+          "name": "Query Returning Retrieve",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "212",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query Returning Retrieve\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "211",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "207",
+                            "s": [
+                              {
+                                "r": "206",
+                                "s": [
+                                  {
+                                    "r": "206",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "E1"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n  "
+                        ]
+                      },
+                      {
+                        "r": "210",
+                        "s": [
+                          {
+                            "value": [
+                              "return "
+                            ]
+                          },
+                          {
+                            "r": "209",
+                            "s": [
+                              {
+                                "value": [
+                                  "{\n    "
+                                ]
+                              },
+                              {
+                                "s": [
+                                  {
+                                    "value": [
+                                      "E2",
+                                      ": "
+                                    ]
+                                  },
+                                  {
+                                    "r": "208",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs2\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "\n  }"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "211",
+            "locator": "94:3-97:3",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "207",
+                "locator": "94:3-94:27",
+                "alias": "E1",
+                "expression": {
+                  "localId": "206",
+                  "locator": "94:3-94:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "94:15-94:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "return": {
+              "localId": "210",
+              "locator": "95:3-97:3",
+              "expression": {
+                "localId": "209",
+                "locator": "95:10-97:3",
+                "type": "Tuple",
+                "element": [
+                  {
+                    "name": "E2",
+                    "value": {
+                      "localId": "208",
+                      "locator": "96:9-96:31",
+                      "dataType": "{http://hl7.org/fhir}Encounter",
+                      "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                      "codeProperty": "type",
+                      "codeComparator": "in",
+                      "type": "Retrieve",
+                      "codes": {
+                        "locator": "96:21-96:30",
+                        "name": "test-vs2",
+                        "preserve": true,
+                        "type": "ValueSetRef"
+                      }
+                    }
+                  }
+                ]
+              }
             }
           }
         }
