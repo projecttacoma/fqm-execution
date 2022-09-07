@@ -272,6 +272,7 @@ describe('Find Numerator Queries', () => {
       const expressionRef = complexQueryELM.library.statements.def[8];
       const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
 
+      expect(results).toHaveLength(2);
       expect(results).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -290,6 +291,7 @@ describe('Find Numerator Queries', () => {
       const expressionRef = complexQueryELM.library.statements.def[9];
       const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
 
+      expect(results).toHaveLength(3);
       expect(results).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -312,6 +314,7 @@ describe('Find Numerator Queries', () => {
       const expressionRef = complexQueryELM.library.statements.def[10];
       const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
 
+      expect(results).toHaveLength(2);
       expect(results).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -330,6 +333,7 @@ describe('Find Numerator Queries', () => {
       const expressionRef = complexQueryELM.library.statements.def[11];
       const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
 
+      expect(results).toHaveLength(3);
       expect(results).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -352,6 +356,7 @@ describe('Find Numerator Queries', () => {
       const expressionRef = complexQueryELM.library.statements.def[12];
       const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
 
+      expect(results).toHaveLength(2);
       expect(results).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -370,6 +375,7 @@ describe('Find Numerator Queries', () => {
       const expressionRef = complexQueryELM.library.statements.def[13];
       const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
 
+      expect(results).toHaveLength(2);
       expect(results).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -388,6 +394,7 @@ describe('Find Numerator Queries', () => {
       const expressionRef = complexQueryELM.library.statements.def[14];
       const { results } = findRetrieves(complexQueryELM, [complexQueryELM], expressionRef.expression);
 
+      expect(results).toHaveLength(2);
       expect(results).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
