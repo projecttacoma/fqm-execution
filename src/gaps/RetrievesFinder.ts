@@ -7,7 +7,8 @@ import {
   ELMRetrieve,
   ELMStatement,
   ELMToList,
-  ELMValueSetRef
+  ELMValueSetRef,
+  ELMTuple
 } from '../types/ELMTypes';
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 import { findLibraryReference, findValueSetReference } from '../helpers/elm/ELMDependencyHelpers';
@@ -139,19 +140,91 @@ export function findRetrieves(
       }
     }
   } else if (expr.type === 'Query') {
-    // Queries have the source array containing the expressions
-    (expr as ELMQuery).source?.forEach(s => {
+    // For queries, recurse on all cases that may contain any ELM expression
+    // NOTE: ignoring "aggregate" for now, as we have no precedent for its use within queries for eCQMs
+    const query = expr as ELMQuery;
+    query.source?.forEach(s => {
       const retrieves = findRetrieves(
         elm,
         allELM,
         s.expression,
-        (expr as ELMQuery).localId,
+        query.localId,
         valueComparisonLocalId,
         [...expressionStack],
         [...withErrors]
       );
       results.push(...retrieves.results);
       withErrors.push(...retrieves.withErrors);
+    });
+
+    query.let?.forEach(letClause => {
+      const retrieves = findRetrieves(
+        elm,
+        allELM,
+        letClause.expression,
+        query.localId,
+        valueComparisonLocalId,
+        [...expressionStack],
+        [...withErrors]
+      );
+      results.push(...retrieves.results);
+      withErrors.push(...retrieves.withErrors);
+    });
+
+    if (query.where) {
+      const retrieves = findRetrieves(
+        elm,
+        allELM,
+        query.where,
+        query.localId,
+        valueComparisonLocalId,
+        [...expressionStack],
+        [...withErrors]
+      );
+      results.push(...retrieves.results);
+      withErrors.push(...retrieves.withErrors);
+    }
+
+    if (query.return) {
+      const retrieves = findRetrieves(
+        elm,
+        allELM,
+        query.return.expression,
+        query.localId,
+        valueComparisonLocalId,
+        [...expressionStack],
+        [...withErrors]
+      );
+      results.push(...retrieves.results);
+      withErrors.push(...retrieves.withErrors);
+    }
+
+    query.relationship?.forEach(relationshipClause => {
+      const withOrWithoutRetrieves = findRetrieves(
+        elm,
+        allELM,
+        relationshipClause.expression,
+        query.localId,
+        valueComparisonLocalId,
+        [...expressionStack],
+        [...withErrors]
+      );
+
+      results.push(...withOrWithoutRetrieves.results);
+      withErrors.push(...withOrWithoutRetrieves.withErrors);
+
+      const suchThatRetrieves = findRetrieves(
+        elm,
+        allELM,
+        relationshipClause.suchThat,
+        query.localId,
+        valueComparisonLocalId,
+        [...expressionStack],
+        [...withErrors]
+      );
+
+      results.push(...suchThatRetrieves.results);
+      withErrors.push(...suchThatRetrieves.withErrors);
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
@@ -235,6 +308,21 @@ export function findRetrieves(
     );
     results.push(...retrieves.results);
     withErrors.push(...retrieves.withErrors);
+  } else if (expr.type === 'Tuple') {
+    const tuple = expr as ELMTuple;
+    tuple.element.forEach(te => {
+      const retrieves = findRetrieves(
+        elm,
+        allELM,
+        te.value,
+        queryLocalId,
+        valueComparisonLocalId,
+        [...expressionStack],
+        [...withErrors]
+      );
+      results.push(...retrieves.results);
+      withErrors.push(...retrieves.withErrors);
+    });
   }
   return { results, withErrors };
 }
