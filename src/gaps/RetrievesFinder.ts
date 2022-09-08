@@ -21,6 +21,34 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
  */
 const VALUE_COMPARISON_TYPES = ['Greater', 'IsNull'];
 
+// Defines structure of args to included along with a recursive call
+interface RecursiveCallOptions {
+  elm: ELM;
+  allELM: ELM[];
+  newQueryLocalId?: string;
+  newValueComparisonLocalId?: string;
+  expressionStack: ExpressionStackEntry[];
+  withErrors: GracefulError[];
+}
+
+/*
+ * Helper function for recursing on the findRetrieves function
+ * Allows for explicit specification of which arguments change on each recursive call
+ * NOTE: This function has a side effect of updating the results array that gets defined in findRetrieves
+ */
+function recurse(results: DataTypeQuery[], recursedExpression: AnyELMExpression, opts: RecursiveCallOptions) {
+  const retrieves = findRetrieves(
+    opts.elm,
+    opts.allELM,
+    recursedExpression,
+    opts.newQueryLocalId,
+    opts.newValueComparisonLocalId,
+    [...opts.expressionStack],
+    opts.withErrors
+  );
+  results.push(...retrieves.results);
+}
+
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions
  *
@@ -39,7 +67,18 @@ export function findRetrieves(
   expressionStack: ExpressionStackEntry[] = [],
   withErrors: GracefulError[] = []
 ): { results: DataTypeQuery[]; withErrors: GracefulError[] } {
+  // Smart defaults for recursive call to avoid passing in a bunch of values that don't usually change
+  const defaultRecursiveOpts: RecursiveCallOptions = {
+    elm,
+    allELM,
+    newQueryLocalId: queryLocalId,
+    newValueComparisonLocalId: valueComparisonLocalId,
+    expressionStack,
+    withErrors
+  };
+
   const results: DataTypeQuery[] = [];
+
   // Push this expression onto the stack of processed expressions
   if (expr.localId && expr.type) {
     expressionStack.push({
@@ -85,8 +124,9 @@ export function findRetrieves(
           queryLibraryName = bottomExprs[0].libraryName;
         } else {
           withErrors.push({
-            message: 'Query is referenced in another query but not as a single source. Gaps output may be incomplete.'
-          } as GracefulError);
+            message: 'Query is referenced in another query but not as a single source. Gaps output may be incomplete.',
+            localId: queryLocalId
+          });
         }
       }
     }
@@ -106,7 +146,6 @@ export function findRetrieves(
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
-        withErrors.push(...withErrors);
       }
     } else if (
       exprRet.codes?.type === 'CodeRef' ||
@@ -136,95 +175,38 @@ export function findRetrieves(
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
-        withErrors.push(...withErrors);
       }
     }
   } else if (expr.type === 'Query') {
     // For queries, recurse on all cases that may contain any ELM expression
     // NOTE: ignoring "aggregate" for now, as we have no precedent for its use within queries for eCQMs
     const query = expr as ELMQuery;
+
+    // Overwrite queryLocalId with new ID of the current query expression
+    const recursiveOpts: RecursiveCallOptions = {
+      ...defaultRecursiveOpts,
+      newQueryLocalId: query.localId
+    };
+
     query.source?.forEach(s => {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        s.expression,
-        query.localId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+      recurse(results, s.expression, recursiveOpts);
     });
 
     query.let?.forEach(letClause => {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        letClause.expression,
-        query.localId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+      recurse(results, letClause.expression, recursiveOpts);
     });
 
     if (query.where) {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        query.where,
-        query.localId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+      recurse(results, query.where, recursiveOpts);
     }
 
     if (query.return) {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        query.return.expression,
-        query.localId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+      recurse(results, query.return.expression, recursiveOpts);
     }
 
     query.relationship?.forEach(relationshipClause => {
-      const withOrWithoutRetrieves = findRetrieves(
-        elm,
-        allELM,
-        relationshipClause.expression,
-        query.localId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-
-      results.push(...withOrWithoutRetrieves.results);
-      withErrors.push(...withOrWithoutRetrieves.withErrors);
-
-      const suchThatRetrieves = findRetrieves(
-        elm,
-        allELM,
-        relationshipClause.suchThat,
-        query.localId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-
-      results.push(...suchThatRetrieves.results);
-      withErrors.push(...suchThatRetrieves.withErrors);
+      recurse(results, relationshipClause.expression, recursiveOpts);
+      recurse(results, relationshipClause.suchThat, recursiveOpts);
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
@@ -232,33 +214,14 @@ export function findRetrieves(
       const matchingLib = findLibraryReference(elm, allELM, (expr as ELMExpressionRef).libraryName || '');
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === (expr as ELMExpressionRef).name);
       if (matchingLib && exprRef) {
-        const retrieves = findRetrieves(
-          matchingLib,
-          allELM,
-          exprRef.expression,
-          queryLocalId,
-          valueComparisonLocalId,
-          [...expressionStack],
-          [...withErrors]
-        );
-        results.push(...retrieves.results);
-        withErrors.push(...retrieves.withErrors);
+        // Overwrite default ELM with new ELM containing the referenced expression
+        recurse(results, exprRef.expression, { ...defaultRecursiveOpts, elm: matchingLib });
       }
     } else {
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === (expr as ELMExpressionRef).name);
       if (exprRef) {
-        const retrieves = findRetrieves(
-          elm,
-          allELM,
-          exprRef.expression,
-          queryLocalId,
-          valueComparisonLocalId,
-          [...expressionStack],
-          [...withErrors]
-        );
-        results.push(...retrieves.results);
-        withErrors.push(...retrieves.withErrors);
+        recurse(results, exprRef.expression, defaultRecursiveOpts);
       }
     }
   } else if ((expr as any).operand) {
@@ -267,62 +230,29 @@ export function findRetrieves(
     const newValueComparisonLocalId = VALUE_COMPARISON_TYPES.includes(expr.type as string)
       ? expr.localId
       : valueComparisonLocalId;
+
+    // Overwrite the valueComparisonLocalId with the newly found value expression
+    const recursiveOpts: RecursiveCallOptions = {
+      ...defaultRecursiveOpts,
+      newValueComparisonLocalId
+    };
+
     if (Array.isArray(anyExpr.operand)) {
       // Should expand to types beyond greater
       anyExpr.operand.forEach((e: any) => {
-        const retrieves = findRetrieves(
-          elm,
-          allELM,
-          e,
-          queryLocalId,
-          newValueComparisonLocalId,
-          [...expressionStack],
-          [...withErrors]
-        );
-        results.push(...retrieves.results);
-        withErrors.push(...retrieves.withErrors);
+        recurse(results, e, recursiveOpts);
       });
     } else {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        anyExpr.operand,
-        queryLocalId,
-        newValueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+      recurse(results, anyExpr.operand, recursiveOpts);
     }
-    // Pass through the source expression if no other cases have been satisfied
-  } else if ((expr as any).source) {
-    const retrieves = findRetrieves(
-      elm,
-      allELM,
-      (expr as any).source,
-      queryLocalId,
-      valueComparisonLocalId,
-      [...expressionStack],
-      [...withErrors]
-    );
-    results.push(...retrieves.results);
-    withErrors.push(...retrieves.withErrors);
   } else if (expr.type === 'Tuple') {
     const tuple = expr as ELMTuple;
     tuple.element.forEach(te => {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        te.value,
-        queryLocalId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+      recurse(results, te.value, defaultRecursiveOpts);
     });
+  } else if ((expr as any).source) {
+    // Pass through the source expression if no other cases have been satisfied
+    recurse(results, (expr as any).source, defaultRecursiveOpts);
   }
   return { results, withErrors };
 }
