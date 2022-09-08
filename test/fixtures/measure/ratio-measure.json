@@ -1,0 +1,151 @@
+{
+    "resourceType": "Measure",
+    "id": "example",
+    "extension": [
+      {
+        "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis",
+        "valueCode": "boolean"
+      }
+    ],
+    "status": "active",
+    "url": "http://example.com/example",
+    "identifier": [
+      {
+        "system": "http://example.com",
+        "value": "example"
+      }
+    ],
+    "name": "Example Measure",
+    "effectivePeriod": {
+      "start": "2021-01-01",
+      "end": "2021-12-31"
+    },
+    "library": [
+      "Library/example"
+    ],
+    "scoring": {
+        "coding": [ {
+          "system": "http://terminology.hl7.org/CodeSystem/measure-scoring",
+          "code": "ratio",
+          "display": "Ratio"
+        } ]
+    },
+    "improvementNotation": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/measure-improvement-notation",
+          "code": "increase"
+        }
+      ]
+    },
+    "group": [
+      {
+        "id": "group-1",
+        "population": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                  "code": "initial-population",
+                  "display": "Initial Population"
+                }
+              ]
+            },
+            "criteria": {
+              "language": "text/cql",
+              "expression": "Initial Population"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                  "code": "numerator",
+                  "display": "Numerator"
+                }
+              ]
+            },
+            "criteria": {
+              "language": "text/cql",
+              "expression": "Numerator"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                  "code": "denominator",
+                  "display": "Denominator"
+                }
+              ]
+            },
+            "criteria": {
+              "language": "text/cql",
+              "expression": "Denominator"
+            }
+          },
+          {
+            "id": "test-denom-observation",
+            "extension": [ {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod",
+              "valueCode": "sum"
+            } ],
+            "code": {
+              "coding": [ {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "measure-observation",
+                "display": "Measure Observation"
+              } ]
+            },
+            "criteria": {
+              "language": "text/cql.identifier",
+              "expression": "Denominator Observations"
+            }
+          },
+          {
+            "id": "test-numer-observation",
+            "extension": [ {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod",
+              "valueCode": "sum"
+            } ],
+            "code": {
+              "coding": [ {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "measure-observation",
+                "display": "Measure Observation"
+              } ]
+            },
+            "criteria": {
+              "language": "text/cql.identifier",
+              "expression": "Numerator Observations"
+            }
+          }
+        ]
+      }
+    ],
+    "supplementalData": [
+      {
+        "code": {
+          "text": "sde-code"
+        },
+        "usage": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/measure-data-usage",
+                "code": "supplemental-data"
+              }
+            ]
+          }
+        ],
+        "criteria": {
+          "language": "text/cql",
+          "expression": "SDE"
+        }
+      }
+    ]
+  }
+  
