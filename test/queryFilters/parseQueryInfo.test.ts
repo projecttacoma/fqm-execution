@@ -541,7 +541,7 @@ describe('Parse Query Info', () => {
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY);
   });
 
-  test.only('complex - query references query, combines filters with ands in both filters and differing alias names', async () => {
+  test('complex - query references query, combines filters with ands in both filters and differing alias names', async () => {
     const queryLocalId = complexQueryELM.library.statements.def[7].expression.localId; // query that references another query
     const queryInfo = await parseQueryInfo(complexQueryELM, allELM, queryLocalId, undefined, PARAMETERS, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH);
