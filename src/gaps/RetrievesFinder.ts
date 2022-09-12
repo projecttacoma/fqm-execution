@@ -21,7 +21,7 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
  */
 const VALUE_COMPARISON_TYPES = ['Greater', 'IsNull'];
 
-// Defines structure of args to included along with a recursive call
+// Defines structure of args to be included along with a recursive call
 interface RecursiveCallOptions {
   elm: ELM;
   allELM: ELM[];
@@ -188,7 +188,7 @@ export function findRetrieves(
       newQueryLocalId: query.localId
     };
 
-    query.source?.forEach(s => {
+    query.source.forEach(s => {
       recurse(results, s.expression, recursiveOpts);
     });
 

@@ -227,7 +227,7 @@ export interface ELMCodeRef extends ELMExpression {
 export interface ELMQuery extends ELMExpression {
   type: 'Query';
   source: ELMAliasedQuerySource[];
-  let: ELMLetClause[];
+  let?: ELMLetClause[];
   relationship: ELMRelationshipClause[];
   where?: AnyELMExpression;
   return?: ELMReturnClause;
