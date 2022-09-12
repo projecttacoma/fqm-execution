@@ -20,6 +20,7 @@ const patient1Id = '3413754c-73f0-4559-9f67-df8e593ce7e1';
 const patient2Id = '08fc9439-b7ff-4309-b409-4d143388594c';
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
+const ratioMeasure = getJSONFixture('measure/ratio-measure.json') as fhir4.Measure;
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as fhir4.Measure;
 
 const simpleMeasureBundle: fhir4.Bundle = {
@@ -28,6 +29,16 @@ const simpleMeasureBundle: fhir4.Bundle = {
   entry: [
     {
       resource: simpleMeasure
+    }
+  ]
+};
+
+const ratioMeasureBundle: fhir4.Bundle = {
+  resourceType: 'Bundle',
+  type: 'collection',
+  entry: [
+    {
+      resource: ratioMeasure
     }
   ]
 };
@@ -69,6 +80,91 @@ const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
             populationType: PopulationType.DENEX,
             criteriaExpression: 'Denominator Exclusion',
             result: false
+          }
+        ],
+        html: 'example-html'
+      }
+    ],
+    supplementalData: [
+      {
+        name: 'sde-code',
+        rawResult: {
+          isCode: true,
+          code: 'example',
+          system: 'http://example.com',
+          display: 'Example'
+        }
+      }
+    ]
+  }
+];
+
+const ratioExecutionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
+  {
+    patientId: patient1Id,
+    detailedResults: [
+      {
+        groupId: 'group-1',
+        statementResults: [],
+        populationResults: [
+          {
+            populationType: PopulationType.NUMER,
+            criteriaExpression: 'Numerator',
+            result: true
+          },
+          {
+            populationType: PopulationType.DENOM,
+            criteriaExpression: 'Denominator',
+            result: true
+          },
+          {
+            populationType: PopulationType.IPP,
+            criteriaExpression: 'Initial Population',
+            result: true
+          },
+          {
+            populationType: PopulationType.OBSERV,
+            criteriaExpression: 'Denominator Observations',
+            result: true
+          },
+          {
+            populationType: PopulationType.OBSERV,
+            criteriaExpression: 'Numerator Observations',
+            result: true
+          }
+        ],
+        episodeResults: [
+          {
+            episodeId: '123',
+            populationResults: [
+              {
+                populationType: PopulationType.NUMER,
+                criteriaExpression: 'Numerator',
+                result: true
+              },
+              {
+                populationType: PopulationType.DENOM,
+                criteriaExpression: 'Denominator',
+                result: true
+              },
+              {
+                populationType: PopulationType.IPP,
+                criteriaExpression: 'Initial Population',
+                result: true
+              },
+              {
+                populationType: PopulationType.OBSERV,
+                criteriaExpression: 'Denominator Observations',
+                result: true,
+                observations: [10]
+              },
+              {
+                populationType: PopulationType.OBSERV,
+                criteriaExpression: 'Numerator Observations',
+                result: true,
+                observations: [1]
+              }
+            ]
           }
         ],
         html: 'example-html'
@@ -221,6 +317,46 @@ describe('MeasureReportBuilder Static', () => {
             display: result!.rawResult.display
           }
         ])
+      });
+    });
+  });
+
+  describe('Ratio Measure Report', () => {
+    let measureReports: fhir4.MeasureReport[];
+    beforeAll(() => {
+      measureReports = MeasureReportBuilder.buildMeasureReports(
+        ratioMeasureBundle,
+        ratioExecutionResults,
+        calculationOptions
+      );
+    });
+
+    test('should generate measure report', () => {
+      expect(measureReports).toBeDefined();
+      expect(measureReports).toHaveLength(1);
+    });
+
+    test('should contain proper populationResults', () => {
+      const [mr] = measureReports;
+
+      expect(mr.group).toBeDefined();
+      expect(mr.group).toHaveLength(1);
+
+      const [group] = mr.group!;
+      const result = ratioExecutionResults[0].detailedResults?.[0];
+
+      expect(group.id).toEqual(result!.groupId);
+      expect(group.measureScore).toBeDefined();
+      expect(group.measureScore).toEqual({ value: 0.1 });
+      expect(group.population).toBeDefined();
+
+      result!.populationResults!.forEach(pr => {
+        const populationResult = group.population?.find(p => p.code?.coding?.[0].code === pr.populationType);
+        if (pr.populationType !== 'measure-observation') {
+          expect(populationResult).toBeDefined();
+        } else {
+          expect(populationResult).not.toBeDefined();
+        }
       });
     });
   });

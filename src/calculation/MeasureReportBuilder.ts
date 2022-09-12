@@ -14,6 +14,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   calculateSDEs: boolean;
   patientCount: number;
   scoringCode: string;
+  numeratorAggregateMethod: string;
+  denominatorAggregateMethod: string;
 
   constructor(measureBundle: fhir4.Bundle, options: CalculationOptions) {
     this.report = <fhir4.MeasureReport>{
@@ -40,6 +42,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     this.calculateSDEs = this.options.calculateSDEs === true && this.isIndividual;
 
     this.patientCount = 0;
+    this.numeratorAggregateMethod = '';
+    this.denominatorAggregateMethod = '';
     this.setupBasicStructure();
     this.setupPopulationGroups();
   }
@@ -82,22 +86,40 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
 
       // build each population group with 0 for initial value
       measureGroup.population?.forEach(measurePopulation => {
-        const pop = <fhir4.MeasureReportGroupPopulation>{};
-        pop.count = 0;
-        // copy coding values for the population from the measure
-        if (measurePopulation.code?.coding) {
-          const popCoding: fhir4.Coding = measurePopulation.code?.coding[0];
-          pop.code = {
-            coding: [
-              {
-                system: popCoding.system,
-                code: popCoding.code,
-                display: popCoding.display
-              }
-            ]
-          };
+        if (
+          this.scoringCode === MeasureScoreType.RATIO &&
+          measurePopulation.code?.coding?.[0].code === 'measure-observation'
+        ) {
+          if (measurePopulation.criteria.expression === 'Numerator Observations') {
+            this.numeratorAggregateMethod =
+              measurePopulation.extension?.find(
+                e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
+              )?.valueCode || '';
+          } else if (measurePopulation.criteria.expression === 'Denominator Observations') {
+            this.denominatorAggregateMethod =
+              measurePopulation.extension?.find(
+                e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
+              )?.valueCode || '';
+          }
+        } else {
+          // do not include measure observation population groups for ratio reports
+          const pop = <fhir4.MeasureReportGroupPopulation>{};
+          pop.count = 0;
+          // copy coding values for the population from the measure
+          if (measurePopulation.code?.coding) {
+            const popCoding: fhir4.Coding = measurePopulation.code?.coding[0];
+            pop.code = {
+              coding: [
+                {
+                  system: popCoding.system,
+                  code: popCoding.code,
+                  display: popCoding.display
+                }
+              ]
+            };
+          }
+          group.population?.push(pop);
         }
-        group.population?.push(pop);
       });
 
       // if the measure definition has stratification, add group.stratifier
@@ -169,6 +191,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
           });
 
           // TODO: update this when we support CV for summary/subject-list reports
+          // Consider moving measure score calculation out of this function
           if (this.scoringCode === MeasureScoreType.CV) {
             group.measureScore = this.calcMeasureScoreCV(this.measure, groupResults, group.id || '');
             this.addScoreObservation(group.measureScore, this.measure, this.report);
@@ -261,26 +284,68 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   }
 
   private incrementPopulationInStratum(stratum: fhir4.MeasureReportGroupStratifierStratum, pr: PopulationResult) {
-    const pop = stratum.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
-    if (pop) {
-      // add to pop count creating it if not already created.
-      if (!pop.count) pop.count = 0;
-      pop.count += pr.result ? 1 : 0;
+    if (this.scoringCode === MeasureScoreType.RATIO) {
+      if (pr.criteriaExpression === 'Numerator Observations') {
+        // find numerator group population and add observation value to it
+        const numerPop = stratum.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === 'numerator');
+        if (numerPop && pr.observations) {
+          // use aggregate method to get final value from observations array
+          if (!numerPop.count) numerPop.count = 0;
+          numerPop.count += this.aggregate(this.numeratorAggregateMethod, pr.observations);
+        }
+      } else if (pr.criteriaExpression === 'Denominator Observations') {
+        // find denominator group population and add observation value to it
+        const denomPop = stratum.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === 'denominator');
+        if (denomPop && pr.observations) {
+          // use aggregate method to get final value from observations array
+          if (!denomPop.count) denomPop.count = 0;
+          denomPop.count += this.aggregate(this.numeratorAggregateMethod, pr.observations);
+        }
+      }
     } else {
-      throw new UnexpectedProperty(
-        `Population ${pr.populationType} in stratum ${stratum.id} not found in measure report.`
-      );
+      const pop = stratum.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
+      if (pop) {
+        // add to pop count creating it if not already created.
+        if (!pop.count) pop.count = 0;
+        pop.count += pr.result ? 1 : 0;
+      } else {
+        throw new UnexpectedProperty(
+          `Population ${pr.populationType} in stratum ${stratum.id} not found in measure report.`
+        );
+      }
     }
   }
 
   private incrementPopulationInGroup(group: fhir4.MeasureReportGroup, pr: PopulationResult) {
-    const pop = group.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
-    if (pop) {
-      // add to pop count creating it if not already created.
-      if (!pop.count) pop.count = 0;
-      pop.count += pr.result ? 1 : 0;
+    if (this.scoringCode === MeasureScoreType.RATIO && pr.populationType !== 'initial-population') {
+      if (pr.criteriaExpression === 'Numerator Observations') {
+        // find numerator group population and add observation value to it
+        const numerPop = group.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === 'numerator');
+        if (numerPop && pr.observations) {
+          // use aggregate method to get final value from observations array
+          if (!numerPop.count) numerPop.count = 0;
+          numerPop.count += this.aggregate(this.numeratorAggregateMethod, pr.observations);
+        }
+      } else if (pr.criteriaExpression === 'Denominator Observations') {
+        // find denominator group population and add observation value to it
+        const denomPop = group.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === 'denominator');
+        if (denomPop && pr.observations) {
+          // use aggregate method to get final value from observations array
+          if (!denomPop.count) denomPop.count = 0;
+          denomPop.count += this.aggregate(this.numeratorAggregateMethod, pr.observations);
+        }
+      }
     } else {
-      throw new UnexpectedProperty(`Population ${pr.populationType} in group ${group.id} not found in measure report.`);
+      const pop = group.population?.find(pop => pop.code?.coding && pop.code.coding[0].code === pr.populationType);
+      if (pop) {
+        // add to pop count creating it if not already created.
+        if (!pop.count) pop.count = 0;
+        pop.count += pr.result ? 1 : 0;
+      } else {
+        throw new UnexpectedProperty(
+          `Population ${pr.populationType} in group ${group.id} not found in measure report.`
+        );
+      }
     }
   }
 
@@ -497,19 +562,13 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
         return {
           value: this.populationTotal(population, PopulationType.IPP) * 1.0
         };
-
       case MeasureScoreType.RATIO:
-        // Note: Untested measure score type
-        // (NUMER - NUMEX) / (DENOM - DENEX)`
-        const numeratorCount2 =
-          this.populationTotal(population, PopulationType.NUMER) -
-          this.populationTotal(population, PopulationType.NUMEX);
-        const denominatorCount2 =
-          this.populationTotal(population, PopulationType.DENOM) -
-          this.populationTotal(population, PopulationType.DENEX);
+        // numerator count represents aggregation of all numerator observations
+        const numeratorCount2 = this.populationTotal(population, PopulationType.NUMER);
+        // denominator count represents aggregation of all denominator observations
+        const denominatorCount2 = this.populationTotal(population, PopulationType.DENOM);
 
         return {
-          // TODO: what if value for denominator 0? ... do we need to subtract denex, dexecep... probably, as https://ecqi.healthit.gov/system/files/eCQM-Logic-and-Guidance-2018-0504.pdf
           value: denominatorCount2 === 0 ? 0 : (numeratorCount2 / denominatorCount2) * 1.0
         };
       default:
