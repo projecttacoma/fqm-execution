@@ -40,12 +40,12 @@ const EXPECTED_VS_WITH_ID_CHECK_QUERY: QueryInfo = {
 };
 
 const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
-  localId: '42',
+  localId: '44',
   libraryName: 'ComplexQueries',
   sources: [
     {
-      retrieveLocalId: '31',
-      sourceLocalId: '32',
+      retrieveLocalId: '33',
+      sourceLocalId: '34',
       alias: 'C',
       resourceType: 'Condition'
     }
@@ -63,7 +63,7 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
           { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
           { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
         ],
-        localId: '36',
+        localId: '38',
         libraryName: 'ComplexQueries'
       },
       {
@@ -74,7 +74,7 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '40',
+        localId: '42',
         libraryName: 'ComplexQueries'
       }
     ]
@@ -82,12 +82,12 @@ const EXPECTED_CODE_AND_STARTS_DURING_MP: QueryInfo = {
 };
 
 const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
-  localId: '65',
+  localId: '67',
   libraryName: 'ComplexQueries',
   sources: [
     {
-      retrieveLocalId: '44',
-      sourceLocalId: '45',
+      retrieveLocalId: '46',
+      sourceLocalId: '47',
       alias: 'Obs',
       resourceType: 'Observation'
     }
@@ -101,14 +101,14 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '53',
+        localId: '55',
         libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '56',
+        localId: '58',
         libraryName: 'ComplexQueries'
       },
       {
@@ -119,7 +119,7 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '63',
+        localId: '65',
         libraryName: 'ComplexQueries'
       }
     ]
@@ -127,12 +127,12 @@ const EXPECTED_STATUS_VALUE_EXISTS_DURING_MP: QueryInfo = {
 };
 
 const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
-  localId: '77',
+  localId: '79',
   libraryName: 'ComplexQueries',
   sources: [
     {
-      retrieveLocalId: '67',
-      sourceLocalId: '68',
+      retrieveLocalId: '69',
+      sourceLocalId: '70',
       alias: 'Enc',
       resourceType: 'Encounter'
     }
@@ -156,12 +156,12 @@ const EXPECTED_ENC_TWO_YEAR_BEFORE_END_OF_MP: QueryInfo = {
 };
 
 const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
-  localId: '94',
+  localId: '96',
   libraryName: 'ComplexQueries',
   sources: [
     {
-      retrieveLocalId: '79',
-      sourceLocalId: '80',
+      retrieveLocalId: '81',
+      sourceLocalId: '82',
       alias: 'C',
       resourceType: 'Condition'
     }
@@ -179,7 +179,7 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
           { code: 'recurrence', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' },
           { code: 'relapse', system: 'http://terminology.hl7.org/CodeSystem/condition-clinical' }
         ],
-        localId: '84',
+        localId: '86',
         libraryName: 'ComplexQueries'
       },
       {
@@ -190,14 +190,14 @@ const EXPECTED_CODE_OR_STARTS_DURING_MP_OR_NOT_NULL: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '88',
+        localId: '90',
         libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'C',
         attribute: 'abatement',
-        localId: '92',
+        localId: '94',
         libraryName: 'ComplexQueries'
       }
     ]
@@ -239,12 +239,12 @@ const EXPECTED_QUERY_REFERENCES_QUERY: QueryInfo = {
 };
 
 const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
-  localId: '120',
+  localId: '122',
   libraryName: 'ComplexQueries',
   sources: [
     {
-      retrieveLocalId: '96',
-      sourceLocalId: '97',
+      retrieveLocalId: '98',
+      sourceLocalId: '99',
       alias: 'Obs',
       resourceType: 'Observation'
     }
@@ -258,14 +258,14 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '105',
+        localId: '107',
         libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '108',
+        localId: '110',
         libraryName: 'ComplexQueries'
       },
       {
@@ -276,7 +276,7 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '119',
+        localId: '121',
         libraryName: 'ComplexQueries'
       }
     ]
@@ -284,12 +284,12 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY: QueryInfo = {
 };
 
 const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
-  localId: '134',
+  localId: '136',
   libraryName: 'ComplexQueries',
   sources: [
     {
-      retrieveLocalId: '96',
-      sourceLocalId: '97',
+      retrieveLocalId: '98',
+      sourceLocalId: '99',
       alias: 'Obs',
       resourceType: 'Observation'
     }
@@ -303,14 +303,14 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
         alias: 'Obs',
         attribute: 'status',
         valueList: ['final', 'amended', 'corrected', 'preliminary'],
-        localId: '105',
+        localId: '107',
         libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'value',
-        localId: '108',
+        localId: '110',
         libraryName: 'ComplexQueries'
       },
       {
@@ -321,14 +321,14 @@ const EXPECTED_COMPLEX_QUERY_REF_QUERY_ANDS_IN_BOTH: QueryInfo = {
           start: '2019-01-01T00:00:00.000Z',
           end: '2019-12-31T23:59:59.999Z'
         },
-        localId: '129',
+        localId: '131',
         libraryName: 'ComplexQueries'
       },
       {
         type: 'notnull',
         alias: 'Obs',
         attribute: 'bodySite',
-        localId: '132',
+        localId: '134',
         libraryName: 'ComplexQueries'
       }
     ]

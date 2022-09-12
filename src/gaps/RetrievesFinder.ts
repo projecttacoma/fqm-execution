@@ -7,7 +7,8 @@ import {
   ELMRetrieve,
   ELMStatement,
   ELMToList,
-  ELMValueSetRef
+  ELMValueSetRef,
+  ELMTuple
 } from '../types/ELMTypes';
 import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
 import { findLibraryReference, findValueSetReference } from '../helpers/elm/ELMDependencyHelpers';
@@ -19,6 +20,34 @@ import { UnexpectedResource } from '../types/errors/CustomErrors';
  * List of possible expressions that could be doing extra filtering on the result of a query
  */
 const VALUE_COMPARISON_TYPES = ['Greater', 'IsNull'];
+
+// Defines structure of args to be included along with a recursive call
+interface RecursiveCallOptions {
+  elm: ELM;
+  allELM: ELM[];
+  newQueryLocalId?: string;
+  newValueComparisonLocalId?: string;
+  expressionStack: ExpressionStackEntry[];
+  withErrors: GracefulError[];
+}
+
+/*
+ * Helper function for recursing on the findRetrieves function
+ * Allows for explicit specification of which arguments change on each recursive call
+ * NOTE: This function has a side effect of updating the results array that gets defined in findRetrieves
+ */
+function recurse(results: DataTypeQuery[], recursedExpression: AnyELMExpression, opts: RecursiveCallOptions) {
+  const retrieves = findRetrieves(
+    opts.elm,
+    opts.allELM,
+    recursedExpression,
+    opts.newQueryLocalId,
+    opts.newValueComparisonLocalId,
+    [...opts.expressionStack],
+    opts.withErrors
+  );
+  results.push(...retrieves.results);
+}
 
 /**
  * Get all data types, and codes/valuesets used in Query ELM expressions
@@ -38,7 +67,18 @@ export function findRetrieves(
   expressionStack: ExpressionStackEntry[] = [],
   withErrors: GracefulError[] = []
 ): { results: DataTypeQuery[]; withErrors: GracefulError[] } {
+  // Smart defaults for recursive call to avoid passing in a bunch of values that don't usually change
+  const defaultRecursiveOpts: RecursiveCallOptions = {
+    elm,
+    allELM,
+    newQueryLocalId: queryLocalId,
+    newValueComparisonLocalId: valueComparisonLocalId,
+    expressionStack,
+    withErrors
+  };
+
   const results: DataTypeQuery[] = [];
+
   // Push this expression onto the stack of processed expressions
   if (expr.localId && expr.type) {
     expressionStack.push({
@@ -84,8 +124,9 @@ export function findRetrieves(
           queryLibraryName = bottomExprs[0].libraryName;
         } else {
           withErrors.push({
-            message: 'Query is referenced in another query but not as a single source. Gaps output may be incomplete.'
-          } as GracefulError);
+            message: 'Query is referenced in another query but not as a single source. Gaps output may be incomplete.',
+            localId: queryLocalId
+          });
         }
       }
     }
@@ -105,7 +146,6 @@ export function findRetrieves(
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
-        withErrors.push(...withErrors);
       }
     } else if (
       exprRet.codes?.type === 'CodeRef' ||
@@ -135,23 +175,38 @@ export function findRetrieves(
           expressionStack: [...expressionStack],
           path: exprRet.codeProperty
         });
-        withErrors.push(...withErrors);
       }
     }
   } else if (expr.type === 'Query') {
-    // Queries have the source array containing the expressions
-    (expr as ELMQuery).source?.forEach(s => {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        s.expression,
-        (expr as ELMQuery).localId,
-        valueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+    // For queries, recurse on all cases that may contain any ELM expression
+    // NOTE: ignoring "aggregate" for now, as we have no precedent for its use within queries for eCQMs
+    const query = expr as ELMQuery;
+
+    // Overwrite queryLocalId with new ID of the current query expression
+    const recursiveOpts: RecursiveCallOptions = {
+      ...defaultRecursiveOpts,
+      newQueryLocalId: query.localId
+    };
+
+    query.source.forEach(s => {
+      recurse(results, s.expression, recursiveOpts);
+    });
+
+    query.let?.forEach(letClause => {
+      recurse(results, letClause.expression, recursiveOpts);
+    });
+
+    if (query.where) {
+      recurse(results, query.where, recursiveOpts);
+    }
+
+    if (query.return) {
+      recurse(results, query.return.expression, recursiveOpts);
+    }
+
+    query.relationship?.forEach(relationshipClause => {
+      recurse(results, relationshipClause.expression, recursiveOpts);
+      recurse(results, relationshipClause.suchThat, recursiveOpts);
     });
   } else if (expr.type === 'ExpressionRef') {
     // Find expression in dependent library
@@ -159,33 +214,14 @@ export function findRetrieves(
       const matchingLib = findLibraryReference(elm, allELM, (expr as ELMExpressionRef).libraryName || '');
       const exprRef = matchingLib?.library.statements.def.find(e => e.name === (expr as ELMExpressionRef).name);
       if (matchingLib && exprRef) {
-        const retrieves = findRetrieves(
-          matchingLib,
-          allELM,
-          exprRef.expression,
-          queryLocalId,
-          valueComparisonLocalId,
-          [...expressionStack],
-          [...withErrors]
-        );
-        results.push(...retrieves.results);
-        withErrors.push(...retrieves.withErrors);
+        // Overwrite default ELM with new ELM containing the referenced expression
+        recurse(results, exprRef.expression, { ...defaultRecursiveOpts, elm: matchingLib });
       }
     } else {
       // Find expression in current library
       const exprRef = elm.library.statements.def.find(d => d.name === (expr as ELMExpressionRef).name);
       if (exprRef) {
-        const retrieves = findRetrieves(
-          elm,
-          allELM,
-          exprRef.expression,
-          queryLocalId,
-          valueComparisonLocalId,
-          [...expressionStack],
-          [...withErrors]
-        );
-        results.push(...retrieves.results);
-        withErrors.push(...retrieves.withErrors);
+        recurse(results, exprRef.expression, defaultRecursiveOpts);
       }
     }
   } else if ((expr as any).operand) {
@@ -194,47 +230,29 @@ export function findRetrieves(
     const newValueComparisonLocalId = VALUE_COMPARISON_TYPES.includes(expr.type as string)
       ? expr.localId
       : valueComparisonLocalId;
+
+    // Overwrite the valueComparisonLocalId with the newly found value expression
+    const recursiveOpts: RecursiveCallOptions = {
+      ...defaultRecursiveOpts,
+      newValueComparisonLocalId
+    };
+
     if (Array.isArray(anyExpr.operand)) {
       // Should expand to types beyond greater
       anyExpr.operand.forEach((e: any) => {
-        const retrieves = findRetrieves(
-          elm,
-          allELM,
-          e,
-          queryLocalId,
-          newValueComparisonLocalId,
-          [...expressionStack],
-          [...withErrors]
-        );
-        results.push(...retrieves.results);
-        withErrors.push(...retrieves.withErrors);
+        recurse(results, e, recursiveOpts);
       });
     } else {
-      const retrieves = findRetrieves(
-        elm,
-        allELM,
-        anyExpr.operand,
-        queryLocalId,
-        newValueComparisonLocalId,
-        [...expressionStack],
-        [...withErrors]
-      );
-      results.push(...retrieves.results);
-      withErrors.push(...retrieves.withErrors);
+      recurse(results, anyExpr.operand, recursiveOpts);
     }
-    // Pass through the source expression if no other cases have been satisfied
+  } else if (expr.type === 'Tuple') {
+    const tuple = expr as ELMTuple;
+    tuple.element.forEach(te => {
+      recurse(results, te.value, defaultRecursiveOpts);
+    });
   } else if ((expr as any).source) {
-    const retrieves = findRetrieves(
-      elm,
-      allELM,
-      (expr as any).source,
-      queryLocalId,
-      valueComparisonLocalId,
-      [...expressionStack],
-      [...withErrors]
-    );
-    results.push(...retrieves.results);
-    withErrors.push(...retrieves.withErrors);
+    // Pass through the source expression if no other cases have been satisfied
+    recurse(results, (expr as any).source, defaultRecursiveOpts);
   }
   return { results, withErrors };
 }
