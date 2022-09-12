@@ -100,7 +100,7 @@ export function generateHTML(
   clauseResults: ClauseResult[],
   groupId: string
 ): string {
-  const relevantStatements = statementResults.filter(s => s.relevance === Relevance.TRUE);
+  const relevantStatements = statementResults.filter(s => s.relevance !== Relevance.NA);
 
   // assemble array of statement annotations to be templated to HTML
   const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
