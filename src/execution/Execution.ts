@@ -1,13 +1,10 @@
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
-
-import { DataProvider, CodeService, DateTime, Interval, Repository, Executor } from 'cql-execution';
-import { parseTimeStringAsUTC, valueSetsForCodeService, getMissingDependentValuesets } from './ValueSetHelper';
+import { DataProvider, DateTime, Interval, Executor } from 'cql-execution';
+import { parseTimeStringAsUTC, getMissingDependentValuesets } from './ValueSetHelper';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
-import * as DetailedResultsHelpers from '../helpers/DetailedResultsHelpers';
-import { PopulationType } from '../types/Enums';
-import { generateELMJSONFunction } from '../calculation/DetailedResultsBuilder';
 import { ValueSetResolver } from './ValueSetResolver';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
+import { retrieveELMInfo } from '../helpers/elm/ELMInfoCache';
 
 export async function execute(
   measureBundle: fhir4.Bundle,
@@ -58,35 +55,17 @@ export async function execute(
   // These can be provided directly as an argument or via the caching behavior
   valueSets.push(...valueSetCache);
 
-  const vsMap = valueSetsForCodeService(valueSets);
-
-  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
-
+  //const vsMap = valueSetsForCodeService(valueSets);
+  const { cqls, rootLibIdentifier, elmJSONs, codeService, rep, vsMap } = retrieveELMInfo(
+    measure,
+    measureBundle,
+    valueSets,
+    options.useElmJsonsCaching
+  );
   const { startCql, endCql } = getCQLIntervalEndpoints(options);
 
-  // add expressions for collecting for all measure observations
-  measure.group?.forEach(group => {
-    group.population
-      ?.filter(
-        population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.OBSERV
-      )
-      ?.forEach(obsrvPop => {
-        const msrPop = DetailedResultsHelpers.findObsMsrPopl(group, obsrvPop);
-        if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
-          const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifier.id);
-          if (mainLib) {
-            mainLib.library.statements.def.push(
-              generateELMJSONFunction(obsrvPop.criteria.expression, msrPop.criteria.expression)
-            );
-          }
-        }
-      });
-  });
-
-  const codeService = new CodeService(vsMap);
   const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
   const executionDateTime = DateTime.fromJSDate(new Date(), 0);
-  const rep = new Repository(elmJSONs);
   const lib = rep.resolve(rootLibIdentifier.id, rootLibIdentifier.version);
   /**
    * TODO look more into this if it returns string instead of error

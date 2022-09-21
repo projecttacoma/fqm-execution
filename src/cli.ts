@@ -85,6 +85,7 @@ program
     '-o, --out-file [file-path]',
     'Path to a file that fqm-execution will write the calculation results to (default: output.json)'
   )
+  .option('--cache-elm', 'Whether or not to cache the ELM JSONs and associated information from calculation', false)
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -208,7 +209,8 @@ const calcOptions: CalculationOptions = {
   vsAPIKey: program.vsApiKey,
   useValueSetCaching: program.cacheValuesets,
   verboseCalculationResults: !program.slim,
-  trustMetaProfile: program.profileValidation
+  trustMetaProfile: program.profileValidation,
+  useElmJsonsCaching: program.cacheElm
 };
 
 // Override the measurement period start/end in the options only if the user specified them

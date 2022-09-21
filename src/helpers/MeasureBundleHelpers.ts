@@ -4,6 +4,7 @@ import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
 import { ValueSetResolver } from '../execution/ValueSetResolver';
+import { ExtractedLibrary } from '../types/CQLTypes';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -84,7 +85,7 @@ export function isValidLibraryURL(libraryName: string) {
 }
 
 export function extractLibrariesFromBundle(measureBundle: fhir4.Bundle): {
-  cqls: { name: string; cql: string }[];
+  cqls: ExtractedLibrary[];
   rootLibIdentifier: ELMIdentifier;
   elmJSONs: ELM[];
 } {
