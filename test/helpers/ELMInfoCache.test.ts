@@ -1,6 +1,6 @@
 import { MeasureBundleHelpers } from '../../src';
 import { retrieveELMInfo, clearElmInfoCache } from '../../src/helpers/elm/ELMInfoCache';
-import MEASURE_BUNDLE from '../fixtures/bundles/ColorectalCancerScreeningCQM-bundle-tokyo-drift.json';
+import MEASURE_BUNDLE from '../fixtures/EXM130-7.3.000-bundle-nocodes.json';
 
 const MEASURE = MEASURE_BUNDLE.entry.find(e => e.resource.resourceType === 'Measure')?.resource;
 const TEST_ELFB_OUTPUT = { cqls: [], rootLibIdentifier: { id: 'test-id', version: 'test-version' }, elmJSONs: [] };
