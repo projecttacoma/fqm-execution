@@ -29,7 +29,6 @@ export function retrieveELMInfo(
 ): ELMInfoCacheType {
   const { id, version } = measure;
   const key = `${id}-${version}`;
-  console.log(Object.keys(ELMInfoCache));
   if (!(ELMInfoCache.get(key) && cacheEntryIsValid(ELMInfoCache.get(key)?.lastAccessed))) {
     const vsMap = valueSetsForCodeService(valueSets);
 
@@ -71,11 +70,9 @@ export function clearElmInfoCache() {
   ELMInfoCache.clear();
 }
 function cacheEntryIsValid(lastAccessed?: Date) {
-  console.log(lastAccessed);
   if (!lastAccessed) {
     return false;
   }
   const now = new Date();
-  console.log(now);
   return now.getTime() - lastAccessed.getTime() <= CACHE_EXPIRE_TIME;
 }
