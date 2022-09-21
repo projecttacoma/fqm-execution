@@ -1,5 +1,5 @@
 import { CodeService, Repository } from 'cql-execution';
-import { ValueSet } from 'fhir/r4';
+import { lastIndexOf } from 'lodash';
 import { MeasureBundleHelpers } from '../..';
 import { generateELMJSONFunction } from '../../calculation/DetailedResultsBuilder';
 import { valueSetsForCodeService } from '../../execution/ValueSetHelper';
@@ -20,17 +20,18 @@ export interface ELMInfoCacheType {
 
 // Cache entry should expire if it hasn't been accessed in 10 minutes
 const CACHE_EXPIRE_TIME = 600000;
-let ELMInfoCache: { [measureIdentifier: string]: ELMInfoCacheType } = {};
+const ELMInfoCache = new Map<string, ELMInfoCacheType>();
 
 export function retrieveELMInfo(
   measure: fhir4.Measure,
   measureBundle: fhir4.Bundle,
-  valueSets: ValueSet[],
+  valueSets: fhir4.ValueSet[],
   useElmJsonsCaching?: boolean
 ): ELMInfoCacheType {
   const { id, version } = measure;
   const key = `${id}-${version}`;
-  if (!(ELMInfoCache[key] && cacheEntryIsValid(ELMInfoCache[key]?.lastAccessed))) {
+  console.log(Object.keys(ELMInfoCache));
+  if (!(ELMInfoCache.get(key) && cacheEntryIsValid(ELMInfoCache.get(key)?.lastAccessed))) {
     const vsMap = valueSetsForCodeService(valueSets);
 
     const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
@@ -57,22 +58,25 @@ export function retrieveELMInfo(
     const codeService = new CodeService(vsMap);
     const rep = new Repository(elmJSONs);
     if (useElmJsonsCaching) {
-      ELMInfoCache[key] = { cqls, elmJSONs, rootLibIdentifier, codeService, rep, vsMap, lastAccessed: new Date() };
+      ELMInfoCache.set(key, { cqls, elmJSONs, rootLibIdentifier, codeService, rep, vsMap, lastAccessed: new Date() });
     } else {
       return { cqls, elmJSONs, rootLibIdentifier, codeService, rep, vsMap };
     }
   } else {
-    ELMInfoCache[key].lastAccessed = new Date();
+    ELMInfoCache.set(key, { ...(ELMInfoCache.get(key) as ELMInfoCacheType), lastAccessed: new Date() });
   }
-  return { ...ELMInfoCache[key] };
+  return { ...(ELMInfoCache.get(key) as ELMInfoCacheType) };
 }
 
-export const resetCache = () => (ELMInfoCache = {});
-
+export function clearElmInfoCache() {
+  ELMInfoCache.clear();
+}
 function cacheEntryIsValid(lastAccessed?: Date) {
+  console.log(lastAccessed);
   if (!lastAccessed) {
     return false;
   }
   const now = new Date();
+  console.log(now);
   return now.getTime() - lastAccessed.getTime() <= CACHE_EXPIRE_TIME;
 }

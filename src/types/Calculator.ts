@@ -44,6 +44,8 @@ export interface CalculationOptions {
   trustMetaProfile?: boolean;
   /** if true, cache ELM JSONs and associated data for access in subsequent runs within 10 minutes */
   useElmJsonsCaching?: boolean;
+  /** if true, clears ElmJsons cache before running calculation */
+  clearElmJsonsCache?: boolean;
 }
 
 /**
