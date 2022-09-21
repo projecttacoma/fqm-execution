@@ -1,5 +1,4 @@
 import { CodeService, Repository } from 'cql-execution';
-import { lastIndexOf } from 'lodash';
 import { MeasureBundleHelpers } from '../..';
 import { generateELMJSONFunction } from '../../calculation/DetailedResultsBuilder';
 import { valueSetsForCodeService } from '../../execution/ValueSetHelper';
