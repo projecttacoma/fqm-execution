@@ -38,4 +38,3 @@ export interface ExtractedLibrary {
   name: string;
   cql: string;
 }
-[];

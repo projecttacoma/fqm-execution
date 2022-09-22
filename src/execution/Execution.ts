@@ -55,7 +55,6 @@ export async function execute(
   // These can be provided directly as an argument or via the caching behavior
   valueSets.push(...valueSetCache);
 
-  //const vsMap = valueSetsForCodeService(valueSets);
   const { cqls, rootLibIdentifier, elmJSONs, codeService, rep, vsMap } = retrieveELMInfo(
     measure,
     measureBundle,
