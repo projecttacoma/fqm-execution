@@ -21,6 +21,15 @@ export interface ELMInfoCacheType {
 const CACHE_EXPIRE_TIME = 600000;
 const ELMInfoCache = new Map<string, ELMInfoCacheType>();
 
+/**
+ * Calculates cqls, elmJSONs, rootLibIdentifier, codeService, rep, and vsMap info or retrieves from cache if available and enabled
+ * @param measure {Object} the FHIR Measure that Calculation is being run on
+ * @param measureBundle {Object} the FHIR Bundle containing the Measure and supplemental resources
+ * @param valueSets {Array} the FHIR Valueset resources referenced by the Libraries within the Measure
+ * @param useElmJsonsCaching {boolean} a flag that, when set to true, enables caching of cqls, elmJSONs,
+ * rootLibIdentifier, codeService, rep, and vsMap data for quicker use in subsequent runs
+ * @returns {Object} an object containing cqls, elmJSONs, rootLibIdentifier, codeService, rep, and vsMap
+ */
 export function retrieveELMInfo(
   measure: fhir4.Measure,
   measureBundle: fhir4.Bundle,
@@ -69,6 +78,12 @@ export function retrieveELMInfo(
 export function clearElmInfoCache() {
   ELMInfoCache.clear();
 }
+
+/**
+ *
+ * @param lastAccessed {Object} a JS date dignifying the last accessed moment of a cache entry
+ * @returns {boolean} true if the last accessed date is less than 10 minutes before the current date
+ */
 function cacheEntryIsValid(lastAccessed?: Date) {
   if (!lastAccessed) {
     return false;
