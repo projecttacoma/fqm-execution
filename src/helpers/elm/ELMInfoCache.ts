@@ -72,7 +72,8 @@ export function retrieveELMInfo(
   } else {
     ELMInfoCache.set(key, { ...(ELMInfoCache.get(key) as ELMInfoCacheType), lastAccessed: new Date() });
   }
-  return { ...(ELMInfoCache.get(key) as ELMInfoCacheType) };
+  // We need typecasting here (and above) since theoretically Map.get() can return undefined, even though we know the key is present at this point
+  return ELMInfoCache.get(key) as ELMInfoCacheType;
 }
 
 export function clearElmInfoCache() {
