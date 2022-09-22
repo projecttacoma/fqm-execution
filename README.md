@@ -94,7 +94,9 @@ The options that we support for calculation are as follows:
 | calculateHTML | boolean | yes | Include HTML structure for highlighting. Defaults to false. |
 | calculateClauseCoverage | boolean | yes | Include HTML structure with coverage highlighting. Defaults to false. |
 | vsAPIKey | string | yes | API key, to be used to access a valueset API for downloading any missing valuesets |
-| useValueSetCaching | boolean | yes | Whether to cache valuesets obtained by an API on the filesystem |
+| useValueSetCaching | boolean | yes | Whether to cache valuesets obtained by an API on the filesystem. Defaults to false. |
+| useElmJsonsCaching | boolean | yes | Whether to cache the ELM JSONs and associated information from calculation. Defaults to false. |
+| clearElmJsonsCache | boolean | yes | Whether to clear the ELM JSONs cache before running calculation. Defaults to false. |
 | profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against|
 
 ### CLI
@@ -128,6 +130,7 @@ Options:
   -e, --measurement-period-end <date>         End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).
   --vs-api-key <key>                          API key, to authenticate against the valueset service to be used for resolving missing valuesets.
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service (default: false)
+  --cache-elm                                 Whether to cache the ELM JSONs and associated information from calculation (default: false)
   --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against
   -o, --output-file [file-path]               Path to a file that fqm-execution will write the calculation results to (default: output.json)
   -h, --help                                  Display help for command.
