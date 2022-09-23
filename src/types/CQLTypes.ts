@@ -33,3 +33,8 @@ export interface LocalIdResults {
     [localId: string]: any;
   };
 }
+
+export interface ExtractedLibrary {
+  name: string;
+  cql: string;
+}

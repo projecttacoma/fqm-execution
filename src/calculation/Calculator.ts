@@ -38,6 +38,7 @@ import {
 import { Interval, DataProvider } from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
+import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -59,6 +60,9 @@ export async function calculate<T extends CalculationOptions>(
 
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
+  if (options.clearElmJsonsCache) {
+    clearElmInfoCache();
+  }
   // Get the PatientSource to use for calculation.
   const patientSource = resolvePatientSource(patientBundles, options);
 
