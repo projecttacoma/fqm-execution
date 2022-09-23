@@ -208,8 +208,7 @@ const calcOptions: CalculationOptions = {
   vsAPIKey: program.vsApiKey,
   useValueSetCaching: program.cacheValuesets,
   verboseCalculationResults: !program.slim,
-  trustMetaProfile: program.profileValidation,
-  useElmJsonsCaching: program.cacheElm
+  trustMetaProfile: program.profileValidation
 };
 
 // Override the measurement period start/end in the options only if the user specified them
