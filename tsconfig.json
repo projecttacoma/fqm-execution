@@ -3,7 +3,7 @@
   "include": ["src"],
   "compilerOptions": {
     "resolveJsonModule": true,
-    "target": "es5",
+    "target": "ES2017",
     "lib": ["ESNext"],
     "module": "commonjs",
     "allowJs": true,
@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "moduleResolution": "node"
   }
 }
