@@ -31,7 +31,7 @@ export function isEpisodeOfCareMeasure(measure: fhir4.Measure): boolean {
 /**
  * Check if a group is an episode of care group or not. Look for the cqfm-populationBasis extension.
  * If it is found return true if valueCode is not 'boolean'. If the extension cannot be found, fallback
- * to looking at the measure
+ * to looking at the measure.
  *
  * @param {fhir4.Measure} measure FHIR Measure resource.
  * @returns {boolean} true if this is an episode of care, false if it is a patient measure.
