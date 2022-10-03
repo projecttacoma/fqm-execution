@@ -27,7 +27,7 @@ export function createPopulationValues(
   let episodeResults: EpisodeResults[] | undefined;
 
   // patient based measure
-  if (!MeasureBundleHelpers.isEpisodeOfCareMeasure(measure)) {
+  if (!MeasureBundleHelpers.isEpisodeOfCareGroup(measure, populationGroup)) {
     const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
     populationResults = popAndStratResults.populationResults;
     stratifierResults = popAndStratResults.stratifierResults;
