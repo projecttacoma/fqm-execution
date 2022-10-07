@@ -493,7 +493,7 @@ describe('DataRequirementHelpers', () => {
 
     test('add fhirQueryPattern extension with CodeFilter codes and valueSets, and date filters', () => {
       const testDataReqWithDateFilter: DataRequirement = {
-        type: 'Procedure',
+        type: 'ServiceRequest',
         codeFilter: [
           {
             path: 'code',
@@ -511,7 +511,7 @@ describe('DataRequirementHelpers', () => {
         ],
         dateFilter: [
           {
-            path: 'performed.end',
+            path: 'authoredOn.end',
             valuePeriod: {
               start: '2019-01-01',
               end: '2019-12-31'
@@ -523,10 +523,35 @@ describe('DataRequirementHelpers', () => {
       expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
       if (testDataReqWithDateFilter.extension) {
         expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
-          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&patient=Patient/{{context.patientId}}'
+          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&subject=Patient/{{context.patientId}}'
         );
         expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
-          '/Procedure?code:in=http://example.com&status=completed&date=ge2019-01-01&date=le2019-12-31&performer=Patient/{{context.patientId}}'
+          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&performer=Patient/{{context.patientId}}'
+        );
+      }
+    });
+
+    test('add fhirQueryPattern extension with incorrect path date filter ignores date filter', () => {
+      const testDataReqWithDateFilter: DataRequirement = {
+        type: 'Procedure',
+        dateFilter: [
+          {
+            path: 'wrong.end',
+            valuePeriod: {
+              start: '2019-01-01',
+              end: '2019-12-31'
+            }
+          }
+        ]
+      };
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReqWithDateFilter);
+      expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
+      if (testDataReqWithDateFilter.extension) {
+        expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
+          '/Procedure?patient=Patient/{{context.patientId}}'
+        );
+        expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
+          '/Procedure?performer=Patient/{{context.patientId}}'
         );
       }
     });

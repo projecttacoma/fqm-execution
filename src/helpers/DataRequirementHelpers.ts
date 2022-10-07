@@ -14,7 +14,7 @@ import {
   IsNullFilter
 } from '../types/QueryFilterTypes';
 import { PatientParameters } from '../compartment-definition/PatientParameters';
-
+import { SearchParameters } from '../compartment-definition/SearchParameters';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -154,15 +154,42 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
     queryString = queryString.concat(`${key}=${value}&`);
   }
 
-  // TODO: We should change this from hardcoding the parameter as date=... to looking up the proper search parameter
-  // Add on date filters
-  if (dataRequirement.dateFilter && dataRequirement.dateFilter[0].valuePeriod) {
-    if (dataRequirement.dateFilter[0].valuePeriod.start) {
-      queryString = queryString.concat(`date=ge${dataRequirement.dateFilter[0].valuePeriod.start}&`);
-    }
-    if (dataRequirement.dateFilter[0].valuePeriod.end) {
-      queryString = queryString.concat(`date=le${dataRequirement.dateFilter[0].valuePeriod.end}&`);
-    }
+  if (dataRequirement.dateFilter) {
+    dataRequirement.dateFilter.forEach(dateFilter => {
+      let path = dateFilter.path || '';
+      // remove period path pieces - TODO: do we need to use these pieces in our query string?
+      if (path?.endsWith('.end')) {
+        path = path.slice(0, -4);
+      } else if (path?.endsWith('.start')) {
+        path = path.slice(0, -6);
+      }
+      // add resource type
+      path = `${dataRequirement.type}.${path}`;
+
+      // identify search paramters that should be used for the query
+      const foundParams = SearchParameters.entry.filter(searchParam => searchParam.resource.expression.includes(path));
+
+      if (foundParams.length == 1) {
+        if (dateFilter.valueDateTime) {
+          queryString = queryString.concat(`${foundParams[0].resource.code}=${dateFilter.valueDateTime}&`);
+        } else if (dateFilter.valuePeriod) {
+          if (dateFilter.valuePeriod.start) {
+            queryString = queryString.concat(`${foundParams[0].resource.code}=ge${dateFilter.valuePeriod.start}&`);
+          }
+          if (dateFilter.valuePeriod.end) {
+            queryString = queryString.concat(`${foundParams[0].resource.code}=le${dateFilter.valuePeriod.end}&`);
+          }
+        } else if (dateFilter.valueDuration) {
+          queryString = queryString.concat(`${foundParams[0].resource.code}=${dateFilter.valueDuration.value}&`);
+        }
+      } else if (foundParams.length > 1) {
+        // assumed that multiple foundParams matches is an unexpected result
+        console.warn(`Unexpected result:  (${foundParams.length}) dateFilter path search parameters found`);
+      } else if (foundParams.length == 0) {
+        // (or no matches means we ignore this constraint and add nothing to the query)
+        console.warn(`Could not identify search paramaters using dateFiler path '${path}'`);
+      }
+    });
   }
 
   // Create an extension for each way that exists for referencing the patient
