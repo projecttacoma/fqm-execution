@@ -166,10 +166,10 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
       // add resource type
       path = `${dataRequirement.type}.${path}`;
 
-      // identify search paramters that should be used for the query
+      // identify search parameters that should be used for the query
       const foundParams = SearchParameters.entry.filter(searchParam => searchParam.resource.expression.includes(path));
 
-      if (foundParams.length == 1) {
+      if (foundParams.length === 1) {
         if (dateFilter.valueDateTime) {
           queryString = queryString.concat(`${foundParams[0].resource.code}=${dateFilter.valueDateTime}&`);
         } else if (dateFilter.valuePeriod) {
