@@ -62,7 +62,7 @@ Handlebars.registerHelper('highlightClause', (localId, context) => {
   if (clauseResult) {
     if (clauseResult.final === FinalResult.TRUE) {
       return objToCSS(cqlLogicClauseTrueStyle);
-    } else {
+    } else if (clauseResult.final === FinalResult.FALSE) {
       return objToCSS(cqlLogicClauseFalseStyle);
     }
   }
