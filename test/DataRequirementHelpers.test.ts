@@ -516,6 +516,13 @@ describe('DataRequirementHelpers', () => {
               start: '2019-01-01',
               end: '2019-12-31'
             }
+          },
+          {
+            path: 'occurrence.start',
+            valuePeriod: {
+              start: '2019-01-01',
+              end: '2019-12-31'
+            }
           }
         ]
       };
@@ -523,10 +530,39 @@ describe('DataRequirementHelpers', () => {
       expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
       if (testDataReqWithDateFilter.extension) {
         expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
-          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&subject=Patient/{{context.patientId}}'
+          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&occurrence=ge2019-01-01&occurrence=le2019-12-31&subject=Patient/{{context.patientId}}'
         );
         expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
-          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&performer=Patient/{{context.patientId}}'
+          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&occurrence=ge2019-01-01&occurrence=le2019-12-31&performer=Patient/{{context.patientId}}'
+        );
+      }
+    });
+
+    test('add fhirQueryPattern extension with dateTime and duration date filters', () => {
+      const testDataReqWithDateFilter: DataRequirement = {
+        type: 'ServiceRequest',
+        dateFilter: [
+          {
+            path: 'authoredOn',
+            valueDateTime: '2019-01-01'
+          },
+          {
+            path: 'occurrence', // Note: duration is probably not a practical measure of occurrence here
+            valueDuration: {
+              unit: 'days',
+              value: 10
+            }
+          }
+        ]
+      };
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReqWithDateFilter);
+      expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
+      if (testDataReqWithDateFilter.extension) {
+        expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
+          '/ServiceRequest?authored=2019-01-01&occurrence=10&subject=Patient/{{context.patientId}}'
+        );
+        expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
+          '/ServiceRequest?authored=2019-01-01&occurrence=10&performer=Patient/{{context.patientId}}'
         );
       }
     });
