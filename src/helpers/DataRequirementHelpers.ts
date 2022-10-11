@@ -157,7 +157,10 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
   if (dataRequirement.dateFilter) {
     dataRequirement.dateFilter.forEach(dateFilter => {
       let path = dateFilter.path || '';
-      // remove period path pieces - TODO: do we need to use these pieces in our query string?
+      // remove period path pieces
+      // NOTE: Currently we are limited in doing period comparisons within our query pattern
+      // because search parameters do not allow a use of ".end" or ".start"
+      // and prefixes are not sufficient for certain comparisons https://www.hl7.org/fhir/search.html#prefix
       if (path?.endsWith('.end')) {
         path = path.slice(0, -4);
       } else if (path?.endsWith('.start')) {

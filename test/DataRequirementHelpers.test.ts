@@ -528,14 +528,12 @@ describe('DataRequirementHelpers', () => {
       };
       DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReqWithDateFilter);
       expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
-      if (testDataReqWithDateFilter.extension) {
-        expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
-          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&occurrence=ge2019-01-01&occurrence=le2019-12-31&subject=Patient/{{context.patientId}}'
-        );
-        expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
-          '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&occurrence=ge2019-01-01&occurrence=le2019-12-31&performer=Patient/{{context.patientId}}'
-        );
-      }
+      expect(testDataReqWithDateFilter.extension?.[0].valueString).toEqual(
+        '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&occurrence=ge2019-01-01&occurrence=le2019-12-31&subject=Patient/{{context.patientId}}'
+      );
+      expect(testDataReqWithDateFilter.extension?.[1].valueString).toEqual(
+        '/ServiceRequest?code:in=http://example.com&status=completed&authored=ge2019-01-01&authored=le2019-12-31&occurrence=ge2019-01-01&occurrence=le2019-12-31&performer=Patient/{{context.patientId}}'
+      );
     });
 
     test('add fhirQueryPattern extension with dateTime and duration date filters', () => {
@@ -557,14 +555,12 @@ describe('DataRequirementHelpers', () => {
       };
       DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReqWithDateFilter);
       expect(testDataReqWithDateFilter.extension?.length).toEqual(2);
-      if (testDataReqWithDateFilter.extension) {
-        expect(testDataReqWithDateFilter.extension[0].valueString).toEqual(
-          '/ServiceRequest?authored=2019-01-01&occurrence=10&subject=Patient/{{context.patientId}}'
-        );
-        expect(testDataReqWithDateFilter.extension[1].valueString).toEqual(
-          '/ServiceRequest?authored=2019-01-01&occurrence=10&performer=Patient/{{context.patientId}}'
-        );
-      }
+      expect(testDataReqWithDateFilter.extension?.[0].valueString).toEqual(
+        '/ServiceRequest?authored=2019-01-01&occurrence=10&subject=Patient/{{context.patientId}}'
+      );
+      expect(testDataReqWithDateFilter.extension?.[1].valueString).toEqual(
+        '/ServiceRequest?authored=2019-01-01&occurrence=10&performer=Patient/{{context.patientId}}'
+      );
     });
 
     test('add fhirQueryPattern extension with incorrect path date filter ignores date filter', () => {
