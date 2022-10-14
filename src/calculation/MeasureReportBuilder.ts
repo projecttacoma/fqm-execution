@@ -49,10 +49,10 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   }
 
   private getGroupScoringCode(group: fhir4.MeasureGroup) {
-    const debug = group?.extension?.find(
-      ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring'
+    return (
+      group?.extension?.find(ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring')
+        ?.valueCodeableConcept?.coding?.[0].code || this.scoringCode
     );
-    return debug?.valueCodeableConcept?.coding?.[0].code || this.scoringCode;
   }
 
   private setupBasicStructure() {
