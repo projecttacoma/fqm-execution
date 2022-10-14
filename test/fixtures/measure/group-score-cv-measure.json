@@ -1,0 +1,156 @@
+{
+  "resourceType": "Measure",
+  "id": "cv-example",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis",
+      "valueCode": "Encounter"
+    },
+    {
+      "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-softwaresystem",
+      "valueReference": {
+        "reference": "#cqf-tooling"
+      }
+    }
+  ],
+  "url": "http://example.com/cv-example",
+  "name": "CV Example",
+  "status": "active",
+  "effectivePeriod": {
+    "start": "2021-01-01",
+    "end": "2021-12-31"
+  },
+  "library": ["Library/example-cv"],
+  "scoring": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/measure-scoring",
+        "code": "ratio"
+      }
+    ]
+  },
+  "improvementNotation": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/measure-improvement-notation",
+        "code": "increase"
+      }
+    ]
+  },
+  "group": [
+    {
+      "id": "group-1",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-scoring",
+                "code": "continuous-variable",
+                "display": "Continuous Variable"
+              }
+            ]
+          }
+        }
+      ],
+      "population": [
+        {
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "initial-population",
+                "display": "Initial Population"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql",
+            "expression": "Initial Population"
+          }
+        },
+        {
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "measure-population",
+                "display": "Measure Population"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql",
+            "expression": "Measure Population"
+          }
+        },
+        {
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "measure-population-exclusion",
+                "display": "Measure Population Exclusion"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql",
+            "expression": "Measure Population Exclusions"
+          }
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference",
+              "valueString": "measure-population-identifier"
+            },
+            {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod",
+              "valueCode": "median"
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "measure-observation",
+                "display": "Measure Observation"
+              }
+            ]
+          },
+          "description": "The duration from the Decision to Admit (order or assessment) to the departure from the Emergency Department",
+          "criteria": {
+            "language": "text/cql",
+            "expression": "MeasureObservation"
+          }
+        }
+      ],
+      "stratifier": [
+        {
+          "code": {
+            "text": "stratification-1"
+          },
+          "description": "Patient encounters without a principal diagnosis (rank=1) of 'Psychiatric/Mental Health Diagnosis'",
+          "criteria": {
+            "name": "stratification-1",
+            "language": "text/cql",
+            "expression": "Stratification 1"
+          }
+        },
+        {
+          "code": {
+            "text": "stratification-2"
+          },
+          "description": "Patient encounters with a principal diagnosis (rank=1) of 'Psychiatric/Mental Health Diagnosis'",
+          "criteria": {
+            "name": "stratification-2",
+            "language": "text/cql",
+            "expression": "Stratification 2"
+          }
+        }
+      ]
+    }
+  ]
+}
