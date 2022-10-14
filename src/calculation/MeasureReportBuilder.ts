@@ -452,7 +452,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   // http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-aggregate-method.html
   private aggregate(aggregation: string, observations: number[]) {
     // Note: add break for any non-returning case
-    console.log(aggregation);
     switch (aggregation) {
       case AggregationType.SUM:
         // sum	Sum	The measure score is determined by adding together the observations derived from the measure population.

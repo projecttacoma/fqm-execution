@@ -35,9 +35,9 @@ function buildTestMeasureBundle(measure: fhir4.Measure): fhir4.Bundle {
     ]
   };
 }
-const simpleMeasureBundle: fhir4.Bundle = buildTestMeasureBundle(simpleMeasure);
+const simpleMeasureBundle = buildTestMeasureBundle(simpleMeasure);
 const ratioMeasureBundle = buildTestMeasureBundle(ratioMeasure);
-const cvMeasureBundle: fhir4.Bundle = buildTestMeasureBundle(cvMeasure);
+const cvMeasureBundle = buildTestMeasureBundle(cvMeasure);
 
 const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
   {
