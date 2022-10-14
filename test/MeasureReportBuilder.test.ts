@@ -22,36 +22,22 @@ const patient2Id = '08fc9439-b7ff-4309-b409-4d143388594c';
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
 const ratioMeasure = getJSONFixture('measure/ratio-measure.json') as fhir4.Measure;
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as fhir4.Measure;
+const cvMeasureScoringOnGroup = getJSONFixture('measure/group-score-cv-measure.json');
 
-const simpleMeasureBundle: fhir4.Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    {
-      resource: simpleMeasure
-    }
-  ]
-};
-
-const ratioMeasureBundle: fhir4.Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    {
-      resource: ratioMeasure
-    }
-  ]
-};
-
-const cvMeasureBundle: fhir4.Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    {
-      resource: cvMeasure
-    }
-  ]
-};
+function buildTestMeasureBundle(measure: fhir4.Measure): fhir4.Bundle {
+  return {
+    resourceType: 'Bundle',
+    type: 'collection',
+    entry: [
+      {
+        resource: measure
+      }
+    ]
+  };
+}
+const simpleMeasureBundle = buildTestMeasureBundle(simpleMeasure);
+const ratioMeasureBundle = buildTestMeasureBundle(ratioMeasure);
+const cvMeasureBundle = buildTestMeasureBundle(cvMeasure);
 
 const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
   {
@@ -399,6 +385,47 @@ describe('MeasureReportBuilder Static', () => {
       mr.group?.forEach(g => {
         expect(g.stratifier).toBeDefined();
       });
+    });
+  });
+});
+
+describe('Measure with specified group CV scoring', () => {
+  let measureReports: fhir4.MeasureReport[];
+  beforeAll(() => {
+    measureReports = MeasureReportBuilder.buildMeasureReports(
+      buildTestMeasureBundle(cvMeasureScoringOnGroup),
+      cvExecutionResults,
+      calculationOptions
+    );
+  });
+
+  test('should generate MeasureReport', () => {
+    expect(measureReports).toBeDefined();
+    expect(measureReports).toHaveLength(1);
+  });
+
+  test('should include CV-specific properties despite ratio scoring on measure', () => {
+    const [mr] = measureReports;
+
+    expect(mr.contained).toBeDefined();
+    expect(mr.contained).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          resourceType: 'Observation',
+          code: {
+            text: 'MeasureObservation'
+          }
+        })
+      ])
+    );
+  });
+
+  test('should include stratifier in each group', () => {
+    const [mr] = measureReports;
+
+    expect(mr.group).toBeDefined();
+    mr.group?.forEach(g => {
+      expect(g.stratifier).toBeDefined();
     });
   });
 });
