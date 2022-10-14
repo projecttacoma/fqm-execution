@@ -365,4 +365,51 @@ describe('MeasureBundleHelpers', () => {
       jest.restoreAllMocks();
     });
   });
+
+  describe('getCriteriaReferenceIdFromPopulation', () => {
+    test('should identify valueString when present', () => {
+      const pop: fhir4.MeasureGroupPopulation = {
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+            valueString: 'test-id'
+          }
+        ],
+        criteria: {
+          language: 'text/cql',
+          expression: 'Test'
+        }
+      };
+
+      expect(MeasureBundleHelpers.getCriteriaReferenceIdFromPopulation(pop)).toEqual('test-id');
+    });
+
+    test('should return null with no matching extension', () => {
+      const pop: fhir4.MeasureGroupPopulation = {
+        extension: [
+          {
+            url: 'http://example.com/not-a-real-extension',
+            valueString: 'test-id'
+          }
+        ],
+        criteria: {
+          language: 'text/cql',
+          expression: 'Test'
+        }
+      };
+
+      expect(MeasureBundleHelpers.getCriteriaReferenceIdFromPopulation(pop)).toBeNull();
+    });
+
+    test('should return null with extension at all', () => {
+      const pop: fhir4.MeasureGroupPopulation = {
+        criteria: {
+          language: 'text/cql',
+          expression: 'Test'
+        }
+      };
+
+      expect(MeasureBundleHelpers.getCriteriaReferenceIdFromPopulation(pop)).toBeNull();
+    });
+  });
 });

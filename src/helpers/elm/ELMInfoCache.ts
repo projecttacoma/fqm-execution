@@ -1,11 +1,15 @@
 import { CodeService, Repository } from 'cql-execution';
 import { MeasureBundleHelpers } from '../..';
-import { generateELMJSONFunction } from '../../calculation/DetailedResultsBuilder';
+import {
+  generateEpisodeELMJSONFunction,
+  generateBooleanELMJSONFunction
+} from '../../calculation/DetailedResultsBuilder';
 import { valueSetsForCodeService } from '../../execution/ValueSetHelper';
 import { ExtractedLibrary, ValueSetMap } from '../../types/CQLTypes';
 import { ELM, ELMIdentifier } from '../../types/ELMTypes';
 import { PopulationType } from '../../types/Enums';
 import { findObsMsrPopl } from '../DetailedResultsHelpers';
+import { isEpisodeOfCareGroup } from '../MeasureBundleHelpers';
 
 export interface ELMInfoCacheType {
   rep: Repository;
@@ -54,9 +58,11 @@ export function retrieveELMInfo(
           if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
             const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifier.id);
             if (mainLib) {
-              mainLib.library.statements.def.push(
-                generateELMJSONFunction(obsrvPop.criteria.expression, msrPop.criteria.expression)
-              );
+              const elmFunction = isEpisodeOfCareGroup(measure, group)
+                ? generateEpisodeELMJSONFunction(obsrvPop.criteria.expression, msrPop.criteria.expression)
+                : generateBooleanELMJSONFunction(obsrvPop.criteria.expression);
+
+              mainLib.library.statements.def.push(elmFunction);
             }
           }
         });

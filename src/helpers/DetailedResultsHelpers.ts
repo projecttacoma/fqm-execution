@@ -1,4 +1,3 @@
-import { MeasureGroup, MeasureGroupPopulation } from 'fhir/r4';
 import { MeasureBundleHelpers } from '..';
 import {
   ExecutionResult,
@@ -7,6 +6,7 @@ import {
   PopulationGroupResult
 } from '../types/Calculator';
 import { PopulationType } from '../types/Enums';
+import { getCriteriaReferenceIdFromPopulation } from './MeasureBundleHelpers';
 
 export function pruneDetailedResults(
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
@@ -54,24 +54,34 @@ export function isDetailedResult(result: PopulationGroupResult): result is Detai
 }
 
 export function findObsMsrPopl(
-  group: MeasureGroup,
-  obsrvPop: MeasureGroupPopulation
-): MeasureGroupPopulation | undefined {
+  group: fhir4.MeasureGroup,
+  obsrvPop: fhir4.MeasureGroupPopulation
+): fhir4.MeasureGroupPopulation | undefined {
   let msrPop = group.population?.find(
     population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
   );
-  // special handling of ratio measure without specified populations for the observations
+
+  // Measure populations may also use 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference' extension to reference another population within the same group
+  // In this case, we can identify the population that is being observed by looking through the entire group for a population with an ID that matches the valueString of this extension
   if (!msrPop) {
-    if (obsrvPop.criteria.expression === 'Denominator Observations') {
-      // denominator assumed population
-      msrPop = group.population?.find(
-        population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.DENOM
-      );
-    } else if (obsrvPop.criteria.expression === 'Numerator Observations') {
-      // numerator assumed population
-      msrPop = group.population?.find(
-        population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.NUMER
-      );
+    const criteriaRefId = getCriteriaReferenceIdFromPopulation(obsrvPop);
+
+    if (criteriaRefId != null) {
+      msrPop = group.population?.find(p => p.id === criteriaRefId);
+    } else {
+      // If not using an extension to reference the relevant populations, fallback to assumption approach of the string literals
+      // for "Denominator Observations" or "Numerator Observations" that was used in some other ratio measures
+      if (obsrvPop.criteria.expression === 'Denominator Observations') {
+        // denominator assumed population
+        msrPop = group.population?.find(
+          population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.DENOM
+        );
+      } else if (obsrvPop.criteria.expression === 'Numerator Observations') {
+        // numerator assumed population
+        msrPop = group.population?.find(
+          population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.NUMER
+        );
+      }
     }
   }
   return msrPop;
