@@ -24,36 +24,6 @@ const ratioMeasure = getJSONFixture('measure/ratio-measure.json') as fhir4.Measu
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as fhir4.Measure;
 const cvMeasureScoringOnGroup = getJSONFixture('measure/group-score-cv-measure.json');
 
-const simpleMeasureBundle: fhir4.Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    {
-      resource: simpleMeasure
-    }
-  ]
-};
-
-const ratioMeasureBundle: fhir4.Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    {
-      resource: ratioMeasure
-    }
-  ]
-};
-
-const cvMeasureBundle: fhir4.Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    {
-      resource: cvMeasure
-    }
-  ]
-};
-
 function buildTestMeasureBundle(measure: fhir4.Measure): fhir4.Bundle {
   return {
     resourceType: 'Bundle',
@@ -65,6 +35,9 @@ function buildTestMeasureBundle(measure: fhir4.Measure): fhir4.Bundle {
     ]
   };
 }
+const simpleMeasureBundle: fhir4.Bundle = buildTestMeasureBundle(simpleMeasure);
+const ratioMeasureBundle = buildTestMeasureBundle(ratioMeasure);
+const cvMeasureBundle: fhir4.Bundle = buildTestMeasureBundle(cvMeasure);
 
 const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
   {
