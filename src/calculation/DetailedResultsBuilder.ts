@@ -45,6 +45,8 @@ export function createPopulationValues(
       populationResults = popAndStratResults.populationResults;
       stratifierResults = popAndStratResults.stratifierResults;
     } else {
+      // TODO: in the case of episode aggregation, we should consider collating the observation results at the root populationResults
+      // list as well
       populationResults = [];
       stratifierResults = [];
       // create patient level population and stratifier results based on episodes
@@ -304,6 +306,8 @@ export function createEpisodePopulationValues(
                 observResult.result = true;
               } else {
                 // create new populationResult with obs
+                // TODO: Episode-level results could probably be just the value, not an array of one value
+                // Future changes to fqm-execution might modify this structure
                 episodeResult.populationResults.push({
                   populationType: PopulationType.OBSERV,
                   criteriaExpression: cqlPopulation,
