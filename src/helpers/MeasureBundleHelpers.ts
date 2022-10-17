@@ -49,6 +49,9 @@ export function isEpisodeOfCareGroup(measure: fhir4.Measure, group: fhir4.Measur
  * Measure Observation populations can specify which population in the measure they are drawing observations from (e.g. Numerator/Denominator/etc.)
  * This is done by referencing the ID of that population in the valueString of the cqfm-criteriaReference extension
  * This function identifies the ID used in one of those measure observation populations
+ *
+ * @param population within a Measure resource that may reference another population within the same Measure
+ * @returns the corresponding ID from the extension used in the population, or null if none is found
  */
 export function getCriteriaReferenceIdFromPopulation(population: fhir4.MeasureGroupPopulation): string | null {
   return (
