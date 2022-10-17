@@ -4,7 +4,7 @@ import { getJSONFixture } from './helpers/testHelpers';
 import { PopulationType } from '../src/types/Enums';
 import { StatementResults } from '../src/types/CQLTypes';
 import { PopulationResult } from '../src/types/Calculator';
-import { ELMExpressionRef, ELMQuery, ELMTuple } from '../src/types/ELMTypes';
+import { ELMExpressionRef, ELMQuery, ELMTuple, ELMFunctionRef } from '../src/types/ELMTypes';
 
 type MeasureWithGroup = fhir4.Measure & {
   group: fhir4.MeasureGroup[];
@@ -206,10 +206,10 @@ describe('DetailedResultsBuilder', () => {
   });
 
   describe('ELM JSON Function', () => {
-    test('should properly generate ELM JSON given name and parameter', () => {
+    test('should properly generate episode-based ELM JSON given name and parameter', () => {
       const exampleFunctionName = 'exampleFunction';
       const exampleParameterName = 'exampleParameter';
-      const fn = DetailedResultsBuilder.generateELMJSONFunction(exampleFunctionName, exampleParameterName);
+      const fn = DetailedResultsBuilder.generateEpisodeELMJSONFunction(exampleFunctionName, exampleParameterName);
 
       expect(fn.name).toEqual(`obs_func_${exampleFunctionName}_${exampleParameterName}`);
       expect(((fn.expression as ELMQuery).source[0].expression as ELMExpressionRef).name).toEqual(exampleParameterName);
@@ -232,6 +232,19 @@ describe('DetailedResultsBuilder', () => {
           }
         ])
       );
+    });
+
+    test('should properly generate boolean-based ELM JSON given name', () => {
+      const exampleFunctionName = 'exampleFunction';
+      const fn = DetailedResultsBuilder.generateBooleanELMJSONFunction(exampleFunctionName);
+
+      expect(fn.name).toEqual(`obs_func_${exampleFunctionName}`);
+      expect(fn.expression.type).toEqual('FunctionRef');
+
+      const functionRef = fn.expression as ELMFunctionRef;
+
+      expect(functionRef.name).toEqual(exampleFunctionName);
+      expect(functionRef.operand).toEqual([]);
     });
   });
 });

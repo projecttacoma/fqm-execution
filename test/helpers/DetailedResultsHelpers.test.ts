@@ -183,7 +183,42 @@ describe('findObsMsrPopl', () => {
     expect(MeasureBundleHelpers.codeableConceptToPopulationType(msrPop?.code)).toBe('measure-population');
   });
 
-  test('should find numerator population for Numerator Observations', () => {
+  test('should find population referenced using cqfm-criteriaExpression', () => {
+    const examplePopId = 'example-observ-pop';
+
+    const observedPop: MeasureGroupPopulation = {
+      id: examplePopId,
+      criteria: { language: 'text/cql.identifier', expression: 'Example Function' }
+    };
+
+    const observingPop: MeasureGroupPopulation = {
+      extension: [
+        {
+          url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+          valueString: examplePopId
+        }
+      ],
+      code: {
+        coding: [
+          {
+            code: 'numerator',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      },
+      criteria: { language: 'text/cql.identifier', expression: 'Example Numerator' }
+    };
+
+    const group: MeasureGroup = {
+      population: [observingPop, observedPop]
+    };
+
+    const msrPop = findObsMsrPopl(group, observingPop);
+    expect(msrPop).toBeDefined();
+    expect(msrPop).toEqual(observedPop);
+  });
+
+  test('should fallback to criteria expression with no criteria reference for numerator', () => {
     const group: MeasureGroup = {
       population: [
         {
@@ -217,7 +252,7 @@ describe('findObsMsrPopl', () => {
     expect(MeasureBundleHelpers.codeableConceptToPopulationType(msrPop?.code)).toBe('numerator');
   });
 
-  test('should find denominator population for Denominator Observations', () => {
+  test('should fallback to criteria expression with no criteria reference for denominator', () => {
     const group: MeasureGroup = {
       population: [
         {

@@ -45,6 +45,8 @@ export function createPopulationValues(
       populationResults = popAndStratResults.populationResults;
       stratifierResults = popAndStratResults.stratifierResults;
     } else {
+      // TODO: in the case of episode aggregation, we should consider collating the observation results at the root populationResults
+      // list as well
       populationResults = [];
       stratifierResults = [];
       // create patient level population and stratifier results based on episodes
@@ -177,16 +179,40 @@ export function createPatientPopulationValues(
     // Grab CQL result value and adjust for ECQME
 
     const populationType = MeasureBundleHelpers.codeableConceptToPopulationType(population.code);
+
     // If this is a valid population type and there is a defined cql population pull out the values
     if (populationType != null && cqlPopulation != null) {
-      const value = patientResults[cqlPopulation];
-      const result = isStatementValueTruthy(value);
-      const newPopulationResult: PopulationResult = {
-        populationType: populationType,
-        criteriaExpression: population.criteria.expression,
-        result: result
-      };
-      populationResults.push(newPopulationResult);
+      // For measure observations observing a boolean population, match the result with the population it is observing
+      // and pull the observations from the generated ELM JSON function with no parameters
+      if (populationType === PopulationType.OBSERV) {
+        const observingPopulation = DetailedResultsHelpers.findObsMsrPopl(populationGroup, population);
+        const value = observingPopulation?.criteria.expression
+          ? patientResults[observingPopulation.criteria.expression]
+          : null;
+        const result = isStatementValueTruthy(value);
+
+        const observRawResult = patientResults[`obs_func_${cqlPopulation}`];
+        const newPopulationResult: PopulationResult = {
+          populationType: populationType,
+          criteriaExpression: population.criteria.expression,
+          result
+        };
+
+        if (observRawResult) {
+          newPopulationResult.observations = [observRawResult];
+        }
+
+        populationResults.push(newPopulationResult);
+      } else {
+        const value = patientResults[cqlPopulation];
+        const result = isStatementValueTruthy(value);
+        const newPopulationResult: PopulationResult = {
+          populationType: populationType,
+          criteriaExpression: population.criteria.expression,
+          result: result
+        };
+        populationResults.push(newPopulationResult);
+      }
     }
   });
 
@@ -194,7 +220,7 @@ export function createPatientPopulationValues(
   let stratifierResults: StratifierResult[] | undefined;
   if (populationGroup.stratifier) {
     stratifierResults = [];
-    // index used incase the text for the stratifier could not be found
+    // index used in case the text for the stratifier could not be found
     let strataIndex = 1;
     populationGroup.stratifier.forEach(strata => {
       if (strata.criteria?.expression) {
@@ -280,6 +306,8 @@ export function createEpisodePopulationValues(
                 observResult.result = true;
               } else {
                 // create new populationResult with obs
+                // TODO: Episode-level results could probably be just the value, not an array of one value
+                // Future changes to fqm-execution might modify this structure
                 episodeResult.populationResults.push({
                   populationType: PopulationType.OBSERV,
                   criteriaExpression: cqlPopulation,
@@ -430,7 +458,7 @@ export function setValueSetVersionsToUndefined(elm: ELM[]): ELM[] {
  * @param {string} parameter - Name of the define statement to use as the parameter list. Usually "Measure Population".
  * @returns {ELMStatement} The ELM function to inject into the ELM library before executing.
  */
-export function generateELMJSONFunction(functionName: string, parameter: string): ELMStatement {
+export function generateEpisodeELMJSONFunction(functionName: string, parameter: string): ELMStatement {
   const elmFunction: ELMStatement = {
     name: `obs_func_${functionName}_${parameter}`,
     context: 'Patient',
@@ -477,5 +505,25 @@ export function generateELMJSONFunction(functionName: string, parameter: string)
       }
     }
   };
+  return elmFunction;
+}
+
+/*
+ * This is used for boolean-based measures that do a measure observation
+ * In this case, the function will not have any arguments, so we simplify the generation of
+ * this ELM JSON function to simply just call the function rather than do a query
+ */
+export function generateBooleanELMJSONFunction(functionName: string) {
+  const elmFunction: ELMStatement = {
+    name: `obs_func_${functionName}`,
+    context: 'Patient',
+    accessLevel: 'Public',
+    expression: {
+      type: 'FunctionRef',
+      name: functionName,
+      operand: []
+    }
+  };
+
   return elmFunction;
 }
