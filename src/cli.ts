@@ -14,7 +14,7 @@ import {
 import { addValueSetsToMeasureBundle } from './helpers/MeasureBundleHelpers';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
-import { AsyncPatientSource, PatientSource } from 'cql-exec-fhir';
+import { PatientSource } from 'cql-exec-fhir';
 
 program.command('detailed', { isDefault: true }).action(() => {
   program.outputType = 'detailed';
@@ -45,15 +45,7 @@ program
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'Path to measure bundle.')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
-    'Paths to patient bundles. Required unless --patient-ids or --group-id is provided or output type is dataRequirements. Note: cannot be used with --patient-ids or --group-id.'
-  )
-  .option(
-    '--patient-ids <ids...>',
-    'A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --group-id; --as-patient-source and --fhir-server-url are required when --patient-ids is provided.'
-  )
-  .option(
-    '--group-id <id>',
-    'A group id an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --patient-ids; --as-patient-source and --fhir-server-url are required when --group-id is provided.'
+    'Paths to patient bundles. Required unless output type is dataRequirements.'
   )
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(
@@ -72,10 +64,6 @@ program
     undefined
   )
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)
-  .option(
-    '--fhir-server-url <server-url>',
-    'Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and either --patient-ids or --group-id are required when --fhir-server-url is provided.'
-  )
   .option(
     '--profile-validation',
     'To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against.',
@@ -142,50 +130,18 @@ async function populatePatientBundles() {
   // data requirements/queryInfo/valueSets doesn't care about patient bundles, so just leave as an empty array if we're using that report type
   if (!['dataRequirements', 'queryInfo', 'valueSets'].includes(program.outputType)) {
     // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
-    if (!program.patientBundles && !program.patientIds && !program.groupId) {
-      console.error(
-        `Must provide either patient bundle, patient ids, or group id when output type is "${program.outputType}"`
-      );
+    if (!program.patientBundles) {
+      console.error(`Must patient bundles when output type is "${program.outputType}"`);
       program.help();
     }
-    // patient bundles is provided -- should not use patientIds or groupId to populate patient bundles
-    if (program.patientBundles) {
-      if (program.patientIds) {
-        console.error('Cannot use both --patient-bundles and --patient-ids flags');
-        program.help();
-      }
-      if (program.groupId) {
-        console.error('Cannot use both --patient-bundles and --group-id flags');
-        program.help();
-      }
-      patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
-    }
+
+    patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
 
     // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
     // from patientBundles and wipe patientBundles to be an empty array.
     if (program.asPatientSource) {
-      let patientSource;
-      if (program.fhirServerUrl) {
-        if (!program.patientIds && !program.groupId) {
-          console.error(
-            'Must provide an array of patient ids with --patient-ids flag or group id with --group-id flag for calculation using AsyncPatientSource'
-          );
-          program.help();
-        }
-        if (program.patientIds && program.groupId) {
-          console.error('Cannot provide both --patient-ids and --group-id flags.');
-          program.help();
-        }
-        patientSource = AsyncPatientSource.FHIRv401(program.fhirServerUrl, program.profileValidation);
-        if (program.patientIds) {
-          patientSource.loadPatientIds(program.patientIds);
-        } else {
-          await patientSource.loadGroupId(program.groupId);
-        }
-      } else {
-        patientSource = PatientSource.FHIRv401(program.profileValidation);
-        patientSource.loadBundles(patientBundles);
-      }
+      const patientSource = PatientSource.FHIRv401(program.profileValidation);
+      patientSource.loadBundles(patientBundles);
       calcOptions.patientSource = patientSource;
       patientBundles = [];
     }
