@@ -140,9 +140,6 @@ Generate a MeasureReport by calculating a measure on a patient bundle:
 
 Generate a MeasureReport by calculating a measure on multiple patient bundles:
   - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json /path/to/patient2/bundle.json > reports.json
-
-Generate a MeasureReport by calculating a measure on a patient source which pulls its patient data from a FHIR server:
-  - fqm-execution reports -m /path/to/measure/bundle.json --as-patient-source --fhir-server-url http://example.com --patient-ids test_id_1 test_id_2 > reports.json
 ```
 
 ### ValueSets
@@ -176,23 +173,24 @@ Install dependencies:
 npm install
 ```
 
-Optionally, you can install the `ts-node` utility globally to execute the TypeScript files directly instead of running the build script:
-
-```bash
-npm install -g ts-node
-```
-
 Run the CLI with ts-node:
 
 ```bash
-ts-node --files src/cli.ts [options]
+npm run cli -- [command] [options]
 ```
 
 Or using the built JavaScript:
 
 ```bash
 npm run build
-node build/cli.js [options]
+node build/cli.js [command] [options]
+```
+
+Optionally, you can install the `ts-node` utility globally to execute the TypeScript files directly instead of running the build script:
+
+```bash
+npm install -g ts-node
+ts-node --files src/cli.ts [command] [options]
 ```
 
 ### Debug Option
