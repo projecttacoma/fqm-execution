@@ -107,32 +107,29 @@ To run the globally installed CLI (see above), use the global `fqm-execution com
 Usage: fqm-execution [command] [options]
 
 Commands:
- detailed (default)
- raw
- reports
- gaps
- dataRequirements
- queryInfo
- valueSets
+  detailed
+  reports
+  raw
+  gaps
+  dataRequirements
+  queryInfo
+  valueSets
+  help [command]                              display help for command
 
 Options:
-  --debug                                     Enable debug output (default: false).
+  --debug                                     Enable debug output. (default: false)
   --slim                                      Use slimmed-down calculation results interfaces (default: false)
   --report-type <report-type>                 Type of report, "individual", "summary", "subject-list".
   -m, --measure-bundle <measure-bundle>       Path to measure bundle.
-  -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless --patient-ids or --group-id is provided or output type is dataRequirements. Note: cannot be used with --patient-ids or --group-id.
-  --patient-ids <ids...>                      A list of patient ids an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --group-id; --as-patient-source and --fhir-server-url are required when --patient-ids is provided.
-  --group-id <id>                             A group id an AsyncPatientSource will use to query a fhir server for patient data. Note: cannot be used with --patient-bundles or --patient-ids; --as-patient-source and --fhir-server-url are required when --group-id is provided.
+  -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is dataRequirements.
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
-  --fhir-server-url <url>                     Loads bundles into an AsyncPatientSource which queries the passed in FHIR server URL for patient data. Note: --as-patient-source and either --patient-ids or --group-id are required when --fhir-server-url is provided.
-  -s, --measurement-period-start <date>       Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set.
-                                              there)
+  -s, --measurement-period-start <date>       Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there).
   -e, --measurement-period-end <date>         End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).
   --vs-api-key <key>                          API key, to authenticate against the valueset service to be used for resolving missing valuesets.
-  --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service (default: false)
-  --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against
-  -o, --output-file [file-path]               Path to a file that fqm-execution will write the calculation results to (default: output.json)
-  -h, --help                                  Display help for command.
+  --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
+  --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
+  -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
+  -h, --help                                  display help for command
 ```
 
 E.g.
