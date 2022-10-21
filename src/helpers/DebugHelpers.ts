@@ -4,7 +4,7 @@ import fs from 'fs';
 
 export function clearDebugFolder(): void {
   if (fs.existsSync('debug/')) {
-    fs.rmdirSync('debug/', { recursive: true });
+    fs.rmSync('debug/', { recursive: true });
   }
 }
 

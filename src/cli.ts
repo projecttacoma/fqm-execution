@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node --files
+#!/usr/bin/env node
 
 import { program } from 'commander';
 import fs from 'fs';
