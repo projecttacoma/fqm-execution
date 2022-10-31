@@ -62,6 +62,35 @@ export function getCriteriaReferenceIdFromPopulation(population: fhir4.MeasureGr
 }
 
 /**
+ * Uses the criteriaReference extension for a given population to look up which IPP it draws from
+ * This is useful in the case of multiple IPPs in ratio measures, as the numerator and denominator can each draw from
+ * different IPPs
+ */
+export function getRelevantIPPFromPopulation(
+  group: fhir4.MeasureGroup,
+  fromPopulationType: PopulationType
+): fhir4.MeasureGroupPopulation | null {
+  const fromPopulation = group.population?.find(p => codeableConceptToPopulationType(p.code) === fromPopulationType);
+  if (fromPopulation == null) {
+    return null;
+  }
+
+  const ippId = getCriteriaReferenceIdFromPopulation(fromPopulation);
+
+  if (ippId == null) {
+    return null;
+  }
+
+  return group.population?.find(p => p.id === ippId) ?? null;
+}
+
+export function hasMultipleIPPs(group: fhir4.MeasureGroup) {
+  return (
+    (group.population?.filter(p => codeableConceptToPopulationType(p.code) === PopulationType.IPP) ?? []).length > 1
+  );
+}
+
+/**
  * Population Type Code system.
  */
 const POPULATION_TYPE_CODESYSTEM = 'http://terminology.hl7.org/CodeSystem/measure-population';

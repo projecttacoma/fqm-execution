@@ -106,7 +106,41 @@ const statementResults: StatementResult[] = [
   }
 ];
 
-describe('ResultsHelper', () => {
+const populationResultsTwoIps: PopulationResult[] = [
+  {
+    populationType: PopulationType.IPP,
+    result: false
+  },
+  {
+    populationType: PopulationType.IPP,
+    criteriaExpression: 'ipp2',
+    result: true
+  }
+];
+
+describe('ClauseResultsBuilder', () => {
+  describe('findResult', () => {
+    test('should default to populationType when criteriaExpression is missing', () => {
+      const result = ClauseResultsBuilder.findResult(PopulationType.IPP, populationResultsTwoIps);
+
+      expect(result).not.toBeUndefined();
+      expect((result as PopulationResult).result).toBe(false);
+    });
+
+    test('should find second ipp when matching criteria expression', () => {
+      const result = ClauseResultsBuilder.findResult(PopulationType.IPP, populationResultsTwoIps, 'ipp2');
+
+      expect(result).not.toBeUndefined();
+      expect((result as PopulationResult).result).toBe(true);
+    });
+
+    test('should return undefined when no population matches', () => {
+      const result = ClauseResultsBuilder.findResult(PopulationType.IPP, populationResultsTwoIps, 'does not exist');
+
+      expect(result).toBeUndefined();
+    });
+  });
+
   describe('Statement Maps', () => {
     test('should build statement relevance map', () => {
       const map = ClauseResultsBuilder.buildStatementRelevanceMap(
@@ -427,6 +461,184 @@ describe('ResultsHelper', () => {
 
       const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
+    });
+
+    describe('multiple ipps', () => {
+      const group: fhir4.MeasureGroup = {
+        population: [
+          {
+            id: 'ipp-1',
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'initial-population'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'ipp'
+            }
+          },
+          {
+            id: 'ipp-2',
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'initial-population'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'ipp2'
+            }
+          },
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+                valueString: 'ipp-1'
+              }
+            ],
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'denominator'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'denom'
+            }
+          },
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+                valueString: 'ipp-2'
+              }
+            ],
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'numerator'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'numer'
+            }
+          }
+        ]
+      };
+
+      test('should mark all as relevant when both IPPs are true', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false }
+        ];
+        const expectedRelevanceMap: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true }
+        ];
+
+        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
+          expectedRelevanceMap
+        );
+      });
+
+      test('should mark denom relevant independent of numer IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false }
+        ];
+        const expectedRelevanceMap: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false }
+        ];
+
+        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
+          expectedRelevanceMap
+        );
+      });
+
+      test('should mark numer relevant independent of denom IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false }
+        ];
+        const expectedRelevanceMap: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true }
+        ];
+
+        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
+          expectedRelevanceMap
+        );
+      });
+
+      test('should bypass denom-based numer/numex logic', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: false }
+        ];
+        const expectedRelevanceMap: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+
+        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
+          expectedRelevanceMap
+        );
+      });
+
+      test('should bypass denex-based numer/numex logic', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.DENEX, criteriaExpression: 'denex', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+        const expectedRelevanceMap: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.DENEX, criteriaExpression: 'denex', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+
+        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
+          expectedRelevanceMap
+        );
+      });
     });
   });
 });

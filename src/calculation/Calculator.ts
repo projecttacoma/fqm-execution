@@ -123,8 +123,8 @@ export async function calculate<T extends CalculationOptions>(
 
       // get the relevance information for each population
       detailedGroupResult.populationRelevance = ResultsHelpers.buildPopulationGroupRelevanceMap(
-        group,
-        detailedGroupResult
+        detailedGroupResult,
+        group
       );
 
       // use relevance info to fill out statement relevance information and create initial statementResults structure

@@ -31,13 +31,13 @@ export function createPopulationValues(
     const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
     populationResults = popAndStratResults.populationResults;
     stratifierResults = popAndStratResults.stratifierResults;
-    populationResults = handlePopulationValues(populationResults);
+    populationResults = handlePopulationValues(populationResults, populationGroup);
   } else {
     // episode of care based measure
     // collect results per episode
     episodeResults = createEpisodePopulationValues(populationGroup, patientResults);
 
-    // if no episodes were found we need default populationResults/stratifier results. just use the patient
+    // if no episodes were found we need default populationResults/stratifier results. Just use the patient
     // level logic for this
     if (episodeResults == undefined || episodeResults.length == 0) {
       episodeResults = [];
@@ -92,7 +92,10 @@ export function createPopulationValues(
  * @param {PopulationResult[]} populationResults - The list of population results.
  * @returns {PopulationResult[]} Population results in the list as passed in, but the appropiate values are zeroed out.
  */
-export function handlePopulationValues(populationResults: PopulationResult[]): PopulationResult[] {
+export function handlePopulationValues(
+  populationResults: PopulationResult[],
+  group: fhir4.MeasureGroup
+): PopulationResult[] {
   /* Setting values of populations if the correct populations are not set based on the following logic guidelines
    * Initial Population (IPP): The set of patients or episodes of care to be evaluated by the measure.
    * Denominator (DENOM): A subset of the IPP.
@@ -106,7 +109,26 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
    */
   const populationResultsHandled = populationResults;
   // Cannot be in all populations if not in IPP.
-  if (!getResult(PopulationType.IPP, populationResults)) {
+  if (MeasureBundleHelpers.hasMultipleIPPs(group)) {
+    const numerRelevantIPP = MeasureBundleHelpers.getRelevantIPPFromPopulation(group, PopulationType.NUMER);
+    if (numerRelevantIPP) {
+      // Mark only numerator-relevant populations as false for this IPP
+      if (getResult(PopulationType.IPP, populationResults, numerRelevantIPP.criteria.expression) === false) {
+        setResult(PopulationType.NUMER, false, populationResults);
+        setResult(PopulationType.NUMEX, false, populationResults);
+      }
+    }
+
+    const denomRelevantIPP = MeasureBundleHelpers.getRelevantIPPFromPopulation(group, PopulationType.DENOM);
+    if (denomRelevantIPP) {
+      // Mark only denominator-relevant populations as false for this IPP
+      if (getResult(PopulationType.IPP, populationResults, denomRelevantIPP.criteria.expression) === false) {
+        setResult(PopulationType.DENOM, false, populationResults);
+        setResult(PopulationType.DENEX, false, populationResults);
+        setResult(PopulationType.DENEXCEP, false, populationResults);
+      }
+    }
+  } else if (!getResult(PopulationType.IPP, populationResults)) {
     populationResults.forEach(result => {
       if (result.populationType == PopulationType.OBSERV) {
         result.observations = null;
@@ -114,15 +136,23 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
       result.result = false;
     });
 
-    // Cannot be in most populations if not in DENOM or MSRPOPL
-  } else if (
+    // Short-circuit return since no more processing needs to be done if IPP is false with only one IPP
+    return populationResultsHandled;
+  }
+
+  // Cannot be in most populations if not in DENOM or MSRPOPL
+  if (
     (hasResult(PopulationType.DENOM, populationResults) && !getResult(PopulationType.DENOM, populationResults)) ||
     (hasResult(PopulationType.MSRPOPL, populationResults) && !getResult(PopulationType.MSRPOPL, populationResults))
   ) {
     setResult(PopulationType.DENEX, false, populationResults);
     setResult(PopulationType.DENEXCEP, false, populationResults);
-    setResult(PopulationType.NUMER, false, populationResults);
-    setResult(PopulationType.NUMEX, false, populationResults);
+
+    if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
+      setResult(PopulationType.NUMER, false, populationResults);
+      setResult(PopulationType.NUMEX, false, populationResults);
+    }
+
     setResult(PopulationType.MSRPOPLEX, false, populationResults);
     const popResult = populationResults.find(result => result.populationType == PopulationType.OBSERV);
     if (popResult) {
@@ -132,8 +162,11 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
 
     // Cannot be in the numerator if they are excluded from the denominator
   } else if (getResult(PopulationType.DENEX, populationResults)) {
-    setResult(PopulationType.NUMER, false, populationResults);
-    setResult(PopulationType.NUMEX, false, populationResults);
+    if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
+      setResult(PopulationType.NUMER, false, populationResults);
+      setResult(PopulationType.NUMEX, false, populationResults);
+    }
+
     setResult(PopulationType.DENEXCEP, false, populationResults);
 
     // Cannot have observations if in the MSRPOPLEX
@@ -149,7 +182,7 @@ export function handlePopulationValues(populationResults: PopulationResult[]): P
     setResult(PopulationType.NUMEX, false, populationResults);
 
     // Cannot be in the DENEXCEP if in the NUMER
-  } else if (getResult(PopulationType.NUMER, populationResults)) {
+  } else if (!MeasureBundleHelpers.hasMultipleIPPs(group) && getResult(PopulationType.NUMER, populationResults)) {
     setResult(PopulationType.DENEXCEP, false, populationResults);
   }
   return populationResultsHandled;
@@ -321,7 +354,7 @@ export function createEpisodePopulationValues(
       } else {
         // Handle non observation results.
         const rawEpisodeResults = patientResults[cqlPopulation];
-        createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, populationType);
+        createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, population, populationType);
       }
     } else {
       // TODO: Handle this situation of a malformed population
@@ -334,13 +367,20 @@ export function createEpisodePopulationValues(
     const strataCode = strata.code?.text ?? `strata-${strataIndex++}`;
     if (strata.criteria?.expression) {
       const rawEpisodeResults = patientResults[strata.criteria?.expression];
-      createOrSetValueOfEpisodes(rawEpisodeResults, episodeResultsSet, populationGroup, undefined, strataCode);
+      createOrSetValueOfEpisodes(
+        rawEpisodeResults,
+        episodeResultsSet,
+        populationGroup,
+        undefined,
+        undefined,
+        strataCode
+      );
     }
   });
 
   // Correct any inconsistencies. ex. In DENEX but also in NUMER using same function used for patients.
   episodeResultsSet.forEach(episodeResults => {
-    episodeResults.populationResults = handlePopulationValues(episodeResults.populationResults);
+    episodeResults.populationResults = handlePopulationValues(episodeResults.populationResults, populationGroup);
   });
 
   // TODO: Remove any episode that don't fall in any populations or stratifications after the above code
@@ -362,6 +402,7 @@ function createOrSetValueOfEpisodes(
   rawEpisodeResults: any,
   episodeResultsSet: EpisodeResults[],
   populationGroup: fhir4.MeasureGroup,
+  population?: fhir4.MeasureGroupPopulation,
   populationType?: PopulationType,
   strataCode?: string
 ): void {
@@ -377,7 +418,7 @@ function createOrSetValueOfEpisodes(
         if (episodeResults) {
           // set population value
           if (populationType) {
-            setResult(populationType, true, episodeResults.populationResults);
+            setResult(populationType, true, episodeResults.populationResults, population?.criteria.expression);
 
             // set strata value
           } else if (strataCode) {
@@ -419,7 +460,7 @@ function createOrSetValueOfEpisodes(
 
           // Set the result for the current episode to true
           if (populationType) {
-            setResult(populationType, true, newEpisodeResults.populationResults);
+            setResult(populationType, true, newEpisodeResults.populationResults, population?.criteria.expression);
           }
 
           episodeResultsSet.push(newEpisodeResults);
