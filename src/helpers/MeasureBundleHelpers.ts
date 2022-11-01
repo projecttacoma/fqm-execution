@@ -1,4 +1,4 @@
-import { PopulationType } from '../types/Enums';
+import { PopulationType, MeasureScoreType } from '../types/Enums';
 import { CalculationOptions, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
@@ -11,6 +11,21 @@ import { ExtractedLibrary } from '../types/CQLTypes';
  * patient based measure.
  */
 const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
+const SCORING_CODE_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring';
+
+export function getScoringCodeFromGroup(group: fhir4.MeasureGroup): string | null {
+  return group?.extension?.find(ext => ext.url === SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ?? null;
+}
+
+export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | null {
+  return (
+    measure.scoring?.coding?.find(
+      c =>
+        c.system === 'http://hl7.org/fhir/measure-scoring' ||
+        c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
+    )?.code ?? null
+  );
+}
 
 /**
  * Check if a measure is an episode of care measure or not. Look for the cqfm-populationBasis extension.
@@ -22,7 +37,7 @@ const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefini
 export function isEpisodeOfCareMeasure(measure: fhir4.Measure): boolean {
   const popBasisExt = measure.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
   if (popBasisExt != undefined) {
-    return popBasisExt.valueCode != 'boolean';
+    return popBasisExt.valueCode !== 'boolean';
   } else {
     return false;
   }
@@ -39,7 +54,24 @@ export function isEpisodeOfCareMeasure(measure: fhir4.Measure): boolean {
 export function isEpisodeOfCareGroup(measure: fhir4.Measure, group: fhir4.MeasureGroup): boolean {
   const popBasisExt = group.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
   if (popBasisExt != undefined) {
-    return popBasisExt.valueCode != 'boolean';
+    return popBasisExt.valueCode !== 'boolean';
+  } else if (
+    getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
+    getScoringCodeFromMeasure(measure) === MeasureScoreType.RATIO
+  ) {
+    const populationsWithBasis = group.population?.filter(
+      p =>
+        codeableConceptToPopulationType(p.code) !== PopulationType.OBSERV &&
+        p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT) != null
+    );
+
+    if (populationsWithBasis) {
+      return populationsWithBasis.some(
+        p => p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT)?.valueCode !== 'boolean'
+      );
+    }
+
+    return isEpisodeOfCareMeasure(measure);
   } else {
     return isEpisodeOfCareMeasure(measure);
   }

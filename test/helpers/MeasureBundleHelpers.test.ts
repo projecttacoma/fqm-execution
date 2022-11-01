@@ -8,7 +8,9 @@ import {
   addValueSetsToMeasureBundle,
   extractLibrariesFromBundle,
   extractMeasureFromBundle,
-  isValidLibraryURL
+  isValidLibraryURL,
+  getScoringCodeFromGroup,
+  getScoringCodeFromMeasure
 } from '../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../src/types/Enums';
 import { ValueSetResolver } from '../../src/execution/ValueSetResolver';
@@ -16,6 +18,62 @@ import { getJSONFixture } from './testHelpers';
 import { getMissingDependentValuesets } from '../../src/execution/ValueSetHelper';
 
 describe('MeasureBundleHelpers tests', () => {
+  describe('getScoringCodeFromGroup', () => {
+    it('should return the code when extension is defined', () => {
+      const group: fhir4.MeasureGroup = {
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring',
+            valueCodeableConcept: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+                  code: 'ratio'
+                }
+              ]
+            }
+          }
+        ]
+      };
+
+      expect(getScoringCodeFromGroup(group)).toEqual('ratio');
+    });
+
+    it('should return null with no matching extension', () => {
+      const group: fhir4.MeasureGroup = {};
+
+      expect(getScoringCodeFromGroup(group)).toBeNull();
+    });
+  });
+
+  describe('getScoringCodeFromMeasure', () => {
+    it('should return the code when present on the measure resource', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        scoring: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+              code: 'ratio'
+            }
+          ]
+        }
+      };
+
+      expect(getScoringCodeFromMeasure(measure)).toEqual('ratio');
+    });
+
+    it('should return null when no scoring is present on measure resource', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown'
+      };
+
+      expect(getScoringCodeFromMeasure(measure)).toBeNull();
+    });
+  });
+
   describe('isEpisodeOfCareGroup', () => {
     it('can determine episode of care on group extension', () => {
       const measure: fhir4.Measure = {
@@ -94,6 +152,177 @@ describe('MeasureBundleHelpers tests', () => {
         group: [{}]
       };
       const group: fhir4.MeasureGroup = (measure.group as fhir4.MeasureGroup[])[0];
+      expect(isEpisodeOfCareGroup(measure, group)).toBe(false);
+    });
+
+    it('should return true for ratio measure with root populationBasis and root measure scoring', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        group: [{}],
+        scoring: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+              code: 'ratio'
+            }
+          ]
+        },
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+            valueCode: 'Encounter'
+          }
+        ]
+      };
+      const group = (measure.group as fhir4.MeasureGroup[])[0];
+
+      expect(isEpisodeOfCareGroup(measure, group)).toBe(true);
+    });
+
+    it('should return true for ratio measure with group populationBasis and root measure scoring', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        group: [
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+                valueCode: 'Encounter'
+              }
+            ]
+          }
+        ],
+        scoring: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+              code: 'ratio'
+            }
+          ]
+        }
+      };
+      const group = (measure.group as fhir4.MeasureGroup[])[0];
+      expect(isEpisodeOfCareGroup(measure, group)).toBe(true);
+    });
+
+    it('should return true for ratio measure with group populationBasis and group measure scoring', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        group: [
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring',
+                valueCodeableConcept: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+                      code: 'ratio'
+                    }
+                  ]
+                }
+              },
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+                valueCode: 'Encounter'
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as fhir4.MeasureGroup[])[0];
+      expect(isEpisodeOfCareGroup(measure, group)).toBe(true);
+    });
+
+    it('should return true when any population has episode basis', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        group: [
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring',
+                valueCodeableConcept: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+                      code: 'ratio'
+                    }
+                  ]
+                }
+              }
+            ],
+            population: [
+              {
+                extension: [
+                  {
+                    url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+                    valueCode: 'Encounter'
+                  }
+                ],
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population'
+                    }
+                  ]
+                },
+                criteria: {
+                  language: 'text/cql'
+                }
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as fhir4.MeasureGroup[])[0];
+
+      expect(isEpisodeOfCareGroup(measure, group)).toBe(true);
+    });
+
+    it('should return false for ratio measure when no populations have non-boolean basis', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        group: [
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring',
+                valueCodeableConcept: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+                      code: 'ratio'
+                    }
+                  ]
+                }
+              }
+            ],
+            population: [
+              {
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population'
+                    }
+                  ]
+                },
+                criteria: {
+                  language: 'text/cql'
+                }
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as fhir4.MeasureGroup[])[0];
       expect(isEpisodeOfCareGroup(measure, group)).toBe(false);
     });
   });
