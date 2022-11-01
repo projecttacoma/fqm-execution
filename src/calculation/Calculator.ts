@@ -378,11 +378,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
       const measureResource = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
       // Gaps only supported for proportion/ratio measures
-      const scoringCode = measureResource.scoring?.coding?.find(
-        c =>
-          c.system === 'http://hl7.org/fhir/measure-scoring' ||
-          c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
-      )?.code;
+      const scoringCode = MeasureBundleHelpers.getScoringCodeFromMeasure(measureResource);
 
       if (scoringCode !== MeasureScoreType.PROP) {
         throw new UnsupportedProperty(`Gaps in care not supported for measure scoring type ${scoringCode}`);

@@ -1,7 +1,11 @@
 import { ExecutionResult, CalculationOptions, PopulationResult, PopulationGroupResult } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
-import { extractMeasureFromBundle } from '../helpers/MeasureBundleHelpers';
+import {
+  extractMeasureFromBundle,
+  getScoringCodeFromMeasure,
+  getScoringCodeFromGroup
+} from '../helpers/MeasureBundleHelpers';
 import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomErrors';
 import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
 
@@ -24,12 +28,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     };
     this.measureBundle = measureBundle;
     this.measure = extractMeasureFromBundle(measureBundle);
-    this.scoringCode =
-      this.measure.scoring?.coding?.find(
-        c =>
-          c.system === 'http://hl7.org/fhir/measure-scoring' ||
-          c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
-      )?.code || '';
+    this.scoringCode = getScoringCodeFromMeasure(this.measure) || '';
     this.options = options;
     // if report type is specified use it, otherwise default to individual report.
     if (this.options.reportType) {
@@ -49,10 +48,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   }
 
   private getGroupScoringCode(group: fhir4.MeasureGroup) {
-    return (
-      group?.extension?.find(ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring')
-        ?.valueCodeableConcept?.coding?.[0].code || this.scoringCode
-    );
+    return getScoringCodeFromGroup(group) ?? this.scoringCode;
   }
 
   private setupBasicStructure() {
