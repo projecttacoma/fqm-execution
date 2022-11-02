@@ -606,8 +606,21 @@ export function buildPopulationRelevanceForAllEpisodes(
     masterRelevanceResults.forEach(masterPopResults => {
       // find relevance in episode and if true, make master relevance true, only if not already true
       if (masterPopResults.result === false) {
-        if (getResult(masterPopResults.populationType, episodeRelevance) === true) {
-          masterPopResults.result = true;
+        const matchingEpisodeResult = findResult(
+          masterPopResults.populationType,
+          episodeRelevance,
+          masterPopResults.criteriaExpression
+        );
+        if (matchingEpisodeResult) {
+          if (matchingEpisodeResult.populationId) {
+            masterPopResults.populationId = matchingEpisodeResult.populationId;
+          }
+          if (matchingEpisodeResult.criteriaReferenceId) {
+            masterPopResults.criteriaReferenceId = matchingEpisodeResult.criteriaReferenceId;
+          }
+          if (matchingEpisodeResult.result === true) {
+            masterPopResults.result = true;
+          }
         }
       }
     });
@@ -639,6 +652,8 @@ export function buildPopulationRelevanceMap(
   // Create initial results starting with all true to create the basis for relevance.
   const relevantResults: PopulationResult[] = results.map(result => {
     return {
+      ...(result.populationId ? { populationId: result.populationId } : {}),
+      ...(result.criteriaReferenceId ? { criteriaReferenceId: result.criteriaReferenceId } : {}),
       populationType: result.populationType,
       criteriaExpression: result.criteriaExpression,
       result: true
@@ -823,9 +838,11 @@ export function setResult(
 // create a result for the given population type and result or update the existing value to true if newResult is true
 export function createOrSetResult(
   populationType: PopulationType,
-  criteriaExpression: string | undefined,
   newResult: boolean,
-  results: PopulationResult[]
+  results: PopulationResult[],
+  criteriaExpression?: string,
+  populationId?: string,
+  criteriaReferenceId?: string
 ) {
   const popResult = findResult(populationType, results, criteriaExpression);
   if (popResult) {
@@ -836,7 +853,9 @@ export function createOrSetResult(
     results.push({
       populationType,
       criteriaExpression,
-      result: newResult
+      result: newResult,
+      ...(populationId ? { populationId } : {}),
+      ...(criteriaReferenceId ? { criteriaReferenceId } : {})
     });
   }
 }

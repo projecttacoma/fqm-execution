@@ -6,6 +6,20 @@ import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
 import { ValueSetResolver } from '../execution/ValueSetResolver';
 import { ExtractedLibrary } from '../types/CQLTypes';
 
+export function findPopulationInGroup(
+  group: fhir4.MeasureGroup,
+  populationType: PopulationType,
+  criteriaExpression?: string
+) {
+  return group.population?.find(p => {
+    if (codeableConceptToPopulationType(p.code) === populationType) {
+      return criteriaExpression ? p.criteria.expression === criteriaExpression : true;
+    }
+
+    return false;
+  });
+}
+
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
  * patient based measure.
