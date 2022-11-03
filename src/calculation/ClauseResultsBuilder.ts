@@ -629,6 +629,7 @@ export function buildPopulationRelevanceForAllEpisodes(
  * was kept to make it more maintainable.
  *
  * @param {PopulationResult[]} result - The population results list for the population results.
+ * @param {fhir4.MeasureGroup} group - The full group of the Measure, which is useful for resolving references between different populations
  * @returns {PopulationResult[]} The population relevance set.
  */
 export function buildPopulationRelevanceMap(
@@ -644,7 +645,9 @@ export function buildPopulationRelevanceMap(
     };
   });
 
-  // If IPP is false then everything else is not calculated
+  // If the group has multiple IPPs, they are treated independently
+  // This means that a given IPP affects the numerator _only if_ that numerator uses a criteriaReference to reference that IPP
+  // Same logic applies with denominator
   if (group && MeasureBundleHelpers.hasMultipleIPPs(group)) {
     const numerRelevantIPP = MeasureBundleHelpers.getRelevantIPPFromPopulation(group, PopulationType.NUMER);
     if (numerRelevantIPP) {
@@ -689,7 +692,6 @@ export function buildPopulationRelevanceMap(
     if (hasResult(PopulationType.MSRPOPLEX, relevantResults)) {
       setResult(PopulationType.MSRPOPLEX, false, relevantResults);
     }
-    // values is the OBSERVs
     if (hasResult(PopulationType.OBSERV, relevantResults)) {
       setResult(PopulationType.OBSERV, false, relevantResults);
     }

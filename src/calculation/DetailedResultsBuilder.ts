@@ -90,6 +90,7 @@ export function createPopulationValues(
  * Takes in the initial values from the population and checks to see if some values should not be calculated. These
  * values that should not be considered calculated are zeroed out. ex. results NUMER is true but IPP is false.
  * @param {PopulationResult[]} populationResults - The list of population results.
+ * @param {fhir4.MeasureGroup} group - Full Measure Group used to detect multiple IPPs and resolve any references between populations
  * @returns {PopulationResult[]} Population results in the list as passed in, but the appropiate values are zeroed out.
  */
 export function handlePopulationValues(
@@ -395,6 +396,7 @@ export function createEpisodePopulationValues(
  * @param {any} rawEpisodeResults - Raw population defining statement result. This result should be a list.
  * @param {EpisodeResults[]} episodeResultsSet - EpisodeResults set to populate.
  * @param {fhir4.MeasureGroup} populationGroup - The population group. Used to populate default values for a new encounter.
+ * @param {fhir4.MeasureGroupPopulation} population - Used to pass through the criteria expression where present to resolve ambiguities
  * @param {PopulationType} populationType - If this is a regular population the type must be provided.
  * @param {string} strataCode - If this is a stratifier result, the code of the strata must be provided.
  */
