@@ -203,6 +203,159 @@ describe('DetailedResultsBuilder', () => {
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
       expect(results.populationResults).toEqual(expect.arrayContaining(expectedPopulationResults));
     });
+
+    describe('multiple IPPs', () => {
+      const group: fhir4.MeasureGroup = {
+        population: [
+          {
+            id: 'ipp-1',
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'initial-population'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'ipp'
+            }
+          },
+          {
+            id: 'ipp-2',
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'initial-population'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'ipp2'
+            }
+          },
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+                valueString: 'ipp-1'
+              }
+            ],
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'denominator'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'denom'
+            }
+          },
+          {
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+                valueString: 'ipp-2'
+              }
+            ],
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'numerator'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'numer'
+            }
+          },
+          {
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'numerator-exclusion'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'numex'
+            }
+          },
+          {
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'denominator-exclusion'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'denex'
+            }
+          },
+          {
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'denominator-exception'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql',
+              expression: 'denexcep'
+            }
+          }
+        ]
+      };
+
+      test('should false out NUMER/NUMEX when relevant IPP is false', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: false }
+        ];
+
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
+      });
+
+      test('should false out DENOM/DENEX/DENEXCEP when relevant IPP is false', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.DENEX, criteriaExpression: 'denex', result: true },
+          { populationType: PopulationType.DENEXCEP, criteriaExpression: 'denexcep', result: true }
+        ];
+
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.DENEX, criteriaExpression: 'denex', result: false },
+          { populationType: PopulationType.DENEXCEP, criteriaExpression: 'denexcep', result: false }
+        ];
+
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
+      });
+    });
   });
 
   describe('ELM JSON Function', () => {
