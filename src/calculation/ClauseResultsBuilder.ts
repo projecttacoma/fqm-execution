@@ -651,6 +651,7 @@ export function buildPopulationRelevanceMap(
       if (getResult(PopulationType.IPP, results, numerRelevantIPP.criteria.expression) === false) {
         if (hasResult(PopulationType.NUMER, relevantResults)) {
           setResult(PopulationType.NUMER, false, relevantResults);
+          setResult(PopulationType.NUMEX, false, relevantResults);
         }
       }
     }
@@ -660,10 +661,13 @@ export function buildPopulationRelevanceMap(
       if (getResult(PopulationType.IPP, results, denomRelevantIPP.criteria.expression) === false) {
         if (hasResult(PopulationType.DENOM, relevantResults)) {
           setResult(PopulationType.DENOM, false, relevantResults);
+          setResult(PopulationType.DENEX, false, relevantResults);
+          setResult(PopulationType.DENEXCEP, false, relevantResults);
         }
       }
     }
   } else if (getResult(PopulationType.IPP, results) === false) {
+    // If IPP is false then everything else is not calculated
     if (hasResult(PopulationType.NUMER, relevantResults)) {
       setResult(PopulationType.NUMER, false, relevantResults);
     }
