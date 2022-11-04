@@ -16,6 +16,59 @@ const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
 const groupWithObs = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
+const measure: fhir4.Measure = {
+  resourceType: 'Measure',
+  status: 'unknown',
+  extension: [
+    {
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+      valueCode: 'Encounter'
+    }
+  ],
+  group: [
+    {
+      population: [
+        {
+          id: 'initial-population-id',
+          code: {
+            coding: [
+              {
+                system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                code: 'initial-population'
+              }
+            ]
+          },
+          criteria: {
+            expression: 'ipp',
+            language: 'text/cql'
+          }
+        },
+        {
+          extension: [
+            {
+              url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+              valueString: 'initial-population-id'
+            }
+          ],
+          code: {
+            coding: [
+              {
+                system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                code: 'measure-observation',
+                display: 'Measure Observation'
+              }
+            ]
+          },
+          criteria: {
+            language: 'text/cql.identifier',
+            expression: 'observe'
+          }
+        }
+      ]
+    }
+  ]
+};
+
 describe('DetailedResultsBuilder', () => {
   describe('Population Values', () => {
     test('NUMER population not modified by inclusion in NUMEX', () => {
@@ -451,6 +504,76 @@ describe('DetailedResultsBuilder', () => {
         expect.arrayContaining([
           expect.objectContaining({
             criteriaReferenceId: 'example-pop-id'
+          })
+        ])
+      );
+    });
+
+    // one test to make sure that
+    test('Root population results should not contain an array of observations', () => {
+      const group = (measure.group as [fhir4.MeasureGroup])[0];
+
+      const statementResults: StatementResults = {
+        ipp: [
+          {
+            id: {
+              value: 'Encounter2'
+            }
+          },
+          {
+            id: {
+              value: 'Encounter3'
+            }
+          }
+        ],
+        obs_func_observe_ipp: [
+          { episode: { id: { value: 'Encounter2' } } },
+          { episode: { id: { value: 'Encounter3' } } }
+        ]
+      };
+
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+
+      expect(populationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            populationType: PopulationType.OBSERV
+          })
+        ])
+      );
+
+      expect(JSON.stringify(populationResults)).not.toContain('observation:');
+    });
+
+    test('Root population results should contain an array of observations for corresponding population', () => {
+      const group = (measure.group as [fhir4.MeasureGroup])[0];
+
+      const statementResults: StatementResults = {
+        ipp: [
+          {
+            id: {
+              value: 'Encounter2'
+            }
+          },
+          {
+            id: {
+              value: 'Encounter3'
+            }
+          }
+        ],
+        obs_func_observe_ipp: [
+          { episode: { id: { value: 'Encounter2' } }, observation: 2 },
+          { episode: { id: { value: 'Encounter3' } }, observation: 3 }
+        ]
+      };
+
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+
+      expect(populationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            populationType: PopulationType.OBSERV,
+            observations: [2, 3]
           })
         ])
       );

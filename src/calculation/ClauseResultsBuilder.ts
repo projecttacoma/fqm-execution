@@ -842,7 +842,8 @@ export function createOrSetResult(
   results: PopulationResult[],
   criteriaExpression?: string,
   populationId?: string,
-  criteriaReferenceId?: string
+  criteriaReferenceId?: string,
+  observations?: string[]
 ) {
   const popResult = findResult(populationType, results, criteriaExpression);
   if (popResult) {
@@ -855,7 +856,8 @@ export function createOrSetResult(
       criteriaExpression,
       result: newResult,
       ...(populationId ? { populationId } : {}),
-      ...(criteriaReferenceId ? { criteriaReferenceId } : {})
+      ...(criteriaReferenceId ? { criteriaReferenceId } : {}),
+      observations: observations
     });
   }
 }
