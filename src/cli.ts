@@ -131,7 +131,7 @@ async function populatePatientBundles() {
   if (!['dataRequirements', 'queryInfo', 'valueSets'].includes(program.outputType)) {
     // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
     if (!program.patientBundles) {
-      console.error(`Must patient bundles when output type is "${program.outputType}"`);
+      console.error(`Must specify patient bundles when output type is "${program.outputType}"`);
       program.help();
     }
 

@@ -69,6 +69,8 @@ const measure: fhir4.Measure = {
   ]
 };
 
+const group = (measure.group as [fhir4.MeasureGroup])[0];
+
 describe('DetailedResultsBuilder', () => {
   describe('Population Values', () => {
     test('NUMER population not modified by inclusion in NUMEX', () => {
@@ -510,9 +512,7 @@ describe('DetailedResultsBuilder', () => {
     });
 
     // one test to make sure that
-    test('Root population results should not contain an array of observations', () => {
-      const group = (measure.group as [fhir4.MeasureGroup])[0];
-
+    test('Root population results should not contain arrays of observations', () => {
       const statementResults: StatementResults = {
         ipp: [
           {
@@ -542,12 +542,12 @@ describe('DetailedResultsBuilder', () => {
         ])
       );
 
-      expect(JSON.stringify(populationResults)).not.toContain('observation:');
+      populationResults?.forEach(pr => {
+        expect(pr.observations).toBeUndefined;
+      });
     });
 
-    test('Root population results should contain an array of observations for corresponding population', () => {
-      const group = (measure.group as [fhir4.MeasureGroup])[0];
-
+    test('Root population results should contain an array of observations for corresponding episode', () => {
       const statementResults: StatementResults = {
         ipp: [
           {
