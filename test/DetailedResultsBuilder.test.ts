@@ -543,7 +543,7 @@ describe('DetailedResultsBuilder', () => {
       );
 
       populationResults?.forEach(pr => {
-        expect(pr.observations).toBeUndefined;
+        expect(pr.observations).toBeUndefined();
       });
     });
 
