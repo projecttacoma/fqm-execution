@@ -122,6 +122,29 @@ export function hasMultipleIPPs(group: fhir4.MeasureGroup) {
   );
 }
 
+export function getCriteriaExtensionCode(
+  group: fhir4.MeasureGroup,
+  desiredPopulationType: PopulationType
+): string | undefined {
+  const numerId = group?.population?.find(pop => pop.code?.coding?.[0]?.code === desiredPopulationType)?.id;
+  if (numerId) {
+    const criteriaExtensionCode = group?.population?.find(pop => {
+      if (pop.code?.coding?.[0]?.code === PopulationType.OBSERV) {
+        const criteriaExtension = pop.extension?.find(
+          e =>
+            e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference' &&
+            e.valueString === numerId
+        );
+        if (criteriaExtension) {
+          return true;
+        }
+      }
+      return false;
+    });
+    return criteriaExtensionCode?.criteria?.expression;
+  }
+}
+
 /**
  * Population Type Code system.
  */

@@ -94,7 +94,7 @@ export function createPopulationValues(
  * values that should not be considered calculated are zeroed out. ex. results NUMER is true but IPP is false.
  * @param {PopulationResult[]} populationResults - The list of population results.
  * @param {fhir4.MeasureGroup} group - Full Measure Group used to detect multiple IPPs and resolve any references between populations
- * @returns {PopulationResult[]} Population results in the list as passed in, but the appropiate values are zeroed out.
+ * @returns {PopulationResult[]} Population results in the list as passed in, but the appropriate values are zeroed out.
  */
 export function handlePopulationValues(
   populationResults: PopulationResult[],
@@ -134,7 +134,7 @@ export function handlePopulationValues(
     }
   } else if (!getResult(PopulationType.IPP, populationResults)) {
     populationResults.forEach(result => {
-      if (result.populationType == PopulationType.OBSERV) {
+      if (result.populationType === PopulationType.OBSERV) {
         result.observations = null;
       }
       result.result = false;
@@ -158,10 +158,21 @@ export function handlePopulationValues(
     }
 
     setResult(PopulationType.MSRPOPLEX, false, populationResults);
-    const popResult = populationResults.find(result => result.populationType == PopulationType.OBSERV);
-    if (popResult) {
-      popResult.result = false;
-      popResult.observations = null;
+    const popResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
+    // If only one measure-observation population, we know it relates to numerator
+    if (popResults.length === 1) {
+      popResults[0].result = false;
+      popResults[0].observations = null;
+      // If multiple, find the one that references numerator in its criteria reference extension
+    } else if (popResults.length > 1) {
+      const numeratorCriteriaExpression = MeasureBundleHelpers.getCriteriaExtensionCode(group, PopulationType.NUMER);
+      if (numeratorCriteriaExpression) {
+        const obsToVoid = popResults.filter(e => e.criteriaExpression === numeratorCriteriaExpression);
+        obsToVoid.forEach(p => {
+          p.result = false;
+          p.observations = null;
+        });
+      }
     }
 
     // Cannot be in the numerator if they are excluded from the denominator
@@ -175,7 +186,7 @@ export function handlePopulationValues(
 
     // Cannot have observations if in the MSRPOPLEX
   } else if (getResult(PopulationType.MSRPOPLEX, populationResults)) {
-    const popResult = populationResults.find(result => result.populationType == PopulationType.OBSERV);
+    const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
     if (popResult) {
       popResult.result = false;
       popResult.observations = null;
