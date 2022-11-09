@@ -1,5 +1,5 @@
 import { PopulationType, MeasureScoreType } from '../types/Enums';
-import { CalculationOptions, valueSetOutput } from '../types/Calculator';
+import { CalculationOptions, PopulationResult, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
@@ -121,11 +121,30 @@ export function hasMultipleIPPs(group: fhir4.MeasureGroup) {
     (group.population?.filter(p => codeableConceptToPopulationType(p.code) === PopulationType.IPP) ?? []).length > 1
   );
 }
-
-export function getCriteriaExtensionCode(
+export function nullCriteriaRefMeasureObs(
   group: fhir4.MeasureGroup,
+  populationResults: PopulationResult[],
   desiredPopulationType: PopulationType
-): string | undefined {
+): void {
+  const popResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
+  if (desiredPopulationType === PopulationType.NUMER && popResults.length === 1) {
+    // If only one measure-observation population, we know it relates to numerator
+    popResults[0].result = false;
+    popResults[0].observations = null;
+  } else {
+    const numeratorMeasureObs = getCriteriaRefMeasureObs(group, popResults, PopulationType.NUMER);
+    if (numeratorMeasureObs) {
+      numeratorMeasureObs.result = false;
+      numeratorMeasureObs.observations = null;
+    }
+  }
+}
+
+export function getCriteriaRefMeasureObs(
+  group: fhir4.MeasureGroup,
+  popResults: PopulationResult[],
+  desiredPopulationType: PopulationType
+): PopulationResult | undefined {
   const numerId = group?.population?.find(pop => pop.code?.coding?.[0]?.code === desiredPopulationType)?.id;
   if (numerId) {
     const criteriaExtensionCode = group?.population?.find(pop => {
@@ -141,7 +160,11 @@ export function getCriteriaExtensionCode(
       }
       return false;
     });
-    return criteriaExtensionCode?.criteria?.expression;
+    const criteriaCode = criteriaExtensionCode?.criteria?.expression;
+    if (criteriaCode) {
+      const measureObs = popResults.find(e => e.criteriaExpression === criteriaCode);
+      return measureObs;
+    }
   }
 }
 

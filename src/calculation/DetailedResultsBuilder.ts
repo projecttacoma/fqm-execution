@@ -151,35 +151,32 @@ export function handlePopulationValues(
   ) {
     setResult(PopulationType.DENEX, false, populationResults);
     setResult(PopulationType.DENEXCEP, false, populationResults);
+    MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
 
+    // If there is a MSRPOPL, all observations point to it, so null them out
+    if (hasResult(PopulationType.MSRPOPL, populationResults)) {
+      const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
+      if (popResult) {
+        popResult.result = false;
+        popResult.observations = null;
+      }
+    }
     if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
+      // If there are not multiple IPPs, then NUMER depends on DENOM. We're not in the DENOM, so let's null out NUMER observations
+      MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
     }
 
     setResult(PopulationType.MSRPOPLEX, false, populationResults);
-    const popResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
-    // If only one measure-observation population, we know it relates to numerator
-    if (popResults.length === 1) {
-      popResults[0].result = false;
-      popResults[0].observations = null;
-      // If multiple, find the one that references numerator in its criteria reference extension
-    } else if (popResults.length > 1) {
-      const numeratorCriteriaExpression = MeasureBundleHelpers.getCriteriaExtensionCode(group, PopulationType.NUMER);
-      if (numeratorCriteriaExpression) {
-        const obsToVoid = popResults.filter(e => e.criteriaExpression === numeratorCriteriaExpression);
-        obsToVoid.forEach(p => {
-          p.result = false;
-          p.observations = null;
-        });
-      }
-    }
 
     // Cannot be in the numerator if they are excluded from the denominator
   } else if (getResult(PopulationType.DENEX, populationResults)) {
     if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
+      // Since we can't be in the numerator, null out numerator observations
+      MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
     }
 
     setResult(PopulationType.DENEXCEP, false, populationResults);
@@ -195,6 +192,8 @@ export function handlePopulationValues(
     // Cannot be in the NUMEX if not in the NUMER
   } else if (!getResult(PopulationType.NUMER, populationResults)) {
     setResult(PopulationType.NUMEX, false, populationResults);
+    // Not in NUMER, so no need for NUMER observations
+    MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
 
     // Cannot be in the DENEXCEP if in the NUMER
   } else if (!MeasureBundleHelpers.hasMultipleIPPs(group) && getResult(PopulationType.NUMER, populationResults)) {
