@@ -65,7 +65,7 @@ export function isEpisodeOfCareGroup(measure: fhir4.Measure, group: fhir4.Measur
         p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT) != null
     );
 
-    if (populationsWithBasis) {
+    if (populationsWithBasis && populationsWithBasis.length > 0) {
       return populationsWithBasis.some(
         p => p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT)?.valueCode !== 'boolean'
       );
