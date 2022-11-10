@@ -120,7 +120,7 @@ export function handlePopulationValues(
       if (getResult(PopulationType.IPP, populationResults, numerRelevantIPP.criteria.expression) === false) {
         setResult(PopulationType.NUMER, false, populationResults);
         setResult(PopulationType.NUMEX, false, populationResults);
-        MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
+        DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
       }
     }
 
@@ -131,7 +131,7 @@ export function handlePopulationValues(
         setResult(PopulationType.DENOM, false, populationResults);
         setResult(PopulationType.DENEX, false, populationResults);
         setResult(PopulationType.DENEXCEP, false, populationResults);
-        MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
+        DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
       }
     }
   } else if (!getResult(PopulationType.IPP, populationResults)) {
@@ -153,7 +153,7 @@ export function handlePopulationValues(
   ) {
     setResult(PopulationType.DENEX, false, populationResults);
     setResult(PopulationType.DENEXCEP, false, populationResults);
-    MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
+    DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
 
     // If there is a MSRPOPL, all observations point to it, so null them out
     if (hasResult(PopulationType.MSRPOPL, populationResults)) {
@@ -167,7 +167,7 @@ export function handlePopulationValues(
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // If there are not multiple IPPs, then NUMER depends on DENOM. We're not in the DENOM, so let's null out NUMER observations
-      MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
     }
 
     setResult(PopulationType.MSRPOPLEX, false, populationResults);
@@ -178,7 +178,7 @@ export function handlePopulationValues(
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // Since we can't be in the numerator, null out numerator observations
-      MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
     }
 
     setResult(PopulationType.DENEXCEP, false, populationResults);
@@ -195,7 +195,7 @@ export function handlePopulationValues(
   } else if (!getResult(PopulationType.NUMER, populationResults)) {
     setResult(PopulationType.NUMEX, false, populationResults);
     // Not in NUMER, so no need for NUMER observations
-    MeasureBundleHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
+    DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
 
     // Cannot be in the DENEXCEP if in the NUMER
   } else if (!MeasureBundleHelpers.hasMultipleIPPs(group) && getResult(PopulationType.NUMER, populationResults)) {

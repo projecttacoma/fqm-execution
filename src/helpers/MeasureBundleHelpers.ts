@@ -122,29 +122,6 @@ export function hasMultipleIPPs(group: fhir4.MeasureGroup) {
   );
 }
 
-/* 
-  Finds the measure observation that reference the desired population in their criteria reference. If one exists,
-  sets the result to false and the observations to null
-*/
-export function nullCriteriaRefMeasureObs(
-  group: fhir4.MeasureGroup,
-  populationResults: PopulationResult[],
-  desiredPopulationType: PopulationType
-): void {
-  const popResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
-  if (desiredPopulationType === PopulationType.NUMER && popResults.length === 1) {
-    // If only one measure-observation population, we know it relates to numerator
-    popResults[0].result = false;
-    popResults[0].observations = null;
-  } else {
-    const measureObs = getCriteriaRefMeasureObs(group, popResults, desiredPopulationType);
-    if (measureObs) {
-      measureObs.result = false;
-      measureObs.observations = null;
-    }
-  }
-}
-
 /*
    Finds the measure observation that references the desired population in its criteria reference 
    and returns its populationResult

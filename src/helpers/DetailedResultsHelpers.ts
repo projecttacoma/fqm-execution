@@ -7,7 +7,7 @@ import {
   PopulationResult
 } from '../types/Calculator';
 import { PopulationType } from '../types/Enums';
-import { getCriteriaReferenceIdFromPopulation } from './MeasureBundleHelpers';
+import { getCriteriaReferenceIdFromPopulation, getCriteriaRefMeasureObs } from './MeasureBundleHelpers';
 
 export function pruneDetailedResults(
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
@@ -97,6 +97,29 @@ export function addIdsToPopulationResult(populationResult: PopulationResult, pop
     const criteriaRefId = MeasureBundleHelpers.getCriteriaReferenceIdFromPopulation(population);
     if (criteriaRefId) {
       populationResult.criteriaReferenceId = criteriaRefId;
+    }
+  }
+}
+
+/**
+ * Finds the measure observation that reference the desired population in their criteria reference. If one exists,
+ *  sets the result to false and the observations to null
+ */
+export function nullCriteriaRefMeasureObs(
+  group: fhir4.MeasureGroup,
+  populationResults: PopulationResult[],
+  desiredPopulationType: PopulationType
+): void {
+  const popResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
+  if (desiredPopulationType === PopulationType.NUMER && popResults.length === 1) {
+    // If only one measure-observation population, we know it relates to numerator
+    popResults[0].result = false;
+    popResults[0].observations = null;
+  } else {
+    const measureObs = getCriteriaRefMeasureObs(group, popResults, desiredPopulationType);
+    if (measureObs) {
+      measureObs.result = false;
+      measureObs.observations = null;
     }
   }
 }

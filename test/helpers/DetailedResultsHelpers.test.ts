@@ -4,7 +4,8 @@ import {
   pruneDetailedResults,
   isDetailedResult,
   findObsMsrPopl,
-  addIdsToPopulationResult
+  addIdsToPopulationResult,
+  nullCriteriaRefMeasureObs
 } from '../../src/helpers/DetailedResultsHelpers';
 import {
   ExecutionResult,
@@ -13,7 +14,6 @@ import {
   PopulationResult
 } from '../../src/types/Calculator';
 import { CQLPatient } from '../../src/types/CQLPatient';
-import { nullCriteriaRefMeasureObs } from '../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../src/types/Enums';
 import { getJSONFixture } from './testHelpers';
 
