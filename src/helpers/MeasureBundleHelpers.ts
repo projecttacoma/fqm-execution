@@ -154,10 +154,11 @@ export function getCriteriaRefMeasureObs(
   popResults: PopulationResult[],
   desiredPopulationType: PopulationType
 ): PopulationResult | undefined {
-  const popId = group?.population?.find(pop => pop.code?.coding?.[0]?.code === desiredPopulationType)?.id;
+  const popId = group?.population?.find(pop => codeableConceptToPopulationType(pop.code) === desiredPopulationType)?.id;
+
   if (popId) {
     const criteriaExtensionCode = group?.population?.find(pop => {
-      if (pop.code?.coding?.[0]?.code === PopulationType.OBSERV) {
+      if (codeableConceptToPopulationType(pop.code) === PopulationType.OBSERV) {
         const criteriaExtension = pop.extension?.find(
           e =>
             e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference' &&
@@ -169,6 +170,7 @@ export function getCriteriaRefMeasureObs(
       }
       return false;
     });
+
     const criteriaCode = criteriaExtensionCode?.criteria?.expression;
     if (criteriaCode) {
       const measureObs = popResults.find(e => e.criteriaExpression === criteriaCode);
