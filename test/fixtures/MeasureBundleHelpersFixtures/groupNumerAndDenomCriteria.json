@@ -2,7 +2,7 @@
   "id": "test-measure-group",
   "population": [
     {
-      "id": "1b83ff0e-fcfd-48ce-9902-09be91b8350d",
+      "id": "ipp",
       "code": {
         "coding": [
           {
@@ -14,7 +14,7 @@
       }
     },
     {
-      "id": "49abc656-7d3a-44bc-92ab-6d8c40689541",
+      "id": "denom",
       "code": {
         "coding": [
           {
@@ -26,7 +26,7 @@
       }
     },
     {
-      "id": "12c16634-ccf6-4d8f-acd3-5e52bdbfc5d3",
+      "id": "denex",
       "code": {
         "coding": [
           {
@@ -38,7 +38,7 @@
       }
     },
     {
-      "id": "dafc6e70-0f63-4ecf-a311-6b3352a98b42",
+      "id": "numer",
       "code": {
         "coding": [
           {
@@ -50,23 +50,11 @@
       }
     },
     {
-      "id": "6bce59cf-ced7-47d5-acda-bbb545e8123d",
-      "code": {
-        "coding": [
-          {
-            "system": "http://terminology.hl7.org/CodeSystem/measure-population",
-            "code": "numerator-exclusion",
-            "display": "Numerator Exclusion"
-          }
-        ]
-      }
-    },
-    {
-      "id": "9fae2d45-2baf-4292-9f75-a8d8326ab1dd",
+      "id": "denom-obs",
       "extension": [
         {
           "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference",
-          "valueString": "49abc656-7d3a-44bc-92ab-6d8c40689541"
+          "valueString": "denom"
         }
       ],
       "code": {
@@ -84,11 +72,11 @@
       }
     },
     {
-      "id": "b995f465-6fd4-4b6f-9ea1-0aaa4697f4a2",
+      "id": "numer-obs",
       "extension": [
         {
           "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference",
-          "valueString": "dafc6e70-0f63-4ecf-a311-6b3352a98b42"
+          "valueString": "numer"
         }
       ],
       "code": {
