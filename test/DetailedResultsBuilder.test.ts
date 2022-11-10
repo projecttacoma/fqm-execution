@@ -14,6 +14,7 @@ const simpleMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWi
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as MeasureWithGroup;
 const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
+const groupWithObs = getJSONFixture('MeasureBundleHelpersFixtures/groupNumerAndDenomCriteria.json');
 
 describe('DetailedResultsBuilder', () => {
   describe('Population Values', () => {
@@ -470,7 +471,7 @@ describe('DetailedResultsBuilder', () => {
             },
             criteria: {
               language: 'text/cql',
-              expression: 'ipp'
+              expression: 'ipp-1'
             }
           },
           {
@@ -485,10 +486,11 @@ describe('DetailedResultsBuilder', () => {
             },
             criteria: {
               language: 'text/cql',
-              expression: 'ipp2'
+              expression: 'ipp-2'
             }
           },
           {
+            id: 'denom',
             extension: [
               {
                 url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
@@ -509,6 +511,7 @@ describe('DetailedResultsBuilder', () => {
             }
           },
           {
+            id: 'numer',
             extension: [
               {
                 url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
@@ -569,6 +572,50 @@ describe('DetailedResultsBuilder', () => {
               language: 'text/cql',
               expression: 'denexcep'
             }
+          },
+          {
+            id: 'b995f465-6fd4-4b6f-9ea1-0aaa4697f4a2',
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+                valueString: 'numer'
+              }
+            ],
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'measure-observation',
+                  display: 'Measure Observation'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql.identifier',
+              expression: 'numerFunc'
+            }
+          },
+          {
+            id: '9fae2d45-2baf-4292-9f75-a8d8326ab1dd',
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+                valueString: 'denom'
+              }
+            ],
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'measure-observation',
+                  display: 'Measure Observation'
+                }
+              ]
+            },
+            criteria: {
+              language: 'text/cql.identifier',
+              expression: 'denomFunc'
+            }
           }
         ]
       };
@@ -604,6 +651,121 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.DENEXCEP, criteriaExpression: 'denexcep', result: false }
         ];
 
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
+      });
+
+      test('should null out NUMER observations when not in DENOM for single IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: false, observations: null }
+        ];
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
+          expectedHandledResults
+        );
+      });
+      test('should null out both NUMER and DENOM observations when not in DENOM for single IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: false, observations: null },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
+        ];
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
+          expectedHandledResults
+        );
+      });
+      test('should null out NUMER observations when in DENEX for single IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.DENEX, criteriaExpression: 'denex', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.DENEX, criteriaExpression: 'denex', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
+        ];
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
+          expectedHandledResults
+        );
+      });
+      test('should null out NUMER observations when not in NUMER for single IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
+        ];
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
+          expectedHandledResults
+        );
+      });
+      test.only('should null out NUMER observations when associated IPP is false for multiple IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-1', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-2', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-1', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-2', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
+        ];
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
+      });
+      test.only('should null out DENOM observations when associated IPP is false for multiple IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-1', result: false },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-1', result: false },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp-2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: false, observations: null },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
         expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
       });
     });

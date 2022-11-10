@@ -10,12 +10,18 @@ import {
   extractMeasureFromBundle,
   isValidLibraryURL,
   getScoringCodeFromGroup,
-  getScoringCodeFromMeasure
+  getScoringCodeFromMeasure,
+  getCriteriaRefMeasureObs,
+  nullCriteriaRefMeasureObs
 } from '../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../src/types/Enums';
 import { ValueSetResolver } from '../../src/execution/ValueSetResolver';
 import { getJSONFixture } from './testHelpers';
 import { getMissingDependentValuesets } from '../../src/execution/ValueSetHelper';
+import { PopulationResult } from '../../src/types/Calculator';
+
+const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('MeasureBundleHelpersFixtures/groupNumerAndDenomCriteria.json');
+const BASIC_POP_RESULT = getJSONFixture('MeasureBundleHelpersFixtures/populationResults.json');
 
 describe('MeasureBundleHelpers tests', () => {
   describe('getScoringCodeFromGroup', () => {
@@ -956,6 +962,52 @@ describe('MeasureBundleHelpers tests', () => {
       };
 
       expect(getCriteriaReferenceIdFromPopulation(pop)).toBeNull();
+    });
+  });
+  describe('getCriteriaRefMeasureObs', () => {
+    it('returns undefined when desired population has no associated measure-observation', () => {
+      expect(
+        getCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, BASIC_POP_RESULT, PopulationType.IPP)
+      ).toBeUndefined();
+    });
+    it('returns measure observation when desired population has associated measure-observation', () => {
+      const NUMER_OBS = BASIC_POP_RESULT.find((e: PopulationResult) => e.criteriaExpression === 'numerFunc');
+      expect(getCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, BASIC_POP_RESULT, PopulationType.NUMER)).toEqual(
+        NUMER_OBS
+      );
+    });
+  });
+  describe('nullCriteriaRefMeasureObs', () => {
+    it('nulls nothing out if desired population has no associated measure observation', () => {
+      const popResultClone = getJSONFixture('MeasureBundleHelpersFixtures/populationResults.json');
+      nullCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, popResultClone, PopulationType.IPP);
+      expect(popResultClone).toEqual(BASIC_POP_RESULT);
+    });
+    it('nulls out associated measure observation when there is an associated measure observation', () => {
+      const popResultClone = getJSONFixture('MeasureBundleHelpersFixtures/populationResults.json');
+      const expectedPopResultsOutput = getJSONFixture('MeasureBundleHelpersFixtures/populationResults.json');
+      expectedPopResultsOutput[6].result = false;
+      expectedPopResultsOutput[6].observations = null;
+      nullCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, popResultClone, PopulationType.NUMER);
+      expect(popResultClone).toEqual(expectedPopResultsOutput);
+    });
+    it('nulls out first measure observation when there is one measure observation and desired population is NUMER', () => {
+      const popResultClone = getJSONFixture('MeasureBundleHelpersFixtures/singleObservationPopulationResults.json');
+      const expectedPopResultsOutput = getJSONFixture(
+        'MeasureBundleHelpersFixtures/singleObservationPopulationResults.json'
+      );
+      expectedPopResultsOutput[5].result = false;
+      expectedPopResultsOutput[5].observations = null;
+      nullCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, popResultClone, PopulationType.NUMER);
+      expect(popResultClone).toEqual(expectedPopResultsOutput);
+    });
+    it('nulls out nothing when there is one measure observation and desired population is not NUMER', () => {
+      const popResultClone = getJSONFixture('MeasureBundleHelpersFixtures/singleObservationPopulationResults.json');
+      const expectedPopResultsOutput = getJSONFixture(
+        'MeasureBundleHelpersFixtures/singleObservationPopulationResults.json'
+      );
+      nullCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, popResultClone, PopulationType.DENOM);
+      expect(popResultClone).toEqual(expectedPopResultsOutput);
     });
   });
 });

@@ -121,6 +121,11 @@ export function hasMultipleIPPs(group: fhir4.MeasureGroup) {
     (group.population?.filter(p => codeableConceptToPopulationType(p.code) === PopulationType.IPP) ?? []).length > 1
   );
 }
+
+/* 
+  Finds the measure observation that reference the desired population in their criteria reference. If one exists,
+  sets the result to false and the observations to null
+*/
 export function nullCriteriaRefMeasureObs(
   group: fhir4.MeasureGroup,
   populationResults: PopulationResult[],
@@ -132,27 +137,31 @@ export function nullCriteriaRefMeasureObs(
     popResults[0].result = false;
     popResults[0].observations = null;
   } else {
-    const numeratorMeasureObs = getCriteriaRefMeasureObs(group, popResults, PopulationType.NUMER);
-    if (numeratorMeasureObs) {
-      numeratorMeasureObs.result = false;
-      numeratorMeasureObs.observations = null;
+    const measureObs = getCriteriaRefMeasureObs(group, popResults, desiredPopulationType);
+    if (measureObs) {
+      measureObs.result = false;
+      measureObs.observations = null;
     }
   }
 }
 
+/*
+   Finds the measure observation that references the desired population in its criteria reference 
+   and returns its populationResult
+*/
 export function getCriteriaRefMeasureObs(
   group: fhir4.MeasureGroup,
   popResults: PopulationResult[],
   desiredPopulationType: PopulationType
 ): PopulationResult | undefined {
-  const numerId = group?.population?.find(pop => pop.code?.coding?.[0]?.code === desiredPopulationType)?.id;
-  if (numerId) {
+  const popId = group?.population?.find(pop => pop.code?.coding?.[0]?.code === desiredPopulationType)?.id;
+  if (popId) {
     const criteriaExtensionCode = group?.population?.find(pop => {
       if (pop.code?.coding?.[0]?.code === PopulationType.OBSERV) {
         const criteriaExtension = pop.extension?.find(
           e =>
             e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference' &&
-            e.valueString === numerId
+            e.valueString === popId
         );
         if (criteriaExtension) {
           return true;

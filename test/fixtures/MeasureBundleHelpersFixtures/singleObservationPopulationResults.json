@@ -1,0 +1,30 @@
+[
+  {
+    "populationType": "initial-population",
+    "criteriaExpression": "ipp",
+    "result": true
+  },
+  {
+    "populationType": "denominator",
+    "criteriaExpression": "denom",
+    "result": false
+  },
+  {
+    "populationType": "denominator-exclusion",
+    "result": false
+  },
+  {
+    "populationType": "numerator",
+    "criteriaExpression": "num",
+    "result": false
+  },
+  {
+    "populationType": "numerator-exclusion",
+    "result": false
+  },
+  {
+    "populationType": "measure-observation",
+    "criteriaExpression": "numerFunc",
+    "result": false
+  }
+]
