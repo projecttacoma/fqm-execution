@@ -104,6 +104,10 @@ export function addIdsToPopulationResult(populationResult: PopulationResult, pop
 /**
  * Finds the measure observation that reference the desired population in their criteria reference. If one exists,
  *  sets the result to false and the observations to null
+ *
+ *  NOTE: the usage of criteriaReference to identify a measure observation only really applies for Ratio measures
+ *  where observations can be done on both the numerator and the denominator. For logic relating to CV measures that have a measure-population,
+ *  the nulling of irrelevant observations happens already via `handlePopulationValues`
  */
 export function nullCriteriaRefMeasureObs(
   group: fhir4.MeasureGroup,
