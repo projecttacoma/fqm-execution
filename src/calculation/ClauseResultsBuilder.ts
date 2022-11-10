@@ -602,7 +602,7 @@ export function buildPopulationRelevanceForAllEpisodes(
     }) || []; // Should not end up becoming an empty list.
 
   episodeResultsSet.forEach(episodeResults => {
-    const episodeRelevance = buildPopulationRelevanceMap(episodeResults.populationResults);
+    const episodeRelevance = buildPopulationRelevanceMap(episodeResults.populationResults, populationGroup);
     masterRelevanceResults.forEach(masterPopResults => {
       // find relevance in episode and if true, make master relevance true, only if not already true
       if (masterPopResults.result === false) {
@@ -629,9 +629,13 @@ export function buildPopulationRelevanceForAllEpisodes(
  * was kept to make it more maintainable.
  *
  * @param {PopulationResult[]} result - The population results list for the population results.
+ * @param {fhir4.MeasureGroup} group - The full group of the Measure, which is useful for resolving references between different populations
  * @returns {PopulationResult[]} The population relevance set.
  */
-export function buildPopulationRelevanceMap(results: PopulationResult[]): PopulationResult[] {
+export function buildPopulationRelevanceMap(
+  results: PopulationResult[],
+  group?: fhir4.MeasureGroup
+): PopulationResult[] {
   // Create initial results starting with all true to create the basis for relevance.
   const relevantResults: PopulationResult[] = results.map(result => {
     return {
@@ -641,8 +645,32 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
     };
   });
 
-  // If IPP is false then everything else is not calculated
-  if (getResult(PopulationType.IPP, results) === false) {
+  // If the group has multiple IPPs, they are treated independently
+  // This means that a given IPP affects the numerator _only if_ that numerator uses a criteriaReference to reference that IPP
+  // Same logic applies with denominator
+  if (group && MeasureBundleHelpers.hasMultipleIPPs(group)) {
+    const numerRelevantIPP = MeasureBundleHelpers.getRelevantIPPFromPopulation(group, PopulationType.NUMER);
+    if (numerRelevantIPP) {
+      if (getResult(PopulationType.IPP, results, numerRelevantIPP.criteria.expression) === false) {
+        if (hasResult(PopulationType.NUMER, relevantResults)) {
+          setResult(PopulationType.NUMER, false, relevantResults);
+          setResult(PopulationType.NUMEX, false, relevantResults);
+        }
+      }
+    }
+
+    const denomRelevantIPP = MeasureBundleHelpers.getRelevantIPPFromPopulation(group, PopulationType.DENOM);
+    if (denomRelevantIPP) {
+      if (getResult(PopulationType.IPP, results, denomRelevantIPP.criteria.expression) === false) {
+        if (hasResult(PopulationType.DENOM, relevantResults)) {
+          setResult(PopulationType.DENOM, false, relevantResults);
+          setResult(PopulationType.DENEX, false, relevantResults);
+          setResult(PopulationType.DENEXCEP, false, relevantResults);
+        }
+      }
+    }
+  } else if (getResult(PopulationType.IPP, results) === false) {
+    // If IPP is false then everything else is not calculated
     if (hasResult(PopulationType.NUMER, relevantResults)) {
       setResult(PopulationType.NUMER, false, relevantResults);
     }
@@ -664,7 +692,6 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
     if (hasResult(PopulationType.MSRPOPLEX, relevantResults)) {
       setResult(PopulationType.MSRPOPLEX, false, relevantResults);
     }
-    // values is the OBSERVs
     if (hasResult(PopulationType.OBSERV, relevantResults)) {
       setResult(PopulationType.OBSERV, false, relevantResults);
     }
@@ -672,11 +699,13 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
 
   // If DENOM is false then DENEX, DENEXCEP, NUMER and NUMEX are not calculated
   if (hasResult(PopulationType.DENOM, results) && getResult(PopulationType.DENOM, results) === false) {
-    if (hasResult(PopulationType.NUMER, relevantResults)) {
-      setResult(PopulationType.NUMER, false, relevantResults);
-    }
-    if (hasResult(PopulationType.NUMEX, relevantResults)) {
-      setResult(PopulationType.NUMEX, false, relevantResults);
+    if (!(group && MeasureBundleHelpers.hasMultipleIPPs(group))) {
+      if (hasResult(PopulationType.NUMER, relevantResults)) {
+        setResult(PopulationType.NUMER, false, relevantResults);
+      }
+      if (hasResult(PopulationType.NUMEX, relevantResults)) {
+        setResult(PopulationType.NUMEX, false, relevantResults);
+      }
     }
     if (hasResult(PopulationType.DENEX, relevantResults)) {
       setResult(PopulationType.DENEX, false, relevantResults);
@@ -686,13 +715,15 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
     }
   }
 
-  // If DENEX is truethen NUMER, NUMEX and DENEXCEP not calculated
+  // If DENEX is true then NUMER, NUMEX and DENEXCEP not calculated
   if (hasResult(PopulationType.DENEX, results) && getResult(PopulationType.DENEX, results) === true) {
-    if (hasResult(PopulationType.NUMER, relevantResults)) {
-      setResult(PopulationType.NUMER, false, relevantResults);
-    }
-    if (hasResult(PopulationType.NUMEX, relevantResults)) {
-      setResult(PopulationType.NUMEX, false, relevantResults);
+    if (!(group && MeasureBundleHelpers.hasMultipleIPPs(group))) {
+      if (hasResult(PopulationType.NUMER, relevantResults)) {
+        setResult(PopulationType.NUMER, false, relevantResults);
+      }
+      if (hasResult(PopulationType.NUMEX, relevantResults)) {
+        setResult(PopulationType.NUMEX, false, relevantResults);
+      }
     }
     if (hasResult(PopulationType.DENEXCEP, relevantResults)) {
       setResult(PopulationType.DENEXCEP, false, relevantResults);
@@ -735,8 +766,8 @@ export function buildPopulationRelevanceMap(results: PopulationResult[]): Popula
 }
 
 export function buildPopulationGroupRelevanceMap(
-  group: fhir4.MeasureGroup,
-  results: DetailedPopulationGroupResult
+  results: DetailedPopulationGroupResult,
+  group: fhir4.MeasureGroup
 ): PopulationResult[] {
   // Episode of care measure
   if (results.episodeResults) {
@@ -744,28 +775,46 @@ export function buildPopulationGroupRelevanceMap(
 
     // Normal patient based measure
   } else if (results.populationResults) {
-    return buildPopulationRelevanceMap(results.populationResults);
+    return buildPopulationRelevanceMap(results.populationResults, group);
   } else {
     // this shouldn't happen
     return [];
   }
 }
 
-export function hasResult(populationType: PopulationType, results: PopulationResult[]): boolean {
-  return results.find(result => result.populationType == populationType) !== undefined;
+/*
+ * Find a matching result by populationType and (optionally) criteriaExpression
+ * Using criteriaExpression is useful in cases where populationType is not specific enough (e.g. multiple IPPs)
+ */
+export function findResult(populationType: PopulationType, results: PopulationResult[], criteriaExpression?: string) {
+  return results.find(result => {
+    if (result.populationType === populationType) {
+      return criteriaExpression ? result.criteriaExpression === criteriaExpression : true;
+    }
+
+    return false;
+  });
+}
+
+export function hasResult(populationType: PopulationType, results: PopulationResult[], criteriaExpression?: string) {
+  return findResult(populationType, results, criteriaExpression) != null;
 }
 
 // If the given population result is in the given result list, return the result
-export function getResult(populationType: PopulationType, results: PopulationResult[]): boolean {
-  if (results.find(result => result.populationType == populationType)?.result == true) {
-    return true;
-  }
-  return false;
+export function getResult(populationType: PopulationType, results: PopulationResult[], criteriaExpression?: string) {
+  const popResult = findResult(populationType, results, criteriaExpression);
+
+  return popResult?.result === true;
 }
 
 // If the given value is in the given populationSet, set the result to the new result
-export function setResult(populationType: PopulationType, newResult: boolean, results: PopulationResult[]): void {
-  const popResult = results.find(result => result.populationType == populationType);
+export function setResult(
+  populationType: PopulationType,
+  newResult: boolean,
+  results: PopulationResult[],
+  criteriaExpression?: string
+) {
+  const popResult = findResult(populationType, results, criteriaExpression);
   if (popResult) {
     popResult.result = newResult;
   }
@@ -777,8 +826,8 @@ export function createOrSetResult(
   criteriaExpression: string | undefined,
   newResult: boolean,
   results: PopulationResult[]
-): void {
-  const popResult = results.find(result => result.populationType == populationType);
+) {
+  const popResult = findResult(populationType, results, criteriaExpression);
   if (popResult) {
     if (newResult === true) {
       popResult.result = true;
