@@ -39,7 +39,7 @@ export function createPopulationValues(
 
     // if no episodes were found we need default populationResults/stratifierResults. just use the patient
     // level logic for this
-    if (episodeResults == undefined || episodeResults.length == 0) {
+    if (episodeResults === undefined || episodeResults.length === 0) {
       episodeResults = [];
       const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
       populationResults = popAndStratResults.populationResults;
@@ -53,33 +53,22 @@ export function createPopulationValues(
       episodeResults.forEach(episodeResult => {
         episodeResult.populationResults.forEach(popResult => {
           const measureObsPops = populationResults.find(
-            pop => pop.populationType == PopulationType.OBSERV && popResult.criteriaExpression == pop.criteriaExpression
+            pop =>
+              pop.populationType === PopulationType.OBSERV && popResult.criteriaExpression === pop.criteriaExpression
           );
           if (!measureObsPops) {
-            // only add observations if it is not undefined
-            if (popResult.observations?.[0]) {
-              createOrSetResult(
-                popResult.populationType,
-                popResult.result,
-                populationResults,
-                popResult.criteriaExpression,
-                popResult.populationId,
-                popResult.criteriaReferenceId,
-                popResult.observations as string[]
-              );
-            } else {
-              createOrSetResult(
-                popResult.populationType,
-                popResult.result,
-                populationResults,
-                popResult.criteriaExpression,
-                popResult.populationId,
-                popResult.criteriaReferenceId
-              );
-            }
+            createOrSetResult(
+              popResult.populationType,
+              popResult.result,
+              populationResults,
+              popResult.criteriaExpression,
+              popResult.populationId,
+              popResult.criteriaReferenceId,
+              popResult.observations as string[]
+            );
           } else {
             if (measureObsPops.observations && popResult.observations) {
-              measureObsPops.observations = measureObsPops.observations.concat(popResult.observations);
+              measureObsPops.observations.push(...popResult.observations);
             }
           }
         });
@@ -372,14 +361,14 @@ export function createEpisodePopulationValues(
 
               // check if there is already an observation result with this cqlPopulation
               const observResult = episodeResult.populationResults.find(
-                result => result.populationType == populationType && result.criteriaExpression == cqlPopulation
+                result => result.populationType === populationType && result.criteriaExpression === cqlPopulation
               );
               if (observResult !== undefined) {
                 // push obs onto an existing populationResult
-                if (!observResult.observations && observation) {
-                  observResult.observations = [];
-                }
                 if (observation) {
+                  if (!observResult.observations) {
+                    observResult.observations = [];
+                  }
                   observResult.observations.push(observation);
                 }
                 observResult.result = true;
@@ -465,7 +454,7 @@ function createOrSetValueOfEpisodes(
       if (episodeResource.id.value != null) {
         // if an episode has already been created set the result for the population to true
         const episodeResults = episodeResultsSet.find(
-          episodeResults => episodeResults.episodeId == episodeResource.id.value
+          episodeResults => episodeResults.episodeId === episodeResource.id.value
         );
         if (episodeResults) {
           // set population value
@@ -476,7 +465,7 @@ function createOrSetValueOfEpisodes(
           } else if (strataCode) {
             if (episodeResults.stratifierResults) {
               const strataResult = episodeResults.stratifierResults.find(strataResult => {
-                return strataResult.strataCode == strataCode;
+                return strataResult.strataCode === strataCode;
               });
               if (strataResult) {
                 strataResult.result = true;
@@ -511,7 +500,7 @@ function createOrSetValueOfEpisodes(
               newEpisodeResults.stratifierResults?.push({
                 ...(strataId ? { strataId } : {}),
                 strataCode: newStrataCode,
-                result: newStrataCode == strataCode ? true : false
+                result: newStrataCode === strataCode ? true : false
               });
             });
           }

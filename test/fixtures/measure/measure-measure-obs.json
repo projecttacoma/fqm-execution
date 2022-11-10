@@ -1,0 +1,52 @@
+{
+  "resourceType": "Measure",
+  "status": "unknown",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis",
+      "valueCode": "Encounter"
+    }
+  ],
+  "group": [
+    {
+      "population": [
+        {
+          "id": "initial-population-id",
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "initial-population"
+              }
+            ]
+          },
+          "criteria": {
+            "expression": "ipp",
+            "language": "text/cql"
+          }
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference",
+              "valueString": "initial-population-id"
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "measure-observation",
+                "display": "Measure Observation"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql.identifier",
+            "expression": "observe"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -16,59 +16,7 @@ const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
 const groupWithObs = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
-const measure: fhir4.Measure = {
-  resourceType: 'Measure',
-  status: 'unknown',
-  extension: [
-    {
-      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
-      valueCode: 'Encounter'
-    }
-  ],
-  group: [
-    {
-      population: [
-        {
-          id: 'initial-population-id',
-          code: {
-            coding: [
-              {
-                system: 'http://terminology.hl7.org/CodeSystem/measure-population',
-                code: 'initial-population'
-              }
-            ]
-          },
-          criteria: {
-            expression: 'ipp',
-            language: 'text/cql'
-          }
-        },
-        {
-          extension: [
-            {
-              url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
-              valueString: 'initial-population-id'
-            }
-          ],
-          code: {
-            coding: [
-              {
-                system: 'http://terminology.hl7.org/CodeSystem/measure-population',
-                code: 'measure-observation',
-                display: 'Measure Observation'
-              }
-            ]
-          },
-          criteria: {
-            language: 'text/cql.identifier',
-            expression: 'observe'
-          }
-        }
-      ]
-    }
-  ]
-};
-
+const measure = getJSONFixture('measure/measure-measure-obs.json') as MeasureWithGroup;
 const group = (measure.group as [fhir4.MeasureGroup])[0];
 
 describe('DetailedResultsBuilder', () => {
@@ -511,7 +459,6 @@ describe('DetailedResultsBuilder', () => {
       );
     });
 
-    // one test to make sure that
     test('Root population results should not contain arrays of observations', () => {
       const statementResults: StatementResults = {
         ipp: [

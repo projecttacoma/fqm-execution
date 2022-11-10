@@ -857,7 +857,7 @@ export function createOrSetResult(
       result: newResult,
       ...(populationId ? { populationId } : {}),
       ...(criteriaReferenceId ? { criteriaReferenceId } : {}),
-      observations: observations
+      ...(observations && { observations })
     });
   }
 }
