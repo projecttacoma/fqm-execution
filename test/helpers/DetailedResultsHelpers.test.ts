@@ -1,12 +1,19 @@
 import { MeasureGroup, MeasureGroupPopulation } from 'fhir/r4';
 import { MeasureBundleHelpers } from '../../src';
-import { pruneDetailedResults, isDetailedResult, findObsMsrPopl } from '../../src/helpers/DetailedResultsHelpers';
+import {
+  pruneDetailedResults,
+  isDetailedResult,
+  findObsMsrPopl,
+  addIdsToPopulationResult
+} from '../../src/helpers/DetailedResultsHelpers';
 import {
   ExecutionResult,
   DetailedPopulationGroupResult,
-  SimplePopulationGroupResult
+  SimplePopulationGroupResult,
+  PopulationResult
 } from '../../src/types/Calculator';
 import { CQLPatient } from '../../src/types/CQLPatient';
+import { PopulationType } from '../../src/types/Enums';
 
 describe('pruneDetailedResults', () => {
   test('should not change result with no detailedResults', () => {
@@ -284,5 +291,99 @@ describe('findObsMsrPopl', () => {
 
     expect(msrPop).toBeDefined();
     expect(MeasureBundleHelpers.codeableConceptToPopulationType(msrPop?.code)).toBe('denominator');
+  });
+});
+
+describe('addIdsToPopulationResult', () => {
+  test('should pass through populationResult with no id or criteriaReference', () => {
+    const population: fhir4.MeasureGroupPopulation = {
+      code: {
+        coding: [
+          {
+            code: 'denominator',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      },
+      criteria: {
+        expression: 'denom',
+        language: 'text/cql'
+      }
+    };
+
+    const populationResult: PopulationResult = {
+      populationType: PopulationType.DENOM,
+      criteriaExpression: 'denom',
+      result: true
+    };
+
+    addIdsToPopulationResult(populationResult, population);
+
+    expect(populationResult).toEqual(populationResult);
+  });
+
+  test('should add population ID to result when present', () => {
+    const population: fhir4.MeasureGroupPopulation = {
+      id: 'denom-population-id',
+      code: {
+        coding: [
+          {
+            code: 'denominator',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      },
+      criteria: {
+        expression: 'denom',
+        language: 'text/cql'
+      }
+    };
+
+    const populationResult: PopulationResult = {
+      populationType: PopulationType.DENOM,
+      criteriaExpression: 'denom',
+      result: true
+    };
+
+    addIdsToPopulationResult(populationResult, population);
+
+    expect(populationResult.populationId).toBeDefined();
+    expect(populationResult.populationId).toEqual('denom-population-id');
+    expect(populationResult.criteriaReferenceId).toBeUndefined();
+  });
+
+  test('should add criteriaReferenceId to result when present', () => {
+    const population: fhir4.MeasureGroupPopulation = {
+      extension: [
+        {
+          url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+          valueString: 'example-pop-id'
+        }
+      ],
+      code: {
+        coding: [
+          {
+            code: 'denominator',
+            system: 'http://terminology.hl7.org/CodeSystem/measure-population'
+          }
+        ]
+      },
+      criteria: {
+        expression: 'denom',
+        language: 'text/cql'
+      }
+    };
+
+    const populationResult: PopulationResult = {
+      populationType: PopulationType.DENOM,
+      criteriaExpression: 'denom',
+      result: true
+    };
+
+    addIdsToPopulationResult(populationResult, population);
+
+    expect(populationResult.criteriaReferenceId).toBeDefined();
+    expect(populationResult.criteriaReferenceId).toEqual('example-pop-id');
+    expect(populationResult.populationId).toBeUndefined();
   });
 });

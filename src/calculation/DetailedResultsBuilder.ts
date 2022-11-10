@@ -54,9 +54,11 @@ export function createPopulationValues(
         episodeResult.populationResults.forEach(popResult => {
           createOrSetResult(
             popResult.populationType,
-            popResult.criteriaExpression,
             popResult.result,
-            populationResults
+            populationResults,
+            popResult.criteriaExpression,
+            popResult.populationId,
+            popResult.criteriaReferenceId
           );
         });
 
@@ -69,7 +71,8 @@ export function createPopulationValues(
           } else {
             stratifierResults?.push({
               result: strat.result,
-              strataCode: strat.strataCode
+              strataCode: strat.strataCode,
+              ...(strat.strataId ? { strataId: strat.strataId } : {})
             });
           }
         });
@@ -232,6 +235,8 @@ export function createPatientPopulationValues(
           result
         };
 
+        DetailedResultsHelpers.addIdsToPopulationResult(newPopulationResult, population);
+
         if (observRawResult) {
           newPopulationResult.observations = [observRawResult];
         }
@@ -245,6 +250,7 @@ export function createPatientPopulationValues(
           criteriaExpression: population.criteria.expression,
           result: result
         };
+        DetailedResultsHelpers.addIdsToPopulationResult(newPopulationResult, population);
         populationResults.push(newPopulationResult);
       }
     }
@@ -262,7 +268,8 @@ export function createPatientPopulationValues(
         const result = isStatementValueTruthy(value);
         stratifierResults?.push({
           strataCode: strata.code?.text ?? `strata-${strataIndex++}`,
-          result
+          result,
+          ...(strata.id ? { strataId: strata.id } : {})
         });
       }
     });
@@ -342,12 +349,15 @@ export function createEpisodePopulationValues(
                 // create new populationResult with obs
                 // TODO: Episode-level results could probably be just the value, not an array of one value
                 // Future changes to fqm-execution might modify this structure
-                episodeResult.populationResults.push({
+                const newPopulationResult: PopulationResult = {
                   populationType: PopulationType.OBSERV,
                   criteriaExpression: cqlPopulation,
                   result: true,
                   observations: [observation]
-                });
+                };
+
+                DetailedResultsHelpers.addIdsToPopulationResult(newPopulationResult, population);
+                episodeResult.populationResults.push(newPopulationResult);
               }
             });
           }
@@ -374,7 +384,8 @@ export function createEpisodePopulationValues(
         populationGroup,
         undefined,
         undefined,
-        strataCode
+        strataCode,
+        strata.id
       );
     }
   });
@@ -406,7 +417,8 @@ function createOrSetValueOfEpisodes(
   populationGroup: fhir4.MeasureGroup,
   population?: fhir4.MeasureGroupPopulation,
   populationType?: PopulationType,
-  strataCode?: string
+  strataCode?: string,
+  strataId?: string
 ): void {
   // Make sure the results are an array.
   if (Array.isArray(rawEpisodeResults)) {
@@ -430,6 +442,9 @@ function createOrSetValueOfEpisodes(
               });
               if (strataResult) {
                 strataResult.result = true;
+                if (strataId) {
+                  strataResult.strataId = strataId;
+                }
               }
             }
           }
@@ -441,11 +456,13 @@ function createOrSetValueOfEpisodes(
             populationResults: []
           };
           populationGroup.population?.forEach(population => {
-            newEpisodeResults.populationResults.push({
+            const newPopulationResult: PopulationResult = {
               populationType: <PopulationType>MeasureBundleHelpers.codeableConceptToPopulationType(population.code),
               criteriaExpression: population.criteria.expression,
               result: false
-            });
+            };
+            DetailedResultsHelpers.addIdsToPopulationResult(newPopulationResult, population);
+            newEpisodeResults.populationResults.push(newPopulationResult);
           });
 
           if (populationGroup.stratifier) {
@@ -454,6 +471,7 @@ function createOrSetValueOfEpisodes(
             populationGroup.stratifier?.forEach(strata => {
               const newStrataCode = strata.code?.text ?? `strata-${strataIndex++}`;
               newEpisodeResults.stratifierResults?.push({
+                ...(strataId ? { strataId } : {}),
                 strataCode: newStrataCode,
                 result: newStrataCode == strataCode ? true : false
               });

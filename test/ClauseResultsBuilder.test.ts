@@ -244,6 +244,34 @@ describe('ClauseResultsBuilder', () => {
         ])
       );
     });
+
+    test('should add populationId to relevance map when present on results', () => {
+      const results: PopulationResult[] = [
+        {
+          populationType: PopulationType.IPP,
+          populationId: 'example-pop-id',
+          result: true
+        }
+      ];
+
+      const relevantPops = ClauseResultsBuilder.buildPopulationRelevanceMap(results);
+
+      expect(relevantPops).toEqual(results);
+    });
+
+    test('should add criteriaReferenceId to relevance map when present on results', () => {
+      const results: PopulationResult[] = [
+        {
+          populationType: PopulationType.IPP,
+          criteriaReferenceId: 'example-pop-id',
+          result: true
+        }
+      ];
+
+      const relevantPops = ClauseResultsBuilder.buildPopulationRelevanceMap(results);
+
+      expect(relevantPops).toEqual(results);
+    });
   });
 
   describe('episodes', () => {

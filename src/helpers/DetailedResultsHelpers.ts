@@ -3,7 +3,8 @@ import {
   ExecutionResult,
   DetailedPopulationGroupResult,
   SimplePopulationGroupResult,
-  PopulationGroupResult
+  PopulationGroupResult,
+  PopulationResult
 } from '../types/Calculator';
 import { PopulationType } from '../types/Enums';
 import { getCriteriaReferenceIdFromPopulation } from './MeasureBundleHelpers';
@@ -85,4 +86,17 @@ export function findObsMsrPopl(
     }
   }
   return msrPop;
+}
+
+export function addIdsToPopulationResult(populationResult: PopulationResult, population: fhir4.MeasureGroupPopulation) {
+  if (population.id) {
+    populationResult.populationId = population.id;
+  }
+
+  if (population.extension) {
+    const criteriaRefId = MeasureBundleHelpers.getCriteriaReferenceIdFromPopulation(population);
+    if (criteriaRefId) {
+      populationResult.criteriaReferenceId = criteriaRefId;
+    }
+  }
 }

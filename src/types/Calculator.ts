@@ -195,12 +195,17 @@ export interface StratifierResult {
    * True if patient or episode is in stratifier. False if not.
    */
   result: boolean;
+  strataId?: string;
 }
 
 /**
  * Result for a patient or episode for a population
  */
 export interface PopulationResult {
+  /* ID of the population, if defined in the Measure */
+  populationId?: string;
+  /* ID of the population referenced by the cqfm-criteriaReference extension in this population, if present */
+  criteriaReferenceId?: string;
   /** Type of population matching http://hl7.org/fhir/ValueSet/measure-population */
   populationType: PopulationType;
   /** The population criteria expression, which may be used to further identify the population (i.e. a cql identifier) */

@@ -3,7 +3,7 @@ import * as DetailedResultsBuilder from '../src/calculation/DetailedResultsBuild
 import { getJSONFixture } from './helpers/testHelpers';
 import { PopulationType } from '../src/types/Enums';
 import { StatementResults } from '../src/types/CQLTypes';
-import { PopulationResult } from '../src/types/Calculator';
+import { PopulationResult, EpisodeResults } from '../src/types/Calculator';
 import { ELMExpressionRef, ELMQuery, ELMTuple, ELMFunctionRef } from '../src/types/ELMTypes';
 
 type MeasureWithGroup = fhir4.Measure & {
@@ -172,7 +172,12 @@ describe('DetailedResultsBuilder', () => {
           criteriaExpression: 'Measure Population Exclusions',
           result: false
         },
-        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false }
+        {
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'MeasureObservation',
+          result: false,
+          criteriaReferenceId: 'measure-population-identifier'
+        }
       ];
 
       const results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
@@ -202,6 +207,252 @@ describe('DetailedResultsBuilder', () => {
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
       expect(results.populationResults).toEqual(expect.arrayContaining(expectedPopulationResults));
+    });
+
+    test('boolean-based measure should add populationIds to results', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+            valueCode: 'boolean'
+          }
+        ],
+        group: [
+          {
+            population: [
+              {
+                id: 'example-population-id',
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population'
+                    }
+                  ]
+                },
+                criteria: {
+                  expression: 'ipp',
+                  language: 'text/cql'
+                }
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as [fhir4.MeasureGroup])[0];
+
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(measure, group, {});
+
+      expect(populationResults).toBeDefined();
+      expect(populationResults).toHaveLength(1);
+      expect(populationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            populationId: 'example-population-id'
+          })
+        ])
+      );
+    });
+
+    test('episode-based measure should add populationIds to populationResults of an individual episode', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+            valueCode: 'Encounter'
+          }
+        ],
+        group: [
+          {
+            population: [
+              {
+                id: 'example-population-id',
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population'
+                    }
+                  ]
+                },
+                criteria: {
+                  expression: 'ipp',
+                  language: 'text/cql'
+                }
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as [fhir4.MeasureGroup])[0];
+
+      const statementResults: StatementResults = {
+        // Mock FHIRObject from cql-exec-fhir
+        ipp: [
+          {
+            id: {
+              value: 'example-encounter'
+            }
+          }
+        ]
+      };
+
+      const { episodeResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+
+      expect(episodeResults).toBeDefined();
+      expect(episodeResults).toHaveLength(1);
+
+      const episodePopulationResults = (episodeResults as EpisodeResults[])[0].populationResults;
+
+      expect(episodePopulationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            populationId: 'example-population-id'
+          })
+        ])
+      );
+    });
+
+    test('should add ID of strata to stratifierResults for boolean measure', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+            valueCode: 'boolean'
+          }
+        ],
+        group: [
+          {
+            stratifier: [
+              {
+                id: 'example-strata-id',
+                criteria: {
+                  expression: 'strat1',
+                  language: 'text/cql'
+                }
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as [fhir4.MeasureGroup])[0];
+
+      const { stratifierResults } = DetailedResultsBuilder.createPopulationValues(measure, group, {});
+
+      expect(stratifierResults).toBeDefined();
+      expect(stratifierResults).toHaveLength(1);
+      expect(stratifierResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            strataId: 'example-strata-id'
+          })
+        ])
+      );
+    });
+
+    test('should add ID of strata to stratifierResults of an individual episode', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+            valueCode: 'Encounter'
+          }
+        ],
+        group: [
+          {
+            stratifier: [
+              {
+                id: 'example-strata-id',
+                criteria: {
+                  expression: 'strat1',
+                  language: 'text/cql'
+                }
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as [fhir4.MeasureGroup])[0];
+
+      const statementResults: StatementResults = {
+        // Mock FHIRObject from cql-exec-fhir
+        strat1: [
+          {
+            id: {
+              value: 'example-encounter'
+            }
+          }
+        ]
+      };
+
+      const { episodeResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+
+      expect(episodeResults).toBeDefined();
+      expect(episodeResults).toHaveLength(1);
+
+      const episodeStratifierResults = (episodeResults as EpisodeResults[])[0].stratifierResults;
+
+      expect(episodeStratifierResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            strataId: 'example-strata-id'
+          })
+        ])
+      );
+    });
+
+    test('should add criteriaReferenceId when extension is present on population', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        group: [
+          {
+            population: [
+              {
+                extension: [
+                  {
+                    url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference',
+                    valueString: 'example-pop-id'
+                  }
+                ],
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population'
+                    }
+                  ]
+                },
+                criteria: {
+                  expression: 'ipp',
+                  language: 'text/cql'
+                }
+              }
+            ]
+          }
+        ]
+      };
+      const group = (measure.group as [fhir4.MeasureGroup])[0];
+
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(measure, group, {});
+
+      expect(populationResults).toBeDefined();
+      expect(populationResults).toHaveLength(1);
+      expect(populationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            criteriaReferenceId: 'example-pop-id'
+          })
+        ])
+      );
     });
 
     describe('multiple IPPs', () => {
