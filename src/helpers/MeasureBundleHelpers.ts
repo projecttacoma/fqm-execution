@@ -93,6 +93,12 @@ export function getCriteriaReferenceIdFromPopulation(population: fhir4.MeasureGr
   );
 }
 
+export function hasMultipleIPPs(group: fhir4.MeasureGroup) {
+  return (
+    (group.population?.filter(p => codeableConceptToPopulationType(p.code) === PopulationType.IPP) ?? []).length > 1
+  );
+}
+
 /**
  * Uses the criteriaReference extension for a given population to look up which IPP it draws from
  * This is useful in the case of multiple IPPs in ratio measures, as the numerator and denominator can each draw from
@@ -116,44 +122,32 @@ export function getRelevantIPPFromPopulation(
   return group.population?.find(p => p.id === ippId) ?? null;
 }
 
-export function hasMultipleIPPs(group: fhir4.MeasureGroup) {
-  return (
-    (group.population?.filter(p => codeableConceptToPopulationType(p.code) === PopulationType.IPP) ?? []).length > 1
-  );
-}
-
-/*
-   Finds the measure observation that references the desired population in its criteria reference 
-   and returns its populationResult
-*/
-export function getCriteriaRefMeasureObs(
+/**
+ * Finds the measure observation that references the desired population in its criteria reference
+ * and returns its populationResult
+ */
+export function getObservationResultForPopulation(
   group: fhir4.MeasureGroup,
   popResults: PopulationResult[],
   desiredPopulationType: PopulationType
-): PopulationResult | undefined {
+): PopulationResult | null {
   const popId = group?.population?.find(pop => codeableConceptToPopulationType(pop.code) === desiredPopulationType)?.id;
 
   if (popId) {
-    const criteriaExtensionCode = group?.population?.find(pop => {
-      if (codeableConceptToPopulationType(pop.code) === PopulationType.OBSERV) {
-        const criteriaExtension = pop.extension?.find(
-          e =>
-            e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference' &&
-            e.valueString === popId
-        );
-        if (criteriaExtension) {
-          return true;
-        }
-      }
-      return false;
+    const desiredObservation = group?.population?.find(pop => {
+      return (
+        codeableConceptToPopulationType(pop.code) === PopulationType.OBSERV &&
+        getCriteriaReferenceIdFromPopulation(pop) === popId
+      );
     });
 
-    const criteriaCode = criteriaExtensionCode?.criteria?.expression;
+    const criteriaCode = desiredObservation?.criteria?.expression;
     if (criteriaCode) {
-      const measureObs = popResults.find(e => e.criteriaExpression === criteriaCode);
-      return measureObs;
+      return popResults.find(e => e.criteriaExpression === criteriaCode) ?? null;
     }
   }
+
+  return null;
 }
 
 /**

@@ -11,7 +11,7 @@ import {
   isValidLibraryURL,
   getScoringCodeFromGroup,
   getScoringCodeFromMeasure,
-  getCriteriaRefMeasureObs
+  getObservationResultForPopulation
 } from '../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../src/types/Enums';
 import { ValueSetResolver } from '../../src/execution/ValueSetResolver';
@@ -962,7 +962,7 @@ describe('MeasureBundleHelpers tests', () => {
       expect(getCriteriaReferenceIdFromPopulation(pop)).toBeNull();
     });
   });
-  describe('getCriteriaRefMeasureObs', () => {
+  describe('getObservationResultForPopulation', () => {
     const populationResults: PopulationResult[] = [
       {
         populationType: PopulationType.IPP,
@@ -991,20 +991,20 @@ describe('MeasureBundleHelpers tests', () => {
       }
     ];
 
-    it('returns undefined when desired population has no associated measure-observation', () => {
+    it('returns null when desired population has no associated measure-observation', () => {
       expect(
-        getCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, populationResults, PopulationType.IPP)
-      ).toBeUndefined();
+        getObservationResultForPopulation(GROUP_NUMER_AND_DENOM_CRITERIA, populationResults, PopulationType.IPP)
+      ).toBeNull();
     });
 
     it('returns measure observation when desired population has associated measure-observation', () => {
-      expect(getCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, populationResults, PopulationType.NUMER)).toEqual(
-        {
-          populationType: PopulationType.OBSERV,
-          criteriaExpression: 'numerFunc',
-          result: false
-        }
-      );
+      expect(
+        getObservationResultForPopulation(GROUP_NUMER_AND_DENOM_CRITERIA, populationResults, PopulationType.NUMER)
+      ).toEqual({
+        populationType: PopulationType.OBSERV,
+        criteriaExpression: 'numerFunc',
+        result: false
+      });
     });
   });
 });

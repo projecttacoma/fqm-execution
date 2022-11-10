@@ -7,7 +7,7 @@ import {
   PopulationResult
 } from '../types/Calculator';
 import { PopulationType } from '../types/Enums';
-import { getCriteriaReferenceIdFromPopulation, getCriteriaRefMeasureObs } from './MeasureBundleHelpers';
+import { getCriteriaReferenceIdFromPopulation, getObservationResultForPopulation } from './MeasureBundleHelpers';
 
 export function pruneDetailedResults(
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
@@ -116,7 +116,7 @@ export function nullCriteriaRefMeasureObs(
     popResults[0].result = false;
     popResults[0].observations = null;
   } else {
-    const measureObs = getCriteriaRefMeasureObs(group, popResults, desiredPopulationType);
+    const measureObs = getObservationResultForPopulation(group, popResults, desiredPopulationType);
     if (measureObs) {
       measureObs.result = false;
       measureObs.observations = null;
