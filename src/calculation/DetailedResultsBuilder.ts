@@ -52,11 +52,11 @@ export function createPopulationValues(
       // create patient level population and stratifier results based on episodes
       episodeResults.forEach(episodeResult => {
         episodeResult.populationResults.forEach(popResult => {
-          const measureObsPops = populationResults.find(
+          const measureObsPop = populationResults.find(
             pop =>
               pop.populationType === PopulationType.OBSERV && popResult.criteriaExpression === pop.criteriaExpression
           );
-          if (!measureObsPops) {
+          if (!measureObsPop) {
             createOrSetResult(
               popResult.populationType,
               popResult.result,
@@ -64,12 +64,22 @@ export function createPopulationValues(
               popResult.criteriaExpression,
               popResult.populationId,
               popResult.criteriaReferenceId,
-              popResult.observations as string[]
+              popResult.observations
             );
           } else {
-            if (measureObsPops.observations && popResult.observations) {
-              measureObsPops.observations.push(...popResult.observations);
+            if (popResult.observations) {
+              if (measureObsPop.observations == null) {
+                measureObsPop.observations = [...popResult.observations];
+              } else {
+                measureObsPop.observations.push(...popResult.observations);
+              }
             }
+            setResult(
+              measureObsPop.populationType,
+              popResult.result,
+              populationResults,
+              measureObsPop.criteriaExpression
+            );
           }
         });
 
