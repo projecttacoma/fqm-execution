@@ -652,6 +652,25 @@ describe('DetailedResultsBuilder', () => {
         expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
       });
 
+      test('should null out NUMER and DENOM observations IPP for single IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: false, observations: null }
+        ];
+
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
+          expectedHandledResults
+        );
+      });
+
       test('should null out NUMER observations when not in DENOM for single IPP', () => {
         const populationResults: PopulationResult[] = [
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
@@ -732,6 +751,147 @@ describe('DetailedResultsBuilder', () => {
         ];
 
         expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
+          expectedHandledResults
+        );
+      });
+
+      test('should null out observation when not in MSRPOPL', () => {
+        const groupWithMeasurePopulation: fhir4.MeasureGroup = {
+          population: [
+            {
+              code: {
+                coding: [
+                  { code: PopulationType.IPP, system: 'http://terminology.hl7.org/CodeSystem/measure-population' }
+                ]
+              },
+              criteria: {
+                language: 'text/cql',
+                expression: 'ipp'
+              }
+            },
+            {
+              code: {
+                coding: [
+                  { code: PopulationType.MSRPOPL, system: 'http://terminology.hl7.org/CodeSystem/measure-population' }
+                ]
+              },
+              criteria: {
+                language: 'text/cql',
+                expression: 'measure-population'
+              }
+            },
+            {
+              code: {
+                coding: [
+                  { code: PopulationType.OBSERV, system: 'http://terminology.hl7.org/CodeSystem/measure-population' }
+                ]
+              },
+              criteria: {
+                language: 'text/cql',
+                expression: 'measure-observation'
+              }
+            }
+          ]
+        };
+
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.MSRPOPL, criteriaExpression: 'measure-population', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'measure-observation', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.MSRPOPL, criteriaExpression: 'measure-population', result: false },
+          {
+            populationType: PopulationType.OBSERV,
+            criteriaExpression: 'measure-observation',
+            result: false,
+            observations: null
+          }
+        ];
+
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithMeasurePopulation)).toEqual(
+          expectedHandledResults
+        );
+      });
+
+      test('should null out observation when in MSRPOPLEX', () => {
+        const groupWithMeasurePopulation: fhir4.MeasureGroup = {
+          population: [
+            {
+              code: {
+                coding: [
+                  { code: PopulationType.IPP, system: 'http://terminology.hl7.org/CodeSystem/measure-population' }
+                ]
+              },
+              criteria: {
+                language: 'text/cql',
+                expression: 'ipp'
+              }
+            },
+            {
+              code: {
+                coding: [
+                  { code: PopulationType.MSRPOPL, system: 'http://terminology.hl7.org/CodeSystem/measure-population' }
+                ]
+              },
+              criteria: {
+                language: 'text/cql',
+                expression: 'measure-population'
+              }
+            },
+            {
+              code: {
+                coding: [
+                  { code: PopulationType.MSRPOPLEX, system: 'http://terminology.hl7.org/CodeSystem/measure-population' }
+                ]
+              },
+              criteria: {
+                language: 'text/cql',
+                expression: 'measure-population-exclusion'
+              }
+            },
+            {
+              code: {
+                coding: [
+                  { code: PopulationType.OBSERV, system: 'http://terminology.hl7.org/CodeSystem/measure-population' }
+                ]
+              },
+              criteria: {
+                language: 'text/cql',
+                expression: 'measure-observation'
+              }
+            }
+          ]
+        };
+
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.MSRPOPL, criteriaExpression: 'measure-population', result: true },
+          {
+            populationType: PopulationType.MSRPOPLEX,
+            criteriaExpression: 'measure-population-exclusion',
+            result: true
+          },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'measure-observation', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.MSRPOPL, criteriaExpression: 'measure-population', result: true },
+          {
+            populationType: PopulationType.MSRPOPLEX,
+            criteriaExpression: 'measure-population-exclusion',
+            result: true
+          },
+          {
+            populationType: PopulationType.OBSERV,
+            criteriaExpression: 'measure-observation',
+            result: false,
+            observations: null
+          }
+        ];
+
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithMeasurePopulation)).toEqual(
           expectedHandledResults
         );
       });
