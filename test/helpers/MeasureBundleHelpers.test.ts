@@ -19,7 +19,7 @@ import { getJSONFixture } from './testHelpers';
 import { getMissingDependentValuesets } from '../../src/execution/ValueSetHelper';
 import { PopulationResult } from '../../src/types/Calculator';
 
-const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('MeasureBundleHelpersFixtures/groupNumerAndDenomCriteria.json');
+const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
 describe('MeasureBundleHelpers tests', () => {
   describe('getScoringCodeFromGroup', () => {

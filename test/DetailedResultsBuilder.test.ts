@@ -14,7 +14,7 @@ const simpleMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWi
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as MeasureWithGroup;
 const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
-const groupWithObs = getJSONFixture('MeasureBundleHelpersFixtures/groupNumerAndDenomCriteria.json');
+const groupWithObs = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
 describe('DetailedResultsBuilder', () => {
   describe('Population Values', () => {

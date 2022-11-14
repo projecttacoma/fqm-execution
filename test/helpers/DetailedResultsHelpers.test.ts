@@ -17,7 +17,7 @@ import { CQLPatient } from '../../src/types/CQLPatient';
 import { PopulationType } from '../../src/types/Enums';
 import { getJSONFixture } from './testHelpers';
 
-const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('MeasureBundleHelpersFixtures/groupNumerAndDenomCriteria.json');
+const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
 describe('pruneDetailedResults', () => {
   test('should not change result with no detailedResults', () => {
