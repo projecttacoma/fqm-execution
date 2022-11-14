@@ -102,7 +102,7 @@ export function addIdsToPopulationResult(populationResult: PopulationResult, pop
 }
 
 /**
- * Finds the measure observation that reference the desired population in their criteria reference. If one exists,
+ * Finds the measure observation that references the desired population in its criteria reference. If one exists,
  *  sets the result to false and the observations to null
  *
  *  NOTE: the usage of criteriaReference to identify a measure observation only really applies for Ratio measures
@@ -113,17 +113,24 @@ export function nullCriteriaRefMeasureObs(
   group: fhir4.MeasureGroup,
   populationResults: PopulationResult[],
   desiredPopulationType: PopulationType
-): void {
-  const popResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
-  if (desiredPopulationType === PopulationType.NUMER && popResults.length === 1) {
-    // If only one measure-observation population, we know it relates to numerator
-    popResults[0].result = false;
-    popResults[0].observations = null;
+) {
+  const measureObservationResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
+
+  // If only 1 measure observation in the results, it does not matter what population it draws from
+  // and it can safely be nulled out
+  if (measureObservationResults.length === 1) {
+    measureObservationResults[0].result = false;
+    measureObservationResults[0].observations = null;
   } else {
-    const measureObs = getObservationResultForPopulation(group, popResults, desiredPopulationType);
-    if (measureObs) {
-      measureObs.result = false;
-      measureObs.observations = null;
+    // Otherwise, we need to do a lookup based on the criteriaReference extension, and only null out that relevant observation
+    const relevantObservationResult = getObservationResultForPopulation(
+      group,
+      measureObservationResults,
+      desiredPopulationType
+    );
+    if (relevantObservationResult) {
+      relevantObservationResult.result = false;
+      relevantObservationResult.observations = null;
     }
   }
 }
