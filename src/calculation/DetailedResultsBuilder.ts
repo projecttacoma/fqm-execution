@@ -163,7 +163,9 @@ export function handlePopulationValues(
         popResult.observations = null;
       }
     }
-    if (!MeasureBundleHelpers.hasMultipleIPPs(group) || getResult(PopulationType.NUMER, populationResults) === false) {
+
+    // If the numer is influenced by the DENOM, false it out and its observations since we are not in the DENOM for this branch of logic
+    if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // If there are not multiple IPPs, then NUMER depends on DENOM. We're not in the DENOM, so let's null out NUMER observations
