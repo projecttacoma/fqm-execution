@@ -106,7 +106,7 @@ export enum CareGapReasonCode {
   VALUEINRANGE = 'ValueInRange',
   VALUEOUTOFRANGE = 'ValueOutOfRange',
   COUNTINRANGE = 'CountInRange',
-  COUNTOUTOFRANGE = 'CountOutOfRange',
+  COUNTOUTOFRANGE = 'CountOutOfRange'
 }
 
 /**
@@ -122,5 +122,5 @@ export const CareGapReasonCodeDisplay = {
   [CareGapReasonCode.VALUEINRANGE]: 'Value is within specified range',
   [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value is out of specified range',
   [CareGapReasonCode.COUNTINRANGE]: 'Count is within specified range',
-  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count is out of specified range',
+  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count is out of specified range'
 };
