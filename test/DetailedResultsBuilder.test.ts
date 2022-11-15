@@ -15,9 +15,8 @@ const cvMeasure = getJSONFixture('measure/cv-measure.json') as MeasureWithGroup;
 const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
 const groupWithObs = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
-
-const measure = getJSONFixture('measure/measure-measure-obs.json') as MeasureWithGroup;
-const group = (measure.group as [fhir4.MeasureGroup])[0];
+const measureWithMeasureObs = getJSONFixture('measure/measure-measure-obs.json') as MeasureWithGroup;
+const groupWithMeasureObs = (measureWithMeasureObs.group as [fhir4.MeasureGroup])[0];
 
 describe('DetailedResultsBuilder', () => {
   describe('Population Values', () => {
@@ -479,7 +478,11 @@ describe('DetailedResultsBuilder', () => {
         ]
       };
 
-      const { populationResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(
+        measureWithMeasureObs,
+        groupWithMeasureObs,
+        statementResults
+      );
 
       expect(populationResults).toEqual(
         expect.arrayContaining([
@@ -514,7 +517,11 @@ describe('DetailedResultsBuilder', () => {
         ]
       };
 
-      const { populationResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(
+        measureWithMeasureObs,
+        groupWithMeasureObs,
+        statementResults
+      );
 
       expect(populationResults).toEqual(
         expect.arrayContaining([
@@ -546,7 +553,11 @@ describe('DetailedResultsBuilder', () => {
         ]
       };
 
-      const { episodeResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+      const { episodeResults } = DetailedResultsBuilder.createPopulationValues(
+        measureWithMeasureObs,
+        groupWithMeasureObs,
+        statementResults
+      );
 
       expect(episodeResults).toEqual(
         expect.arrayContaining([

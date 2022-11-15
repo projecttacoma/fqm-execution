@@ -45,8 +45,6 @@ export function createPopulationValues(
       populationResults = popAndStratResults.populationResults;
       stratifierResults = popAndStratResults.stratifierResults;
     } else {
-      // TODO: in the case of episode aggregation, we should consider collating the observation results at the root populationResults
-      // list as well
       populationResults = [];
       stratifierResults = [];
       // create patient level population and stratifier results based on episodes
@@ -306,8 +304,6 @@ export function createPatientPopulationValues(
       }
     });
   }
-
-  //TODO: Support patient level observations.
 
   return {
     populationResults,
