@@ -26,7 +26,7 @@
     {
       "coding": [
         {
-          "system": "CareGapReasonCodeSystem",
+          "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason",
           "code": "InvalidDuration",
           "display": "Data element was found, but duration was invalid"
         }

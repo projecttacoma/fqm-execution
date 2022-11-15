@@ -23,7 +23,7 @@
     {
       "coding": [
         {
-          "system": "CareGapReasonCodeSystem",
+          "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason",
           "code": "IncorectAttribute",
           "display": "Data element had an incorrect attribute value"
         }

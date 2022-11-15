@@ -1525,12 +1525,12 @@ describe('Guidance Response', () => {
       {
         coding: [
           {
-            system: 'CareGapReasonCodeSystem',
+            system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
             code: 'DateOutOfRange',
             display: 'Date is out of specified range',
             extension: [
               {
-                url: 'ReasonDetail',
+                url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
                 extension: [
                   {
                     url: 'reference',
@@ -1568,7 +1568,7 @@ describe('Guidance Response ReasonCode Coding', () => {
       code: CareGapReasonCode.MISSING
     };
     const expectedCoding: fhir4.Coding = {
-      system: 'CareGapReasonCodeSystem',
+      system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
       code: 'Missing',
       display: 'Missing Data Element'
     };
@@ -1581,12 +1581,12 @@ describe('Guidance Response ReasonCode Coding', () => {
       reference: 'Procedure/denom-EXM130-2'
     };
     const expectedCoding: fhir4.Coding = {
-      system: 'CareGapReasonCodeSystem',
+      system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
       code: 'Present',
       display: 'Data Element is Present',
       extension: [
         {
-          url: 'ReasonDetail',
+          url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
           extension: [
             {
               url: 'reference',
@@ -1608,12 +1608,12 @@ describe('Guidance Response ReasonCode Coding', () => {
       path: 'performed.end'
     };
     const expectedCoding: fhir4.Coding = {
-      system: 'CareGapReasonCodeSystem',
+      system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
       code: 'DateOutOfRange',
       display: 'Date is out of specified range',
       extension: [
         {
-          url: 'ReasonDetail',
+          url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
           extension: [
             {
               url: 'reference',
@@ -1660,7 +1660,7 @@ describe('Guidance Response ReasonCode Coding', () => {
           {
             coding: [
               {
-                system: 'CareGapReasonCodeSystem',
+                system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
                 code: CareGapReasonCode.VALUEOUTOFRANGE
               }
             ]
@@ -1679,7 +1679,7 @@ describe('Guidance Response ReasonCode Coding', () => {
           {
             coding: [
               {
-                system: 'CareGapReasonCodeSystem',
+                system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
                 code: CareGapReasonCode.NOTFOUND
               }
             ]
@@ -1698,7 +1698,7 @@ describe('Guidance Response ReasonCode Coding', () => {
           {
             coding: [
               {
-                system: 'CareGapReasonCodeSystem',
+                system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
                 code: CareGapReasonCode.PRESENT
               }
             ]
@@ -1717,7 +1717,7 @@ describe('Guidance Response ReasonCode Coding', () => {
           {
             coding: [
               {
-                system: 'CareGapReasonCodeSystem',
+                system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
                 code: CareGapReasonCode.VALUEOUTOFRANGE
               }
             ]
@@ -1725,7 +1725,7 @@ describe('Guidance Response ReasonCode Coding', () => {
           {
             coding: [
               {
-                system: 'CareGapReasonCodeSystem',
+                system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
                 code: CareGapReasonCode.PRESENT
               }
             ]
