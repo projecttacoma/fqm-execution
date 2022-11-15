@@ -526,6 +526,52 @@ describe('DetailedResultsBuilder', () => {
       );
     });
 
+    test('Episode results should have observation array of one value', () => {
+      const statementResults: StatementResults = {
+        ipp: [
+          {
+            id: {
+              value: 'Encounter2'
+            }
+          },
+          {
+            id: {
+              value: 'Encounter3'
+            }
+          }
+        ],
+        obs_func_observe_ipp: [
+          { episode: { id: { value: 'Encounter2' } }, observation: 2 },
+          { episode: { id: { value: 'Encounter3' } }, observation: 3 }
+        ]
+      };
+
+      const { episodeResults } = DetailedResultsBuilder.createPopulationValues(measure, group, statementResults);
+
+      expect(episodeResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining<EpisodeResults>({
+            episodeId: 'Encounter2',
+            populationResults: expect.arrayContaining([
+              expect.objectContaining({
+                populationType: PopulationType.OBSERV,
+                observations: [2]
+              })
+            ])
+          }),
+          expect.objectContaining<EpisodeResults>({
+            episodeId: 'Encounter3',
+            populationResults: expect.arrayContaining([
+              expect.objectContaining({
+                populationType: PopulationType.OBSERV,
+                observations: [3]
+              })
+            ])
+          })
+        ])
+      );
+    });
+
     describe('multiple IPPs', () => {
       const group: fhir4.MeasureGroup = {
         population: [

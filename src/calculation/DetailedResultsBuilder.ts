@@ -68,11 +68,8 @@ export function createPopulationValues(
             );
           } else {
             if (popResult.observations) {
-              if (measureObsPop.observations == null) {
-                measureObsPop.observations = [...popResult.observations];
-              } else {
-                measureObsPop.observations.push(...popResult.observations);
-              }
+              // We are using .concat to avoid manipulating individual episode results as a side effect
+              measureObsPop.observations = (measureObsPop.observations ?? []).concat(popResult.observations);
             }
             setResult(
               measureObsPop.populationType,
