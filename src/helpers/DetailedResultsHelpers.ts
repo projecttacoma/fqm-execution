@@ -116,21 +116,14 @@ export function nullCriteriaRefMeasureObs(
 ) {
   const measureObservationResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
 
-  // If only 1 measure observation in the results, it does not matter what population it draws from
-  // and it can safely be nulled out
-  if (measureObservationResults.length === 1) {
-    measureObservationResults[0].result = false;
-    measureObservationResults[0].observations = null;
-  } else {
-    // Otherwise, we need to do a lookup based on the criteriaReference extension, and only null out that relevant observation
-    const relevantObservationResult = getObservationResultForPopulation(
-      group,
-      measureObservationResults,
-      desiredPopulationType
-    );
-    if (relevantObservationResult) {
-      relevantObservationResult.result = false;
-      relevantObservationResult.observations = null;
-    }
+  // We need to do a lookup based on the criteriaReference extension, and only null out that relevant observation
+  const relevantObservationResult = getObservationResultForPopulation(
+    group,
+    measureObservationResults,
+    desiredPopulationType
+  );
+  if (relevantObservationResult) {
+    relevantObservationResult.result = false;
+    relevantObservationResult.observations = null;
   }
 }

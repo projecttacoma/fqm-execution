@@ -784,13 +784,15 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: true }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true }
         ];
         const expectedHandledResults: PopulationResult[] = [
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: false, observations: null }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: false, observations: null }
         ];
 
         expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
@@ -803,13 +805,13 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: true }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
         ];
         const expectedHandledResults: PopulationResult[] = [
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: false, observations: null }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
         ];
 
         expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
