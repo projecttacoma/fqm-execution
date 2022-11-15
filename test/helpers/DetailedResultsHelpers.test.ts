@@ -4,7 +4,8 @@ import {
   pruneDetailedResults,
   isDetailedResult,
   findObsMsrPopl,
-  addIdsToPopulationResult
+  addIdsToPopulationResult,
+  nullCriteriaRefMeasureObs
 } from '../../src/helpers/DetailedResultsHelpers';
 import {
   ExecutionResult,
@@ -14,6 +15,9 @@ import {
 } from '../../src/types/Calculator';
 import { CQLPatient } from '../../src/types/CQLPatient';
 import { PopulationType } from '../../src/types/Enums';
+import { getJSONFixture } from './testHelpers';
+
+const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
 describe('pruneDetailedResults', () => {
   test('should not change result with no detailedResults', () => {
@@ -291,6 +295,118 @@ describe('findObsMsrPopl', () => {
 
     expect(msrPop).toBeDefined();
     expect(MeasureBundleHelpers.codeableConceptToPopulationType(msrPop?.code)).toBe('denominator');
+  });
+
+  describe('nullCriteriaRefMeasureObs', () => {
+    let multiObservationPopulationResults: PopulationResult[] = [];
+    let singleObservationPopulationResults: PopulationResult[] = [];
+
+    beforeEach(() => {
+      multiObservationPopulationResults = [
+        {
+          populationType: PopulationType.IPP,
+          criteriaExpression: 'ipp',
+          result: true
+        },
+        {
+          populationType: PopulationType.DENOM,
+          criteriaExpression: 'denom',
+          result: false
+        },
+        {
+          populationType: PopulationType.NUMER,
+          criteriaExpression: 'num',
+          result: false
+        },
+        {
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'denomFunc',
+          result: false
+        },
+        {
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'numerFunc',
+          result: false
+        }
+      ];
+
+      singleObservationPopulationResults = [
+        {
+          populationType: PopulationType.IPP,
+          criteriaExpression: 'ipp',
+          result: true
+        },
+        {
+          populationType: PopulationType.DENOM,
+          criteriaExpression: 'denom',
+          result: false
+        },
+        {
+          populationType: PopulationType.NUMER,
+          criteriaExpression: 'num',
+          result: false
+        },
+        {
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'numerFunc',
+          result: false
+        }
+      ];
+    });
+
+    it('nulls nothing out if desired population has no associated measure observation', () => {
+      nullCriteriaRefMeasureObs(GROUP_NUMER_AND_DENOM_CRITERIA, multiObservationPopulationResults, PopulationType.IPP);
+
+      expect(multiObservationPopulationResults).toEqual(multiObservationPopulationResults);
+    });
+
+    it('nulls out associated measure observation when there is an associated measure observation', () => {
+      nullCriteriaRefMeasureObs(
+        GROUP_NUMER_AND_DENOM_CRITERIA,
+        multiObservationPopulationResults,
+        PopulationType.NUMER
+      );
+
+      expect(multiObservationPopulationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining<PopulationResult>({
+            populationType: PopulationType.OBSERV,
+            criteriaExpression: 'numerFunc',
+            result: false,
+            observations: null
+          })
+        ])
+      );
+    });
+
+    it('nulls out first measure observation when there is one measure observation and desired population is NUMER', () => {
+      nullCriteriaRefMeasureObs(
+        GROUP_NUMER_AND_DENOM_CRITERIA,
+        singleObservationPopulationResults,
+        PopulationType.NUMER
+      );
+
+      expect(singleObservationPopulationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining<PopulationResult>({
+            populationType: PopulationType.OBSERV,
+            criteriaExpression: 'numerFunc',
+            result: false,
+            observations: null
+          })
+        ])
+      );
+    });
+
+    it('nulls out nothing when there is one measure observation and desired population is not NUMER', () => {
+      nullCriteriaRefMeasureObs(
+        GROUP_NUMER_AND_DENOM_CRITERIA,
+        singleObservationPopulationResults,
+        PopulationType.DENOM
+      );
+
+      expect(singleObservationPopulationResults).toEqual(singleObservationPopulationResults);
+    });
   });
 });
 

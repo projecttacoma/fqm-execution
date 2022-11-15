@@ -94,7 +94,7 @@ export function createPopulationValues(
  * values that should not be considered calculated are zeroed out. ex. results NUMER is true but IPP is false.
  * @param {PopulationResult[]} populationResults - The list of population results.
  * @param {fhir4.MeasureGroup} group - Full Measure Group used to detect multiple IPPs and resolve any references between populations
- * @returns {PopulationResult[]} Population results in the list as passed in, but the appropiate values are zeroed out.
+ * @returns {PopulationResult[]} Population results in the list as passed in, but the appropriate values are zeroed out.
  */
 export function handlePopulationValues(
   populationResults: PopulationResult[],
@@ -120,6 +120,7 @@ export function handlePopulationValues(
       if (getResult(PopulationType.IPP, populationResults, numerRelevantIPP.criteria.expression) === false) {
         setResult(PopulationType.NUMER, false, populationResults);
         setResult(PopulationType.NUMEX, false, populationResults);
+        DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
       }
     }
 
@@ -130,11 +131,12 @@ export function handlePopulationValues(
         setResult(PopulationType.DENOM, false, populationResults);
         setResult(PopulationType.DENEX, false, populationResults);
         setResult(PopulationType.DENEXCEP, false, populationResults);
+        DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
       }
     }
   } else if (!getResult(PopulationType.IPP, populationResults)) {
     populationResults.forEach(result => {
-      if (result.populationType == PopulationType.OBSERV) {
+      if (result.populationType === PopulationType.OBSERV) {
         result.observations = null;
       }
       result.result = false;
@@ -151,31 +153,41 @@ export function handlePopulationValues(
   ) {
     setResult(PopulationType.DENEX, false, populationResults);
     setResult(PopulationType.DENEXCEP, false, populationResults);
+    DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
 
+    // If there is a MSRPOPL, all observations point to it, so null them out
+    if (hasResult(PopulationType.MSRPOPL, populationResults)) {
+      const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
+      if (popResult) {
+        popResult.result = false;
+        popResult.observations = null;
+      }
+    }
+
+    // If the numer is influenced by the DENOM, false it out and its observations since we are not in the DENOM for this branch of logic
     if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
+      // If there are not multiple IPPs, then NUMER depends on DENOM. We're not in the DENOM, so let's null out NUMER observations
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
     }
 
     setResult(PopulationType.MSRPOPLEX, false, populationResults);
-    const popResult = populationResults.find(result => result.populationType == PopulationType.OBSERV);
-    if (popResult) {
-      popResult.result = false;
-      popResult.observations = null;
-    }
 
     // Cannot be in the numerator if they are excluded from the denominator
   } else if (getResult(PopulationType.DENEX, populationResults)) {
     if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
+      // Since we can't be in the numerator, null out numerator observations
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
     }
 
     setResult(PopulationType.DENEXCEP, false, populationResults);
 
     // Cannot have observations if in the MSRPOPLEX
   } else if (getResult(PopulationType.MSRPOPLEX, populationResults)) {
-    const popResult = populationResults.find(result => result.populationType == PopulationType.OBSERV);
+    const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
     if (popResult) {
       popResult.result = false;
       popResult.observations = null;
@@ -184,6 +196,8 @@ export function handlePopulationValues(
     // Cannot be in the NUMEX if not in the NUMER
   } else if (!getResult(PopulationType.NUMER, populationResults)) {
     setResult(PopulationType.NUMEX, false, populationResults);
+    // Not in NUMER, so no need for NUMER observations
+    DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
 
     // Cannot be in the DENEXCEP if in the NUMER
   } else if (!MeasureBundleHelpers.hasMultipleIPPs(group) && getResult(PopulationType.NUMER, populationResults)) {

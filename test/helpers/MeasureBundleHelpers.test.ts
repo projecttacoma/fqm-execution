@@ -10,12 +10,16 @@ import {
   extractMeasureFromBundle,
   isValidLibraryURL,
   getScoringCodeFromGroup,
-  getScoringCodeFromMeasure
+  getScoringCodeFromMeasure,
+  getObservationResultForPopulation
 } from '../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../src/types/Enums';
 import { ValueSetResolver } from '../../src/execution/ValueSetResolver';
 import { getJSONFixture } from './testHelpers';
 import { getMissingDependentValuesets } from '../../src/execution/ValueSetHelper';
+import { PopulationResult } from '../../src/types/Calculator';
+
+const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
 describe('MeasureBundleHelpers tests', () => {
   describe('getScoringCodeFromGroup', () => {
@@ -956,6 +960,51 @@ describe('MeasureBundleHelpers tests', () => {
       };
 
       expect(getCriteriaReferenceIdFromPopulation(pop)).toBeNull();
+    });
+  });
+  describe('getObservationResultForPopulation', () => {
+    const populationResults: PopulationResult[] = [
+      {
+        populationType: PopulationType.IPP,
+        criteriaExpression: 'ipp',
+        result: true
+      },
+      {
+        populationType: PopulationType.DENOM,
+        criteriaExpression: 'denom',
+        result: false
+      },
+      {
+        populationType: PopulationType.NUMER,
+        criteriaExpression: 'num',
+        result: false
+      },
+      {
+        populationType: PopulationType.OBSERV,
+        criteriaExpression: 'denomFunc',
+        result: false
+      },
+      {
+        populationType: PopulationType.OBSERV,
+        criteriaExpression: 'numerFunc',
+        result: false
+      }
+    ];
+
+    it('returns null when desired population has no associated measure-observation', () => {
+      expect(
+        getObservationResultForPopulation(GROUP_NUMER_AND_DENOM_CRITERIA, populationResults, PopulationType.IPP)
+      ).toBeNull();
+    });
+
+    it('returns measure observation when desired population has associated measure-observation', () => {
+      expect(
+        getObservationResultForPopulation(GROUP_NUMER_AND_DENOM_CRITERIA, populationResults, PopulationType.NUMER)
+      ).toEqual({
+        populationType: PopulationType.OBSERV,
+        criteriaExpression: 'numerFunc',
+        result: false
+      });
     });
   });
 });

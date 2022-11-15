@@ -7,7 +7,7 @@ import {
   PopulationResult
 } from '../types/Calculator';
 import { PopulationType } from '../types/Enums';
-import { getCriteriaReferenceIdFromPopulation } from './MeasureBundleHelpers';
+import { getCriteriaReferenceIdFromPopulation, getObservationResultForPopulation } from './MeasureBundleHelpers';
 
 export function pruneDetailedResults(
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
@@ -97,6 +97,40 @@ export function addIdsToPopulationResult(populationResult: PopulationResult, pop
     const criteriaRefId = MeasureBundleHelpers.getCriteriaReferenceIdFromPopulation(population);
     if (criteriaRefId) {
       populationResult.criteriaReferenceId = criteriaRefId;
+    }
+  }
+}
+
+/**
+ * Finds the measure observation that references the desired population in its criteria reference. If one exists,
+ *  sets the result to false and the observations to null
+ *
+ *  NOTE: the usage of criteriaReference to identify a measure observation only really applies for Ratio measures
+ *  where observations can be done on both the numerator and the denominator. For logic relating to CV measures that have a measure-population,
+ *  the nulling of irrelevant observations happens already via `handlePopulationValues`
+ */
+export function nullCriteriaRefMeasureObs(
+  group: fhir4.MeasureGroup,
+  populationResults: PopulationResult[],
+  desiredPopulationType: PopulationType
+) {
+  const measureObservationResults = populationResults.filter(result => result.populationType === PopulationType.OBSERV);
+
+  // If only 1 measure observation in the results, it does not matter what population it draws from
+  // and it can safely be nulled out
+  if (measureObservationResults.length === 1) {
+    measureObservationResults[0].result = false;
+    measureObservationResults[0].observations = null;
+  } else {
+    // Otherwise, we need to do a lookup based on the criteriaReference extension, and only null out that relevant observation
+    const relevantObservationResult = getObservationResultForPopulation(
+      group,
+      measureObservationResults,
+      desiredPopulationType
+    );
+    if (relevantObservationResult) {
+      relevantObservationResult.result = false;
+      relevantObservationResult.observations = null;
     }
   }
 }

@@ -1,0 +1,97 @@
+{
+  "id": "test-measure-group",
+  "population": [
+    {
+      "id": "ipp",
+      "code": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+            "code": "initial-population",
+            "display": "Initial Population"
+          }
+        ]
+      }
+    },
+    {
+      "id": "denom",
+      "code": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+            "code": "denominator",
+            "display": "Denominator"
+          }
+        ]
+      }
+    },
+    {
+      "id": "denex",
+      "code": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+            "code": "denominator-exclusion",
+            "display": "Denominator Exclusion"
+          }
+        ]
+      }
+    },
+    {
+      "id": "numer",
+      "code": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+            "code": "numerator",
+            "display": "Numerator"
+          }
+        ]
+      }
+    },
+    {
+      "id": "denom-obs",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference",
+          "valueString": "denom"
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+            "code": "measure-observation",
+            "display": "Measure Observation"
+          }
+        ]
+      },
+      "criteria": {
+        "language": "text/cql.identifier",
+        "expression": "denomFunc"
+      }
+    },
+    {
+      "id": "numer-obs",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference",
+          "valueString": "numer"
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+            "code": "measure-observation",
+            "display": "Measure Observation"
+          }
+        ]
+      },
+      "criteria": {
+        "language": "text/cql.identifier",
+        "expression": "numerFunc"
+      }
+    }
+  ]
+}
