@@ -37,7 +37,7 @@ export function createPopulationValues(
     // collect results per episode
     episodeResults = createEpisodePopulationValues(populationGroup, patientResults);
 
-    // if no episodes were found we need default populationResults/stratifierResults. just use the patient
+    // if no episodes were found we need default populationResults/stratifierResults. Just use the patient
     // level logic for this
     if (episodeResults === undefined || episodeResults.length === 0) {
       episodeResults = [];
