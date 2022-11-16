@@ -19,11 +19,13 @@ Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) wr
   - [Testing](#testing)
   - [Checks](#checks)
 
+- [Contributions](#contributions)
+
 - [License](#license)
 
 ## Installation
 
-`fqm-execution` can be installed into your project with npm:
+`fqm-execution` can be installed into your project with [npm](https://www.npmjs.com/package/fqm-execution):
 
 ```bash
 npm install --save fqm-execution
@@ -40,33 +42,96 @@ npm install -g fqm-execution
 ### Module
 
 #### ES6
-
+Import the necessary modules:
 ```JavaScript
 import { Calculator, MeasureBundleHelpers } from 'fqm-execution';
+```
 
-const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
-const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache); // Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
-const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
-const dataRequirements = await Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
-const queryInfo = await Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
-const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options); // Add missing ValueSet resources to a measure bundle
+```JavaScript
+// Get raw results from CQL engine for each patient
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get detailed population results for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get individual FHIR MeasureReports for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache);
+```
+
+```JavaScript
+// Get gaps in care for each patient, if present
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get data requirements for a given measure (in a bundle)
+const dataRequirements = await Calculator.calculateDataRequirements(measureBundle);
+```
+
+```JavaScript
+// Get detailed query info for all statements in a measure
+const queryInfo = await Calculator.calculateQueryInfo(measureBundle);
+```
+
+```JavaScript
+// Add missing ValueSet resources to a measure bundle
+const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options);
 ```
 
 #### Require
 
+Import the necessary modules:
 ```JavaScript
 const { Calculator, MeasureBundleHelpers } = require('fqm-execution');
+```
 
-const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache); // Get raw results from CQL engine for each patient
-const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache); // Get detailed population results for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache); // Get individual FHIR MeasureReports for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache); // Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
-const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache); // Get gaps in care for each patient, if present
-const dataRequirements = await Calculator.calculateDataRequirements(measureBundle); // Get data requirements for a given measure (in a bundle)
-const queryInfo = await Calculator.calculateQueryInfo(measureBundle); // Get detailed query info for all statements in a measure
-const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options); // Add missing ValueSet resources to a measure bundle
+```JavaScript
+// Get raw results from CQL engine for each patient
+const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get detailed population results for each patient
+const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get individual FHIR MeasureReports for each patient
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
+const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache);
+```
+
+```JavaScript
+// Get gaps in care for each patient, if present
+const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache);
+```
+
+```JavaScript
+// Get data requirements for a given measure (in a bundle)
+const dataRequirements = await Calculator.calculateDataRequirements(measureBundle);
+```
+
+```JavaScript
+// Get detailed query info for all statements in a measure
+const queryInfo = await Calculator.calculateQueryInfo(measureBundle); 
+```
+
+```JavaScript
+// Add missing ValueSet resources to a measure bundle
+const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options);
 ```
 
 #### Arguments
@@ -84,20 +149,18 @@ The options that we support for calculation are as follows:
 | verboseCalculationResults | boolean | yes | Use the detailed results interfaces for calculation. Defaults to true. |
 | enableDebugOutput | boolean | yes | Enable debug output from function calls. Defaults to false. |
 | includeClauseResults | boolean | yes | Option to include clause results. Defaults to false. |
-| includePrettyResults | boolean | yes | Option to include pretty results on statement results. Defaults to false. |
-| includeHighlighting | boolean | yes | Include highlighting in MeasureReport narrative. Defaults to false. |
 | measurementPeriodStart | string | yes | Start of measurement period. |
 | measurementPeriodEnd | string | yes | End of measurement period. |
-| patientSource | DataProvider | yes | PatientSource to use. If provided, the patientBundles will not be required. The PatientSource/DataProvider interface is defined in TypeScript by [cql-execution](https://github.com/cqframework/cql-execution/blob/master/src/types/cql-patient.interfaces.ts). |
-| reportType | string | yes | Type of MeasureReport to generate: "summary" or "individual". |
-| calculateSDEs | boolean | yes | Include Supplemental Data Elements in calculation. Defaults to false. |
-| calculateHTML | boolean | yes | Include HTML structure for highlighting. Defaults to false. |
-| calculateClauseCoverage | boolean | yes | Include HTML structure with coverage highlighting. Defaults to false. |
-| vsAPIKey | string | yes | API key, to be used to access a valueset API for downloading any missing valuesets |
+| patientSource | DataProvider | yes | PatientSource to use. If provided, the patientBundles are not required. The PatientSource/DataProvider interface is defined in TypeScript by [cql-execution](https://github.com/cqframework/cql-execution/blob/master/src/types/cql-patient.interfaces.ts). |
+| reportType | string | yes | Type of MeasureReport to generate: "summary", "subject-list" (not yet supported), or "individual". |
+| calculateSDEs | boolean | yes | Include Supplemental Data Elements in calculation. Defaults to true. |
+| calculateHTML | boolean | yes | Include HTML structure for highlighting. Defaults to true. |
+| calculateClauseCoverage | boolean | yes | Include HTML structure with coverage highlighting. Defaults to true. |
+| vsAPIKey | string | yes | API key, to be used to access a valueset API for downloading any missing ValueSets |
 | useValueSetCaching | boolean | yes | Whether to cache valuesets obtained by an API on the filesystem. Defaults to false. |
 | useElmJsonsCaching | boolean | yes | Whether to cache the ELM JSONs and associated information from calculation. Defaults to false. |
 | clearElmJsonsCache | boolean | yes | Whether to clear the ELM JSONs cache before running calculation. Defaults to false. |
-| profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against|
+| profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. Defaults to false.|
 
 ### CLI
 
@@ -121,11 +184,11 @@ Options:
   --slim                                      Use slimmed-down calculation results interfaces (default: false)
   --report-type <report-type>                 Type of report, "individual", "summary", "subject-list".
   -m, --measure-bundle <measure-bundle>       Path to measure bundle.
-  -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is dataRequirements.
+  -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is one of the following: dataRequirements, queryInfo, valueSets.
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
   -s, --measurement-period-start <date>       Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there).
   -e, --measurement-period-end <date>         End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).
-  --vs-api-key <key>                          API key, to authenticate against the valueset service to be used for resolving missing valuesets.
+  --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing valuesets.
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
   --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
@@ -136,27 +199,27 @@ E.g.
 
 ```bash
 Generate a MeasureReport by calculating a measure on a patient bundle:
-  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle.json > reports.json
+  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle.json  -o reports.json
 
 Generate a MeasureReport by calculating a measure on multiple patient bundles:
-  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json /path/to/patient2/bundle.json > reports.json
+  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json /path/to/patient2/bundle.json -o reports.json
 ```
 
 ### ValueSets
 
-If the Measure bundle provided doesn't contain all the required `ValueSet` resources (with expansions or composes) to calculate the measure, an API key can be provided to resolve the valuesets from their provided URLs. Currently only tested with valuesets from [The NLM FHIR Valueset API](https://cts.nlm.nih.gov/fhir).
+If the Measure bundle provided doesn't contain all the required `ValueSet` resources (with expansions or composes) to calculate the measure, an API key can be provided to resolve the valuesets from their provided URLs. Currently only tested with ValueSets from [The NLM FHIR Valueset API](https://cts.nlm.nih.gov/fhir).
 
 To find your VSAC API key, sign into [the UTS homepage](https://uts.nlm.nih.gov/uts/), click on `My Profile` in the top right, and copy the `API KEY` value from the `UMLS Licensee Profile`.
 
 ### TypeScript
 
-`fqm-execution` exports custom-defined TypeScript interfaces used within the code to allow for easy integration into other TypeScript projects. The TypeScript files defining these interfaces can be found [here](https://github.com/projecttacoma/fqm-execution/tree/master/src/types)
+`fqm-execution` exports custom-defined TypeScript interfaces used within the code to allow for easy integration into other TypeScript projects. The TypeScript files defining these interfaces can be found [here](https://github.com/projecttacoma/fqm-execution/tree/master/src/types).
 
 ## Local Development
 
 ### Prerequisites
 
-- [Node.js >=10.15.1](https://nodejs.org/en/)
+- [Node.js >=14.0.0](https://nodejs.org/en/)
 - [Git](https://git-scm.com/)
 
 ### Local Installation/Usage
@@ -223,14 +286,15 @@ Add the following contents to `.vscode/launch.json` in the root of the project d
               "${workspaceFolder}/build/**/*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart",
-            "args": ["-m", "${workspaceFolder}/relative/path/to/measure/bundle.json", "-p", "${workspaceFolder}/relative/path/to/patient/bundle.json", "-o", "<reports | detailed | raw | gaps>"]
+            "args": ["<reports | detailed | raw | gaps | dataRequirements | queryInfo | valueSets>", "-m", "${workspaceFolder}/relative/path/to/measure/bundle.json", "-p", "${workspaceFolder}/relative/path/to/patient/bundle.json", "-o"]
           }
     ]
 }
-
 ```
 
 This will allow you to run the CLI from the `Run` tab in VS Code, and will halt execution of the program at any breakpoints or `debugger` statements in the code, to allow for debugging of the functionality.
+
+(Note: the `dataRequirements`, `queryInfo`, and `valueSets` commands do not require patient bundle(s) to be specified in the `args` array)
 
 ### Testing
 
@@ -256,9 +320,12 @@ A visual representation of the calculate sequence of the application can be seen
 
 ![Calculate](doc/calculate_Sequence.png)
 
+## Contributions
+For suggestions or contributions, please use [GitHub Issues](https://github.com/projecttacoma/fqm-execution/issues) or open a [Pull Request](https://github.com/projecttacoma/fqm-execution/pulls).
+
 ## License
 
-Copyright 2020 The MITRE Corporation
+Copyright 2020-2022 The MITRE Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

@@ -45,7 +45,7 @@ program
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'Path to measure bundle.')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
-    'Paths to patient bundles. Required unless output type is dataRequirements.'
+    'Paths to patient bundles. Required unless output type is one of the following: dataRequirements, queryInfo, valueSets.'
   )
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(
@@ -60,7 +60,7 @@ program
   )
   .option(
     '--vs-api-key <key>',
-    'API key, to authenticate against the valueset service to be used for resolving missing valuesets.',
+    'API key, to authenticate against the ValueSet service to be used for resolving missing valuesets.',
     undefined
   )
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)

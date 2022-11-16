@@ -46,8 +46,6 @@ function setupCalcOptions(/* string paramName, boolean value*/): CalculationOpti
   calcOptions.calculateHTML = true;
   calcOptions.calculateSDEs = true;
   calcOptions.includeClauseResults = true;
-  calcOptions.includeHighlighting = true;
-  calcOptions.includePrettyResults = true;
   calcOptions.measurementPeriodEnd = PERIOD_END;
   calcOptions.measurementPeriodStart = PERIOD_START;
 

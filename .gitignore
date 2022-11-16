@@ -6,6 +6,7 @@ debug/
 test/fixtures/elm/queries/output/*
 test/fixtures/elm/queries/.start-translator
 connectathon/
+ecqm-content-r4-2021/
 fhir-patient-generator/
 coverage
 cache

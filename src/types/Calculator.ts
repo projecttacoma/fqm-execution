@@ -12,10 +12,6 @@ import { GracefulError } from './errors/GracefulError';
 export interface CalculationOptions {
   /** Option to include clause results. Defaults to false. */
   includeClauseResults?: boolean;
-  /** Option to include pretty results on statement results. Defaults to false. */
-  includePrettyResults?: boolean;
-  /** Include highlighting in MeasureReport narrative. Defaults to false. */
-  includeHighlighting?: boolean;
   /** Start of measurement period. */
   measurementPeriodStart?: string;
   /** End of measurement period */
