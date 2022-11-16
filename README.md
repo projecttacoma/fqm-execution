@@ -46,7 +46,7 @@ Import the necessary modules:
 ```JavaScript
 import { Calculator, MeasureBundleHelpers } from 'fqm-execution';
 ```
-
+Use the following API functions:
 ```JavaScript
 // Get raw results from CQL engine for each patient
 const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache);
@@ -93,7 +93,7 @@ Import the necessary modules:
 ```JavaScript
 const { Calculator, MeasureBundleHelpers } = require('fqm-execution');
 ```
-
+Use the following API functions:
 ```JavaScript
 // Get raw results from CQL engine for each patient
 const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache);
