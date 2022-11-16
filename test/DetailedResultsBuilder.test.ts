@@ -15,6 +15,8 @@ const cvMeasure = getJSONFixture('measure/cv-measure.json') as MeasureWithGroup;
 const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
 const groupWithObs = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
+const measureWithMeasureObs = getJSONFixture('measure/measure-measure-obs.json') as MeasureWithGroup;
+const groupWithMeasureObs = (measureWithMeasureObs.group as [fhir4.MeasureGroup])[0];
 
 describe('DetailedResultsBuilder', () => {
   describe('Population Values', () => {
@@ -456,6 +458,131 @@ describe('DetailedResultsBuilder', () => {
       );
     });
 
+    test('Root population results should not contain arrays of observations', () => {
+      const statementResults: StatementResults = {
+        ipp: [
+          {
+            id: {
+              value: 'Encounter2'
+            }
+          },
+          {
+            id: {
+              value: 'Encounter3'
+            }
+          }
+        ],
+        obs_func_observe_ipp: [
+          { episode: { id: { value: 'Encounter2' } } },
+          { episode: { id: { value: 'Encounter3' } } }
+        ]
+      };
+
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(
+        measureWithMeasureObs,
+        groupWithMeasureObs,
+        statementResults
+      );
+
+      expect(populationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            populationType: PopulationType.OBSERV
+          })
+        ])
+      );
+
+      populationResults?.forEach(pr => {
+        expect(pr.observations).toBeUndefined();
+      });
+    });
+
+    test('Root population results should contain an array of observations for corresponding episode', () => {
+      const statementResults: StatementResults = {
+        ipp: [
+          {
+            id: {
+              value: 'Encounter2'
+            }
+          },
+          {
+            id: {
+              value: 'Encounter3'
+            }
+          }
+        ],
+        obs_func_observe_ipp: [
+          { episode: { id: { value: 'Encounter2' } }, observation: 2 },
+          { episode: { id: { value: 'Encounter3' } }, observation: 3 }
+        ]
+      };
+
+      const { populationResults } = DetailedResultsBuilder.createPopulationValues(
+        measureWithMeasureObs,
+        groupWithMeasureObs,
+        statementResults
+      );
+
+      expect(populationResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            populationType: PopulationType.OBSERV,
+            observations: [2, 3]
+          })
+        ])
+      );
+    });
+
+    test('Episode results should have observation array of one value', () => {
+      const statementResults: StatementResults = {
+        ipp: [
+          {
+            id: {
+              value: 'Encounter2'
+            }
+          },
+          {
+            id: {
+              value: 'Encounter3'
+            }
+          }
+        ],
+        obs_func_observe_ipp: [
+          { episode: { id: { value: 'Encounter2' } }, observation: 2 },
+          { episode: { id: { value: 'Encounter3' } }, observation: 3 }
+        ]
+      };
+
+      const { episodeResults } = DetailedResultsBuilder.createPopulationValues(
+        measureWithMeasureObs,
+        groupWithMeasureObs,
+        statementResults
+      );
+
+      expect(episodeResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining<EpisodeResults>({
+            episodeId: 'Encounter2',
+            populationResults: expect.arrayContaining([
+              expect.objectContaining({
+                populationType: PopulationType.OBSERV,
+                observations: [2]
+              })
+            ])
+          }),
+          expect.objectContaining<EpisodeResults>({
+            episodeId: 'Encounter3',
+            populationResults: expect.arrayContaining([
+              expect.objectContaining({
+                populationType: PopulationType.OBSERV,
+                observations: [3]
+              })
+            ])
+          })
+        ])
+      );
+    });
+
     describe('multiple IPPs', () => {
       const group: fhir4.MeasureGroup = {
         population: [
@@ -657,13 +784,15 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: true }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true }
         ];
         const expectedHandledResults: PopulationResult[] = [
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: false, observations: null }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: false, observations: null }
         ];
 
         expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
@@ -676,13 +805,13 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: true }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
         ];
         const expectedHandledResults: PopulationResult[] = [
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'fun', result: false, observations: null }
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
         ];
 
         expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(

@@ -8,7 +8,7 @@ import * as cql from '../types/CQLTypes';
 
 /**
  * Create population values (aka results) for all populations in the population group using the results from the
- * calculator. This creates the DetailedPopulationGroupResult for the patient that will be filed my most of the
+ * calculator. This creates the DetailedPopulationGroupResult for the patient that will be filled by most of the
  * results processing functions.
  *
  * @param {fhir4.Measure} measure - The measure we are getting the values for.
@@ -37,29 +37,45 @@ export function createPopulationValues(
     // collect results per episode
     episodeResults = createEpisodePopulationValues(populationGroup, patientResults);
 
-    // if no episodes were found we need default populationResults/stratifier results. Just use the patient
+    // if no episodes were found we need default populationResults/stratifierResults. Just use the patient
     // level logic for this
-    if (episodeResults == undefined || episodeResults.length == 0) {
+    if (episodeResults === undefined || episodeResults.length === 0) {
       episodeResults = [];
       const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
       populationResults = popAndStratResults.populationResults;
       stratifierResults = popAndStratResults.stratifierResults;
     } else {
-      // TODO: in the case of episode aggregation, we should consider collating the observation results at the root populationResults
-      // list as well
       populationResults = [];
       stratifierResults = [];
       // create patient level population and stratifier results based on episodes
       episodeResults.forEach(episodeResult => {
         episodeResult.populationResults.forEach(popResult => {
-          createOrSetResult(
-            popResult.populationType,
-            popResult.result,
-            populationResults,
-            popResult.criteriaExpression,
-            popResult.populationId,
-            popResult.criteriaReferenceId
+          const measureObsPop = populationResults.find(
+            pop =>
+              pop.populationType === PopulationType.OBSERV && popResult.criteriaExpression === pop.criteriaExpression
           );
+          if (!measureObsPop) {
+            createOrSetResult(
+              popResult.populationType,
+              popResult.result,
+              populationResults,
+              popResult.criteriaExpression,
+              popResult.populationId,
+              popResult.criteriaReferenceId,
+              popResult.observations
+            );
+          } else {
+            if (popResult.observations) {
+              // We are using .concat to avoid manipulating individual episode results as a side effect
+              measureObsPop.observations = (measureObsPop.observations ?? []).concat(popResult.observations);
+            }
+            setResult(
+              measureObsPop.populationType,
+              popResult.result,
+              populationResults,
+              measureObsPop.criteriaExpression
+            );
+          }
         });
 
         episodeResult.stratifierResults?.forEach(strat => {
@@ -289,8 +305,6 @@ export function createPatientPopulationValues(
     });
   }
 
-  //TODO: Support patient level observations.
-
   return {
     populationResults,
     stratifierResults
@@ -350,14 +364,16 @@ export function createEpisodePopulationValues(
 
               // check if there is already an observation result with this cqlPopulation
               const observResult = episodeResult.populationResults.find(
-                result => result.populationType == populationType && result.criteriaExpression == cqlPopulation
+                result => result.populationType === populationType && result.criteriaExpression === cqlPopulation
               );
               if (observResult !== undefined) {
                 // push obs onto an existing populationResult
-                if (!observResult.observations) {
-                  observResult.observations = [];
+                if (observation) {
+                  if (!observResult.observations) {
+                    observResult.observations = [];
+                  }
+                  observResult.observations.push(observation);
                 }
-                observResult.observations.push(observation);
                 observResult.result = true;
               } else {
                 // create new populationResult with obs
@@ -441,7 +457,7 @@ function createOrSetValueOfEpisodes(
       if (episodeResource.id.value != null) {
         // if an episode has already been created set the result for the population to true
         const episodeResults = episodeResultsSet.find(
-          episodeResults => episodeResults.episodeId == episodeResource.id.value
+          episodeResults => episodeResults.episodeId === episodeResource.id.value
         );
         if (episodeResults) {
           // set population value
@@ -452,7 +468,7 @@ function createOrSetValueOfEpisodes(
           } else if (strataCode) {
             if (episodeResults.stratifierResults) {
               const strataResult = episodeResults.stratifierResults.find(strataResult => {
-                return strataResult.strataCode == strataCode;
+                return strataResult.strataCode === strataCode;
               });
               if (strataResult) {
                 strataResult.result = true;
@@ -487,7 +503,7 @@ function createOrSetValueOfEpisodes(
               newEpisodeResults.stratifierResults?.push({
                 ...(strataId ? { strataId } : {}),
                 strataCode: newStrataCode,
-                result: newStrataCode == strataCode ? true : false
+                result: newStrataCode === strataCode ? true : false
               });
             });
           }
