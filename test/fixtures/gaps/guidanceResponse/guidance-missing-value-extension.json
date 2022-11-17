@@ -36,7 +36,7 @@
     {
       "coding": [
         {
-          "system": "CareGapReasonCodeSystem",
+          "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason",
           "code": "MissingValue",
           "display": "Data element was found, but value was missing"
         }

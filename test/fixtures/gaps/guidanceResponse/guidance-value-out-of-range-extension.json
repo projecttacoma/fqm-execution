@@ -36,7 +36,7 @@
     {
       "coding": [
         {
-          "system": "CareGapReasonCodeSystem",
+          "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason",
           "code": "ValueOutOfRange",
           "display": "Value is out of specified range"
         }

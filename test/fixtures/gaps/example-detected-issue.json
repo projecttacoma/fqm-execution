@@ -30,7 +30,7 @@
               {
                 "code": "NotFound",
                 "display": "Data Element Not Found",
-                "system": "CareGapReasonCodeSystem"
+                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason"
               }
             ]
           }
@@ -83,7 +83,7 @@
               {
                 "code": "NotFound",
                 "display": "Data Element Not Found",
-                "system": "CareGapReasonCodeSystem"
+                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason"
               }
             ]
           }
@@ -141,7 +141,7 @@
               {
                 "code": "NotFound",
                 "display": "Data Element Not Found",
-                "system": "CareGapReasonCodeSystem"
+                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason"
               }
             ]
           }
@@ -194,7 +194,7 @@
               {
                 "code": "NotFound",
                 "display": "Data Element Not Found",
-                "system": "CareGapReasonCodeSystem"
+                "system": "http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason"
               }
             ]
           }

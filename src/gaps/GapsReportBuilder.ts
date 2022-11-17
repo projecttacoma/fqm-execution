@@ -217,7 +217,6 @@ export function generateGuidanceResponses(
 
     let gapCoding: fhir4.Coding[];
 
-    // TODO: update system to be full URL once defined
     if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasons.length > 0) {
       gapCoding = q.reasonDetail.reasons.map(generateReasonCoding);
     } else {
@@ -225,14 +224,14 @@ export function generateGuidanceResponses(
         improvementNotation === ImprovementNotation.POSITIVE
           ? [
               {
-                system: 'CareGapReasonCodeSystem',
+                system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
                 code: CareGapReasonCode.NOTFOUND,
                 display: CareGapReasonCodeDisplay[CareGapReasonCode.NOTFOUND]
               }
             ]
           : [
               {
-                system: 'CareGapReasonCodeSystem',
+                system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
                 code: CareGapReasonCode.PRESENT,
                 display: CareGapReasonCodeDisplay[CareGapReasonCode.PRESENT]
               }
@@ -282,7 +281,7 @@ export function generateGuidanceResponses(
  */
 export function generateReasonCoding(reason: ReasonDetailData): fhir4.Coding {
   const reasonCoding: fhir4.Coding = {
-    system: 'CareGapReasonCodeSystem',
+    system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
     code: reason.code,
     display: CareGapReasonCodeDisplay[reason.code]
   };
@@ -290,7 +289,7 @@ export function generateReasonCoding(reason: ReasonDetailData): fhir4.Coding {
   // If there is a referenced resource create and add the extension
   if (reason.reference) {
     const detailExt: fhir4.Extension = {
-      url: 'ReasonDetail',
+      url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
       extension: [
         {
           url: 'reference',

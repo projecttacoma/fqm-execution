@@ -95,7 +95,6 @@ export enum ImprovementNotation {
  * 'VALUEOUTOFRANGE': Gap is due to a value being out of range
  * 'COUNTINRANGE': Gap is due to count of data elements being within a range
  * 'COUNTOUTOFRANGE': Gap is due to a count of resources being out of range
- * 'NOTALLOWED': Data Element was not used in care gap calculation due to an external requirement
  */
 export enum CareGapReasonCode {
   NOTFOUND = 'NotFound',
@@ -107,8 +106,7 @@ export enum CareGapReasonCode {
   VALUEINRANGE = 'ValueInRange',
   VALUEOUTOFRANGE = 'ValueOutOfRange',
   COUNTINRANGE = 'CountInRange',
-  COUNTOUTOFRANGE = 'CountOutOfRange',
-  NOTALLOWED = 'NotAllowed'
+  COUNTOUTOFRANGE = 'CountOutOfRange'
 }
 
 /**
@@ -124,6 +122,5 @@ export const CareGapReasonCodeDisplay = {
   [CareGapReasonCode.VALUEINRANGE]: 'Value is within specified range',
   [CareGapReasonCode.VALUEOUTOFRANGE]: 'Value is out of specified range',
   [CareGapReasonCode.COUNTINRANGE]: 'Count is within specified range',
-  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count is out of specified range',
-  [CareGapReasonCode.NOTALLOWED]: 'Data Element was not used in care gap calculation due to an external requirement'
+  [CareGapReasonCode.COUNTOUTOFRANGE]: 'Count is out of specified range'
 };
