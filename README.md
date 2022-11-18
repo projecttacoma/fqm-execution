@@ -120,7 +120,7 @@ The options that we support for calculation are as follows:
 | useValueSetCaching | boolean | yes | Whether to cache ValueSets obtained by an API on the filesystem. Defaults to false. |
 | useElmJsonsCaching | boolean | yes | Whether to cache the ELM JSONs and associated information from calculation. Defaults to false. |
 | clearElmJsonsCache | boolean | yes | Whether to clear the ELM JSONs cache before running calculation. Defaults to false. |
-| profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. Defaults to false.|
+| profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that [cql-exec-fhir](https://github.com/projecttacoma/cql-exec-fhir) grabs validates against. Defaults to false.|
 
 ### CLI
 
