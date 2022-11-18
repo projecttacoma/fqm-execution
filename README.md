@@ -6,7 +6,7 @@ Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) wr
 
 - [Usage](#usage)
 
-  - [Module](#module)
+  - [API](#api)
   - [Calculation Options](#calculation-options)
   - [CLI](#cli)
   - [TypeScript](#typescript)
@@ -14,7 +14,7 @@ Library for executing FHIR-based Electronic Clinical Quality Measures (eCQMs) wr
 - [Local Development](#local-development)
 
   - [Prerequisites](#prerequisites)
-  - [Local Installation/Usage](#local-installation%2Fusage)
+  - [Local Installation/Usage](#local-installationusage)
   - [Debugging in VS Code](#debugging-in-vs-code)
   - [Testing](#testing)
   - [Checks](#checks)
@@ -39,104 +39,64 @@ npm install -g fqm-execution
 
 ## Usage
 
-### Module
+### API
 
-#### ES6
 Import the necessary modules:
 ```JavaScript
 import { Calculator, MeasureBundleHelpers } from 'fqm-execution';
 ```
-Use the following API functions:
+The following API functions are defined:
+
+#### Calculator.calculateRaw()
+Get raw results from CQL engine for each patient.
 ```JavaScript
-// Get raw results from CQL engine for each patient
 const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache);
 ```
 
+#### Calculator.calculate()
+Get detailed population results for each patient.
 ```JavaScript
-// Get detailed population results for each patient
 const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache);
 ```
 
+#### Calculator.calculateMeasureReports() 
+Get individual FHIR MeasureReports for each patient.
 ```JavaScript
-// Get individual FHIR MeasureReports for each patient
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache);
 ```
 
+#### Calculator.calculateMeasureReports() with custom patientSource
+Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object.
 ```JavaScript
-// Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache);
 ```
 
+#### Calculator.calculateGapsInCare()
+Get gaps in care for each patient, if present.
 ```JavaScript
-// Get gaps in care for each patient, if present
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache);
 ```
 
+#### Calculator.calculateDataRequirements()
+Get data requirements for a given measure (in a bundle).
 ```JavaScript
-// Get data requirements for a given measure (in a bundle)
 const dataRequirements = await Calculator.calculateDataRequirements(measureBundle);
 ```
 
+#### Calculator.calculateQueryInfo()
+Get detailed query info for all statements in a measure.
 ```JavaScript
-// Get detailed query info for all statements in a measure
 const queryInfo = await Calculator.calculateQueryInfo(measureBundle);
 ```
 
+#### MeasureBundleHelpers.addValueSetsToMeasureBundle()
+Add missing ValueSet resources to a measure bundle.
 ```JavaScript
-// Add missing ValueSet resources to a measure bundle
-const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options);
-```
-
-#### Require
-
-Import the necessary modules:
-```JavaScript
-const { Calculator, MeasureBundleHelpers } = require('fqm-execution');
-```
-Use the following API functions:
-```JavaScript
-// Get raw results from CQL engine for each patient
-const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache);
-```
-
-```JavaScript
-// Get detailed population results for each patient
-const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache);
-```
-
-```JavaScript
-// Get individual FHIR MeasureReports for each patient
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache);
-```
-
-```JavaScript
-// Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object
-const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache);
-```
-
-```JavaScript
-// Get gaps in care for each patient, if present
-const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache);
-```
-
-```JavaScript
-// Get data requirements for a given measure (in a bundle)
-const dataRequirements = await Calculator.calculateDataRequirements(measureBundle);
-```
-
-```JavaScript
-// Get detailed query info for all statements in a measure
-const queryInfo = await Calculator.calculateQueryInfo(measureBundle); 
-```
-
-```JavaScript
-// Add missing ValueSet resources to a measure bundle
 const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options);
 ```
 
 #### Arguments
-
-- `measureBundle`: Bundle containing a FHIR Measure and its dependent Libraries. FHIR ValueSets may be included as well
+- `measureBundle`: Bundle containing a FHIR Measure and its dependent Libraries. FHIR ValueSets may be included as well.
 - `patientBundles`: Array of FHIR Bundles containing patient data
 - `options` (optional): Object of calculation options (see below)
 - `valueSetCache` (optional): Array of FHIR ValueSet resources to use for calculation
@@ -156,8 +116,8 @@ The options that we support for calculation are as follows:
 | calculateSDEs | boolean | yes | Include Supplemental Data Elements in calculation. Defaults to true. |
 | calculateHTML | boolean | yes | Include HTML structure for highlighting. Defaults to true. |
 | calculateClauseCoverage | boolean | yes | Include HTML structure with coverage highlighting. Defaults to true. |
-| vsAPIKey | string | yes | API key, to be used to access a valueset API for downloading any missing ValueSets |
-| useValueSetCaching | boolean | yes | Whether to cache valuesets obtained by an API on the filesystem. Defaults to false. |
+| vsAPIKey | string | yes | API key, to be used to access a ValueSet API for downloading any missing ValueSets |
+| useValueSetCaching | boolean | yes | Whether to cache ValueSets obtained by an API on the filesystem. Defaults to false. |
 | useElmJsonsCaching | boolean | yes | Whether to cache the ELM JSONs and associated information from calculation. Defaults to false. |
 | clearElmJsonsCache | boolean | yes | Whether to clear the ELM JSONs cache before running calculation. Defaults to false. |
 | profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. Defaults to false.|
@@ -198,11 +158,11 @@ Options:
 E.g.
 
 ```bash
-Generate a MeasureReport by calculating a measure on a patient bundle:
-  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle.json  -o reports.json
+# Generate a MeasureReport by calculating a measure on a patient bundle:
+fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient/bundle.json  -o reports.json
 
-Generate a MeasureReport by calculating a measure on multiple patient bundles:
-  - fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json /path/to/patient2/bundle.json -o reports.json
+# Generate a MeasureReport by calculating a measure on multiple patient bundles:
+fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundle.json /path/to/patient2/bundle.json -o reports.json
 ```
 
 ### ValueSets
@@ -214,6 +174,14 @@ To find your VSAC API key, sign into [the UTS homepage](https://uts.nlm.nih.gov/
 ### TypeScript
 
 `fqm-execution` exports custom-defined TypeScript interfaces used within the code to allow for easy integration into other TypeScript projects. The TypeScript files defining these interfaces can be found [here](https://github.com/projecttacoma/fqm-execution/tree/master/src/types).
+
+The TypeScript interfaces can be imported into another project like so:
+
+```JavaScript
+import { CalculatorTypes } from 'fqm-execution'
+
+const options: CalculatorTypes.CalculationOptions = { /* .. */ }
+```
 
 ## Local Development
 

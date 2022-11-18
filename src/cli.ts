@@ -60,7 +60,7 @@ program
   )
   .option(
     '--vs-api-key <key>',
-    'API key, to authenticate against the ValueSet service to be used for resolving missing valuesets.',
+    'API key, to authenticate against the ValueSet service to be used for resolving missing ValueSets.',
     undefined
   )
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)
