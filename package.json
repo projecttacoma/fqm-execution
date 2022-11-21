@@ -15,7 +15,7 @@
     "atob": "^2.1.2",
     "axios": "^0.21.1",
     "commander": "^6.1.0",
-    "cql-exec-fhir": "^2.1.1",
+    "cql-exec-fhir": "^2.1.2",
     "cql-execution": "^3.0.0-beta.2",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
