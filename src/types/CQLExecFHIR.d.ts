@@ -25,7 +25,7 @@ declare module 'cql-exec-fhir' {
 
   export class FHIRWrapper {
     constructor(filePathOrXML: string);
-    wrap(fhirJson: fhir4.FhirResource, fhirResourceType?: string): any;
+    wrap(fhirJson: any, fhirResourceType?: string): any;
     static FHIRv401(): FHIRWrapper;
   }
 }
