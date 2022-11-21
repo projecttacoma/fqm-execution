@@ -148,7 +148,7 @@ Options:
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
   -s, --measurement-period-start <date>       Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there).
   -e, --measurement-period-end <date>         End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).
-  --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing valuesets.
+  --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing ValueSets.
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
   --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
@@ -167,7 +167,7 @@ fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundl
 
 ### ValueSets
 
-If the Measure bundle provided doesn't contain all the required `ValueSet` resources (with expansions or composes) to calculate the measure, an API key can be provided to resolve the valuesets from their provided URLs. Currently only tested with ValueSets from [The NLM FHIR Valueset API](https://cts.nlm.nih.gov/fhir).
+If the Measure bundle provided doesn't contain all the required `ValueSet` resources (with expansions or composes) to calculate the measure, an API key can be provided to resolve the ValueSets from their provided URLs. Currently only tested with ValueSets from [The NLM FHIR ValueSet API](https://cts.nlm.nih.gov/fhir).
 
 To find your VSAC API key, sign into [the UTS homepage](https://uts.nlm.nih.gov/uts/), click on `My Profile` in the top right, and copy the `API KEY` value from the `UMLS Licensee Profile`.
 
