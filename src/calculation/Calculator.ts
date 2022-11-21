@@ -329,7 +329,7 @@ export async function calculateAggregateMeasureReport(
 export async function calculateRaw(
   measureBundle: fhir4.Bundle,
   patientBundles: fhir4.Bundle[],
-  options: CalculationOptions,
+  options: CalculationOptions = {},
   valueSetCache: fhir4.ValueSet[] = []
 ): Promise<RCalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
