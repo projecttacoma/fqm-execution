@@ -1,6 +1,6 @@
 {
   "name": "fqm-execution",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0",
   "description": "FHIR Quality Measure Execution",
   "main": "build/index.js",
   "types": "build/index.d.ts",
