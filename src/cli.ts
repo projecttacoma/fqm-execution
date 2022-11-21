@@ -140,7 +140,7 @@ async function populatePatientBundles() {
     // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
     // from patientBundles and wipe patientBundles to be an empty array.
     if (program.asPatientSource) {
-      const patientSource = PatientSource.FHIRv401(program.profileValidation);
+      const patientSource = PatientSource.FHIRv401({ requireProfileTagging: program.profileValidation });
       patientSource.loadBundles(patientBundles);
       calcOptions.patientSource = patientSource;
       patientBundles = [];

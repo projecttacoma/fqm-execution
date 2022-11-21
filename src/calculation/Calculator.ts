@@ -662,7 +662,7 @@ function resolvePatientSource(patientBundles: fhir4.Bundle[], options: Calculati
     if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
       throw new UnexpectedResource('No entries found in passed patient bundles');
     }
-    const patientSource = PatientSource.FHIRv401(options.trustMetaProfile);
+    const patientSource = PatientSource.FHIRv401({ requireProfileTagging: options.trustMetaProfile ?? false });
     patientSource.loadBundles(patientBundles);
     return patientSource;
   }
