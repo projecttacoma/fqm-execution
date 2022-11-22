@@ -329,7 +329,7 @@ export async function calculateAggregateMeasureReport(
 export async function calculateRaw(
   measureBundle: fhir4.Bundle,
   patientBundles: fhir4.Bundle[],
-  options: CalculationOptions,
+  options: CalculationOptions = {},
   valueSetCache: fhir4.ValueSet[] = []
 ): Promise<RCalculationOutput> {
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
@@ -662,7 +662,7 @@ function resolvePatientSource(patientBundles: fhir4.Bundle[], options: Calculati
     if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
       throw new UnexpectedResource('No entries found in passed patient bundles');
     }
-    const patientSource = PatientSource.FHIRv401(options.trustMetaProfile);
+    const patientSource = PatientSource.FHIRv401({ requireProfileTagging: options.trustMetaProfile ?? false });
     patientSource.loadBundles(patientBundles);
     return patientSource;
   }
