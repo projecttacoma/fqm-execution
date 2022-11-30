@@ -282,11 +282,11 @@ const GREATEROREQUAL_LITERAL_TO_VALUE: ELMGreaterOrEqual = {
 const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
-}) as CQLPatient;
+}) as any as CQLPatient;
 
 const PATIENT_NO_BIRTHDATE = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient'
-}) as CQLPatient;
+}) as any as CQLPatient;
 
 describe('interpretGreaterOrEqual', () => {
   test('Start of parameter after 30th birthday', () => {
