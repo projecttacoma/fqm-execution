@@ -184,19 +184,31 @@ export async function calculate<T extends CalculationOptions>(
     debugObject.detailedResults = executionResults;
   }
 
-  let clauseCoverageHTML;
+  let overallClauseCoverageHTML: string | undefined;
+  let groupClauseCoverageHTML: Record<string, string> | undefined;
   if (options.calculateClauseCoverage) {
-    clauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
-    if (debugObject && options.enableDebugOutput) {
-      const debugHtml = {
-        name: 'clause-coverage.html',
-        html: clauseCoverageHTML
-      };
-      if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
-        debugObject.html?.push(debugHtml);
-      } else {
-        debugObject.html = [debugHtml];
+    groupClauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
+    overallClauseCoverageHTML = '';
+    Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
+      overallClauseCoverageHTML += result;
+      if (debugObject && options.enableDebugOutput) {
+        const debugHtml = {
+          name: `clause-coverage-${groupId}.html`,
+          html: result
+        };
+        if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
+          debugObject.html?.push(debugHtml);
+        } else {
+          debugObject.html = [debugHtml];
+        }
       }
+    });
+    // don't necessarily need this file, but adding it for backwards compatibility
+    if (debugObject && options.enableDebugOutput) {
+      debugObject.html?.push({
+        name: 'overall-clause-coverage.html',
+        html: overallClauseCoverageHTML
+      });
     }
   }
 
@@ -217,14 +229,16 @@ export async function calculate<T extends CalculationOptions>(
       mainLibraryName: results.mainLibraryName,
       parameters: results.parameters,
       ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
-      ...(clauseCoverageHTML && { coverageHTML: clauseCoverageHTML })
+      ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
+      ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
     };
   } else {
     return {
       results: prunedExecutionResults,
       debugOutput: debugObject,
       ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
-      ...(clauseCoverageHTML && { coverageHTML: clauseCoverageHTML })
+      ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
+      ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
     };
   }
 }

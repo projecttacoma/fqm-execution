@@ -356,6 +356,7 @@ export interface CalculationOutput<T extends CalculationOptions> extends Calcula
   mainLibraryName?: string;
   parameters?: { [key: string]: any };
   coverageHTML?: string;
+  groupClauseCoverageHTML?: Record<string, string>;
 }
 
 /**
