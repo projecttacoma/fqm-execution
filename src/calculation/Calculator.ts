@@ -196,7 +196,7 @@ export async function calculate<T extends CalculationOptions>(
           name: `clause-coverage-${groupId}.html`,
           html: result
         };
-        if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
+        if (Array.isArray(debugObject.html)) {
           debugObject.html?.push(debugHtml);
         } else {
           debugObject.html = [debugHtml];
