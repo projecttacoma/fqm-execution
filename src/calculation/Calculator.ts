@@ -197,7 +197,7 @@ export async function calculate<T extends CalculationOptions>(
           html: result
         };
         if (Array.isArray(debugObject.html)) {
-          debugObject.html?.push(debugHtml);
+          debugObject.html.push(debugHtml);
         } else {
           debugObject.html = [debugHtml];
         }
