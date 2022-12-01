@@ -192,14 +192,14 @@ export async function calculate<T extends CalculationOptions>(
     Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
       overallClauseCoverageHTML += result;
       if (debugObject && options.enableDebugOutput) {
-        const debugHtml = {
+        const debugHTML = {
           name: `clause-coverage-${groupId}.html`,
           html: result
         };
         if (Array.isArray(debugObject.html)) {
-          debugObject.html.push(debugHtml);
+          debugObject.html.push(debugHTML);
         } else {
-          debugObject.html = [debugHtml];
+          debugObject.html = [debugHTML];
         }
       }
     });
