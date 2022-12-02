@@ -178,19 +178,28 @@ export function generateClauseCoverageHTML(
 
     const clauses = detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
     clauseResults.push(clauses);
-
     const flattenedStatementResults = statementResults.flatMap(s => s);
     const flattenedClauseResults = clauseResults.flatMap(c => c);
 
-    // get all "unique" statements (by library name and localid) and filter by relevance
+    // Grab every statement with any relevance other than N/A
+    // There may be multiple entries for a given statement across the results,
+    // but we know that non of them can be irrelevant
     const relevantStatements = uniqWith(
       flattenedStatementResults,
+      (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId && s1.relevance === s2.relevance
+    ).filter(s => s.relevance !== Relevance.NA);
+
+    // From all the relevant ones, filter out any duplicate statements
+    // uniqWith appears to pick the first element in encounters that matches the uniqueness condition
+    // when iterating, which is fine because the relevance not being N/A is the only thing that matters now
+    const uniqueRelevantStatements = uniqWith(
+      relevantStatements,
       (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
-    ).filter(s => s.relevance === Relevance.TRUE);
+    );
 
     // assemble array of statement annotations to be templated to HTML
     const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
-    relevantStatements.forEach(s => {
+    uniqueRelevantStatements.forEach(s => {
       const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
       if (!matchingLibrary) {
         throw new UnexpectedResource(`Could not find library ${s.libraryName} for statement ${s.statementName}`);
@@ -210,7 +219,7 @@ export function generateClauseCoverageHTML(
     });
 
     let htmlString = `<div><h2> ${groupId} Clause Coverage: ${calculateClauseCoverage(
-      relevantStatements,
+      uniqueRelevantStatements,
       flattenedClauseResults
     )}%</h2>`;
 
