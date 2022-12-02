@@ -6,6 +6,7 @@ import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 import { uniqWith } from 'lodash';
+import { connect } from 'http2';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -171,15 +172,8 @@ export function generateClauseCoverageHTML(
   // go through the lookup object of each of the groups with their total
   // detailedResults and calculate the clause coverage html for each group
   Object.entries(groupResultLookup).forEach(([groupId, detailedResults]) => {
-    const statementResults: StatementResult[][] = [];
-    const clauseResults: ClauseResult[][] = [];
-    const statements = detailedResults.flatMap(s => s.statementResults);
-    statementResults.push(statements);
-
-    const clauses = detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
-    clauseResults.push(clauses);
-    const flattenedStatementResults = statementResults.flatMap(s => s);
-    const flattenedClauseResults = clauseResults.flatMap(c => c);
+    const flattenedStatementResults = detailedResults.flatMap(s => s.statementResults);
+    const flattenedClauseResults = detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
 
     // Grab every statement with any relevance other than N/A
     // There may be multiple entries for a given statement across the results,
