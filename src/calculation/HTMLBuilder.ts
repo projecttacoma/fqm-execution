@@ -6,7 +6,6 @@ import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 import { uniqWith } from 'lodash';
-import { connect } from 'http2';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -184,7 +183,7 @@ export function generateClauseCoverageHTML(
     ).filter(s => s.relevance !== Relevance.NA);
 
     // From all the relevant ones, filter out any duplicate statements
-    // uniqWith appears to pick the first element in encounters that matches the uniqueness condition
+    // uniqWith appears to pick the first element it encounters that matches the uniqueness condition
     // when iterating, which is fine because the relevance not being N/A is the only thing that matters now
     const uniqueRelevantStatements = uniqWith(
       relevantStatements,
