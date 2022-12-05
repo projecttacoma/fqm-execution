@@ -10,7 +10,7 @@ const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
 const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
-}) as CQLPatient;
+}) as any as CQLPatient;
 
 describe('interpretExpression', () => {
   test('unknown expression type with property ref', async () => {

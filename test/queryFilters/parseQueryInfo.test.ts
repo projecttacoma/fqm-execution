@@ -449,7 +449,7 @@ const EXPECTED_EXTERNAL_VALUE_COMPARISON_QUERY: QueryInfo = {
 const PATIENT = FHIRWrapper.FHIRv401().wrap({
   resourceType: 'Patient',
   birthDate: '1988-09-08'
-}) as CQLPatient;
+}) as any as CQLPatient;
 
 describe('Parse Query Info', () => {
   test('simple valueset with id check', async () => {
