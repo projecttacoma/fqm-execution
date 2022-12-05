@@ -92,8 +92,37 @@ describe('HTMLGenerator', () => {
     ];
     const res = generateClauseCoverageHTML([elm], executionResults);
 
-    expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
-    expect(res.includes(coverageStyleString)).toBeTruthy();
+    expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.test.includes(coverageStyleString)).toBeTruthy();
+  });
+
+  test('simple HTML for two groups with generation with clause coverage styling', () => {
+    // Ignore tabs and new lines
+    const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');
+    const expectedHTML2 = getHTMLFixture('simpleCoverageAnnotation2.html').replace(/\s/g, '');
+    const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
+      {
+        patientId: 'testid',
+        detailedResults: [
+          {
+            statementResults: statementResults,
+            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            groupId: 'test'
+          },
+          {
+            statementResults: statementResults,
+            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            groupId: 'test2'
+          }
+        ]
+      }
+    ];
+    const res = generateClauseCoverageHTML([elm], executionResults);
+
+    expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.test2.replace(/\s/g, '')).toEqual(expectedHTML2);
+    expect(res.test.includes(coverageStyleString)).toBeTruthy();
+    expect(res.test2.includes(coverageStyleString)).toBeTruthy();
   });
 
   test('no library found should error', () => {

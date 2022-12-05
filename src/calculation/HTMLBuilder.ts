@@ -146,72 +146,92 @@ export function generateHTML(
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param executionResults array of detailed population group results across
  * all patients
- * @returns string of HTML representing the clauses across all groups
+ * @returns a lookup object where the key is the groupId and the value is the
+ * clause coverage HTML
  */
 export function generateClauseCoverageHTML(
   elmLibraries: ELM[],
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
-): string {
-  // get statement and clause results across all patients
-  const statementResults: StatementResult[][] = [];
-  const clauseResults: ClauseResult[][] = [];
+): Record<string, string> {
+  const groupResultLookup: Record<string, DetailedPopulationGroupResult[]> = {};
+  const htmlGroupLookup: Record<string, string> = {};
+
+  // get the detailed result for each group within each patient and add it
+  // to the key in groupResults that matches the groupId
   executionResults.forEach(result => {
-    if (result.detailedResults) {
-      const statements = result.detailedResults.flatMap(s => s.statementResults);
-      statementResults.push(statements);
-
-      const clauses = result.detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
-      clauseResults.push(clauses);
-    }
-  });
-  const flattenedStatementResults = statementResults.flatMap(s => s);
-  const flattenedClauseResults = clauseResults.flatMap(c => c);
-
-  // get all "unique" statements (by library name and localid) and filter by relevance
-  const relevantStatements = uniqWith(
-    flattenedStatementResults,
-    (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
-  ).filter(s => s.relevance === Relevance.TRUE);
-
-  // assemble array of statement annotations to be templated to HTML
-  const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
-  relevantStatements.forEach(s => {
-    const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
-    if (!matchingLibrary) {
-      throw new UnexpectedResource(`Could not find library ${s.libraryName} for statement ${s.statementName}`);
-    }
-
-    const matchingExpression = matchingLibrary.library.statements.def.find(e => e.name === s.statementName);
-    if (!matchingExpression) {
-      throw new UnexpectedProperty(`No statement ${s.statementName} found in library ${s.libraryName}`);
-    }
-
-    if (matchingExpression.annotation) {
-      statementAnnotations.push({
-        libraryName: s.libraryName,
-        annotation: matchingExpression.annotation
-      });
-    }
-  });
-
-  let result = `<div><h2> Clause Coverage: ${calculateClauseCoverage(
-    relevantStatements,
-    flattenedClauseResults
-  )}%</h2>`;
-
-  // generate HTML clauses using hbs template for each annotation
-  statementAnnotations.forEach(a => {
-    const res = main({
-      libraryName: a.libraryName,
-      clauseResults: flattenedClauseResults,
-      ...a.annotation[0].s,
-      highlightCoverage: true
+    result.detailedResults?.forEach(detailedResult => {
+      if (!groupResultLookup[detailedResult.groupId]) {
+        groupResultLookup[detailedResult.groupId] = [detailedResult];
+      } else {
+        groupResultLookup[detailedResult.groupId].push(detailedResult);
+      }
     });
-    result += res;
   });
 
-  result += '</div>';
-  return result;
+  // go through the lookup object of each of the groups with their total
+  // detailedResults and calculate the clause coverage html for each group
+  Object.entries(groupResultLookup).forEach(([groupId, detailedResults]) => {
+    const flattenedStatementResults = detailedResults.flatMap(s => s.statementResults);
+    const flattenedClauseResults = detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
+
+    // Grab every statement with any relevance other than N/A
+    // There may be multiple entries for a given statement across the results,
+    // but we know that non of them can be irrelevant
+    const relevantStatements = uniqWith(
+      flattenedStatementResults,
+      (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId && s1.relevance === s2.relevance
+    ).filter(s => s.relevance !== Relevance.NA);
+
+    // From all the relevant ones, filter out any duplicate statements
+    // uniqWith appears to pick the first element it encounters that matches the uniqueness condition
+    // when iterating, which is fine because the relevance not being N/A is the only thing that matters now
+    const uniqueRelevantStatements = uniqWith(
+      relevantStatements,
+      (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
+    );
+
+    // assemble array of statement annotations to be templated to HTML
+    const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
+    uniqueRelevantStatements.forEach(s => {
+      const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
+      if (!matchingLibrary) {
+        throw new UnexpectedResource(`Could not find library ${s.libraryName} for statement ${s.statementName}`);
+      }
+
+      const matchingExpression = matchingLibrary.library.statements.def.find(e => e.name === s.statementName);
+      if (!matchingExpression) {
+        throw new UnexpectedProperty(`No statement ${s.statementName} found in library ${s.libraryName}`);
+      }
+
+      if (matchingExpression.annotation) {
+        statementAnnotations.push({
+          libraryName: s.libraryName,
+          annotation: matchingExpression.annotation
+        });
+      }
+    });
+
+    let htmlString = `<div><h2> ${groupId} Clause Coverage: ${calculateClauseCoverage(
+      uniqueRelevantStatements,
+      flattenedClauseResults
+    )}%</h2>`;
+
+    // generate HTML clauses using hbs template for each annotation
+    statementAnnotations.forEach(a => {
+      const res = main({
+        libraryName: a.libraryName,
+        clauseResults: flattenedClauseResults,
+        ...a.annotation[0].s,
+        highlightCoverage: true
+      });
+      htmlString += res;
+    });
+    htmlString += '</div>';
+
+    htmlGroupLookup[groupId] = htmlString;
+  });
+
+  return htmlGroupLookup;
 }
 
 /**
