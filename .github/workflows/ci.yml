@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: artiomtr/jest-coverage-report-action@v2
         with:
+          test-script: npm test
           github-token: ${{ secrets.GITHUB_TOKEN }}
           threshold: 60
 
