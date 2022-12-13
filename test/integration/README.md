@@ -59,16 +59,10 @@ ecqm-bundler -c $dir/cql/[scoring-code]-[population-basis].cql [... other option
 Lastly, add a target to `test/integration/Makefile` for the generation of this new measure bundle:
 
 ```makefile
-BASE_PATH=$(shell dirname $BASH_SOURCE)
-
-# ...
-
-all: [scoring-code]-[population-basis] # ...
-
 # ...
 
 [scoring-code]-[population-basis]:
-    $(BASE_PATH)/[scoring-code]-[population-basis]/generate.sh
+    ./[scoring-code]-[population-basis]/generate.sh
 
 # ...
 ```
