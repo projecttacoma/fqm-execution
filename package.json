@@ -32,6 +32,7 @@
     "@typescript-eslint/parser": "^3.2.0",
     "axios-mock-adapter": "^1.19.0",
     "cql-translation-service-client": "^0.6.1",
+    "ecqm-bundler": "^0.2.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "jest": "^26.1.0",
@@ -44,6 +45,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc -w",
+    "build:test-data": "cd test/integration && make",
     "cli": "ts-node --files src/cli.ts",
     "coverage": "opener coverage/lcov-report/index.html",
     "lint": "tsc && eslint \"**/*.{js,ts}\"",
@@ -55,6 +57,7 @@
     "test:watch": "jest --watchAll --testPathPattern \"unit\"",
     "test:watch:coverage": "jest --watchAll --collectCoverage --testPathPattern \"unit\"",
     "test:integration": "jest --testPathPattern \"integration\"",
+    "test:plus": "npm run test && npm run test:integration",
     "check": "npm run test && npm run lint && npm run prettier",
     "prepare": "npm run build"
   },
