@@ -1,7 +1,5 @@
-BASE_PATH=$(shell dirname $BASH_SOURCE)
-
 # Finds the relative path of any modified or new CQL files for integration testing
-MODIFIED_CQL_FILES=$(shell git status --porcelain $(BASE_PATH)/**/*.cql | sed "s/^...//")
+MODIFIED_CQL_FILES=$(shell git status --porcelain ./**/*.cql | sed "s/^...//")
 
 # Prevents the presence of a directory with the same name skipping Makefile targets
 # TODO: Add other targets once defined
@@ -23,7 +21,7 @@ all: .start-translator
 	touch .start-translator
 
 proportion-boolean:
-	$(BASE_PATH)/proportion-boolean/generate.sh
+	./proportion-boolean/generate.sh
 
 clean:
 	-docker stop cql-translation-service
