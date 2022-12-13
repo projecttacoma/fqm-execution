@@ -17,7 +17,7 @@ npm run build:test-data
 
 ### Building Using Make Targets
 
-Individual measure bundles can be build with the `Makefile` in the `test/integration` directory. This requires `ecqm-bundler` to be installed globally:
+Individual measure bundles can be built with the `Makefile` in the `test/integration` directory. This requires `ecqm-bundler` to be installed globally:
 
 ```bash
 npm install -g ecqm-bundler
@@ -45,7 +45,7 @@ To get started creating a new measure bundle, first create the directory structu
         └──[scoring-code]-[population-basis].cql
 ```
 
-Next, create a `generate.sh` script with the necessary `ecqm-bundler` command to generate the measure bundle. See [the ecqm-bundler documentation](https://github.com/mgramigna/ecqm-bundler#usage) for more information
+Next, create a `generate.sh` script with the necessary `ecqm-bundler` command to generate the measure bundle. See [the ecqm-bundler documentation](https://github.com/mgramigna/ecqm-bundler#usage) for more information.
 
 ```bash
 #!/bin/bash
