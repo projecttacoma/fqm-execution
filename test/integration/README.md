@@ -4,7 +4,7 @@ This directory includes example CQL files that showcase specific types of eCQM l
 
 ## Building Bundles from Existing CQL
 
-Each subdirectory for a specific measure contains a `generate.sh` script which will ingest the main CQL logic and output a measure bundle JSON file using `ecqm-bundler`. Targets for running these scripts exist in [the Makefile](https://github.com/projecttacoma/fqm-execution/tree/master/test/integration/Makefile).
+Targets for bundling existing CQL files exist in [the Makefile](https://github.com/projecttacoma/fqm-execution/tree/master/test/integration/Makefile).
 The `Makefile` also includes a target for starting up an instance of [cql-translation-service](https://github.com/cqframework/cql-translation-service), which is required for `ecqm-bundler` to translate CQL.
 
 ### Building from npm Script
@@ -45,24 +45,13 @@ To get started creating a new measure bundle, first create the directory structu
         └──[scoring-code]-[population-basis].cql
 ```
 
-Next, create a `generate.sh` script with the necessary `ecqm-bundler` command to generate the measure bundle. See [the ecqm-bundler documentation](https://github.com/mgramigna/ecqm-bundler#usage) for more information.
-
-```bash
-#!/bin/bash
-
-# test/integration/[scoring-code]-[population-basis]/generate.sh
-dir=$(dirname $BASH_SOURCE)
-
-ecqm-bundler -c $dir/cql/[scoring-code]-[population-basis].cql [... other options ...]
-```
-
-Lastly, add a target to `test/integration/Makefile` for the generation of this new measure bundle:
+Next, add a target to the `Makefile` with the necessary `ecqm-bundler` command to generate the measure bundle. See [the ecqm-bundler documentation](https://github.com/mgramigna/ecqm-bundler#usage) for more information.
 
 ```makefile
 # ...
 
 [scoring-code]-[population-basis]:
-    ./[scoring-code]-[population-basis]/generate.sh
+    ecqm-bundler -c $dir/cql/[scoring-code]-[population-basis].cql [... other options ...]
 
 # ...
 ```
