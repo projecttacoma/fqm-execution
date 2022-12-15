@@ -1,0 +1,17 @@
+{
+  "resourceType": "ValueSet",
+  "id": "exampleId2",
+  "url": "http://example.com/exampleId2",
+  "status": "draft",
+  "name": "exampleValueSet2",
+  "expansion": {
+    "identifier": "exampleIdentifier2",
+    "contains": [
+      {
+        "system": "exampleSystem2",
+        "code": "exampleCode2",
+        "version": "exampleVersion2"
+      }
+    ]
+  }
+}

@@ -21,7 +21,7 @@ all: .start-translator
 	touch .start-translator
 
 proportion-boolean:
-	ecqm-bundler -c ./proportion-boolean/cql/proportion-boolean.cql --deps ./helpers/cql/FHIRHelpers-4.0.1.cql --ipop ipp --numer numer --denom denom --scoring-code proportion --basis boolean -o ./proportion-boolean/proportion-boolean-bundle.json
+	ecqm-bundler -c ./proportion-boolean/cql/proportion-boolean.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --scoring-code proportion --basis boolean -o ./proportion-boolean/proportion-boolean-bundle.json
 
 clean:
 	-docker stop cql-translation-service
