@@ -42,60 +42,79 @@ npm install -g fqm-execution
 ### API
 
 Import the necessary modules:
+
 ```JavaScript
 import { Calculator, MeasureBundleHelpers } from 'fqm-execution';
 ```
+
 The following API functions are defined:
 
 #### Calculator.calculateRaw()
+
 Get raw results from CQL engine for each patient.
+
 ```JavaScript
 const rawResults = await Calculator.calculateRaw(measureBundle, patientBundles, options, valueSetCache);
 ```
 
 #### Calculator.calculate()
+
 Get detailed population results for each patient.
+
 ```JavaScript
 const detailedResults = await Calculator.calculate(measureBundle, patientBundles, options, valueSetCache);
 ```
 
-#### Calculator.calculateMeasureReports() 
+#### Calculator.calculateMeasureReports()
+
 Get individual FHIR MeasureReports for each patient.
+
 ```JavaScript
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, patientBundles, options, valueSetCache);
 ```
 
 #### Calculator.calculateMeasureReports() with custom patientSource
+
 Get individual FHIR MeasureReports for each patient given a custom patientSource in the options object.
+
 ```JavaScript
 const measureReports = await Calculator.calculateMeasureReports(measureBundle, [], options, valueSetCache);
 ```
 
 #### Calculator.calculateGapsInCare()
+
 Get gaps in care for each patient, if present.
+
 ```JavaScript
 const gapsInCare = await Calculator.calculateGapsInCare(measureBundle, patientBundles, options, valueSetCache);
 ```
 
 #### Calculator.calculateDataRequirements()
+
 Get data requirements for a given measure (in a bundle).
+
 ```JavaScript
 const dataRequirements = await Calculator.calculateDataRequirements(measureBundle);
 ```
 
 #### Calculator.calculateQueryInfo()
+
 Get detailed query info for all statements in a measure.
+
 ```JavaScript
 const queryInfo = await Calculator.calculateQueryInfo(measureBundle);
 ```
 
 #### MeasureBundleHelpers.addValueSetsToMeasureBundle()
+
 Add missing ValueSet resources to a measure bundle.
+
 ```JavaScript
 const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measureBundle, options);
 ```
 
 #### Arguments
+
 - `measureBundle`: Bundle containing a FHIR Measure and its dependent Libraries. FHIR ValueSets may be included as well.
 - `patientBundles`: Array of FHIR Bundles containing patient data
 - `options` (optional): Object of calculation options (see below)
@@ -272,6 +291,12 @@ We use [Jest](https://jestjs.io/en/) for unit-testing `fqm-execution`. Tests can
 npm test
 ```
 
+For integration testing, see [the integration testing README](https://github.com/projecttacoma/fqm-execution/blob/master/test/integration/README.md) for more information. The integration tests can be run with the following command:
+
+```bash
+npm run test:integration
+```
+
 ### Checks
 
 When contributing new code, ensure that all tests, lint, and prettier checks pass with the following command:
@@ -289,6 +314,7 @@ A visual representation of the calculate sequence of the application can be seen
 ![Calculate](doc/calculate_Sequence.png)
 
 ## Contributions
+
 For suggestions or contributions, please use [GitHub Issues](https://github.com/projecttacoma/fqm-execution/issues) or open a [Pull Request](https://github.com/projecttacoma/fqm-execution/pulls).
 
 ## License

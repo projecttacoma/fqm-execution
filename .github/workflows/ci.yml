@@ -25,15 +25,15 @@ jobs:
       - uses: actions/checkout@v1
       - uses: artiomtr/jest-coverage-report-action@v2
         with:
+          test-script: npm test
           github-token: ${{ secrets.GITHUB_TOKEN }}
           threshold: 60
 
-  integration_test:
+  integration:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        measure: [EXM104, EXM105, EXM124, EXM125, EXM130, EXM506]
         node-version: [16.x]
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +42,4 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - run: sudo chmod +x ./test/integration-tests/setup.sh
-      - run: ./test/integration-tests/setup.sh
-      - run: sudo chmod +x ./test/integration-tests/test_measures.sh
-      - run: ./test/integration-tests/test_measures.sh ${{ matrix.measure }}
+      - run: npm run test:integration
