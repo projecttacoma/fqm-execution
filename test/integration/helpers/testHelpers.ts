@@ -28,7 +28,7 @@ export function assertPopulationResults(
     expect.objectContaining({
       detailedResults: expect.arrayContaining([
         expect.objectContaining({
-          populationResults: expectedPopulationResults
+          populationResults: expect.arrayContaining(expectedPopulationResults)
         })
       ])
     })

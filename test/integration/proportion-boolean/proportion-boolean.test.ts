@@ -1,5 +1,6 @@
 import { calculate } from '../../../src/calculation/Calculator';
 import { CalculationOptions } from '../../../src/types/Calculator';
+import { PopulationType } from '../../../src/types/Enums';
 import { assertPopulationResults, getJSONFixture } from '../helpers/testHelpers';
 
 const DEFAULT_CALCULATION_OPTIONS: CalculationOptions = {
@@ -20,21 +21,37 @@ const MEASURE_BUNDLE: fhir4.Bundle = getJSONFixture('proportion-boolean/proporti
 describe('proportion boolean measure', () => {
   it('calculates ipp patient into ipp', async () => {
     const results = await calculate(MEASURE_BUNDLE, [IPP_PATIENT_BUNDLE], DEFAULT_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], { 'initial-population': true, denominator: false, numerator: false });
+    assertPopulationResults(results.results[0], {
+      [PopulationType.IPP]: true,
+      [PopulationType.DENOM]: false,
+      [PopulationType.NUMER]: false
+    });
   });
 
   it('calculates denom patient into denom', async () => {
     const results = await calculate(MEASURE_BUNDLE, [DENOM_PATIENT_BUNDLE], DEFAULT_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], { 'initial-population': true, denominator: true, numerator: false });
+    assertPopulationResults(results.results[0], {
+      [PopulationType.IPP]: true,
+      [PopulationType.DENOM]: true,
+      [PopulationType.NUMER]: false
+    });
   });
 
   it('calculates numer patient into numer', async () => {
     const results = await calculate(MEASURE_BUNDLE, [NUMER_PATIENT_BUNDLE], DEFAULT_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], { 'initial-population': true, denominator: true, numerator: true });
+    assertPopulationResults(results.results[0], {
+      [PopulationType.IPP]: true,
+      [PopulationType.DENOM]: true,
+      [PopulationType.NUMER]: true
+    });
   });
 
   it('calculates numer into denom for different measurement period', async () => {
     const results = await calculate(MEASURE_BUNDLE, [IPP_PATIENT_BUNDLE], EARLIER_PERIOD_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], { 'initial-population': false, denominator: false, numerator: false });
+    assertPopulationResults(results.results[0], {
+      [PopulationType.IPP]: false,
+      [PopulationType.DENOM]: false,
+      [PopulationType.NUMER]: false
+    });
   });
 });
