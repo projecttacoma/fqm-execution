@@ -3,7 +3,7 @@ MODIFIED_CQL_FILES=$(shell git status --porcelain ./**/*.cql | sed "s/^...//")
 
 # Prevents the presence of a directory with the same name skipping Makefile targets
 # TODO: Add other targets once defined
-.PHONY: all proportion-boolean
+.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction
 
 # This loop grabs the important directory name from the full path to the cql file
 # This directory name MUST match the make target name in this file
@@ -22,6 +22,9 @@ all: .start-translator
 
 proportion-boolean:
 	ecqm-bundler -c ./proportion-boolean/cql/proportion-boolean.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --scoring-code proportion --basis boolean -o ./proportion-boolean/proportion-boolean-bundle.json
+
+ratio-Encounter-reuseObservationFunction:
+	ecqm-bundler -c ./ratio-Encounter-reuseObservationFunction/cql/ratio-Encounter-reuseObservationFunction.cql --deps ./helpers/cql/FHIRHelpers-4.0.1.cql --ipop ipp --numer numer --denom denom --detailed-msrobs "dayObs|numer" "dayObs|denom" --scoring-code ratio --basis Encounter -o ./ratio-Encounter-reuseObservationFunction/ratio-Encounter-reuseObservationFunction-bundle.json
 
 clean:
 	-docker stop cql-translation-service
