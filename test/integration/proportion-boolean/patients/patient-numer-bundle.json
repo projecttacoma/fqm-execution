@@ -1,7 +1,7 @@
 {
   "type": "transaction",
   "resourceType": "Bundle",
-  "id": "1fceebea-879a-4329-8ca3-894960f89830",
+  "id": "f8a7309c-66d1-4b73-952f-9567cdb40fd8",
   "entry": [
     {
       "resource": {
@@ -114,7 +114,7 @@
     {
       "resource": {
         "resourceType": "MeasureReport",
-        "id": "fe990e03-b2fc-48f3-a8be-481d52586f66",
+        "id": "c59dc583-9823-4ba2-852c-3347d7809d22",
         "measure": "http://example.com/Measure/measure-ProportionBooleanTest",
         "period": {
           "start": "2022-01-01T05:00:00.000Z",
@@ -131,7 +131,7 @@
           {
             "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
             "valueReference": {
-              "reference": "#e2af7c69-3656-42fb-80cb-571664b275e5"
+              "reference": "#a9ec239b-8e3b-4228-8ac9-4b9d9878eedb"
             }
           }
         ],
@@ -144,7 +144,7 @@
         "contained": [
           {
             "resourceType": "Parameters",
-            "id": "e2af7c69-3656-42fb-80cb-571664b275e5",
+            "id": "a9ec239b-8e3b-4228-8ac9-4b9d9878eedb",
             "parameter": [
               {
                 "name": "subject",
@@ -165,7 +165,7 @@
                     }
                   ]
                 },
-                "count": 0
+                "count": 1
               },
               {
                 "code": {
@@ -176,7 +176,7 @@
                     }
                   ]
                 },
-                "count": 0
+                "count": 1
               },
               {
                 "code": {
@@ -187,18 +187,18 @@
                     }
                   ]
                 },
-                "count": 0
+                "count": 1
               }
             ],
             "measureScore": {
-              "value": 0
+              "value": 1
             }
           }
         ]
       },
       "request": {
         "method": "PUT",
-        "url": "MeasureReport/fe990e03-b2fc-48f3-a8be-481d52586f66"
+        "url": "MeasureReport/c59dc583-9823-4ba2-852c-3347d7809d22"
       }
     }
   ]

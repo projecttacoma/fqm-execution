@@ -10,10 +10,6 @@ valueset "Example2": 'http://example.com/exampleId2'
 valueset "Example3": 'http://example.com/exampleId3'
 
 parameter "Measurement Period" Interval<DateTime>
-
-context Patient
-
-parameter "Measurement Period" Interval<DateTime>
   default Interval[@2022-01-01T00:00:00.0, @2022-12-31T00:00:00.0]
 
 context Patient

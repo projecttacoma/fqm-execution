@@ -1,7 +1,7 @@
 {
   "type": "transaction",
   "resourceType": "Bundle",
-  "id": "0927941d-7295-4309-85f7-1f2334a5a5cf",
+  "id": "65fdb1da-fd4f-4231-9d1e-3650f7ebb3bb",
   "entry": [
     {
       "resource": {
@@ -60,7 +60,7 @@
     {
       "resource": {
         "resourceType": "MeasureReport",
-        "id": "d8f7acb4-bf44-460d-9677-c79b007f3941",
+        "id": "e1fa7c71-6c2e-47fa-afce-de17d07e16a0",
         "measure": "http://example.com/Measure/measure-ProportionBooleanTest",
         "period": {
           "start": "2022-01-01T05:00:00.000Z",
@@ -77,7 +77,7 @@
           {
             "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
             "valueReference": {
-              "reference": "#10afeadf-27d6-42eb-b4e9-3df0c8920d42"
+              "reference": "#9f492c32-f028-4434-a38f-43df64cfa9e5"
             }
           }
         ],
@@ -90,7 +90,7 @@
         "contained": [
           {
             "resourceType": "Parameters",
-            "id": "10afeadf-27d6-42eb-b4e9-3df0c8920d42",
+            "id": "9f492c32-f028-4434-a38f-43df64cfa9e5",
             "parameter": [
               {
                 "name": "subject",
@@ -111,7 +111,7 @@
                     }
                   ]
                 },
-                "count": 0
+                "count": 1
               },
               {
                 "code": {
@@ -144,7 +144,7 @@
       },
       "request": {
         "method": "PUT",
-        "url": "MeasureReport/d8f7acb4-bf44-460d-9677-c79b007f3941"
+        "url": "MeasureReport/e1fa7c71-6c2e-47fa-afce-de17d07e16a0"
       }
     }
   ]
