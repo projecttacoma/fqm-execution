@@ -24,7 +24,7 @@ proportion-boolean:
 	ecqm-bundler -c ./proportion-boolean/cql/proportion-boolean.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --scoring-code proportion --basis boolean -o ./proportion-boolean/proportion-boolean-bundle.json
 
 ratio-Encounter-reuseObservationFunction:
-	ecqm-bundler -c ./ratio-Encounter-reuseObservationFunction/cql/ratio-Encounter-reuseObservationFunction.cql --deps ./helpers/cql/FHIRHelpers-4.0.1.cql --ipop ipp --numer numer --denom denom --detailed-msrobs "dayObs|numer" "dayObs|denom" --scoring-code ratio --basis Encounter -o ./ratio-Encounter-reuseObservationFunction/ratio-Encounter-reuseObservationFunction-bundle.json
+	ecqm-bundler -c ./ratio-Encounter-reuseObservationFunction/cql/ratio-Encounter-reuseObservationFunction.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --detailed-msrobs "daysObs|numer" "daysObs|denom" --scoring-code ratio --basis Encounter -o ./ratio-Encounter-reuseObservationFunction/ratio-Encounter-reuseObservationFunction-bundle.json
 
 clean:
 	-docker stop cql-translation-service
