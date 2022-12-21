@@ -1,7 +1,7 @@
 import { calculate } from '../../../src/calculation/Calculator';
 import { CalculationOptions } from '../../../src/types/Calculator';
 import { PopulationType } from '../../../src/types/Enums';
-import { assertPopulationResults, getJSONFixture } from '../helpers/testHelpers';
+import { assertPopulationResults, getGroupByIndex, getJSONFixture } from '../helpers/testHelpers';
 
 const DEFAULT_CALCULATION_OPTIONS: CalculationOptions = {
   measurementPeriodStart: '2022-01-01',
@@ -21,7 +21,8 @@ const MEASURE_BUNDLE: fhir4.Bundle = getJSONFixture('proportion-boolean/proporti
 describe('proportion boolean measure', () => {
   it('calculates ipp patient into ipp', async () => {
     const results = await calculate(MEASURE_BUNDLE, [IPP_PATIENT_BUNDLE], DEFAULT_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], {
+    const resultGroup = getGroupByIndex(0, results.results[0]);
+    assertPopulationResults(resultGroup, {
       [PopulationType.IPP]: true,
       [PopulationType.DENOM]: false,
       [PopulationType.NUMER]: false
@@ -30,7 +31,8 @@ describe('proportion boolean measure', () => {
 
   it('calculates denom patient into denom', async () => {
     const results = await calculate(MEASURE_BUNDLE, [DENOM_PATIENT_BUNDLE], DEFAULT_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], {
+    const resultGroup = getGroupByIndex(0, results.results[0]);
+    assertPopulationResults(resultGroup, {
       [PopulationType.IPP]: true,
       [PopulationType.DENOM]: true,
       [PopulationType.NUMER]: false
@@ -39,7 +41,8 @@ describe('proportion boolean measure', () => {
 
   it('calculates numer patient into numer', async () => {
     const results = await calculate(MEASURE_BUNDLE, [NUMER_PATIENT_BUNDLE], DEFAULT_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], {
+    const resultGroup = getGroupByIndex(0, results.results[0]);
+    assertPopulationResults(resultGroup, {
       [PopulationType.IPP]: true,
       [PopulationType.DENOM]: true,
       [PopulationType.NUMER]: true
@@ -48,7 +51,8 @@ describe('proportion boolean measure', () => {
 
   it('calculates numer into denom for different measurement period', async () => {
     const results = await calculate(MEASURE_BUNDLE, [IPP_PATIENT_BUNDLE], EARLIER_PERIOD_CALCULATION_OPTIONS);
-    assertPopulationResults(results.results[0], {
+    const resultGroup = getGroupByIndex(0, results.results[0]);
+    assertPopulationResults(resultGroup, {
       [PopulationType.IPP]: false,
       [PopulationType.DENOM]: false,
       [PopulationType.NUMER]: false
