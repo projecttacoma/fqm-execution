@@ -177,6 +177,8 @@ export interface StatementResult {
   raw?: any;
   /** Pretty result for this statement. */
   pretty?: string;
+  /** TRUE if the statement is a function */
+  isFunction?: 'TRUE' | 'FALSE';
 }
 
 /**

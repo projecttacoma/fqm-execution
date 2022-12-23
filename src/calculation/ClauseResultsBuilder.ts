@@ -271,6 +271,10 @@ export function buildStatementAndClauseResults(
       statementResult.final = FinalResult.UNHIT;
       // even if the statement wasn't hit, we want the pretty result to just
       // be FUNCTION for functions
+      const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
+      // set isFunction property so we can later filter out functions during clause coverage calculation
+      statementResult.isFunction = isFunction ? 'TRUE' : 'FALSE';
+
       if (doPretty) {
         if (ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
           statementResult.pretty = 'FUNCTION';
