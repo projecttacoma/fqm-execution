@@ -16,7 +16,7 @@ import { ELM, ELMStatement } from '../../src/types/ELMTypes';
 import { FinalResult, Relevance } from '../../src/types/Enums';
 import { getELMFixture, getHTMLFixture } from './helpers/testHelpers';
 
-describe('HTMLGenerator', () => {
+describe('HTMLBuilder', () => {
   let elm = <ELM>{};
   let simpleExpression: ELMStatement | undefined;
   let statementResults: StatementResult[];
