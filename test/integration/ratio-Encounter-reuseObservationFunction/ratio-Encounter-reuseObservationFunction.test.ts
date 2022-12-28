@@ -1,13 +1,7 @@
 import { calculate } from '../../../src/calculation/Calculator';
-import { CalculationOptions } from '../../../src/types/Calculator';
-import { readFileSync } from 'fs';
-
-/**
- * Retrieves JSON fixture from the integration directory for easier ts casting in test files
- */
-export function getJSONFixture(path: string): any {
-  return JSON.parse(readFileSync(`test/integration/${path}`).toString());
-}
+import { CalculationOptions, PopulationResult } from '../../../src/types/Calculator';
+import { PopulationType } from '../../../src/types/Enums';
+import { getJSONFixture } from '../helpers/testHelpers';
 
 const CALCULATION_OPTIONS: CalculationOptions = {
   measurementPeriodStart: '2023-01-01',
@@ -24,11 +18,26 @@ const PATIENT_BUNDLE: fhir4.Bundle = getJSONFixture(
 );
 
 describe('ratio Encounter reuse observation function measure', () => {
-  it('calculates ipp patient into ipp', async () => {
+  it('does not put all results on observation usage of a function on one observation', async () => {
     const results = await calculate(MEASURE_BUNDLE, [PATIENT_BUNDLE], CALCULATION_OPTIONS);
-    if (results.results[0].detailedResults) {
-      console.log(results.results[0].detailedResults[0].populationResults);
+    if (!results.results[0].detailedResults) {
+      fail('Population DetailedResults not found');
     }
-    debugger;
+    const popResults = results.results[0].detailedResults[0].populationResults as PopulationResult[];
+    const numerResults = popResults.find(r => r.populationType === PopulationType.NUMER);
+    const denomResults = popResults.find(r => r.populationType === PopulationType.DENOM);
+    if (!numerResults || !denomResults) {
+      fail('NUMER or DENOM results not found');
+    }
+    expect(numerResults.populationId).toBeDefined();
+    expect(denomResults.populationId).toBeDefined();
+    const numerObervResults = popResults.find(
+      r => r.populationType === PopulationType.OBSERV && r.criteriaReferenceId === numerResults.populationId
+    );
+    expect(numerObervResults?.observations).toEqual([1]);
+    const denomObervResults = popResults.find(
+      r => r.populationType === PopulationType.OBSERV && r.criteriaReferenceId === denomResults.populationId
+    );
+    expect(denomObervResults?.observations).toEqual([1]);
   });
 });
