@@ -1,0 +1,151 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "65fdb1da-fd4f-4231-9d1e-3650f7ebb3bb",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "bccc8f75-cf49-4f9d-be9f-b5f63c247e32",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-bccc8f75-cf49-4f9d-be9f-b5f63c247e32"
+          }
+        ],
+        "name": [
+          {
+            "family": "Iminipp",
+            "given": [
+              "Isaac"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/bccc8f75-cf49-4f9d-be9f-b5f63c247e32"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "95d733ba-da65-4263-bd8c-fdbcd1508711",
+        "code": {
+          "coding": [
+            {
+              "system": "exampleSystem",
+              "version": "exampleVersion",
+              "code": "exampleCode"
+            }
+          ]
+        },
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/bccc8f75-cf49-4f9d-be9f-b5f63c247e32"
+        },
+        "performedPeriod": {
+          "start": "2022-01-03T16:19:20.391Z",
+          "end": "2022-01-04T16:19:20.391Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/95d733ba-da65-4263-bd8c-fdbcd1508711"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "e1fa7c71-6c2e-47fa-afce-de17d07e16a0",
+        "measure": "http://example.com/Measure/measure-ProportionBooleanTest",
+        "period": {
+          "start": "2022-01-01T05:00:00.000Z",
+          "end": "2022-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#9f492c32-f028-4434-a38f-43df64cfa9e5"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "9f492c32-f028-4434-a38f-43df64cfa9e5",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "bccc8f75-cf49-4f9d-be9f-b5f63c247e32"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 1
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/e1fa7c71-6c2e-47fa-afce-de17d07e16a0"
+      }
+    }
+  ]
+}

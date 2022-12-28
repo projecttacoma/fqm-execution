@@ -1,0 +1,178 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "a76a971f-9ad3-4f2c-826e-9aba66994af8",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "22af5434-67a9-4f51-8a74-bf3f2d62141d",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-22af5434-67a9-4f51-8a74-bf3f2d62141d"
+          }
+        ],
+        "name": [
+          {
+            "family": "O'Denominator",
+            "given": [
+              "Dan"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/22af5434-67a9-4f51-8a74-bf3f2d62141d"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "7d3793bb-6ba4-423d-a642-73e51566e8cc",
+        "code": {
+          "coding": [
+            {
+              "system": "exampleSystem",
+              "version": "exampleVersion",
+              "code": "exampleCode"
+            }
+          ]
+        },
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/22af5434-67a9-4f51-8a74-bf3f2d62141d"
+        },
+        "performedPeriod": {
+          "start": "2022-07-25T02:43:18.343Z",
+          "end": "2022-07-26T02:43:18.343Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/7d3793bb-6ba4-423d-a642-73e51566e8cc"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "4faf425c-983b-4518-9a97-754b5d791638",
+        "code": {
+          "coding": [
+            {
+              "system": "exampleSystem2",
+              "version": "exampleVersion2",
+              "code": "exampleCode2"
+            }
+          ]
+        },
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/22af5434-67a9-4f51-8a74-bf3f2d62141d"
+        },
+        "performedPeriod": {
+          "start": "2022-06-27T01:29:58.417Z",
+          "end": "2022-06-28T01:29:58.417Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/4faf425c-983b-4518-9a97-754b5d791638"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "dd57fa7d-740e-43e8-b5dc-e12669a2b672",
+        "measure": "http://example.com/Measure/measure-ProportionBooleanTest",
+        "period": {
+          "start": "2022-01-01T05:00:00.000Z",
+          "end": "2022-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#edcc7f00-86e6-4b4d-b0fc-d166be1fb253"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "edcc7f00-86e6-4b4d-b0fc-d166be1fb253",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "22af5434-67a9-4f51-8a74-bf3f2d62141d"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 1
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 1
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/dd57fa7d-740e-43e8-b5dc-e12669a2b672"
+      }
+    }
+  ]
+}
