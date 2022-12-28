@@ -244,7 +244,7 @@ export function generateClauseCoverageHTML(
 export function calculateClauseCoverage(relevantStatements: StatementResult[], clauseResults: ClauseResult[]): string {
   // find all relevant clauses using localId and libraryName from relevant statements
   const allRelevantClauses = clauseResults.filter(c =>
-    relevantStatements.some(s => s.localId === c.localId && s.libraryName === c.libraryName && s.isFunction === 'FALSE')
+    relevantStatements.some(s => s.localId === c.localId && s.libraryName === c.libraryName && s.isFunction !== 'TRUE')
   );
   // get all unique clauses to use as denominator in percentage calculation
   const allUniqueClauses = uniqWith(

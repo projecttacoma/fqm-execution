@@ -276,7 +276,7 @@ export function buildStatementAndClauseResults(
       statementResult.isFunction = isFunction ? 'TRUE' : 'FALSE';
 
       if (doPretty) {
-        if (ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
+        if (isFunction) {
           statementResult.pretty = 'FUNCTION';
         } else {
           statementResult.pretty = 'UNHIT';
@@ -289,12 +289,15 @@ export function buildStatementAndClauseResults(
       }
     } else {
       statementResult.final = FinalResult.FALSE;
+      const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
+      // set isFunction property so we can later filter out functions during clause coverage calculation
+      statementResult.isFunction = isFunction ? 'TRUE' : 'FALSE';
       if (rawStatementResult instanceof Array && rawStatementResult.length === 0) {
         // Special case, handle empty array.
         if (doPretty) {
           statementResult.pretty = 'FALSE ([])';
         }
-      } else if (ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
+      } else if (isFunction) {
         if (doPretty) {
           statementResult.pretty = 'FUNCTION';
         }
