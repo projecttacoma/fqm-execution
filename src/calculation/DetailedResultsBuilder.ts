@@ -52,7 +52,9 @@ export function createPopulationValues(
         episodeResult.populationResults.forEach(popResult => {
           const measureObsPop = populationResults.find(
             pop =>
-              pop.populationType === PopulationType.OBSERV && popResult.criteriaExpression === pop.criteriaExpression
+              pop.populationType === PopulationType.OBSERV &&
+              popResult.criteriaExpression === pop.criteriaExpression &&
+              pop.criteriaReferenceId === popResult.criteriaReferenceId
           );
           if (!measureObsPop) {
             createOrSetResult(
@@ -73,7 +75,8 @@ export function createPopulationValues(
               measureObsPop.populationType,
               popResult.result,
               populationResults,
-              measureObsPop.criteriaExpression
+              measureObsPop.criteriaExpression,
+              measureObsPop.criteriaReferenceId
             );
           }
         });
@@ -364,7 +367,10 @@ export function createEpisodePopulationValues(
 
               // check if there is already an observation result with this cqlPopulation
               const observResult = episodeResult.populationResults.find(
-                result => result.populationType === populationType && result.criteriaExpression === cqlPopulation
+                result =>
+                  result.populationType === populationType &&
+                  result.criteriaExpression === cqlPopulation &&
+                  result.criteriaReferenceId === msrPopl.id
               );
               if (observResult !== undefined) {
                 // push obs onto an existing populationResult

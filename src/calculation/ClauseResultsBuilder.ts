@@ -803,12 +803,21 @@ export function buildPopulationGroupRelevanceMap(
 
 /*
  * Find a matching result by populationType and (optionally) criteriaExpression
- * Using criteriaExpression is useful in cases where populationType is not specific enough (e.g. multiple IPPs)
+ * Using criteriaExpression and criteriaReferenceId is useful in cases where populationType is not specific enough
+ *  (e.g. multiple IPPs or observations that use the same function)
  */
-export function findResult(populationType: PopulationType, results: PopulationResult[], criteriaExpression?: string) {
+export function findResult(
+  populationType: PopulationType,
+  results: PopulationResult[],
+  criteriaExpression?: string,
+  criteriaReferenceId?: string
+) {
   return results.find(result => {
     if (result.populationType === populationType) {
-      return criteriaExpression ? result.criteriaExpression === criteriaExpression : true;
+      return (
+        (criteriaExpression ? result.criteriaExpression === criteriaExpression : true) &&
+        (criteriaReferenceId ? result.criteriaReferenceId === criteriaReferenceId : true)
+      );
     }
 
     return false;
@@ -831,9 +840,10 @@ export function setResult(
   populationType: PopulationType,
   newResult: boolean,
   results: PopulationResult[],
-  criteriaExpression?: string
+  criteriaExpression?: string,
+  criteriaReferenceId?: string
 ) {
-  const popResult = findResult(populationType, results, criteriaExpression);
+  const popResult = findResult(populationType, results, criteriaExpression, criteriaReferenceId);
   if (popResult) {
     popResult.result = newResult;
   }
@@ -849,7 +859,7 @@ export function createOrSetResult(
   criteriaReferenceId?: string,
   observations?: string[]
 ) {
-  const popResult = findResult(populationType, results, criteriaExpression);
+  const popResult = findResult(populationType, results, criteriaExpression, criteriaReferenceId);
   if (popResult) {
     if (newResult === true) {
       popResult.result = true;
