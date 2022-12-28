@@ -162,7 +162,7 @@ describe('HTMLBuilder', () => {
         final: FinalResult.FALSE,
         relevance: Relevance.TRUE,
         raw: undefined,
-        isFunction: 'TRUE',
+        isFunction: true,
         pretty: 'FUNCTION'
       },
       {
@@ -172,7 +172,7 @@ describe('HTMLBuilder', () => {
         final: FinalResult.FALSE,
         relevance: Relevance.TRUE,
         raw: false,
-        isFunction: 'FALSE',
+        isFunction: false,
         pretty: 'FALSE (false)'
       }
     ];

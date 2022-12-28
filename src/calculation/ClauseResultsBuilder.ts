@@ -273,7 +273,7 @@ export function buildStatementAndClauseResults(
       // be FUNCTION for functions
       const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
       // set isFunction property so we can later filter out functions during clause coverage calculation
-      statementResult.isFunction = isFunction ? 'TRUE' : 'FALSE';
+      statementResult.isFunction = isFunction;
 
       if (doPretty) {
         if (isFunction) {
@@ -291,7 +291,7 @@ export function buildStatementAndClauseResults(
       statementResult.final = FinalResult.FALSE;
       const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
       // set isFunction property so we can later filter out functions during clause coverage calculation
-      statementResult.isFunction = isFunction ? 'TRUE' : 'FALSE';
+      statementResult.isFunction = isFunction;
       if (rawStatementResult instanceof Array && rawStatementResult.length === 0) {
         // Special case, handle empty array.
         if (doPretty) {
