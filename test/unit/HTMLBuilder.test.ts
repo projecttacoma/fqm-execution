@@ -153,6 +153,7 @@ describe('HTMLBuilder', () => {
       generateHTML([elm], badStatementResults, [], 'test');
     }).toThrowError();
   });
+
   test('clause coverage percent with a function ignores function in calculation', () => {
     statementResults = [
       {
