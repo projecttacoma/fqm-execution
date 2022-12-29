@@ -260,6 +260,8 @@ export function buildStatementAndClauseResults(
     );
     statementResult.raw = rawStatementResult;
 
+    const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
+
     //TODO: determine how SDEs should be handled
     //const isSDE = ClauseResultsHelpers.isSupplementalDataElementStatement(measure.supplementalData, statement_name);
     if (/*(!measure.calculate_sdes && isSDE) || */ statementResult.relevance == Relevance.NA) {
@@ -271,7 +273,6 @@ export function buildStatementAndClauseResults(
       statementResult.final = FinalResult.UNHIT;
       // even if the statement wasn't hit, we want the pretty result to just
       // be FUNCTION for functions
-      const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
       // set isFunction property so we can later filter out functions during clause coverage calculation
       statementResult.isFunction = isFunction;
 
@@ -289,7 +290,6 @@ export function buildStatementAndClauseResults(
       }
     } else {
       statementResult.final = FinalResult.FALSE;
-      const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
       // set isFunction property so we can later filter out functions during clause coverage calculation
       statementResult.isFunction = isFunction;
       if (rawStatementResult instanceof Array && rawStatementResult.length === 0) {
