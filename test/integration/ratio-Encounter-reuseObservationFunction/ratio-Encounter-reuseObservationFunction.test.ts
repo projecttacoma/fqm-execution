@@ -4,8 +4,8 @@ import { PopulationType } from '../../../src/types/Enums';
 import { getJSONFixture } from '../helpers/testHelpers';
 
 const CALCULATION_OPTIONS: CalculationOptions = {
-  measurementPeriodStart: '2023-01-01',
-  measurementPeriodEnd: '2023-12-31',
+  measurementPeriodStart: '2022-01-01',
+  measurementPeriodEnd: '2022-12-31',
   enableDebugOutput: true
 };
 
@@ -14,7 +14,7 @@ const MEASURE_BUNDLE: fhir4.Bundle = getJSONFixture(
 );
 
 const PATIENT_BUNDLE: fhir4.Bundle = getJSONFixture(
-  'ratio-Encounter-reuseObservationFunction/patients/patient-bundle.json'
+  'ratio-Encounter-reuseObservationFunction/patients/patient-2enc-1in-all-1daylong.json'
 );
 
 describe('ratio Encounter reuse observation function measure', () => {
@@ -48,9 +48,11 @@ describe('ratio Encounter reuse observation function measure', () => {
     if (!results.results[0].detailedResults) {
       fail('Population DetailedResults not found');
     }
-    const episodeResults = results.results[0].detailedResults[0].episodeResults?.find(r => r.episodeId === '3');
+    const episodeResults = results.results[0].detailedResults[0].episodeResults?.find(
+      r => r.episodeId === 'bdeb8195-8324-45ba-973f-b9bc7f02b973'
+    );
     if (!episodeResults) {
-      fail('Could not find results for Encounter episode with id "3"');
+      fail('Could not find results for Encounter episode with id "bdeb8195-8324-45ba-973f-b9bc7f02b973"');
     }
 
     const numerResults = episodeResults.populationResults.find(r => r.populationType === PopulationType.NUMER);

@@ -4,15 +4,17 @@ using FHIR version '4.0.1'
 
 include FHIRHelpers version '4.0.1'
 
+valueset "Example": 'http://example.com/exampleId'
+
 parameter "Measurement Period" Interval<DateTime>
 
 context Patient
 
 define "ipp":
-  ["Encounter"] E where E.period.start during "Measurement Period"
+  [Encounter: "Example"] E where E.period.start during "Measurement Period"
  
 define "denom":
-  ["Encounter"] E where E.period.end during "Measurement Period" and E.status = 'finished'
+  [Encounter: "Example"] E where E.period.end during "Measurement Period" and E.status = 'finished'
 
 define "numer":
   "ipp"
