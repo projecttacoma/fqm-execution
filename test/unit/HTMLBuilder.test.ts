@@ -4,7 +4,8 @@ import {
   objToCSS,
   cqlLogicClauseTrueStyle,
   cqlLogicClauseFalseStyle,
-  cqlLogicClauseCoveredStyle
+  cqlLogicClauseCoveredStyle,
+  calculateClauseCoverage
 } from '../../src/calculation/HTMLBuilder';
 import {
   StatementResult,
@@ -16,7 +17,7 @@ import { ELM, ELMStatement } from '../../src/types/ELMTypes';
 import { FinalResult, Relevance } from '../../src/types/Enums';
 import { getELMFixture, getHTMLFixture } from './helpers/testHelpers';
 
-describe('HTMLGenerator', () => {
+describe('HTMLBuilder', () => {
   let elm = <ELM>{};
   let simpleExpression: ELMStatement | undefined;
   let statementResults: StatementResult[];
@@ -151,5 +152,48 @@ describe('HTMLGenerator', () => {
     expect(() => {
       generateHTML([elm], badStatementResults, [], 'test');
     }).toThrowError();
+  });
+
+  test('clause coverage percent with a function ignores function in calculation', () => {
+    statementResults = [
+      {
+        libraryName: 'testLib',
+        statementName: 'testFunc',
+        localId: 'test-id-1',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE,
+        raw: undefined,
+        isFunction: true,
+        pretty: 'FUNCTION'
+      },
+      {
+        libraryName: 'testLib',
+        statementName: 'testStatement',
+        localId: 'test-id-2',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE,
+        raw: false,
+        isFunction: false,
+        pretty: 'FALSE (false)'
+      }
+    ];
+    const clauseResults = [
+      {
+        raw: undefined,
+        statementName: 'testFunc',
+        libraryName: 'testLib',
+        localId: 'test-id-1',
+        final: FinalResult.NA
+      },
+      {
+        raw: undefined,
+        statementName: 'testStatement',
+        libraryName: 'testLib',
+        localId: 'test-id-2',
+        final: FinalResult.TRUE
+      }
+    ];
+    const results = calculateClauseCoverage(statementResults, clauseResults);
+    expect(results).toEqual('100');
   });
 });

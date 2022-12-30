@@ -260,6 +260,10 @@ export function buildStatementAndClauseResults(
     );
     statementResult.raw = rawStatementResult;
 
+    const isFunction = ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName);
+    // set isFunction property so we can later filter out functions during clause coverage calculation
+    statementResult.isFunction = isFunction;
+
     //TODO: determine how SDEs should be handled
     //const isSDE = ClauseResultsHelpers.isSupplementalDataElementStatement(measure.supplementalData, statement_name);
     if (/*(!measure.calculate_sdes && isSDE) || */ statementResult.relevance == Relevance.NA) {
@@ -272,7 +276,7 @@ export function buildStatementAndClauseResults(
       // even if the statement wasn't hit, we want the pretty result to just
       // be FUNCTION for functions
       if (doPretty) {
-        if (ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
+        if (isFunction) {
           statementResult.pretty = 'FUNCTION';
         } else {
           statementResult.pretty = 'UNHIT';
@@ -290,7 +294,7 @@ export function buildStatementAndClauseResults(
         if (doPretty) {
           statementResult.pretty = 'FALSE ([])';
         }
-      } else if (ClauseResultsHelpers.isStatementFunction(elmLibrary, statementResult.statementName)) {
+      } else if (isFunction) {
         if (doPretty) {
           statementResult.pretty = 'FUNCTION';
         }
