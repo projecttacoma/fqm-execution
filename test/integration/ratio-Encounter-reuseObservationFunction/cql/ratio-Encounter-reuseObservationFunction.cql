@@ -19,6 +19,3 @@ define "numer":
 
 define function daysObs(e Encounter):
   duration in days of e.period
-
-define function hoursObs(e Encounter):
-  duration in hours of e.period
