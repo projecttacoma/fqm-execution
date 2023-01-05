@@ -98,4 +98,64 @@ function getPopulationResult(
   return popResult as PopulationResult;
 }
 
-//export function assertObservations(PopulationResult[] observations: any[]){}
+/**
+ * Asserts the observations for a specific episode, optionally looking for the correct observation population
+ * by the population type of the criteria it references.
+ */
+export function assertEpisodeObservations(
+  result: DetailedPopulationGroupResult,
+  episodeId: string,
+  observations: any[],
+  criteriaReferencePopulationType?: PopulationType
+) {
+  expect(result.episodeResults).toBeDefined();
+  const episodeResult = result.episodeResults?.find(r => r.episodeId === episodeId);
+  expect(episodeResult?.populationResults).toBeDefined();
+  assertObservations(
+    episodeResult?.populationResults as PopulationResult[],
+    observations,
+    criteriaReferencePopulationType
+  );
+}
+
+/**
+ * Asserts the observations in a group, optionally looking for the correct observation population
+ * by the population type of the criteria it references.
+ */
+export function assertGroupObservations(
+  result: DetailedPopulationGroupResult,
+  observations: any[],
+  criteriaReferencePopulationType?: PopulationType
+) {
+  expect(result.populationResults).toBeDefined();
+  assertObservations(result.populationResults as PopulationResult[], observations, criteriaReferencePopulationType);
+}
+
+/**
+ * Asserts the observations on a set of PopulationResults, optionally looking for the correct observation population
+ * by the population type of the criteria it references.
+ */
+function assertObservations(
+  populationResults: PopulationResult[],
+  observations: any[],
+  criteriaReferencePopulationType?: PopulationType
+) {
+  // if criteria ref type is passed in find the population id of it
+  const criteriaReferenceId =
+    criteriaReferencePopulationType != undefined
+      ? findPopulationId(populationResults, criteriaReferencePopulationType)
+      : undefined;
+
+  const observResult = getPopulationResult(populationResults, PopulationType.OBSERV, criteriaReferenceId);
+  expect(observResult.observations).toEqual(observations);
+}
+
+/**
+ * Finds the populationId for a population in a list of PopulationResults by type. Used when needing to
+ * reference a population as the criteriaReferenceId for another one.
+ */
+function findPopulationId(populationResults: PopulationResult[], populationType: PopulationType): string {
+  const popResult = getPopulationResult(populationResults, populationType);
+  expect(popResult.populationId).toBeDefined();
+  return popResult.populationId as string;
+}

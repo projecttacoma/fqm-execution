@@ -4,8 +4,8 @@ import { PopulationType } from '../../../src/types/Enums';
 import {
   getJSONFixture,
   getGroupByIndex,
-  getGroupPopulationResult,
-  getEpisodePopulationResult
+  assertGroupObservations,
+  assertEpisodeObservations
 } from '../helpers/testHelpers';
 
 const CALCULATION_OPTIONS: CalculationOptions = {
@@ -27,37 +27,16 @@ describe('ratio Encounter reuse observation function measure', () => {
     const results = await calculate(MEASURE_BUNDLE, [PATIENT_BUNDLE], CALCULATION_OPTIONS);
     const group = getGroupByIndex(0, results.results[0]);
 
-    const numerResults = getGroupPopulationResult(group, PopulationType.NUMER);
-    const denomResults = getGroupPopulationResult(group, PopulationType.DENOM);
-    expect(numerResults.populationId).toBeDefined();
-    expect(denomResults.populationId).toBeDefined();
-    const numerObservResults = getGroupPopulationResult(group, PopulationType.OBSERV, numerResults.populationId);
-    const denomObservResults = getGroupPopulationResult(group, PopulationType.OBSERV, denomResults.populationId);
-    expect(numerObservResults?.observations).toEqual([1]);
-    expect(denomObservResults?.observations).toEqual([1]);
+    assertGroupObservations(group, [1], PopulationType.NUMER);
+    assertGroupObservations(group, [1], PopulationType.DENOM);
   });
 
   it('does not put all results on observation usage of a function on one observation in episode results', async () => {
     const results = await calculate(MEASURE_BUNDLE, [PATIENT_BUNDLE], CALCULATION_OPTIONS);
     const group = getGroupByIndex(0, results.results[0]);
     const episodeId = 'bdeb8195-8324-45ba-973f-b9bc7f02b973';
-    const numerResults = getEpisodePopulationResult(group, episodeId, PopulationType.NUMER);
-    const denomResults = getEpisodePopulationResult(group, episodeId, PopulationType.DENOM);
-    expect(numerResults.populationId).toBeDefined();
-    expect(denomResults.populationId).toBeDefined();
-    const numerObservResults = getEpisodePopulationResult(
-      group,
-      episodeId,
-      PopulationType.OBSERV,
-      numerResults.populationId
-    );
-    const denomObservResults = getEpisodePopulationResult(
-      group,
-      episodeId,
-      PopulationType.OBSERV,
-      denomResults.populationId
-    );
-    expect(numerObservResults?.observations).toEqual([1]);
-    expect(denomObservResults?.observations).toEqual([1]);
+
+    assertEpisodeObservations(group, episodeId, [1], PopulationType.NUMER);
+    assertEpisodeObservations(group, episodeId, [1], PopulationType.DENOM);
   });
 });
