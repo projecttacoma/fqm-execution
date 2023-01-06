@@ -6,12 +6,13 @@ import {
   extractMeasurementPeriod,
   getCriteriaReferenceIdFromPopulation,
   addValueSetsToMeasureBundle,
-  extractLibrariesFromBundle,
   extractMeasureFromBundle,
   isValidLibraryURL,
   getScoringCodeFromGroup,
   getScoringCodeFromMeasure,
-  getObservationResultForPopulation
+  getObservationResultForPopulation,
+  extractLibrariesFromMeasureBundle,
+  extractLibrariesFromLibraryBundle
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
 import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
@@ -788,10 +789,35 @@ describe('MeasureBundleHelpers tests', () => {
     });
   });
 
-  describe('extractLibrariesFromBundle', () => {
+  describe('extractLibrariesFromLibraryBundle', () => {
+    it('properly gets libraries from EXM130 library bundle', () => {
+      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
+      const libraryBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        id: 'EXM130-7.3.000-bundle',
+        type: 'transaction'
+      };
+      libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
+
+      const rootLibRef = 'Library/library-EXM130-7.3.000';
+      const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromLibraryBundle(libraryBundle, rootLibRef);
+
+      expect(rootLibIdentifier).toStrictEqual({
+        id: 'EXM130',
+        system: 'http://fhir.org/guides/dbcg/connectathon',
+        version: '7.3.000'
+      });
+      // The EXM130 test bundle has 7 libraries, including the root one
+      // BUT one of them is the FHIR model info file, which we ignore
+      expect(cqls).toHaveLength(6);
+      expect(elmJSONs).toHaveLength(6);
+    });
+  });
+
+  describe('extractLibrariesFromMeasureBundle', () => {
     it('properly gets library from EXM130, and identifies the root library', () => {
       const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
-      const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromBundle(measureBundle);
+      const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromMeasureBundle(measureBundle);
 
       expect(rootLibIdentifier).toStrictEqual({
         id: 'EXM130',
@@ -832,7 +858,7 @@ describe('MeasureBundleHelpers tests', () => {
         type: 'transaction'
       };
 
-      expect(() => extractLibrariesFromBundle(measureBundle)).toThrow(
+      expect(() => extractLibrariesFromMeasureBundle(measureBundle)).toThrow(
         'No Root Library could be identified in provided measure bundle'
       );
     });

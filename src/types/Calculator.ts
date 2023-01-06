@@ -42,6 +42,8 @@ export interface CalculationOptions {
   useElmJsonsCaching?: boolean;
   /** if true, clears ElmJsons cache before running calculation */
   clearElmJsonsCache?: boolean;
+  /** Root lib ref, to be used in calculateLibraryDataRequirements */
+  rootLibRef?: string;
 }
 
 /**

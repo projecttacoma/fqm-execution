@@ -1,5 +1,5 @@
 import { Extension } from 'fhir/r4';
-import { DataTypeQuery } from '../types/Calculator';
+import { CalculationOptions, DataTypeQuery, DRCalculationOutput } from '../types/Calculator';
 import { GracefulError } from '../types/errors/GracefulError';
 import {
   EqualsFilter,
@@ -15,6 +15,15 @@ import {
 } from '../types/QueryFilterTypes';
 import { PatientParameters } from '../compartment-definition/PatientParameters';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
+import { ELM, ELMIdentifier } from '../types/ELMTypes';
+import { ExtractedLibrary } from '../types/CQLTypes';
+import * as Execution from '../execution/Execution';
+import { UnexpectedResource } from '../types/errors/CustomErrors';
+import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
+import { parseQueryInfo } from '../gaps/QueryFilterParser';
+import * as RetrievesHelper from '../gaps/RetrievesFinder';
+import { uniqBy } from 'lodash';
+import { Interval } from 'cql-execution';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -34,6 +43,84 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
 
     return a;
   }
+}
+
+/**
+ * Returns a
+ */
+export async function getDataRequirements(
+  cqls: ExtractedLibrary[],
+  rootLibIdentifier: ELMIdentifier,
+  elmJSONs: ELM[],
+  options: CalculationOptions = {}
+): Promise<DRCalculationOutput> {
+  const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
+
+  const { startCql, endCql } = Execution.getCQLIntervalEndpoints(options);
+
+  // We need a root library to run dataRequirements properly. If we don't have one, error out.
+  if (!rootLib?.library) {
+    throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
+  }
+
+  const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
+  const withErrors: GracefulError[] = [];
+  // get the retrieves for every statement in the root library
+  const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
+    if (statement.expression && statement.name != 'Patient') {
+      const retrievesOutput = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
+      withErrors.push(...retrievesOutput.withErrors);
+      return retrievesOutput.results;
+    } else {
+      return [] as DataTypeQuery[];
+    }
+  });
+
+  const allRetrievesPromises = allRetrieves.map(async retrieve => {
+    // If the retrieves have a localId for the query and a known library name, we can get more info
+    // on how the query filters the sources.
+    if (retrieve.queryLocalId && retrieve.queryLibraryName) {
+      const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
+      if (library) {
+        retrieve.queryInfo = await parseQueryInfo(
+          library,
+          elmJSONs,
+          retrieve.queryLocalId,
+          retrieve.valueComparisonLocalId,
+          parameters
+        );
+      }
+    }
+  });
+
+  await Promise.all(allRetrievesPromises);
+
+  const results: fhir4.Library = {
+    resourceType: 'Library',
+    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
+    status: 'unknown'
+  };
+  results.dataRequirement = uniqBy(
+    allRetrieves.map(retrieve => {
+      const dr = generateDataRequirement(retrieve);
+      GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
+      addFhirQueryPatternToDataRequirements(dr);
+      return dr;
+    }),
+    JSON.stringify
+  );
+
+  return {
+    results: results,
+    debugOutput: {
+      cql: cqls,
+      elm: elmJSONs,
+      gaps: {
+        retrieves: allRetrieves
+      }
+    },
+    withErrors
+  };
 }
 
 /**

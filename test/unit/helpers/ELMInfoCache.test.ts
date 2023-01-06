@@ -11,14 +11,14 @@ describe('ELMInfoCache tests', () => {
   });
   test('retrieves elm info when useElmJsonsCaching set to false', () => {
     const elfbSpy = jest
-      .spyOn(MeasureBundleHelpers, 'extractLibrariesFromBundle')
+      .spyOn(MeasureBundleHelpers, 'extractLibrariesFromMeasureBundle')
       .mockImplementation(() => TEST_ELFB_OUTPUT);
     retrieveELMInfo(MEASURE as fhir4.Measure, MEASURE_BUNDLE as fhir4.Bundle, [], false);
     expect(elfbSpy).toHaveBeenCalledTimes(1);
   });
   test('does not retrieve elm info on second call when useElmJsonsCaching set to true', () => {
     const elfbSpy = jest
-      .spyOn(MeasureBundleHelpers, 'extractLibrariesFromBundle')
+      .spyOn(MeasureBundleHelpers, 'extractLibrariesFromMeasureBundle')
       .mockImplementation(() => TEST_ELFB_OUTPUT);
     retrieveELMInfo(MEASURE as fhir4.Measure, MEASURE_BUNDLE as fhir4.Bundle, [], true);
     expect(elfbSpy).toHaveBeenCalledTimes(1);
@@ -27,7 +27,7 @@ describe('ELMInfoCache tests', () => {
   });
   test('retrieves elm info when useElmJsonsCaching set to true and last entry over 10 minutes ago', () => {
     const elfbSpy = jest
-      .spyOn(MeasureBundleHelpers, 'extractLibrariesFromBundle')
+      .spyOn(MeasureBundleHelpers, 'extractLibrariesFromMeasureBundle')
       .mockImplementation(() => TEST_ELFB_OUTPUT);
     jest.useFakeTimers('modern').setSystemTime(new Date('2020-01-01T00:00:00'));
     retrieveELMInfo(MEASURE as fhir4.Measure, MEASURE_BUNDLE as fhir4.Bundle, [], true);

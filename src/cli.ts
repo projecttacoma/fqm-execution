@@ -9,7 +9,8 @@ import {
   calculateGapsInCare,
   calculateRaw,
   calculateDataRequirements,
-  calculateQueryInfo
+  calculateQueryInfo,
+  calculateLibraryDataRequirements
 } from './calculation/Calculator';
 import { addValueSetsToMeasureBundle } from './helpers/MeasureBundleHelpers';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
@@ -30,6 +31,9 @@ program.command('gaps').action(() => {
 });
 program.command('dataRequirements').action(() => {
   program.outputType = 'dataRequirements';
+});
+program.command('libraryDataRequirements').action(() => {
+  program.outputType = 'libraryDataRequirements';
 });
 program.command('queryInfo').action(() => {
   program.outputType = 'queryInfo';
@@ -73,6 +77,7 @@ program
     '-o, --out-file [file-path]',
     'Path to a file that fqm-execution will write the calculation results to (default: output.json)'
   )
+  .option('--root-lib-ref <url>', 'Url for the root library', undefined)
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -113,6 +118,8 @@ async function calc(
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'dataRequirements') {
     result = calculateDataRequirements(measureBundle, calcOptions);
+  } else if (program.outputType === 'libraryDataRequirements') {
+    result = calculateLibraryDataRequirements(measureBundle, calcOptions);
   } else if (program.outputType === 'queryInfo') {
     // calculateQueryInfo doesn't make use of the calcOptions object at this point
     result = calculateQueryInfo(measureBundle, calcOptions);
@@ -128,7 +135,7 @@ async function calc(
 async function populatePatientBundles() {
   let patientBundles: fhir4.Bundle[] = [];
   // data requirements/queryInfo/valueSets doesn't care about patient bundles, so just leave as an empty array if we're using that report type
-  if (!['dataRequirements', 'queryInfo', 'valueSets'].includes(program.outputType)) {
+  if (!['dataRequirements', 'queryInfo', 'valueSets', 'libraryDataRequirements'].includes(program.outputType)) {
     // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
     if (!program.patientBundles) {
       console.error(`Must specify patient bundles when output type is "${program.outputType}"`);
@@ -164,7 +171,8 @@ const calcOptions: CalculationOptions = {
   vsAPIKey: program.vsApiKey,
   useValueSetCaching: program.cacheValuesets,
   verboseCalculationResults: !program.slim,
-  trustMetaProfile: program.profileValidation
+  trustMetaProfile: program.profileValidation,
+  rootLibRef: program.rootLibRef
 };
 
 // Override the measurement period start/end in the options only if the user specified them
