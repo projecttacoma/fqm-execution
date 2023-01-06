@@ -77,7 +77,7 @@ program
     '-o, --out-file [file-path]',
     'Path to a file that fqm-execution will write the calculation results to (default: output.json)'
   )
-  .option('--root-lib-ref <url>', 'Url for the root library', undefined)
+  .option('--root-lib-ref <root-lib-ref>', 'Reference to the root library', undefined)
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
