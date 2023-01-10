@@ -206,17 +206,43 @@ export function isValidLibraryURL(libraryName: string) {
   return r.test(libraryName);
 }
 
-export function extractLibrariesFromBundle(measureBundle: fhir4.Bundle): {
+/**
+ * Returns the cqls, rootLibIdentifier, and elmJSONs for a collection of libraries
+ * within a Library Bundle
+ */
+export function extractLibrariesFromLibraryBundle(
+  libraryBundle: fhir4.Bundle,
+  rootLibRef: string
+): {
   cqls: ExtractedLibrary[];
   rootLibIdentifier: ELMIdentifier;
   elmJSONs: ELM[];
 } {
-  const measure = extractMeasureFromBundle(measureBundle);
-  const rootLibRef = measure.library[0];
   let rootLibId: string;
   if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
   else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
 
+  const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromBundle(libraryBundle, rootLibId);
+
+  if (rootLibIdentifier.id === '') {
+    throw new UnexpectedResource('No Root Library could be identified in provided library bundle');
+  }
+
+  return { cqls, rootLibIdentifier, elmJSONs };
+}
+
+/**
+ * Returns the cqls, rootLibIdentifier, and elmJSONs for a collection of libraries
+ * within a Bundle
+ */
+export function extractLibrariesFromBundle(
+  bundle: fhir4.Bundle,
+  rootLibId: string
+): {
+  cqls: ExtractedLibrary[];
+  rootLibIdentifier: ELMIdentifier;
+  elmJSONs: ELM[];
+} {
   const libraries: fhir4.Library[] = [];
   const elmJSONs: ELM[] = [];
   const cqls: { name: string; cql: string }[] = [];
@@ -224,7 +250,7 @@ export function extractLibrariesFromBundle(measureBundle: fhir4.Bundle): {
     id: '',
     version: ''
   };
-  measureBundle.entry?.forEach(e => {
+  bundle.entry?.forEach(e => {
     if (e.resource?.resourceType == 'Library') {
       const library = e.resource as fhir4.Library;
       libraries.push(library);
@@ -262,6 +288,25 @@ export function extractLibrariesFromBundle(measureBundle: fhir4.Bundle): {
       });
     }
   });
+  return { cqls, rootLibIdentifier, elmJSONs };
+}
+
+/**
+ * Returns the cqls, rootLibIdentifier, and elmJSONs for a collection of libraries
+ * within a Measure Bundle
+ */
+export function extractLibrariesFromMeasureBundle(measureBundle: fhir4.Bundle): {
+  cqls: ExtractedLibrary[];
+  rootLibIdentifier: ELMIdentifier;
+  elmJSONs: ELM[];
+} {
+  const measure = extractMeasureFromBundle(measureBundle);
+  const rootLibRef = measure.library[0];
+  let rootLibId: string;
+  if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
+  else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
+
+  const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromBundle(measureBundle, rootLibId);
 
   if (rootLibIdentifier.id === '') {
     throw new UnexpectedResource('No Root Library could be identified in provided measure bundle');

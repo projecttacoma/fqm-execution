@@ -21,13 +21,12 @@ import * as Execution from '../execution/Execution';
 import * as CalculatorHelpers from './DetailedResultsBuilder';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ResultsHelpers from './ClauseResultsBuilder';
+import * as DataRequirementHelpers from '../helpers/DataRequirementHelpers';
 import MeasureReportBuilder from './MeasureReportBuilder';
 import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
 import { generateHTML, generateClauseCoverageHTML } from './HTMLBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
-import { uniqBy } from 'lodash';
-import { generateDataRequirement, addFhirQueryPatternToDataRequirements } from '../helpers/DataRequirementHelpers';
 import { GracefulError } from '../types/errors/GracefulError';
 import {
   ErrorWithDebugInfo,
@@ -517,6 +516,31 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
 }
 
 /**
+ * Get data requirements for a Library bundle
+ *
+ * @param libraryBundle Bundle of library resources
+ * @param options Options for calculation.
+ *
+ * @returns FHIR Library of data requirements
+ */
+export async function calculateLibraryDataRequirements(
+  libraryBundle: fhir4.Bundle,
+  options: CalculationOptions = {}
+): Promise<DRCalculationOutput> {
+  if (options.rootLibRef === undefined) {
+    throw new UnexpectedProperty('Root lib ref must be provided in order to calculate library dataRequirements');
+  }
+
+  // Extract the library ELM, and the id of the root library, from the library bundle
+  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromLibraryBundle(
+    libraryBundle,
+    options.rootLibRef
+  );
+
+  return DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options);
+}
+
+/**
  * Get data requirements for this measure
  *
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
@@ -529,74 +553,9 @@ export async function calculateDataRequirements(
   options: CalculationOptions = {}
 ): Promise<DRCalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
-  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
-  const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
+  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromMeasureBundle(measureBundle);
 
-  const { startCql, endCql } = Execution.getCQLIntervalEndpoints(options);
-
-  // We need a root library to run dataRequirements properly. If we don't have one, error out.
-  if (!rootLib?.library) {
-    throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
-  }
-
-  const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
-  const withErrors: GracefulError[] = [];
-  // get the retrieves for every statement in the root library
-  const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
-    if (statement.expression && statement.name != 'Patient') {
-      const retrievesOutput = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
-      withErrors.push(...retrievesOutput.withErrors);
-      return retrievesOutput.results;
-    } else {
-      return [] as DataTypeQuery[];
-    }
-  });
-
-  const allRetrievesPromises = allRetrieves.map(async retrieve => {
-    // If the retrieves have a localId for the query and a known library name, we can get more info
-    // on how the query filters the sources.
-    if (retrieve.queryLocalId && retrieve.queryLibraryName) {
-      const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
-      if (library) {
-        retrieve.queryInfo = await parseQueryInfo(
-          library,
-          elmJSONs,
-          retrieve.queryLocalId,
-          retrieve.valueComparisonLocalId,
-          parameters
-        );
-      }
-    }
-  });
-
-  await Promise.all(allRetrievesPromises);
-
-  const results: fhir4.Library = {
-    resourceType: 'Library',
-    type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
-    status: 'unknown'
-  };
-  results.dataRequirement = uniqBy(
-    allRetrieves.map(retrieve => {
-      const dr = generateDataRequirement(retrieve);
-      GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
-      addFhirQueryPatternToDataRequirements(dr);
-      return dr;
-    }),
-    JSON.stringify
-  );
-
-  return {
-    results: results,
-    debugOutput: {
-      cql: cqls,
-      elm: elmJSONs,
-      gaps: {
-        retrieves: allRetrieves
-      }
-    },
-    withErrors
-  };
+  return DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options);
 }
 
 /**
@@ -610,7 +569,7 @@ export async function calculateQueryInfo(
   options: CalculationOptions = {}
 ): Promise<QICalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
-  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromBundle(measureBundle);
+  const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromMeasureBundle(measureBundle);
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
   const { startCql, endCql } = Execution.getCQLIntervalEndpoints(options);
 
