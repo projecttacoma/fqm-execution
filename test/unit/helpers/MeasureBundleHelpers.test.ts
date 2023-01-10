@@ -812,6 +812,39 @@ describe('MeasureBundleHelpers tests', () => {
       expect(cqls).toHaveLength(6);
       expect(elmJSONs).toHaveLength(6);
     });
+
+    it('throws an error if there is no root Library resource in the Library bundle', () => {
+      const libraryBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Library',
+              type: {
+                coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
+              },
+              url: 'http://example.com/library',
+              status: 'draft'
+            }
+          },
+          {
+            resource: {
+              resourceType: 'Library',
+              type: {
+                coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }]
+              },
+              url: 'http://example.com/other-library',
+              status: 'draft'
+            }
+          }
+        ],
+        type: 'transaction'
+      };
+
+      expect(() => extractLibrariesFromLibraryBundle(libraryBundle, 'http://example.com/root-library')).toThrow(
+        'No Root Library could be identified in provided library bundle'
+      );
+    });
   });
 
   describe('extractLibrariesFromMeasureBundle', () => {
