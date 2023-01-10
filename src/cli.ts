@@ -119,6 +119,7 @@ async function calc(
   } else if (program.outputType === 'dataRequirements') {
     result = calculateDataRequirements(measureBundle, calcOptions);
   } else if (program.outputType === 'libraryDataRequirements') {
+    // in this case, measureBundle should be a library bundle
     result = calculateLibraryDataRequirements(measureBundle, calcOptions);
   } else if (program.outputType === 'queryInfo') {
     // calculateQueryInfo doesn't make use of the calcOptions object at this point
