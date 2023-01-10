@@ -225,7 +225,7 @@ export function extractLibrariesFromLibraryBundle(
   const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromBundle(libraryBundle, rootLibId);
 
   if (rootLibIdentifier.id === '') {
-    throw new UnexpectedResource('No Root Library could be identified in provided measure bundle');
+    throw new UnexpectedResource('No Root Library could be identified in provided library bundle');
   }
 
   return { cqls, rootLibIdentifier, elmJSONs };

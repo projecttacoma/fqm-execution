@@ -60,7 +60,7 @@ export async function getDataRequirements(
 
   // We need a root library to run dataRequirements properly. If we don't have one, error out.
   if (!rootLib?.library) {
-    throw new UnexpectedResource("root library doesn't contain a library object"); //unexpected resource
+    throw new UnexpectedResource("root library doesn't contain a library object");
   }
 
   const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
