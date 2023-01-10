@@ -97,6 +97,15 @@ Get data requirements for a given measure (in a bundle).
 const dataRequirements = await Calculator.calculateDataRequirements(measureBundle);
 ```
 
+#### Calculator.calculateLibraryDataRequirements()
+
+Get data requirements for a given library bundle with a root Library reference.
+In this case, the measureBundle is a Library Bundle.
+
+```Javascript
+const libraryDataRequirements = await Calculator.calculateLibraryDataRequirements(measureBundle, rootLibRef);
+```
+
 #### Calculator.calculateQueryInfo()
 
 Get detailed query info for all statements in a measure.
@@ -154,6 +163,7 @@ Commands:
   raw
   gaps
   dataRequirements
+  libraryDataRequirements
   queryInfo
   valueSets
   help [command]                              display help for command
@@ -171,6 +181,7 @@ Options:
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
   --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
+  --root-lib-ref <root-lib-ref>               Reference to the root Library
   -h, --help                                  display help for command
 ```
 
