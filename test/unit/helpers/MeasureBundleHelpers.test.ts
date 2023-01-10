@@ -790,7 +790,7 @@ describe('MeasureBundleHelpers tests', () => {
   });
 
   describe('extractLibrariesFromLibraryBundle', () => {
-    it('properly gets libraries from EXM130 library bundle', () => {
+    it('properly gets libraries from EXM130 library bundle using resourceID for rootLibRef', () => {
       const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
@@ -800,6 +800,29 @@ describe('MeasureBundleHelpers tests', () => {
       libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
 
       const rootLibRef = 'Library/library-EXM130-7.3.000';
+      const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromLibraryBundle(libraryBundle, rootLibRef);
+
+      expect(rootLibIdentifier).toStrictEqual({
+        id: 'EXM130',
+        system: 'http://fhir.org/guides/dbcg/connectathon',
+        version: '7.3.000'
+      });
+      // The EXM130 test bundle has 7 libraries, including the root one
+      // BUT one of them is the FHIR model info file, which we ignore
+      expect(cqls).toHaveLength(6);
+      expect(elmJSONs).toHaveLength(6);
+    });
+
+    it('properly gets libraries from EXM130 library bundle using canonical URL for rootLibRef', () => {
+      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
+      const libraryBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        id: 'EXM130-7.3.000-bundle',
+        type: 'transaction'
+      };
+      libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
+
+      const rootLibRef = 'http://fhir.org/guides/dbcg/connectathon/Library/EXM130';
       const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromLibraryBundle(libraryBundle, rootLibRef);
 
       expect(rootLibIdentifier).toStrictEqual({
