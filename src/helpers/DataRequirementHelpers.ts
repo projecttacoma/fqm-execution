@@ -46,7 +46,7 @@ export function flattenFilters(filter: AnyFilter): AnyFilter[] {
 }
 
 /**
- * Returns a
+ * Returns a FHIR library containing data requirements, given a root library
  */
 export async function getDataRequirements(
   cqls: ExtractedLibrary[],

@@ -531,7 +531,7 @@ export async function calculateLibraryDataRequirements(
     throw new UnexpectedProperty('Root lib ref must be provided in order to calculate library dataRequirements');
   }
 
-  // Extract the library ELM, and the id of the root library, from the measure bundle
+  // Extract the library ELM, and the id of the root library, from the library bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromLibraryBundle(
     libraryBundle,
     options.rootLibRef
