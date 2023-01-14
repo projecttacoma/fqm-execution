@@ -1,7 +1,8 @@
 const VSAC_REGEX = /http:\/\/cts\.nlm\.nih\.gov.*ValueSet/;
 const OID_REGEX = /([0-9]+\.)+[0-9]+/;
 
-export const VSAC_BASE = 'http://cts.nlm.nih.gov/fhir/r4/ValueSet';
+// Base URL for current version can be found at https://www.nlm.nih.gov/vsac/support/usingvsac/vsacfhirapi.html
+export const VSAC_BASE = 'http://cts.nlm.nih.gov/fhir/ValueSet';
 
 export function isVSACUrl(url: string): boolean {
   return VSAC_REGEX.test(url);
