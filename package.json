@@ -46,7 +46,7 @@
     "build": "tsc",
     "build:watch": "tsc -w",
     "build:test-data": "cd test/integration && make",
-    "cli": "ts-node --files src/cli.ts",
+    "cli": "ts-node src/cli.ts",
     "coverage": "opener coverage/lcov-report/index.html",
     "lint": "tsc && eslint \"**/*.{js,ts}\"",
     "lint:fix": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",

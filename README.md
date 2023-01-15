@@ -251,7 +251,7 @@ Optionally, you can install the `ts-node` utility globally to execute the TypeSc
 
 ```bash
 npm install -g ts-node
-ts-node --files src/cli.ts [command] [options]
+ts-node src/cli.ts [command] [options]
 ```
 
 ### Debug Option
