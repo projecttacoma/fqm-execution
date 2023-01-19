@@ -16,5 +16,8 @@
     "declaration": true,
     "sourceMap": true,
     "moduleResolution": "node"
+  },
+  "ts-node": {
+    "files": true
   }
 }
