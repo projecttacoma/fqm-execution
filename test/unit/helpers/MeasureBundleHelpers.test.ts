@@ -790,12 +790,12 @@ describe('MeasureBundleHelpers tests', () => {
   });
 
   describe('extractLibrariesFromLibraryBundle', () => {
-    it('properly gets libraries from EXM130 library bundle using resourceID for rootLibRef', () => {
+    it('properly gets libraries from test library Bundle using resourceID for rootLibRef', () => {
       const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
 
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
-        id: 'EXM130-7.3.000-bundle',
+        id: 'test-bundle',
         type: 'transaction'
       };
       libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
@@ -812,11 +812,11 @@ describe('MeasureBundleHelpers tests', () => {
       expect(elmJSONs).toHaveLength(3);
     });
 
-    it('properly gets libraries from EXM130 library bundle using canonical URL for rootLibRef', () => {
+    it('properly gets libraries from test library bundle using canonical URL for rootLibRef', () => {
       const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
-        id: 'EXM130-7.3.000-bundle',
+        id: 'test-bundle',
         type: 'transaction'
       };
       libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
@@ -828,7 +828,7 @@ describe('MeasureBundleHelpers tests', () => {
         id: 'TestRootLib',
         version: '0.0.1'
       });
-      // The EXM130 test bundle has 3 libraries, including the root one
+      // The test Bundle has 3 libraries, including the root one
       expect(cqls).toHaveLength(3);
       expect(elmJSONs).toHaveLength(3);
     });
@@ -868,7 +868,7 @@ describe('MeasureBundleHelpers tests', () => {
   });
 
   describe('extractLibrariesFromMeasureBundle', () => {
-    it('properly gets library from EXM130, and identifies the root library', () => {
+    it('properly gets library from test Bundle, and identifies the root library', () => {
       const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
       const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromMeasureBundle(measureBundle);
 
@@ -876,7 +876,7 @@ describe('MeasureBundleHelpers tests', () => {
         id: 'TestRootLib',
         version: '0.0.1'
       });
-      // The EXM130 test bundle has 3 libraries, including the root one
+      // The test Bundle has 3 libraries, including the root one
       expect(cqls).toHaveLength(3);
       expect(elmJSONs).toHaveLength(3);
     });
@@ -930,7 +930,7 @@ describe('MeasureBundleHelpers tests', () => {
     });
 
     it('throws an error if error messages array from ValueSetResolver.getExpansionForValuesetUrls is populated', async () => {
-      // EXM 130 bundle with one missing valueset and one missing valueset with invalid url
+      // Bundle with one missing valueset and one missing valueset with invalid url
       const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
       const errorMessage =
         'Valueset with URL http://example.com/testValueset could not be retrieved. Reason: Request failed with status code 404';
