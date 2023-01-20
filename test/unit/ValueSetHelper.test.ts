@@ -20,12 +20,12 @@ const exampleExpandedValueset = getJSONFixture('valuesets/example-expanded-vs.js
 describe('ValueSetHelper', () => {
   describe('getAllDependentValuesets', () => {
     test('Finds all valuesets that are missing in the standard measure bundle', () => {
-      const measureBundle: fhir4.Bundle = getJSONFixture('measure/measure-with-library-dependencies.json');
+      const measureBundle: fhir4.Bundle = getJSONFixture('bundle/measure-with-library-dependencies.json');
       const vs = getMissingDependentValuesets(measureBundle);
       expect(vs.length).toEqual(0);
     });
     test('Finds all valuesets that are missing in the missingVS measure bundle', () => {
-      const measureBundle: fhir4.Bundle = getJSONFixture('measure/measure-missing-vs.json');
+      const measureBundle: fhir4.Bundle = getJSONFixture('bundle/measure-missing-vs.json');
       const vs = getMissingDependentValuesets(measureBundle);
       expect(vs.length).toEqual(1);
       expect(vs[0]).toEqual('http://example.com/example-valueset-1');

@@ -791,7 +791,7 @@ describe('MeasureBundleHelpers tests', () => {
 
   describe('extractLibrariesFromLibraryBundle', () => {
     it('properly gets libraries from test library Bundle using resourceID for rootLibRef', () => {
-      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/measure-with-library-dependencies.json') as fhir4.Bundle;
 
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
@@ -813,7 +813,7 @@ describe('MeasureBundleHelpers tests', () => {
     });
 
     it('properly gets libraries from test library bundle using canonical URL for rootLibRef', () => {
-      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/measure-with-library-dependencies.json') as fhir4.Bundle;
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
         id: 'test-bundle',
@@ -869,7 +869,7 @@ describe('MeasureBundleHelpers tests', () => {
 
   describe('extractLibrariesFromMeasureBundle', () => {
     it('properly gets library from test Bundle, and identifies the root library', () => {
-      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/measure-with-library-dependencies.json') as fhir4.Bundle;
       const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromMeasureBundle(measureBundle);
 
       expect(rootLibIdentifier).toStrictEqual({
@@ -917,7 +917,7 @@ describe('MeasureBundleHelpers tests', () => {
 
   describe('addValueSetsToMeasureBundle', () => {
     it('throws an error if no API key is provided for retrieving the ValueSet resource(s)', async () => {
-      const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/measure-missing-vs.json') as fhir4.Bundle;
 
       try {
         await addValueSetsToMeasureBundle(measureBundle, {});
@@ -931,7 +931,7 @@ describe('MeasureBundleHelpers tests', () => {
 
     it('throws an error if error messages array from ValueSetResolver.getExpansionForValuesetUrls is populated', async () => {
       // Bundle with one missing valueset and one missing valueset with invalid url
-      const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/measure-missing-vs.json') as fhir4.Bundle;
       const errorMessage =
         'Valueset with URL http://example.com/testValueset could not be retrieved. Reason: Request failed with status code 404';
       // missing VS that has valid URL in the measure bundle
@@ -955,7 +955,7 @@ describe('MeasureBundleHelpers tests', () => {
     });
 
     it('returns original measure bundle if measure bundle is not missing any ValueSet resources', async () => {
-      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/measure-with-library-dependencies.json') as fhir4.Bundle;
       const returnedBundle = (
         await addValueSetsToMeasureBundle(measureBundle, {
           vsAPIKey: 'an_api_key'
@@ -966,7 +966,7 @@ describe('MeasureBundleHelpers tests', () => {
 
     it('returns new bundle with added ValueSet resource when measure bundle is missing one ValueSet resource', async () => {
       // measure bundle with one missing ValueSet
-      const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/measure-missing-vs.json') as fhir4.Bundle;
       // missing ValueSet resource
       const missingVSUrl = getMissingDependentValuesets(measureBundle);
       const missingVS = getJSONFixture('valuesets/example-vs-1.json');
