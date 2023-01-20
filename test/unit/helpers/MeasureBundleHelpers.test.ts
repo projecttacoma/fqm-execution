@@ -915,7 +915,7 @@ describe('MeasureBundleHelpers tests', () => {
     });
   });
 
-  describe.only('addValueSetsToMeasureBundle', () => {
+  describe('addValueSetsToMeasureBundle', () => {
     it('throws an error if no API key is provided for retrieving the ValueSet resource(s)', async () => {
       const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
 
