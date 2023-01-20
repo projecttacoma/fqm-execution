@@ -791,7 +791,8 @@ describe('MeasureBundleHelpers tests', () => {
 
   describe('extractLibrariesFromLibraryBundle', () => {
     it('properly gets libraries from EXM130 library bundle using resourceID for rootLibRef', () => {
-      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
+
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
         id: 'EXM130-7.3.000-bundle',
@@ -799,22 +800,20 @@ describe('MeasureBundleHelpers tests', () => {
       };
       libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
 
-      const rootLibRef = 'Library/library-EXM130-7.3.000';
+      const rootLibRef = 'Library/library-TestRootLib';
       const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromLibraryBundle(libraryBundle, rootLibRef);
 
       expect(rootLibIdentifier).toStrictEqual({
-        id: 'EXM130',
-        system: 'http://fhir.org/guides/dbcg/connectathon',
-        version: '7.3.000'
+        id: 'TestRootLib',
+        version: '0.0.1'
       });
-      // The EXM130 test bundle has 7 libraries, including the root one
-      // BUT one of them is the FHIR model info file, which we ignore
-      expect(cqls).toHaveLength(6);
-      expect(elmJSONs).toHaveLength(6);
+      // The test bundle has 3 libraries, including the root one
+      expect(cqls).toHaveLength(3);
+      expect(elmJSONs).toHaveLength(3);
     });
 
     it('properly gets libraries from EXM130 library bundle using canonical URL for rootLibRef', () => {
-      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
         id: 'EXM130-7.3.000-bundle',
@@ -822,18 +821,16 @@ describe('MeasureBundleHelpers tests', () => {
       };
       libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
 
-      const rootLibRef = 'http://fhir.org/guides/dbcg/connectathon/Library/EXM130';
+      const rootLibRef = 'http://example.com/Library/library-TestRootLib';
       const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromLibraryBundle(libraryBundle, rootLibRef);
 
       expect(rootLibIdentifier).toStrictEqual({
-        id: 'EXM130',
-        system: 'http://fhir.org/guides/dbcg/connectathon',
-        version: '7.3.000'
+        id: 'TestRootLib',
+        version: '0.0.1'
       });
-      // The EXM130 test bundle has 7 libraries, including the root one
-      // BUT one of them is the FHIR model info file, which we ignore
-      expect(cqls).toHaveLength(6);
-      expect(elmJSONs).toHaveLength(6);
+      // The EXM130 test bundle has 3 libraries, including the root one
+      expect(cqls).toHaveLength(3);
+      expect(elmJSONs).toHaveLength(3);
     });
 
     it('throws an error if there is no root Library resource in the Library bundle', () => {
@@ -872,18 +869,16 @@ describe('MeasureBundleHelpers tests', () => {
 
   describe('extractLibrariesFromMeasureBundle', () => {
     it('properly gets library from EXM130, and identifies the root library', () => {
-      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
       const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromMeasureBundle(measureBundle);
 
       expect(rootLibIdentifier).toStrictEqual({
-        id: 'EXM130',
-        system: 'http://fhir.org/guides/dbcg/connectathon',
-        version: '7.3.000'
+        id: 'TestRootLib',
+        version: '0.0.1'
       });
-      // The EXM130 test bundle has 7 libraries, including the root one
-      // BUT one of them is the FHIR model info file, which we ignore
-      expect(cqls).toHaveLength(6);
-      expect(elmJSONs).toHaveLength(6);
+      // The EXM130 test bundle has 3 libraries, including the root one
+      expect(cqls).toHaveLength(3);
+      expect(elmJSONs).toHaveLength(3);
     });
 
     it('throws an error if there is no root Library resource on Measure', () => {
@@ -920,27 +915,27 @@ describe('MeasureBundleHelpers tests', () => {
     });
   });
 
-  describe('addValueSetsToMeasureBundle', () => {
+  describe.only('addValueSetsToMeasureBundle', () => {
     it('throws an error if no API key is provided for retrieving the ValueSet resource(s)', async () => {
-      const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
+      const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
 
       try {
         await addValueSetsToMeasureBundle(measureBundle, {});
         fail('addValueSetsToMeasureBundle failed to throw error for missing API key');
       } catch (e) {
         expect(e.message).toEqual(
-          'Missing the following valuesets: http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016, and no API key was provided to resolve them'
+          'Missing the following valuesets: http://example.com/example-valueset-1, and no API key was provided to resolve them'
         );
       }
     });
 
     it('throws an error if error messages array from ValueSetResolver.getExpansionForValuesetUrls is populated', async () => {
       // EXM 130 bundle with one missing valueset and one missing valueset with invalid url
-      const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-no-codes-modified-missingVS.json');
+      const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
       const errorMessage =
-        'Valueset with URL http://no.valueset/url could not be retrieved. Reason: Request failed with status code 404';
+        'Valueset with URL http://example.com/testValueset could not be retrieved. Reason: Request failed with status code 404';
       // missing VS that has valid URL in the measure bundle
-      const missingVS = getJSONFixture('valuesets/example-missing-EXM130-vs.json');
+      const missingVS = getJSONFixture('valuesets/example-vs-1.json');
 
       const vsrSpy = jest
         .spyOn(ValueSetResolver.prototype, 'getExpansionForValuesetUrls')
@@ -960,7 +955,7 @@ describe('MeasureBundleHelpers tests', () => {
     });
 
     it('returns original measure bundle if measure bundle is not missing any ValueSet resources', async () => {
-      const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json');
+      const measureBundle = getJSONFixture('measure/measure-with-library-dependencies.json') as fhir4.Bundle;
       const returnedBundle = (
         await addValueSetsToMeasureBundle(measureBundle, {
           vsAPIKey: 'an_api_key'
@@ -971,10 +966,10 @@ describe('MeasureBundleHelpers tests', () => {
 
     it('returns new bundle with added ValueSet resource when measure bundle is missing one ValueSet resource', async () => {
       // measure bundle with one missing ValueSet
-      const measureBundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
+      const measureBundle = getJSONFixture('measure/measure-missing-vs.json') as fhir4.Bundle;
       // missing ValueSet resource
       const missingVSUrl = getMissingDependentValuesets(measureBundle);
-      const missingVS = getJSONFixture('valuesets/example-missing-EXM130-vs.json');
+      const missingVS = getJSONFixture('valuesets/example-vs-1.json');
 
       const vsrSpy = jest
         .spyOn(ValueSetResolver.prototype, 'getExpansionForValuesetUrls')

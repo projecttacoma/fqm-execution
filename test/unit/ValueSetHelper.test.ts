@@ -20,15 +20,15 @@ const exampleExpandedValueset = getJSONFixture('valuesets/example-expanded-vs.js
 describe('ValueSetHelper', () => {
   describe('getAllDependentValuesets', () => {
     test('Finds all valuesets that are missing in the standard measure bundle', () => {
-      const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes.json');
+      const measureBundle: fhir4.Bundle = getJSONFixture('measure/measure-with-library-dependencies.json');
       const vs = getMissingDependentValuesets(measureBundle);
       expect(vs.length).toEqual(0);
     });
     test('Finds all valuesets that are missing in the missingVS measure bundle', () => {
-      const measureBundle: fhir4.Bundle = getJSONFixture('EXM130-7.3.000-bundle-nocodes-missingVS.json');
+      const measureBundle: fhir4.Bundle = getJSONFixture('measure/measure-missing-vs.json');
       const vs = getMissingDependentValuesets(measureBundle);
       expect(vs.length).toEqual(1);
-      expect(vs[0]).toEqual('http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016');
+      expect(vs[0]).toEqual('http://example.com/example-valueset-1');
     });
   });
 

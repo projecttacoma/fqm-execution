@@ -120,7 +120,7 @@ export function getMissingDependentValuesets(
         'Expected library entry to have resource with dataRequirements that have codeFilters'
       );
     }
-    // pull all valuset urls out of this library's dataRequirements
+    // pull all valueset urls out of this library's dataRequirements
     const libraryVSURL: string[] = libraryResource.dataRequirement.reduce((accumulator, dr) => {
       if (dr.codeFilter && dr.codeFilter.length > 0) {
         // get each valueset url for each codeFilter (if valueset url exists)
