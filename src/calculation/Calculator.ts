@@ -110,6 +110,10 @@ export async function calculate<T extends CalculationOptions>(
     // iterator to use for group ID if they are defined in the population groups
     let i = 1;
 
+    // use scoring code from measure as a fallback when building population group
+    // relevance map (if scoring code is not present at the group level)
+    const measureScoringCode = MeasureBundleHelpers.getScoringCodeFromMeasure(measure);
+
     // Iterate over measure population groups
     measure.group?.forEach(group => {
       // build initial results set with population values
@@ -123,6 +127,7 @@ export async function calculate<T extends CalculationOptions>(
       // get the relevance information for each population
       detailedGroupResult.populationRelevance = ResultsHelpers.buildPopulationGroupRelevanceMap(
         detailedGroupResult,
+        measureScoringCode,
         group
       );
 

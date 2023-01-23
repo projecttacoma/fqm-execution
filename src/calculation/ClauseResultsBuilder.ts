@@ -6,7 +6,7 @@ import * as cql from '../types/CQLTypes';
 import { Interval, DateTime, Code, Quantity } from 'cql-execution';
 import moment from 'moment';
 
-import { FinalResult, PopulationType, Relevance } from '../types/Enums';
+import { FinalResult, MeasureScoreType, PopulationType, Relevance } from '../types/Enums';
 import {
   ClauseResult,
   DetailedPopulationGroupResult,
@@ -589,12 +589,15 @@ export function doesResultPass(result: any | null): boolean {
  * together so that a patient level population relevance set can be made.
  *
  * @private
+ * @param {fhir4.MeasureGroup} populationGroup population group from measure
  * @param {EpisodeResults[]} episodeResultsSet - Results for each episode
+ * @param {string | null} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @returns {PopulationResult[]} List denoting if population calculation was considered/relevant in any episode
  */
 export function buildPopulationRelevanceForAllEpisodes(
   populationGroup: fhir4.MeasureGroup,
-  episodeResultsSet: EpisodeResults[]
+  episodeResultsSet: EpisodeResults[],
+  measureScoringCode: string | null
 ): PopulationResult[] {
   const masterRelevanceResults: PopulationResult[] =
     populationGroup.population?.map(population => {
@@ -606,7 +609,11 @@ export function buildPopulationRelevanceForAllEpisodes(
     }) || []; // Should not end up becoming an empty list.
 
   episodeResultsSet.forEach(episodeResults => {
-    const episodeRelevance = buildPopulationRelevanceMap(episodeResults.populationResults, populationGroup);
+    const episodeRelevance = buildPopulationRelevanceMap(
+      episodeResults.populationResults,
+      measureScoringCode,
+      populationGroup
+    );
     masterRelevanceResults.forEach(masterPopResults => {
       // find relevance in episode and if true, make master relevance true, only if not already true
       if (masterPopResults.result === false) {
@@ -645,12 +652,14 @@ export function buildPopulationRelevanceForAllEpisodes(
  * This function is extremely verbose because this is an important and confusing calculation to make. The verbosity
  * was kept to make it more maintainable.
  *
- * @param {PopulationResult[]} result - The population results list for the population results.
+ * @param {PopulationResult[]} results - The population results list for the population results.
+ * @param {string | null} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @param {fhir4.MeasureGroup} group - The full group of the Measure, which is useful for resolving references between different populations
  * @returns {PopulationResult[]} The population relevance set.
  */
 export function buildPopulationRelevanceMap(
   results: PopulationResult[],
+  measureScoringCode: string | null,
   group?: fhir4.MeasureGroup
 ): PopulationResult[] {
   // Create initial results starting with all true to create the basis for relevance.
@@ -667,6 +676,7 @@ export function buildPopulationRelevanceMap(
   // If the group has multiple IPPs, they are treated independently
   // This means that a given IPP affects the numerator _only if_ that numerator uses a criteriaReference to reference that IPP
   // Same logic applies with denominator
+
   if (group && MeasureBundleHelpers.hasMultipleIPPs(group)) {
     const numerRelevantIPP = MeasureBundleHelpers.getRelevantIPPFromPopulation(group, PopulationType.NUMER);
     if (numerRelevantIPP) {
@@ -718,7 +728,14 @@ export function buildPopulationRelevanceMap(
 
   // If DENOM is false then DENEX, DENEXCEP, NUMER and NUMEX are not calculated
   if (hasResult(PopulationType.DENOM, results) && getResult(PopulationType.DENOM, results) === false) {
-    if (!(group && MeasureBundleHelpers.hasMultipleIPPs(group))) {
+    // Do not apply this to ratio measures (numerator and denominator are independent from each other)
+    if (
+      !(
+        group &&
+        (MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
+          measureScoringCode === MeasureScoreType.RATIO)
+      )
+    ) {
       if (hasResult(PopulationType.NUMER, relevantResults)) {
         setResult(PopulationType.NUMER, false, relevantResults);
       }
@@ -736,7 +753,14 @@ export function buildPopulationRelevanceMap(
 
   // If DENEX is true then NUMER, NUMEX and DENEXCEP not calculated
   if (hasResult(PopulationType.DENEX, results) && getResult(PopulationType.DENEX, results) === true) {
-    if (!(group && MeasureBundleHelpers.hasMultipleIPPs(group))) {
+    // Do not apply this to ratio measures (numerator and denominator are independent from each other)
+    if (
+      !(
+        group &&
+        (MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
+          measureScoringCode === MeasureScoreType.RATIO)
+      )
+    ) {
       if (hasResult(PopulationType.NUMER, relevantResults)) {
         setResult(PopulationType.NUMER, false, relevantResults);
       }
@@ -786,15 +810,16 @@ export function buildPopulationRelevanceMap(
 
 export function buildPopulationGroupRelevanceMap(
   results: DetailedPopulationGroupResult,
+  measureScoringCode: string | null,
   group: fhir4.MeasureGroup
 ): PopulationResult[] {
   // Episode of care measure
   if (results.episodeResults) {
-    return buildPopulationRelevanceForAllEpisodes(group, results.episodeResults);
+    return buildPopulationRelevanceForAllEpisodes(group, results.episodeResults, measureScoringCode);
 
     // Normal patient based measure
   } else if (results.populationResults) {
-    return buildPopulationRelevanceMap(results.populationResults, group);
+    return buildPopulationRelevanceMap(results.populationResults, measureScoringCode, group);
   } else {
     // this shouldn't happen
     return [];
