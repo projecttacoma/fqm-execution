@@ -1,0 +1,211 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Measure",
+        "id": "measure-TestRootLib",
+        "url": "http://example.com/Measure/measure-TestRootLib",
+        "status": "draft",
+        "library": ["http://example.com/Library/library-TestRootLib"],
+        "group": [
+          {
+            "id": "1b1ebc93-dbdd-4259-becb-45617b62ab8d",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis",
+                "valueCode": "boolean"
+              },
+              {
+                "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-improvementNotation",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-improvement-notation",
+                      "code": "increase"
+                    }
+                  ]
+                }
+              },
+              {
+                "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-scoring",
+                      "code": "proportion"
+                    }
+                  ]
+                }
+              }
+            ],
+            "population": [
+              {
+                "id": "0069b965-110f-4ac0-8bf3-cb40de70f3ea",
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "criteria": {
+                  "language": "text/cql",
+                  "expression": "Initial Population"
+                }
+              },
+              {
+                "id": "5a599b36-46f6-48bc-9c5e-27a35cf6740f",
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "criteria": {
+                  "language": "text/cql",
+                  "expression": "Numerator"
+                }
+              },
+              {
+                "id": "ab9d59dc-aa9e-4657-951a-e47da42fcd2e",
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "criteria": {
+                  "language": "text/cql",
+                  "expression": "Denominator"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Measure/measure-TestRootLib"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Library",
+        "id": "library-TestRootLib",
+        "url": "http://example.com/Library/library-TestRootLib",
+        "version": "0.0.1",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/library-type",
+              "code": "logic-library"
+            }
+          ]
+        },
+        "status": "draft",
+        "content": [
+          {
+            "contentType": "text/cql",
+            "data": "bGlicmFyeSBUZXN0Um9vdExpYiB2ZXJzaW9uICcwLjAuMScKCnVzaW5nIEZISVIgdmVyc2lvbiAnNC4wLjEnCgppbmNsdWRlIFRlc3REZXBzIHZlcnNpb24gJzAuMC4xJyBjYWxsZWQgVEQKaW5jbHVkZSBUZXN0RGVwczIgdmVyc2lvbiAnMC4wLjEnIGNhbGxlZCBURDIKCnZhbHVlc2V0ICJ0ZXN0VmFsdWVzZXQiOiAnaHR0cDovL2V4YW1wbGUuY29tL3Rlc3RWYWx1ZXNldCcKCgpwYXJhbWV0ZXIgIk1lYXN1cmVtZW50IFBlcmlvZCIgSW50ZXJ2YWw8RGF0ZVRpbWU+Cgpjb250ZXh0IFBhdGllbnQKCmRlZmluZSAiRGVub21pbmF0b3IiOgogICJJbml0aWFsIFBvcHVsYXRpb24iCgpkZWZpbmUgIk51bWVyYXRvciI6CiAgICB0cnVlCgpkZWZpbmUgIkluaXRpYWwgUG9wdWxhdGlvbiI6CiAgICB0cnVlCgo="
+          },
+          {
+            "contentType": "application/elm+json",
+            "data": "eyJsaWJyYXJ5Ijp7ImFubm90YXRpb24iOlt7InRyYW5zbGF0b3JPcHRpb25zIjoiRW5hYmxlQW5ub3RhdGlvbnMsRW5hYmxlTG9jYXRvcnMiLCJ0eXBlIjoiQ3FsVG9FbG1JbmZvIn0seyJ0eXBlIjoiQW5ub3RhdGlvbiIsInMiOnsiciI6IjkiLCJzIjpbeyJ2YWx1ZSI6WyIiLCJsaWJyYXJ5IFRlc3RSb290TGliIHZlcnNpb24gJzAuMC4xJyJdfV19fV0sImlkZW50aWZpZXIiOnsiaWQiOiJUZXN0Um9vdExpYiIsInZlcnNpb24iOiIwLjAuMSJ9LCJzY2hlbWFJZGVudGlmaWVyIjp7ImlkIjoidXJuOmhsNy1vcmc6ZWxtIiwidmVyc2lvbiI6InIxIn0sInVzaW5ncyI6eyJkZWYiOlt7ImxvY2FsSWRlbnRpZmllciI6IlN5c3RlbSIsInVyaSI6InVybjpobDctb3JnOmVsbS10eXBlczpyMSJ9LHsibG9jYWxJZCI6IjEiLCJsb2NhdG9yIjoiMzoxLTM6MjYiLCJsb2NhbElkZW50aWZpZXIiOiJGSElSIiwidXJpIjoiaHR0cDovL2hsNy5vcmcvZmhpciIsInZlcnNpb24iOiI0LjAuMSIsImFubm90YXRpb24iOlt7InR5cGUiOiJBbm5vdGF0aW9uIiwicyI6eyJyIjoiMSIsInMiOlt7InZhbHVlIjpbIiIsInVzaW5nICJdfSx7InMiOlt7InZhbHVlIjpbIkZISVIiXX1dfSx7InZhbHVlIjpbIiB2ZXJzaW9uICIsIic0LjAuMSciXX1dfX1dfV19LCJpbmNsdWRlcyI6eyJkZWYiOlt7ImxvY2FsSWQiOiIyIiwibG9jYXRvciI6IjU6MS01OjQyIiwibG9jYWxJZGVudGlmaWVyIjoiVEQiLCJwYXRoIjoiVGVzdERlcHMiLCJ2ZXJzaW9uIjoiMC4wLjEiLCJhbm5vdGF0aW9uIjpbeyJ0eXBlIjoiQW5ub3RhdGlvbiIsInMiOnsiciI6IjIiLCJzIjpbeyJ2YWx1ZSI6WyIiLCJpbmNsdWRlICJdfSx7InMiOlt7InZhbHVlIjpbIlRlc3REZXBzIl19XX0seyJ2YWx1ZSI6WyIgdmVyc2lvbiAiLCInMC4wLjEnIiwiIGNhbGxlZCAiLCJURCJdfV19fV19LHsibG9jYWxJZCI6IjMiLCJsb2NhdG9yIjoiNjoxLTY6NDQiLCJsb2NhbElkZW50aWZpZXIiOiJURDIiLCJwYXRoIjoiVGVzdERlcHMyIiwidmVyc2lvbiI6IjAuMC4xIiwiYW5ub3RhdGlvbiI6W3sidHlwZSI6IkFubm90YXRpb24iLCJzIjp7InIiOiIzIiwicyI6W3sidmFsdWUiOlsiIiwiaW5jbHVkZSAiXX0seyJzIjpbeyJ2YWx1ZSI6WyJUZXN0RGVwczIiXX1dfSx7InZhbHVlIjpbIiB2ZXJzaW9uICIsIicwLjAuMSciLCIgY2FsbGVkICIsIlREMiJdfV19fV19XX0sInBhcmFtZXRlcnMiOnsiZGVmIjpbeyJsb2NhbElkIjoiNyIsImxvY2F0b3IiOiIxMToxLTExOjQ5IiwibmFtZSI6Ik1lYXN1cmVtZW50IFBlcmlvZCIsImFjY2Vzc0xldmVsIjoiUHVibGljIiwiYW5ub3RhdGlvbiI6W3sidHlwZSI6IkFubm90YXRpb24iLCJzIjp7InIiOiI3IiwicyI6W3sidmFsdWUiOlsiIiwicGFyYW1ldGVyICIsIlwiTWVhc3VyZW1lbnQgUGVyaW9kXCIiLCIgIl19LHsiciI6IjYiLCJzIjpbeyJ2YWx1ZSI6WyJJbnRlcnZhbDwiXX0seyJyIjoiNSIsInMiOlt7InZhbHVlIjpbIkRhdGVUaW1lIl19XX0seyJ2YWx1ZSI6WyI+Il19XX1dfX1dLCJwYXJhbWV0ZXJUeXBlU3BlY2lmaWVyIjp7ImxvY2FsSWQiOiI2IiwibG9jYXRvciI6IjExOjMyLTExOjQ5IiwidHlwZSI6IkludGVydmFsVHlwZVNwZWNpZmllciIsInBvaW50VHlwZSI6eyJsb2NhbElkIjoiNSIsImxvY2F0b3IiOiIxMTo0MS0xMTo0OCIsIm5hbWUiOiJ7dXJuOmhsNy1vcmc6ZWxtLXR5cGVzOnIxfURhdGVUaW1lIiwidHlwZSI6Ik5hbWVkVHlwZVNwZWNpZmllciJ9fX1dfSwidmFsdWVTZXRzIjp7ImRlZiI6W3sibG9jYWxJZCI6IjQiLCJsb2NhdG9yIjoiODoxLTg6NTgiLCJuYW1lIjoidGVzdFZhbHVlc2V0IiwiaWQiOiJodHRwOi8vZXhhbXBsZS5jb20vdGVzdFZhbHVlc2V0IiwiYWNjZXNzTGV2ZWwiOiJQdWJsaWMiLCJhbm5vdGF0aW9uIjpbeyJ0eXBlIjoiQW5ub3RhdGlvbiIsInMiOnsiciI6IjQiLCJzIjpbeyJ2YWx1ZSI6WyIiLCJ2YWx1ZXNldCAiLCJcInRlc3RWYWx1ZXNldFwiIiwiOiAiLCInaHR0cDovL2V4YW1wbGUuY29tL3Rlc3RWYWx1ZXNldCciXX1dfX1dfV19LCJjb250ZXh0cyI6eyJkZWYiOlt7ImxvY2F0b3IiOiIxMzoxLTEzOjE1IiwibmFtZSI6IlBhdGllbnQifV19LCJzdGF0ZW1lbnRzIjp7ImRlZiI6W3sibG9jYXRvciI6IjEzOjEtMTM6MTUiLCJuYW1lIjoiUGF0aWVudCIsImNvbnRleHQiOiJQYXRpZW50IiwiZXhwcmVzc2lvbiI6eyJ0eXBlIjoiU2luZ2xldG9uRnJvbSIsIm9wZXJhbmQiOnsibG9jYXRvciI6IjEzOjEtMTM6MTUiLCJkYXRhVHlwZSI6IntodHRwOi8vaGw3Lm9yZy9maGlyfVBhdGllbnQiLCJ0ZW1wbGF0ZUlkIjoiaHR0cDovL2hsNy5vcmcvZmhpci9TdHJ1Y3R1cmVEZWZpbml0aW9uL1BhdGllbnQiLCJ0eXBlIjoiUmV0cmlldmUifX19LHsibG9jYWxJZCI6IjkiLCJsb2NhdG9yIjoiMjE6MS0yMjo4IiwibmFtZSI6IkluaXRpYWwgUG9wdWxhdGlvbiIsImNvbnRleHQiOiJQYXRpZW50IiwiYWNjZXNzTGV2ZWwiOiJQdWJsaWMiLCJhbm5vdGF0aW9uIjpbeyJ0eXBlIjoiQW5ub3RhdGlvbiIsInMiOnsiciI6IjkiLCJzIjpbeyJyIjoiOCIsInZhbHVlIjpbIiIsImRlZmluZSAiLCJcIkluaXRpYWwgUG9wdWxhdGlvblwiIiwiOlxuICAgICIsInRydWUiXX1dfX1dLCJleHByZXNzaW9uIjp7ImxvY2FsSWQiOiI4IiwibG9jYXRvciI6IjIyOjUtMjI6OCIsInZhbHVlVHlwZSI6Int1cm46aGw3LW9yZzplbG0tdHlwZXM6cjF9Qm9vbGVhbiIsInZhbHVlIjoidHJ1ZSIsInR5cGUiOiJMaXRlcmFsIn19LHsibG9jYWxJZCI6IjExIiwibG9jYXRvciI6IjE1OjEtMTY6MjIiLCJuYW1lIjoiRGVub21pbmF0b3IiLCJjb250ZXh0IjoiUGF0aWVudCIsImFjY2Vzc0xldmVsIjoiUHVibGljIiwiYW5ub3RhdGlvbiI6W3sidHlwZSI6IkFubm90YXRpb24iLCJzIjp7InIiOiIxMSIsInMiOlt7InZhbHVlIjpbIiIsImRlZmluZSAiLCJcIkRlbm9taW5hdG9yXCIiLCI6XG4gICJdfSx7InIiOiIxMCIsInMiOlt7InZhbHVlIjpbIlwiSW5pdGlhbCBQb3B1bGF0aW9uXCIiXX1dfV19fV0sImV4cHJlc3Npb24iOnsibG9jYWxJZCI6IjEwIiwibG9jYXRvciI6IjE2OjMtMTY6MjIiLCJuYW1lIjoiSW5pdGlhbCBQb3B1bGF0aW9uIiwidHlwZSI6IkV4cHJlc3Npb25SZWYifX0seyJsb2NhbElkIjoiMTMiLCJsb2NhdG9yIjoiMTg6MS0xOTo4IiwibmFtZSI6Ik51bWVyYXRvciIsImNvbnRleHQiOiJQYXRpZW50IiwiYWNjZXNzTGV2ZWwiOiJQdWJsaWMiLCJhbm5vdGF0aW9uIjpbeyJ0eXBlIjoiQW5ub3RhdGlvbiIsInMiOnsiciI6IjEzIiwicyI6W3siciI6IjEyIiwidmFsdWUiOlsiIiwiZGVmaW5lICIsIlwiTnVtZXJhdG9yXCIiLCI6XG4gICAgIiwidHJ1ZSJdfV19fV0sImV4cHJlc3Npb24iOnsibG9jYWxJZCI6IjEyIiwibG9jYXRvciI6IjE5OjUtMTk6OCIsInZhbHVlVHlwZSI6Int1cm46aGw3LW9yZzplbG0tdHlwZXM6cjF9Qm9vbGVhbiIsInZhbHVlIjoidHJ1ZSIsInR5cGUiOiJMaXRlcmFsIn19XX19fQ=="
+          }
+        ],
+        "relatedArtifact": [
+          {
+            "type": "depends-on",
+            "display": "Library TestDeps",
+            "resource": "http://example.com/Library/library-TestDeps|0.0.1"
+          },
+          {
+            "type": "depends-on",
+            "display": "Library TestDeps2",
+            "resource": "http://example.com/Library/library-TestDeps2|0.0.1"
+          },
+          {
+            "type": "depends-on",
+            "display": "ValueSet http://example.com/testValueset",
+            "resource": "http://example.com/testValueset"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Library/library-TestRootLib"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Library",
+        "id": "library-TestDeps2",
+        "url": "http://example.com/Library/library-TestDeps2",
+        "version": "0.0.1",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/library-type",
+              "code": "logic-library"
+            }
+          ]
+        },
+        "status": "draft",
+        "content": [
+          {
+            "contentType": "text/cql",
+            "data": "bGlicmFyeSBUZXN0RGVwczIgdmVyc2lvbiAnMC4wLjEnCg=="
+          },
+          {
+            "contentType": "application/elm+json",
+            "data": "eyJsaWJyYXJ5Ijp7ImFubm90YXRpb24iOlt7InRyYW5zbGF0b3JPcHRpb25zIjoiRW5hYmxlQW5ub3RhdGlvbnMsRW5hYmxlTG9jYXRvcnMiLCJ0eXBlIjoiQ3FsVG9FbG1JbmZvIn1dLCJpZGVudGlmaWVyIjp7ImlkIjoiVGVzdERlcHMyIiwidmVyc2lvbiI6IjAuMC4xIn0sInNjaGVtYUlkZW50aWZpZXIiOnsiaWQiOiJ1cm46aGw3LW9yZzplbG0iLCJ2ZXJzaW9uIjoicjEifSwidXNpbmdzIjp7ImRlZiI6W3sibG9jYWxJZGVudGlmaWVyIjoiU3lzdGVtIiwidXJpIjoidXJuOmhsNy1vcmc6ZWxtLXR5cGVzOnIxIn1dfX19"
+          }
+        ],
+        "relatedArtifact": []
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Library/library-TestDeps2"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Library",
+        "id": "library-TestDeps",
+        "url": "http://example.com/Library/library-TestDeps",
+        "version": "0.0.1",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/library-type",
+              "code": "logic-library"
+            }
+          ]
+        },
+        "status": "draft",
+        "content": [
+          {
+            "contentType": "text/cql",
+            "data": "bGlicmFyeSBUZXN0RGVwcyB2ZXJzaW9uICcwLjAuMScK"
+          },
+          {
+            "contentType": "application/elm+json",
+            "data": "eyJsaWJyYXJ5Ijp7ImFubm90YXRpb24iOlt7InRyYW5zbGF0b3JPcHRpb25zIjoiRW5hYmxlQW5ub3RhdGlvbnMsRW5hYmxlTG9jYXRvcnMiLCJ0eXBlIjoiQ3FsVG9FbG1JbmZvIn1dLCJpZGVudGlmaWVyIjp7ImlkIjoiVGVzdERlcHMiLCJ2ZXJzaW9uIjoiMC4wLjEifSwic2NoZW1hSWRlbnRpZmllciI6eyJpZCI6InVybjpobDctb3JnOmVsbSIsInZlcnNpb24iOiJyMSJ9LCJ1c2luZ3MiOnsiZGVmIjpbeyJsb2NhbElkZW50aWZpZXIiOiJTeXN0ZW0iLCJ1cmkiOiJ1cm46aGw3LW9yZzplbG0tdHlwZXM6cjEifV19fX0="
+          }
+        ],
+        "relatedArtifact": []
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Library/library-TestDeps"
+      }
+    }
+  ]
+}
