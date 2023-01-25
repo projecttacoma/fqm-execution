@@ -254,7 +254,7 @@ describe('ClauseResultsBuilder', () => {
         }
       ];
 
-      const relevantPops = ClauseResultsBuilder.buildPopulationRelevanceMap(results, null);
+      const relevantPops = ClauseResultsBuilder.buildPopulationRelevanceMap(results);
 
       expect(relevantPops).toEqual(results);
     });
@@ -268,7 +268,7 @@ describe('ClauseResultsBuilder', () => {
         }
       ];
 
-      const relevantPops = ClauseResultsBuilder.buildPopulationRelevanceMap(results, null);
+      const relevantPops = ClauseResultsBuilder.buildPopulationRelevanceMap(results);
 
       expect(relevantPops).toEqual(results);
     });
@@ -301,12 +301,11 @@ describe('ClauseResultsBuilder', () => {
       ];
 
       const results = ClauseResultsBuilder.buildPopulationRelevanceForAllEpisodes(
-        simpleMeasure.group[0],
         [
           { episodeId: '1', populationResults: truePopulationResults },
           { episodeId: '2', populationResults: falsePopulationResults }
         ],
-        null
+        simpleMeasure.group[0]
       );
 
       expect(results.length).toEqual(expectedMasterResults.length);
@@ -371,7 +370,7 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
-      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, null);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -393,7 +392,7 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
-      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, null);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -415,7 +414,7 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
-      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, null);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -437,7 +436,7 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: true }
       ];
 
-      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, null);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -459,7 +458,7 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: false }
       ];
 
-      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, null);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -475,7 +474,7 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: false }
       ];
 
-      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, null);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -491,7 +490,7 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: false }
       ];
 
-      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, null);
+      const relevanceMap = ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults);
       expect(relevanceMap).toEqual(expectedRelevanceMap);
     });
 
@@ -628,7 +627,7 @@ describe('ClauseResultsBuilder', () => {
         ];
 
         expect(
-          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, MeasureScoreType.RATIO, group)
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
         ).toEqual(expectedRelevanceMap);
       });
 
@@ -650,7 +649,7 @@ describe('ClauseResultsBuilder', () => {
         ];
 
         expect(
-          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, MeasureScoreType.RATIO, group)
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
         ).toEqual(expectedRelevanceMap);
       });
 
@@ -672,7 +671,7 @@ describe('ClauseResultsBuilder', () => {
         ];
 
         expect(
-          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, MeasureScoreType.RATIO, group)
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
         ).toEqual(expectedRelevanceMap);
       });
 
@@ -691,7 +690,7 @@ describe('ClauseResultsBuilder', () => {
         ];
 
         expect(
-          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, MeasureScoreType.RATIO, group)
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
         ).toEqual(expectedRelevanceMap);
       });
 
@@ -710,7 +709,7 @@ describe('ClauseResultsBuilder', () => {
         ];
 
         expect(
-          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, MeasureScoreType.RATIO, group)
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
         ).toEqual(expectedRelevanceMap);
       });
 
@@ -731,7 +730,7 @@ describe('ClauseResultsBuilder', () => {
         ];
 
         expect(
-          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, MeasureScoreType.RATIO, group)
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
         ).toEqual(expectedRelevanceMap);
       });
 
@@ -754,7 +753,7 @@ describe('ClauseResultsBuilder', () => {
         ];
 
         expect(
-          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, MeasureScoreType.RATIO, group)
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
         ).toEqual(expectedRelevanceMap);
       });
     });

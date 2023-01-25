@@ -17,14 +17,12 @@ export function getScoringCodeFromGroup(group: fhir4.MeasureGroup): string | nul
   return group?.extension?.find(ext => ext.url === SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ?? null;
 }
 
-export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | null {
-  return (
-    measure.scoring?.coding?.find(
-      c =>
-        c.system === 'http://hl7.org/fhir/measure-scoring' ||
-        c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
-    )?.code ?? null
-  );
+export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | undefined {
+  return measure.scoring?.coding?.find(
+    c =>
+      c.system === 'http://hl7.org/fhir/measure-scoring' ||
+      c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
+  )?.code;
 }
 
 /**

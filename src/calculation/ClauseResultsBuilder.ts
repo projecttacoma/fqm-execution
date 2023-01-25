@@ -589,15 +589,15 @@ export function doesResultPass(result: any | null): boolean {
  * together so that a patient level population relevance set can be made.
  *
  * @private
- * @param {fhir4.MeasureGroup} populationGroup population group from measure
  * @param {EpisodeResults[]} episodeResultsSet - Results for each episode
- * @param {string | null} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
+ * @param {fhir4.MeasureGroup} populationGroup population group from measure
+ * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @returns {PopulationResult[]} List denoting if population calculation was considered/relevant in any episode
  */
 export function buildPopulationRelevanceForAllEpisodes(
-  populationGroup: fhir4.MeasureGroup,
   episodeResultsSet: EpisodeResults[],
-  measureScoringCode: string | null
+  populationGroup: fhir4.MeasureGroup,
+  measureScoringCode?: string
 ): PopulationResult[] {
   const masterRelevanceResults: PopulationResult[] =
     populationGroup.population?.map(population => {
@@ -611,8 +611,8 @@ export function buildPopulationRelevanceForAllEpisodes(
   episodeResultsSet.forEach(episodeResults => {
     const episodeRelevance = buildPopulationRelevanceMap(
       episodeResults.populationResults,
-      measureScoringCode,
-      populationGroup
+      populationGroup,
+      measureScoringCode
     );
     masterRelevanceResults.forEach(masterPopResults => {
       // find relevance in episode and if true, make master relevance true, only if not already true
@@ -653,14 +653,14 @@ export function buildPopulationRelevanceForAllEpisodes(
  * was kept to make it more maintainable.
  *
  * @param {PopulationResult[]} results - The population results list for the population results.
- * @param {string | null} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @param {fhir4.MeasureGroup} group - The full group of the Measure, which is useful for resolving references between different populations
+ * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @returns {PopulationResult[]} The population relevance set.
  */
 export function buildPopulationRelevanceMap(
   results: PopulationResult[],
-  measureScoringCode: string | null,
-  group?: fhir4.MeasureGroup
+  group?: fhir4.MeasureGroup,
+  measureScoringCode?: string
 ): PopulationResult[] {
   // Create initial results starting with all true to create the basis for relevance.
   const relevantResults: PopulationResult[] = results.map(result => {
@@ -810,16 +810,16 @@ export function buildPopulationRelevanceMap(
 
 export function buildPopulationGroupRelevanceMap(
   results: DetailedPopulationGroupResult,
-  measureScoringCode: string | null,
-  group: fhir4.MeasureGroup
+  group: fhir4.MeasureGroup,
+  measureScoringCode?: string
 ): PopulationResult[] {
   // Episode of care measure
   if (results.episodeResults) {
-    return buildPopulationRelevanceForAllEpisodes(group, results.episodeResults, measureScoringCode);
+    return buildPopulationRelevanceForAllEpisodes(results.episodeResults, group, measureScoringCode);
 
     // Normal patient based measure
   } else if (results.populationResults) {
-    return buildPopulationRelevanceMap(results.populationResults, measureScoringCode, group);
+    return buildPopulationRelevanceMap(results.populationResults, group, measureScoringCode);
   } else {
     // this shouldn't happen
     return [];

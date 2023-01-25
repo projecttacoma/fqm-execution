@@ -114,13 +114,13 @@ export function createPopulationValues(
  * values that should not be considered calculated are zeroed out. ex. results NUMER is true but IPP is false.
  * @param {PopulationResult[]} populationResults - The list of population results.
  * @param {fhir4.MeasureGroup} group - Full Measure Group used to detect multiple IPPs and resolve any references between populations
- * @param measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
+ * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @returns {PopulationResult[]} Population results in the list as passed in, but the appropriate values are zeroed out.
  */
 export function handlePopulationValues(
   populationResults: PopulationResult[],
   group: fhir4.MeasureGroup,
-  measureScoringCode: string | null
+  measureScoringCode?: string
 ): PopulationResult[] {
   /* Setting values of populations if the correct populations are not set based on the following logic guidelines
    * Initial Population (IPP): The set of patients or episodes of care to be evaluated by the measure.
@@ -135,7 +135,6 @@ export function handlePopulationValues(
    */
   const populationResultsHandled = populationResults;
   // Cannot be in all populations if not in IPP.
-
   if (MeasureBundleHelpers.hasMultipleIPPs(group)) {
     const numerRelevantIPP = MeasureBundleHelpers.getRelevantIPPFromPopulation(group, PopulationType.NUMER);
     if (numerRelevantIPP) {
@@ -349,14 +348,14 @@ function isStatementValueTruthy(value: any): boolean {
  * used only for the episode of care measures.
  * @param {fhir4.MeasureGroup} populationGroup - The population group we are getting the values for.
  * @param {cql.StatementResults} patientResults - The raw results object for the patient from the calculation engine.
- * @param measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
+ * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @returns {EpisodeResults[]} The episode results list. Structure with episode id population results for each episode.
  *   If this is a continuous variable measure the observations are included.
  */
 export function createEpisodePopulationValues(
   populationGroup: fhir4.MeasureGroup,
   patientResults: cql.StatementResults,
-  measureScoringCode: string | null
+  measureScoringCode?: string
 ): EpisodeResults[] {
   const episodeResultsSet: EpisodeResults[] = [];
 
