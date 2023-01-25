@@ -769,7 +769,11 @@ export function buildPopulationRelevanceMap(
   }
 
   // If NUMER is true then DENEXCEP is not calculated
-  if (hasResult(PopulationType.NUMER, results) && getResult(PopulationType.NUMER, results) === true) {
+  if (
+    hasResult(PopulationType.NUMER, results) &&
+    getResult(PopulationType.NUMER, results) === true &&
+    !MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)
+  ) {
     if (hasResult(PopulationType.DENEXCEP, relevantResults)) {
       setResult(PopulationType.DENEXCEP, false, relevantResults);
     }

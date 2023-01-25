@@ -5,7 +5,6 @@ import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomEr
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
 import { ValueSetResolver } from '../execution/ValueSetResolver';
 import { ExtractedLibrary } from '../types/CQLTypes';
-import { MeasureBundleHelpers } from '..';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -33,10 +32,7 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
  * @returns true if scoring code is 'ratio' for the group or at the measure root, false otherwise
  */
 export function isRatioMeasure(group?: fhir4.MeasureGroup, measureScoringCode?: string): boolean {
-  return (
-    MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
-    measureScoringCode === MeasureScoreType.RATIO
-  );
+  return getScoringCodeFromGroup(group) === MeasureScoreType.RATIO || measureScoringCode === MeasureScoreType.RATIO;
 }
 
 /**
