@@ -79,7 +79,7 @@ export async function parseQueryInfo(
   allELM: ELM[],
   queryLocalId?: string,
   valueComparisonLocalId?: string,
-  parameters: { [key: string]: any } = {},
+  parameters: Record<string, any> = {},
   patient?: CQLPatient
 ): Promise<QueryInfo> {
   if (!queryLocalId) {
