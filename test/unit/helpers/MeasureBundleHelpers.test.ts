@@ -12,7 +12,8 @@ import {
   getScoringCodeFromMeasure,
   getObservationResultForPopulation,
   extractLibrariesFromMeasureBundle,
-  extractLibrariesFromLibraryBundle
+  extractLibrariesFromLibraryBundle,
+  isRatioMeasure
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
 import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
@@ -69,13 +70,75 @@ describe('MeasureBundleHelpers tests', () => {
       expect(getScoringCodeFromMeasure(measure)).toEqual('ratio');
     });
 
-    it('should return null when no scoring is present on measure resource', () => {
+    it('should return undefined when no scoring is present on measure resource', () => {
       const measure: fhir4.Measure = {
         resourceType: 'Measure',
         status: 'unknown'
       };
 
-      expect(getScoringCodeFromMeasure(measure)).toBeNull();
+      expect(getScoringCodeFromMeasure(measure)).toBeUndefined();
+    });
+  });
+
+  describe('isRatioMeasure', () => {
+    it('should return true when group scoring code is "ratio"', () => {
+      const group: fhir4.MeasureGroup = {
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring',
+            valueCodeableConcept: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+                  code: 'ratio'
+                }
+              ]
+            }
+          }
+        ]
+      };
+
+      expect(isRatioMeasure(group)).toBe(true);
+    });
+
+    it('should return true when measure scoring code is "ratio"', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        scoring: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+              code: 'ratio',
+              display: 'Ratio'
+            }
+          ]
+        },
+        group: [{}]
+      };
+      const measureScoringCode = getScoringCodeFromMeasure(measure);
+      const group: fhir4.MeasureGroup = (measure.group as fhir4.MeasureGroup[])[0];
+
+      expect(isRatioMeasure(group, measureScoringCode)).toBe(true);
+    });
+
+    it('should return false if neither measure scoring code nor group scoring code is "ratio"', () => {
+      const group: fhir4.MeasureGroup = {
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring',
+            valueCodeableConcept: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+                  code: 'proportion'
+                }
+              ]
+            }
+          }
+        ]
+      };
+      expect(isRatioMeasure(group)).toBe(false);
     });
   });
 

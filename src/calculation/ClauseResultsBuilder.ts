@@ -6,7 +6,7 @@ import * as cql from '../types/CQLTypes';
 import { Interval, DateTime, Code, Quantity } from 'cql-execution';
 import moment from 'moment';
 
-import { FinalResult, MeasureScoreType, PopulationType, Relevance } from '../types/Enums';
+import { FinalResult, PopulationType, Relevance } from '../types/Enums';
 import {
   ClauseResult,
   DetailedPopulationGroupResult,
@@ -729,13 +729,7 @@ export function buildPopulationRelevanceMap(
   // If DENOM is false then DENEX, DENEXCEP, NUMER and NUMEX are not calculated
   if (hasResult(PopulationType.DENOM, results) && getResult(PopulationType.DENOM, results) === false) {
     // Do not apply this to ratio measures (numerator and denominator are independent from each other)
-    if (
-      !(
-        group &&
-        (MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
-          measureScoringCode === MeasureScoreType.RATIO)
-      )
-    ) {
+    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
       if (hasResult(PopulationType.NUMER, relevantResults)) {
         setResult(PopulationType.NUMER, false, relevantResults);
       }
@@ -754,13 +748,7 @@ export function buildPopulationRelevanceMap(
   // If DENEX is true then NUMER, NUMEX and DENEXCEP not calculated
   if (hasResult(PopulationType.DENEX, results) && getResult(PopulationType.DENEX, results) === true) {
     // Do not apply this to ratio measures (numerator and denominator are independent from each other)
-    if (
-      !(
-        group &&
-        (MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
-          measureScoringCode === MeasureScoreType.RATIO)
-      )
-    ) {
+    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
       if (hasResult(PopulationType.NUMER, relevantResults)) {
         setResult(PopulationType.NUMER, false, relevantResults);
       }

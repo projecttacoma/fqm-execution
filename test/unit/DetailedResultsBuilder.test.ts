@@ -585,7 +585,7 @@ describe('DetailedResultsBuilder', () => {
       );
     });
 
-    describe('handlePopulationValues for group with observations and multiple IPPs', () => {
+    describe('handlePopulationValues for group with observations and multiple IPPs (relevant for ratio measures)', () => {
       const group: fhir4.MeasureGroup = {
         population: [
           {

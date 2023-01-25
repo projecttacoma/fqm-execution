@@ -5,6 +5,7 @@ import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomEr
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
 import { ValueSetResolver } from '../execution/ValueSetResolver';
 import { ExtractedLibrary } from '../types/CQLTypes';
+import { MeasureBundleHelpers } from '..';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -13,7 +14,7 @@ import { ExtractedLibrary } from '../types/CQLTypes';
 const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
 const SCORING_CODE_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring';
 
-export function getScoringCodeFromGroup(group: fhir4.MeasureGroup): string | null {
+export function getScoringCodeFromGroup(group?: fhir4.MeasureGroup): string | null {
   return group?.extension?.find(ext => ext.url === SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ?? null;
 }
 
@@ -23,6 +24,19 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
       c.system === 'http://hl7.org/fhir/measure-scoring' ||
       c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
   )?.code;
+}
+
+/**
+ * Checks if a given measure/measure group has scoring code 'ratio.'
+ * @param group measure group (used to extract scoring code if present on the group)
+ * @param measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
+ * @returns true if scoring code is 'ratio' for the group or at the measure root, false otherwise
+ */
+export function isRatioMeasure(group?: fhir4.MeasureGroup, measureScoringCode?: string): boolean {
+  return (
+    MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
+    measureScoringCode === MeasureScoreType.RATIO
+  );
 }
 
 /**

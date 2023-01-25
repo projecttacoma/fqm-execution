@@ -3,7 +3,7 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as DetailedResultsHelpers from '../helpers/DetailedResultsHelpers';
 import { getResult, hasResult, setResult, createOrSetResult } from './ClauseResultsBuilder';
 import { ELM, ELMStatement } from '../types/ELMTypes';
-import { MeasureScoreType, PopulationType } from '../types/Enums';
+import { PopulationType } from '../types/Enums';
 import * as cql from '../types/CQLTypes';
 
 /**
@@ -187,12 +187,7 @@ export function handlePopulationValues(
     }
 
     // If the numer is influenced by the DENOM, false it out and its observations since we are not in the DENOM for this branch of logic
-    if (
-      !(
-        MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
-        measureScoringCode === MeasureScoreType.RATIO
-      )
-    ) {
+    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // If there are not multiple IPPs, then NUMER depends on DENOM. We're not in the DENOM, so let's null out NUMER observations
@@ -203,12 +198,7 @@ export function handlePopulationValues(
 
     // Cannot be in the numerator if they are excluded from the denominator
   } else if (getResult(PopulationType.DENEX, populationResults)) {
-    if (
-      !(
-        MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
-        measureScoringCode === MeasureScoreType.RATIO
-      )
-    ) {
+    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // Since we can't be in the numerator, null out numerator observations
@@ -233,10 +223,7 @@ export function handlePopulationValues(
 
     // Cannot be in the DENEXCEP if in the NUMER
   } else if (
-    !(
-      MeasureBundleHelpers.getScoringCodeFromGroup(group) === MeasureScoreType.RATIO ||
-      measureScoringCode === MeasureScoreType.RATIO
-    ) &&
+    !MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode) &&
     getResult(PopulationType.NUMER, populationResults)
   ) {
     setResult(PopulationType.DENEXCEP, false, populationResults);
