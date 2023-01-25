@@ -590,8 +590,8 @@ export function doesResultPass(result: any | null): boolean {
  *
  * @private
  * @param {EpisodeResults[]} episodeResultsSet - Results for each episode
- * @param {fhir4.MeasureGroup} populationGroup population group from measure
- * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
+ * @param {fhir4.MeasureGroup} populationGroup - The population group from the measure
+ * @param {string} measureScoringCode - The scoring code for the measure (used if scoring code not provided at the group level)
  * @returns {PopulationResult[]} List denoting if population calculation was considered/relevant in any episode
  */
 export function buildPopulationRelevanceForAllEpisodes(
@@ -654,7 +654,7 @@ export function buildPopulationRelevanceForAllEpisodes(
  *
  * @param {PopulationResult[]} results - The population results list for the population results.
  * @param {fhir4.MeasureGroup} group - The full group of the Measure, which is useful for resolving references between different populations
- * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
+ * @param {string} measureScoringCode - The scoring code for measure (used if scoring code not provided at the group level)
  * @returns {PopulationResult[]} The population relevance set.
  */
 export function buildPopulationRelevanceMap(
@@ -796,6 +796,15 @@ export function buildPopulationRelevanceMap(
   return relevantResults;
 }
 
+/**
+ * Wrapper function that builds population relevance either for all episodes (if the measure is episode-based) or for each
+ * population (if patient-based).
+ * @param results - The detailed results (used to pull off episode results for episode of care measure, or population results for
+ * patient-based measure)
+ * @param group - The full group of the Measure
+ * @param measureScoringCode - The scoring code for measure (used if scoring code not provided at the group level)
+ * @returns The population relevance set.
+ */
 export function buildPopulationGroupRelevanceMap(
   results: DetailedPopulationGroupResult,
   group: fhir4.MeasureGroup,
