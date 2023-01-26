@@ -769,6 +769,7 @@ export function buildPopulationRelevanceMap(
   }
 
   // If NUMER is true then DENEXCEP is not calculated
+  // Do not apply this to ratio measures (numerator and denominator are independent from each other)
   if (
     hasResult(PopulationType.NUMER, results) &&
     getResult(PopulationType.NUMER, results) === true &&
