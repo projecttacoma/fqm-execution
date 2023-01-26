@@ -460,7 +460,7 @@ describe('Parse Query Info', () => {
 
   test('simple valueset with id check with no parameters passed in', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[2].expression.localId; // expression with aliased query
-    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, {}, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_VS_WITH_ID_CHECK_QUERY);
   });
 
@@ -549,13 +549,13 @@ describe('Parse Query Info', () => {
 
   test('simple - query references query in another library, combines filters', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[10].expression.localId; // In simple queries "Nested Query From Another Library"
-    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, {}, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY);
   });
 
   test('simple - query references query in another library, combines filters', async () => {
     const queryLocalId = simpleQueryELM.library.statements.def[10].expression.localId; // In simple queries "Nested Query From Another Library"
-    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(simpleQueryELM, allELM, queryLocalId, undefined, {}, PATIENT);
     expect(queryInfo).toEqual(EXPECTED_QUERY_REFERENCES_QUERY_IN_ANOTHER_LIBRARY);
   });
 
@@ -567,6 +567,7 @@ describe('Parse Query Info', () => {
       [valueComparatorELM],
       queryLocalId,
       valueComparisonLocalId,
+      {},
       PATIENT
     );
     expect(queryInfo).toEqual(EXPECTED_EXTERNAL_VALUE_COMPARISON_QUERY);
@@ -574,7 +575,14 @@ describe('Parse Query Info', () => {
 
   test('Value Comparison queries produces value filter with tracked valueComparisonLocalId when comparison is done inside of a query', async () => {
     const queryLocalId = (valueComparatorELM.library.statements.def[3].expression as ELMLast).source.localId;
-    const queryInfo = await parseQueryInfo(valueComparatorELM, [valueComparatorELM], queryLocalId, undefined, PATIENT);
+    const queryInfo = await parseQueryInfo(
+      valueComparatorELM,
+      [valueComparatorELM],
+      queryLocalId,
+      undefined,
+      {},
+      PATIENT
+    );
     expect(queryInfo).toEqual(EXPECTED_INTERNAL_VALUE_COMPARISON_QUERY);
   });
 });

@@ -23,7 +23,8 @@ import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
-import { Interval } from 'cql-execution';
+import { DateTime, Interval } from 'cql-execution';
+import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -52,18 +53,17 @@ export async function getDataRequirements(
   cqls: ExtractedLibrary[],
   rootLibIdentifier: ELMIdentifier,
   elmJSONs: ELM[],
-  options: CalculationOptions = {}
+  options: CalculationOptions = {},
+  effectivePeriod?: fhir4.Period
 ): Promise<DRCalculationOutput> {
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
-
-  const { startCql, endCql } = Execution.getCQLIntervalEndpoints(options);
 
   // We need a root library to run dataRequirements properly. If we don't have one, error out.
   if (!rootLib?.library) {
     throw new UnexpectedResource("root library doesn't contain a library object");
   }
+  const parameters = extractDataRequirementsMeasurementPeriod(options, effectivePeriod);
 
-  const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
   const withErrors: GracefulError[] = [];
   // get the retrieves for every statement in the root library
   const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
@@ -390,4 +390,58 @@ export function codeLookup(dataType: string, attribute: string): string | null {
     }
   }
   return null;
+}
+
+/**
+ * Extracts the measurement period information from either the options or effective period (in that order depending on presence)
+ * and populates a parameters object including the extracted info to be passed into the parseQueryInfo function
+ */
+export function extractDataRequirementsMeasurementPeriod(options: CalculationOptions, effectivePeriod?: fhir4.Period) {
+  if (!hasMeasurementPeriodInfo(options, effectivePeriod)) {
+    return {};
+  }
+  const parameters: Record<string, Interval> = {};
+
+  if (options.measurementPeriodStart || options.measurementPeriodEnd) {
+    parameters['Measurement Period'] = createIntervalFromEndpoints(
+      options.measurementPeriodStart,
+      options.measurementPeriodEnd
+    );
+  } else {
+    parameters['Measurement Period'] = createIntervalFromEndpoints(effectivePeriod?.start, effectivePeriod?.end);
+  }
+  return parameters;
+}
+
+/**
+ * Creates a cql-execution interval from start to end. If either start or end is not present,
+ * creates an interval with duration exactly one year using the present endpoint
+ */
+export function createIntervalFromEndpoints(start?: string, end?: string) {
+  let startCql, endCql;
+  if (start && end) {
+    ({ startCql, endCql } = Execution.getCQLIntervalEndpoints({
+      measurementPeriodStart: start,
+      measurementPeriodEnd: end
+    }));
+  } else {
+    if (start) {
+      startCql = parseTimeStringAsUTC(start);
+      endCql = new Date(startCql);
+      endCql.setFullYear(startCql.getFullYear() + 1);
+    } else if (end) {
+      endCql = parseTimeStringAsUTC(end);
+      startCql = new Date(endCql);
+      startCql.setFullYear(endCql.getFullYear() - 1);
+    }
+    startCql = DateTime.fromJSDate(startCql, 0);
+    endCql = DateTime.fromJSDate(endCql, 0);
+  }
+  return new Interval(startCql, endCql);
+}
+
+function hasMeasurementPeriodInfo(options: CalculationOptions, effectivePeriod?: fhir4.Period) {
+  return Boolean(
+    options.measurementPeriodStart || options.measurementPeriodEnd || effectivePeriod?.start || effectivePeriod?.end
+  );
 }

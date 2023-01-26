@@ -29,6 +29,13 @@ export interface QueryInfo {
 }
 
 /**
+ * Parameters passed in to parseQueryInfo providing measurement period info
+ */
+export interface QueryParserParams {
+  'Measurement Period'?: Interval;
+}
+
+/**
  * Information about a single source in a query.
  */
 export interface SourceInfo {
