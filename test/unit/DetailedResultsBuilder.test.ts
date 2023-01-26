@@ -1,7 +1,7 @@
 import * as DetailedResultsBuilder from '../../src/calculation/DetailedResultsBuilder';
 
 import { getJSONFixture } from './helpers/testHelpers';
-import { PopulationType } from '../../src/types/Enums';
+import { MeasureScoreType, PopulationType } from '../../src/types/Enums';
 import { StatementResults } from '../../src/types/CQLTypes';
 import { PopulationResult, EpisodeResults } from '../../src/types/Calculator';
 import { ELMExpressionRef, ELMQuery, ELMTuple, ELMFunctionRef } from '../../src/types/ELMTypes';
@@ -12,8 +12,10 @@ type MeasureWithGroup = fhir4.Measure & {
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWithGroup;
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as MeasureWithGroup;
+const ratioMeasure = getJSONFixture('measure/ratio-measure.json') as MeasureWithGroup;
 const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
+const ratioMeasureGroup = ratioMeasure.group[0];
 const groupWithObs = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 const measureWithMeasureObs = getJSONFixture('measure/measure-measure-obs.json') as MeasureWithGroup;
 const groupWithMeasureObs = (measureWithMeasureObs.group as [fhir4.MeasureGroup])[0];
@@ -583,7 +585,7 @@ describe('DetailedResultsBuilder', () => {
       );
     });
 
-    describe('multiple IPPs', () => {
+    describe('handlePopulationValues for group with observations and multiple IPPs (relevant for ratio measures)', () => {
       const group: fhir4.MeasureGroup = {
         population: [
           {
@@ -758,7 +760,9 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: false }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group, MeasureScoreType.RATIO)).toEqual(
+          expectedHandledResults
+        );
       });
 
       test('should false out DENOM/DENEX/DENEXCEP when relevant IPP is false', () => {
@@ -776,9 +780,59 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.DENEXCEP, criteriaExpression: 'denexcep', result: false }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group, MeasureScoreType.RATIO)).toEqual(
+          expectedHandledResults
+        );
       });
 
+      test('should null out NUMER observations when associated IPP is false for multiple IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: false },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
+        ];
+
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group, MeasureScoreType.RATIO)).toEqual(
+          expectedHandledResults
+        );
+      });
+
+      test('should null out DENOM observations when associated IPP is false for multiple IPP', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: false, observations: null },
+          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+        ];
+
+        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group, MeasureScoreType.RATIO)).toEqual(
+          expectedHandledResults
+        );
+      });
+    });
+
+    describe('handlePopulationValues for group with observations and single IPP (non-ratio measure)', () => {
       test('should null out NUMER and DENOM observations IPP for single IPP', () => {
         const populationResults: PopulationResult[] = [
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
@@ -795,9 +849,9 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: false, observations: null }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
-          expectedHandledResults
-        );
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs, MeasureScoreType.PROP)
+        ).toEqual(expectedHandledResults);
       });
 
       test('should null out NUMER observations when not in DENOM for single IPP', () => {
@@ -814,9 +868,9 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
-          expectedHandledResults
-        );
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs, MeasureScoreType.PROP)
+        ).toEqual(expectedHandledResults);
       });
 
       test('should null out both NUMER and DENOM observations when not in DENOM for single IPP', () => {
@@ -835,9 +889,9 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
-          expectedHandledResults
-        );
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs, MeasureScoreType.PROP)
+        ).toEqual(expectedHandledResults);
       });
 
       test('should null out NUMER observations when in DENEX for single IPP', () => {
@@ -858,9 +912,9 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
-          expectedHandledResults
-        );
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs, MeasureScoreType.PROP)
+        ).toEqual(expectedHandledResults);
       });
 
       test('should null out NUMER observations when not in NUMER for single IPP', () => {
@@ -879,9 +933,9 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs)).toEqual(
-          expectedHandledResults
-        );
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithObs, MeasureScoreType.PROP)
+        ).toEqual(expectedHandledResults);
       });
 
       test('should null out observation when not in MSRPOPL', () => {
@@ -939,9 +993,13 @@ describe('DetailedResultsBuilder', () => {
           }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithMeasurePopulation)).toEqual(
-          expectedHandledResults
-        );
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(
+            populationResults,
+            groupWithMeasurePopulation,
+            MeasureScoreType.PROP
+          )
+        ).toEqual(expectedHandledResults);
       });
 
       test('should null out observation when in MSRPOPLEX', () => {
@@ -1020,51 +1078,35 @@ describe('DetailedResultsBuilder', () => {
           }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, groupWithMeasurePopulation)).toEqual(
-          expectedHandledResults
-        );
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(
+            populationResults,
+            groupWithMeasurePopulation,
+            MeasureScoreType.PROP
+          )
+        ).toEqual(expectedHandledResults);
       });
+    });
 
-      test('should null out NUMER observations when associated IPP is false for multiple IPP', () => {
+    describe('handlePopulationValues for group with single IPP - ratio measure', () => {
+      test('should not false out NUMER/NUMEX when DENOM is false for ratio measure', () => {
         const populationResults: PopulationResult[] = [
           { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
-          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: false },
-          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
-          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
-        ];
-        const expectedHandledResults: PopulationResult[] = [
-          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
-          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: false },
-          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
-          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: false, observations: null }
-        ];
-
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
-      });
-
-      test('should null out DENOM observations when associated IPP is false for multiple IPP', () => {
-        const populationResults: PopulationResult[] = [
-          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
-          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
-          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
-          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: true },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
-        ];
-        const expectedHandledResults: PopulationResult[] = [
-          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: false },
-          { populationType: PopulationType.IPP, criteriaExpression: 'ipp2', result: true },
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'denomFunc', result: false, observations: null },
-          { populationType: PopulationType.OBSERV, criteriaExpression: 'numerFunc', result: true }
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
         ];
 
-        expect(DetailedResultsBuilder.handlePopulationValues(populationResults, group)).toEqual(expectedHandledResults);
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, ratioMeasureGroup, MeasureScoreType.RATIO)
+        ).toEqual(expectedHandledResults);
       });
     });
   });

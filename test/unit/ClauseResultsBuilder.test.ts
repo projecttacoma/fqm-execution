@@ -2,7 +2,7 @@ import * as ClauseResultsBuilder from '../../src/calculation/ClauseResultsBuilde
 import { getJSONFixture, getELMFixture } from './helpers/testHelpers';
 
 import { PopulationResult, StatementResult } from '../../src/types/Calculator';
-import { PopulationType, Relevance, FinalResult } from '../../src/types/Enums';
+import { PopulationType, Relevance, FinalResult, MeasureScoreType } from '../../src/types/Enums';
 import * as cql from '../../src/types/CQLTypes';
 
 type MeasureWithGroup = fhir4.Measure & {
@@ -300,10 +300,13 @@ describe('ClauseResultsBuilder', () => {
         { populationType: PopulationType.NUMEX, criteriaExpression: 'Numerator Exclusion', result: true }
       ];
 
-      const results = ClauseResultsBuilder.buildPopulationRelevanceForAllEpisodes(simpleMeasure.group[0], [
-        { episodeId: '1', populationResults: truePopulationResults },
-        { episodeId: '2', populationResults: falsePopulationResults }
-      ]);
+      const results = ClauseResultsBuilder.buildPopulationRelevanceForAllEpisodes(
+        [
+          { episodeId: '1', populationResults: truePopulationResults },
+          { episodeId: '2', populationResults: falsePopulationResults }
+        ],
+        simpleMeasure.group[0]
+      );
 
       expect(results.length).toEqual(expectedMasterResults.length);
       expect(results).toEqual(expect.arrayContaining(expectedMasterResults));
@@ -623,9 +626,9 @@ describe('ClauseResultsBuilder', () => {
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true }
         ];
 
-        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
-          expectedRelevanceMap
-        );
+        expect(
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
+        ).toEqual(expectedRelevanceMap);
       });
 
       test('should mark numer/numex irrelevant when corresponding IPP is false', () => {
@@ -645,9 +648,9 @@ describe('ClauseResultsBuilder', () => {
           { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: false }
         ];
 
-        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
-          expectedRelevanceMap
-        );
+        expect(
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
+        ).toEqual(expectedRelevanceMap);
       });
 
       test('should mark denom/denex/denexcep irrelevant when corresponding IPP is false', () => {
@@ -667,9 +670,9 @@ describe('ClauseResultsBuilder', () => {
           { populationType: PopulationType.DENEXCEP, criteriaExpression: 'denexcep', result: false }
         ];
 
-        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
-          expectedRelevanceMap
-        );
+        expect(
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
+        ).toEqual(expectedRelevanceMap);
       });
 
       test('should mark denom relevant independent of numer IPP', () => {
@@ -686,9 +689,9 @@ describe('ClauseResultsBuilder', () => {
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false }
         ];
 
-        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
-          expectedRelevanceMap
-        );
+        expect(
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
+        ).toEqual(expectedRelevanceMap);
       });
 
       test('should mark numer relevant independent of denom IPP', () => {
@@ -705,9 +708,9 @@ describe('ClauseResultsBuilder', () => {
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true }
         ];
 
-        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
-          expectedRelevanceMap
-        );
+        expect(
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
+        ).toEqual(expectedRelevanceMap);
       });
 
       test('should bypass denom-based numer/numex logic', () => {
@@ -726,9 +729,9 @@ describe('ClauseResultsBuilder', () => {
           { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
         ];
 
-        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
-          expectedRelevanceMap
-        );
+        expect(
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
+        ).toEqual(expectedRelevanceMap);
       });
 
       test('should bypass denex-based numer/numex logic', () => {
@@ -749,9 +752,9 @@ describe('ClauseResultsBuilder', () => {
           { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
         ];
 
-        expect(ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group)).toEqual(
-          expectedRelevanceMap
-        );
+        expect(
+          ClauseResultsBuilder.buildPopulationRelevanceMap(populationResults, group, MeasureScoreType.RATIO)
+        ).toEqual(expectedRelevanceMap);
       });
     });
   });

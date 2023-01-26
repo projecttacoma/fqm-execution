@@ -26,16 +26,17 @@ export function createPopulationValues(
   let stratifierResults: StratifierResult[] | undefined;
   let episodeResults: EpisodeResults[] | undefined;
 
+  const measureScoringCode = MeasureBundleHelpers.getScoringCodeFromMeasure(measure);
   // patient based measure
   if (!MeasureBundleHelpers.isEpisodeOfCareGroup(measure, populationGroup)) {
     const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
     populationResults = popAndStratResults.populationResults;
     stratifierResults = popAndStratResults.stratifierResults;
-    populationResults = handlePopulationValues(populationResults, populationGroup);
+    populationResults = handlePopulationValues(populationResults, populationGroup, measureScoringCode);
   } else {
     // episode of care based measure
     // collect results per episode
-    episodeResults = createEpisodePopulationValues(populationGroup, patientResults);
+    episodeResults = createEpisodePopulationValues(populationGroup, patientResults, measureScoringCode);
 
     // if no episodes were found we need default populationResults/stratifierResults. Just use the patient
     // level logic for this
@@ -113,11 +114,13 @@ export function createPopulationValues(
  * values that should not be considered calculated are zeroed out. ex. results NUMER is true but IPP is false.
  * @param {PopulationResult[]} populationResults - The list of population results.
  * @param {fhir4.MeasureGroup} group - Full Measure Group used to detect multiple IPPs and resolve any references between populations
+ * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @returns {PopulationResult[]} Population results in the list as passed in, but the appropriate values are zeroed out.
  */
 export function handlePopulationValues(
   populationResults: PopulationResult[],
-  group: fhir4.MeasureGroup
+  group: fhir4.MeasureGroup,
+  measureScoringCode?: string
 ): PopulationResult[] {
   /* Setting values of populations if the correct populations are not set based on the following logic guidelines
    * Initial Population (IPP): The set of patients or episodes of care to be evaluated by the measure.
@@ -184,7 +187,7 @@ export function handlePopulationValues(
     }
 
     // If the numer is influenced by the DENOM, false it out and its observations since we are not in the DENOM for this branch of logic
-    if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
+    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // If there are not multiple IPPs, then NUMER depends on DENOM. We're not in the DENOM, so let's null out NUMER observations
@@ -195,7 +198,7 @@ export function handlePopulationValues(
 
     // Cannot be in the numerator if they are excluded from the denominator
   } else if (getResult(PopulationType.DENEX, populationResults)) {
-    if (!MeasureBundleHelpers.hasMultipleIPPs(group)) {
+    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // Since we can't be in the numerator, null out numerator observations
@@ -219,7 +222,10 @@ export function handlePopulationValues(
     DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
 
     // Cannot be in the DENEXCEP if in the NUMER
-  } else if (!MeasureBundleHelpers.hasMultipleIPPs(group) && getResult(PopulationType.NUMER, populationResults)) {
+  } else if (
+    !MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode) &&
+    getResult(PopulationType.NUMER, populationResults)
+  ) {
     setResult(PopulationType.DENEXCEP, false, populationResults);
   }
   return populationResultsHandled;
@@ -329,12 +335,14 @@ function isStatementValueTruthy(value: any): boolean {
  * used only for the episode of care measures.
  * @param {fhir4.MeasureGroup} populationGroup - The population group we are getting the values for.
  * @param {cql.StatementResults} patientResults - The raw results object for the patient from the calculation engine.
+ * @param {string} measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
  * @returns {EpisodeResults[]} The episode results list. Structure with episode id population results for each episode.
  *   If this is a continuous variable measure the observations are included.
  */
 export function createEpisodePopulationValues(
   populationGroup: fhir4.MeasureGroup,
-  patientResults: cql.StatementResults
+  patientResults: cql.StatementResults,
+  measureScoringCode?: string
 ): EpisodeResults[] {
   const episodeResultsSet: EpisodeResults[] = [];
 
@@ -428,7 +436,11 @@ export function createEpisodePopulationValues(
 
   // Correct any inconsistencies. ex. In DENEX but also in NUMER using same function used for patients.
   episodeResultsSet.forEach(episodeResults => {
-    episodeResults.populationResults = handlePopulationValues(episodeResults.populationResults, populationGroup);
+    episodeResults.populationResults = handlePopulationValues(
+      episodeResults.populationResults,
+      populationGroup,
+      measureScoringCode
+    );
   });
 
   // TODO: Remove any episode that don't fall in any populations or stratifications after the above code
