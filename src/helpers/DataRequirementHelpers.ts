@@ -441,7 +441,7 @@ export function createIntervalFromEndpoints(start?: string, end?: string) {
 }
 
 function hasMeasurementPeriodInfo(options: CalculationOptions, effectivePeriod?: fhir4.Period) {
-  return (
+  return Boolean(
     options.measurementPeriodStart || options.measurementPeriodEnd || effectivePeriod?.start || effectivePeriod?.end
   );
 }

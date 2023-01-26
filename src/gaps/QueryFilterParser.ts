@@ -51,7 +51,8 @@ import {
   UnknownFilter,
   ValueFilter,
   ValueFilterComparator,
-  IsNullFilter
+  IsNullFilter,
+  QueryParserParams
 } from '../types/QueryFilterTypes';
 import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
 import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
@@ -79,7 +80,7 @@ export async function parseQueryInfo(
   allELM: ELM[],
   queryLocalId?: string,
   valueComparisonLocalId?: string,
-  parameters: Record<string, any> = {},
+  parameters: QueryParserParams = {},
   patient?: CQLPatient
 ): Promise<QueryInfo> {
   if (!queryLocalId) {
