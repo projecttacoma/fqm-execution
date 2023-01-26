@@ -105,7 +105,7 @@ function getPopulationResult(
 export function assertEpisodeObservations(
   result: DetailedPopulationGroupResult,
   episodeId: string,
-  observations: any[],
+  observations: any[] | undefined,
   criteriaReferencePopulationType?: PopulationType
 ) {
   expect(result.episodeResults).toBeDefined();
@@ -124,7 +124,7 @@ export function assertEpisodeObservations(
  */
 export function assertGroupObservations(
   result: DetailedPopulationGroupResult,
-  observations: any[],
+  observations: any[] | undefined,
   criteriaReferencePopulationType?: PopulationType
 ) {
   expect(result.populationResults).toBeDefined();
@@ -137,7 +137,7 @@ export function assertGroupObservations(
  */
 function assertObservations(
   populationResults: PopulationResult[],
-  observations: any[],
+  observations: any[] | undefined,
   criteriaReferencePopulationType?: PopulationType
 ) {
   // if criteria ref type is passed in find the population id of it
@@ -147,7 +147,11 @@ function assertObservations(
       : undefined;
 
   const observResult = getPopulationResult(populationResults, PopulationType.OBSERV, criteriaReferenceId);
-  expect(observResult.observations).toEqual(observations);
+  if (observations != undefined) {
+    expect(observResult.observations).toEqual(observations);
+  } else {
+    expect(observResult.observations).toBeFalsy();
+  }
 }
 
 /**
