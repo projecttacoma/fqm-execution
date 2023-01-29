@@ -1,0 +1,237 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "f9e2c3d6-38d9-4e5a-bbe5-fa965daea346",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "2e734bf5-d477-4842-a615-ff47006ca93f",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-2e734bf5-d477-4842-a615-ff47006ca93f"
+          }
+        ],
+        "name": [
+          {
+            "family": "Rohan483",
+            "given": [
+              "Archie889"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/2e734bf5-d477-4842-a615-ff47006ca93f"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "73dd8d81-77d8-46e7-984c-a3db88797d43",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "exampleSystem",
+                "version": "exampleVersion",
+                "code": "exampleCode"
+              }
+            ]
+          }
+        ],
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "IMP"
+        },
+        "status": "finished",
+        "subject": {
+          "reference": "Patient/2e734bf5-d477-4842-a615-ff47006ca93f"
+        },
+        "period": {
+          "start": "2022-10-08T07:36:18.157Z",
+          "end": "2022-10-09T07:36:18.157Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/73dd8d81-77d8-46e7-984c-a3db88797d43"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "ae5a5635-f2ed-40d4-a1bd-ec93181ae30a",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "exampleSystem",
+                "version": "exampleVersion",
+                "code": "exampleCode"
+              }
+            ]
+          }
+        ],
+        "status": "finished",
+        "subject": {
+          "reference": "Patient/2e734bf5-d477-4842-a615-ff47006ca93f"
+        },
+        "period": {
+          "start": "2022-03-11T22:35:50.643Z",
+          "end": "2022-03-14T22:35:50.643Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/ae5a5635-f2ed-40d4-a1bd-ec93181ae30a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "4af3c69d-ada0-4a2e-99d2-dd53b7c0e16c",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "exampleSystem",
+                "version": "exampleVersion",
+                "code": "exampleCode"
+              }
+            ]
+          }
+        ],
+        "status": "finished",
+        "subject": {
+          "reference": "Patient/2e734bf5-d477-4842-a615-ff47006ca93f"
+        },
+        "period": {
+          "start": "2022-03-06T18:32:08.421Z",
+          "end": "2022-03-08T18:32:08.421Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/4af3c69d-ada0-4a2e-99d2-dd53b7c0e16c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "5a98692b-2d29-46d4-8083-7c3b218b74d1",
+        "measure": "http://example.com/Measure/measure-RatioEncounterReuseObservation",
+        "period": {
+          "start": "2022-01-01T05:00:00.000Z",
+          "end": "2022-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#45d684f8-bdc8-4bec-942b-f48420b2a2e5"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "45d684f8-bdc8-4bec-942b-f48420b2a2e5",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "2e734bf5-d477-4842-a615-ff47006ca93f"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "measure-observation"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "measure-observation"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/5a98692b-2d29-46d4-8083-7c3b218b74d1"
+      }
+    }
+  ]
+}

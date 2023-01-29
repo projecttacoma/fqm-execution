@@ -1,0 +1,208 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "c882472f-7fc1-4e01-96b2-04c9426a031b",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "905dae3c-a78b-4f03-addc-57a41aef63f5",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-905dae3c-a78b-4f03-addc-57a41aef63f5"
+          }
+        ],
+        "name": [
+          {
+            "family": "Lebsack986",
+            "given": [
+              "Andres712"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/905dae3c-a78b-4f03-addc-57a41aef63f5"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "99da356c-0344-496a-bd48-bee6f797e175",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "exampleSystem",
+                "version": "exampleVersion",
+                "code": "exampleCode"
+              }
+            ]
+          }
+        ],
+        "status": "finished",
+        "subject": {
+          "reference": "Patient/905dae3c-a78b-4f03-addc-57a41aef63f5"
+        },
+        "period": {
+          "start": "2022-10-08T07:36:18.157Z",
+          "end": "2022-10-09T07:36:18.157Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/99da356c-0344-496a-bd48-bee6f797e175"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "f9de7f21-953a-4bf1-a17c-599eb0b8f533",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "exampleSystem",
+                "version": "exampleVersion",
+                "code": "exampleCode"
+              }
+            ]
+          }
+        ],
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "IMP"
+        },
+        "status": "in-progress",
+        "subject": {
+          "reference": "Patient/905dae3c-a78b-4f03-addc-57a41aef63f5"
+        },
+        "period": {
+          "start": "2022-03-11T22:35:50.643Z",
+          "end": "2022-03-14T22:35:50.643Z"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/f9de7f21-953a-4bf1-a17c-599eb0b8f533"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "3fe85e7a-cc38-4200-bca4-74e8971741bc",
+        "measure": "http://example.com/Measure/measure-RatioEncounterReuseObservation",
+        "period": {
+          "start": "2022-01-01T05:00:00.000Z",
+          "end": "2022-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#90eff2bd-ce0b-463b-bc15-f359ac04e98c"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "90eff2bd-ce0b-463b-bc15-f359ac04e98c",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "905dae3c-a78b-4f03-addc-57a41aef63f5"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "measure-observation"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "measure-observation"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/3fe85e7a-cc38-4200-bca4-74e8971741bc"
+      }
+    }
+  ]
+}
