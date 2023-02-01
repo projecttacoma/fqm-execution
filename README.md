@@ -125,9 +125,9 @@ const valueSets = await MeasureBundleHelpers.addValueSetsToMeasureBundle(measure
 #### Arguments
 
 - `measureBundle`: Bundle containing a FHIR Measure and its dependent Libraries. FHIR ValueSets may be included as well.
-- `patientBundles`: Array of FHIR Bundles containing patient data
-- `options` (optional): Object of calculation options (see below)
-- `valueSetCache` (optional): Array of FHIR ValueSet resources to use for calculation
+- `patientBundles`: Array of FHIR Bundles containing patient data.
+- `options` (optional): Object of calculation options (see below).
+- `valueSetCache` (optional): Array of FHIR ValueSet resources to use for calculation.
 
 #### Calculation Options
 
