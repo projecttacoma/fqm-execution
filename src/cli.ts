@@ -69,7 +69,7 @@ program
   )
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)
   .option(
-    '--profile-validation',
+    '--trust-meta-profile',
     'To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against.',
     false
   )
@@ -148,7 +148,7 @@ async function populatePatientBundles() {
     // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
     // from patientBundles and wipe patientBundles to be an empty array.
     if (program.asPatientSource) {
-      const patientSource = PatientSource.FHIRv401({ requireProfileTagging: program.profileValidation });
+      const patientSource = PatientSource.FHIRv401({ requireProfileTagging: program.trustMetaProfile });
       patientSource.loadBundles(patientBundles);
       calcOptions.patientSource = patientSource;
       patientBundles = [];
@@ -172,7 +172,7 @@ const calcOptions: CalculationOptions = {
   vsAPIKey: program.vsApiKey,
   useValueSetCaching: program.cacheValuesets,
   verboseCalculationResults: !program.slim,
-  trustMetaProfile: program.profileValidation,
+  trustMetaProfile: program.trustMetaProfile,
   rootLibRef: program.rootLibRef
 };
 

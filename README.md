@@ -148,7 +148,7 @@ The options that we support for calculation are as follows:
 | useValueSetCaching | boolean | yes | Whether to cache ValueSets obtained by an API on the filesystem. Defaults to false. |
 | useElmJsonsCaching | boolean | yes | Whether to cache the ELM JSONs and associated information from calculation. Defaults to false. |
 | clearElmJsonsCache | boolean | yes | Whether to clear the ELM JSONs cache before running calculation. Defaults to false. |
-| profileValidation | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that [cql-exec-fhir](https://github.com/projecttacoma/cql-exec-fhir) grabs validates against. Defaults to false.|
+| trustMetaProfile | boolean | yes | To "trust" the content of meta.profile as a source of truth for what profiles the data that [cql-exec-fhir](https://github.com/projecttacoma/cql-exec-fhir) grabs validates against. Defaults to false.|
 
 ### CLI
 
@@ -179,7 +179,7 @@ Options:
   -e, --measurement-period-end <date>         End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).
   --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing ValueSets.
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
-  --profile-validation                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
+  --trust-meta-profile                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
   --root-lib-ref <root-lib-ref>               Reference to the root Library
   -h, --help                                  display help for command
