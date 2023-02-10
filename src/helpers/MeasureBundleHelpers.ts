@@ -227,10 +227,18 @@ export function extractLibrariesFromLibraryBundle(
   elmJSONs: ELM[];
 } {
   let rootLibId: string;
-  if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
-  else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
+  let rootLibVersion: string | undefined;
+  if (isValidLibraryURL(rootLibRef)) {
+    if (rootLibRef.includes('|')) {
+      const splitRootLibRef = rootLibRef.split('|');
+      rootLibId = splitRootLibRef[0];
+      rootLibVersion = splitRootLibRef[1];
+    } else {
+      rootLibId = rootLibRef;
+    }
+  } else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
 
-  const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromBundle(libraryBundle, rootLibId);
+  const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromBundle(libraryBundle, rootLibId, rootLibVersion);
 
   if (rootLibIdentifier.id === '') {
     throw new UnexpectedResource('No Root Library could be identified in provided library bundle');
@@ -245,7 +253,8 @@ export function extractLibrariesFromLibraryBundle(
  */
 export function extractLibrariesFromBundle(
   bundle: fhir4.Bundle,
-  rootLibId: string
+  rootLibId: string,
+  rootLibVersion?: string
 ): {
   cqls: ExtractedLibrary[];
   rootLibIdentifier: ELMIdentifier;
@@ -267,7 +276,8 @@ export function extractLibrariesFromBundle(
         if (elmEncoded.data) {
           const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
           const elm = JSON.parse(decoded) as ELM;
-          if (library.url == rootLibId) {
+          // If url matches and we have a defined rootLibVersion, check that version matches also
+          if (library.url === rootLibId && (!rootLibVersion || library.version === rootLibVersion)) {
             rootLibIdentifier = elm.library.identifier;
           } else if (library.id === rootLibId) {
             rootLibIdentifier = elm.library.identifier;

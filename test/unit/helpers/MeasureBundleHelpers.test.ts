@@ -896,6 +896,27 @@ describe('MeasureBundleHelpers tests', () => {
       expect(elmJSONs).toHaveLength(3);
     });
 
+    it('properly gets libraries from test library bundle using canonical URL with version for rootLibRef', () => {
+      const measureBundle = getJSONFixture('bundle/measure-with-library-dependencies.json') as fhir4.Bundle;
+      const libraryBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        id: 'test-bundle',
+        type: 'transaction'
+      };
+      libraryBundle.entry = measureBundle.entry?.filter(e => e.resource?.resourceType === 'Library');
+
+      const rootLibRef = 'http://example.com/Library/library-TestRootLib|0.0.1';
+      const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromLibraryBundle(libraryBundle, rootLibRef);
+
+      expect(rootLibIdentifier).toStrictEqual({
+        id: 'TestRootLib',
+        version: '0.0.1'
+      });
+      // The test Bundle has 3 libraries, including the root one
+      expect(cqls).toHaveLength(3);
+      expect(elmJSONs).toHaveLength(3);
+    });
+
     it('throws an error if there is no root Library resource in the Library bundle', () => {
       const libraryBundle: fhir4.Bundle = {
         resourceType: 'Bundle',
