@@ -1,4 +1,4 @@
-library RatioEncounterReuseObservation version '0.0.002'
+library RatioEncounterReuseObservation version '0.0.004'
 
 using FHIR version '4.0.1'
 
