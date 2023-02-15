@@ -140,7 +140,6 @@ export function getObservationResultForPopulation(
   desiredPopulationType: PopulationType
 ): PopulationResult | null {
   const popId = group?.population?.find(pop => codeableConceptToPopulationType(pop.code) === desiredPopulationType)?.id;
-
   if (popId) {
     const desiredObservation = group?.population?.find(pop => {
       return (
@@ -150,8 +149,13 @@ export function getObservationResultForPopulation(
     });
 
     const criteriaCode = desiredObservation?.criteria?.expression;
-    if (criteriaCode) {
-      return popResults.find(e => e.criteriaExpression === criteriaCode) ?? null;
+    if (criteriaCode && desiredObservation) {
+      return (
+        popResults.find(
+          e =>
+            e.criteriaExpression === criteriaCode && (e.populationId ? e.populationId === desiredObservation.id : true)
+        ) ?? null
+      );
     }
   }
 
