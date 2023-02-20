@@ -74,7 +74,7 @@ export async function execute(
   } catch (e) {
     if (e instanceof Error) {
       e.message = `The following error occurred in the cql-execution engine: ${e.message}`;
-      
+
       if (e instanceof TypeError) {
         e.message +=
           '\n\n\t- Inspect the content of the ELM and ensure the data types in the expressions are correct\n\n';
