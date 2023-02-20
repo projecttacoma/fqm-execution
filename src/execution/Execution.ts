@@ -68,7 +68,6 @@ export async function execute(
   const lib = rep.resolve(rootLibIdentifier.id, rootLibIdentifier.version);
 
   const executor = new Executor(lib, codeService, parameters);
-
   let results: Results;
   try {
     results = await executor.exec(patientSource, executionDateTime);
