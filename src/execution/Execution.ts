@@ -1,5 +1,5 @@
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
-import { DataProvider, DateTime, Interval, Executor } from 'cql-execution';
+import { DataProvider, DateTime, Interval, Executor, Results } from 'cql-execution';
 import { parseTimeStringAsUTC, getMissingDependentValuesets } from './ValueSetHelper';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { ValueSetResolver } from './ValueSetResolver';
@@ -66,11 +66,18 @@ export async function execute(
   const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
   const executionDateTime = DateTime.fromJSDate(new Date(), 0);
   const lib = rep.resolve(rootLibIdentifier.id, rootLibIdentifier.version);
-  /**
-   * TODO look more into this if it returns string instead of error
-   */
+
   const executor = new Executor(lib, codeService, parameters);
-  const results = await executor.exec(patientSource, executionDateTime);
+
+  let results: Results;
+  try {
+    results = await executor.exec(patientSource, executionDateTime);
+  } catch (e) {
+    if (e instanceof Error) {
+      e.message = `The following error occurred in the cql-execution engine: ${e.message}`;
+    }
+    throw e;
+  }
 
   // Map evaluated resource from engine to the raw FHIR json
   Object.keys(results.patientEvaluatedRecords).forEach(patientId => {
