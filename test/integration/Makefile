@@ -1,5 +1,10 @@
 # Finds the relative path of any modified or new CQL files for integration testing
-MODIFIED_CQL_FILES=$(shell git status --porcelain ./**/*.cql | sed "s/^...//")
+
+ifeq "$(FORCE)" "true"
+MODIFIED_CQL_FILES=$(shell find . -type f -name "*.cql" -not -path "./helpers/*")
+else
+MODIFIED_CQL_FILES=$(shell git status --porcelain ./**/*.cql -- ':!helpers' | sed "s/^...//")
+endif
 
 # Prevents the presence of a directory with the same name skipping Makefile targets
 # TODO: Add other targets once defined

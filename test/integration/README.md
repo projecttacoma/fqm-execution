@@ -15,6 +15,12 @@ The `Makefile` also includes a target for starting up an instance of [cql-transl
 npm run build:test-data
 ```
 
+By default, the only bundles that will be built are ones whose CQL files contain local changes (this is detected with a `git status` command). To bypass this and force rebuild all bundles including ones whose underlying CQL is not modified:
+
+```bash
+FORCE=true npm run build:test-data
+```
+
 ### Building Using Make Targets
 
 Individual measure bundles can be built with the `Makefile` in the `test/integration` directory. This requires `ecqm-bundler` to be installed globally:
