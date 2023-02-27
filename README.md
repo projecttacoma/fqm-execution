@@ -178,7 +178,7 @@ during the results processing (e.g. a patient cannot be in the numerator if they
 
 ### Episode-based Measures
 
-For episode-based measures, calculation is largely the same as the [basic example](#interpreting-calculation-results), but the detailed results responses allows for a more granular view of which population's each individual episode landed into via an `episodeResults` list that appears in each
+For episode-based measures, calculation is largely the same as the [basic example](#interpreting-calculation-results), but the detailed results responses allows for a more granular view of which populations each individual episode landed into via an `episodeResults` list that appears in each
 `detailedResult` object for episode-based measures only.
 
 In this case, there is still an overall `populationResults` list for convenience, where a given `populationResult` is `true` if _any_ of the episodes have result `true` for that population in the individual `episodeResults` list. Continuing the example from above, the following would be what the results
@@ -430,8 +430,8 @@ The options that we support for calculation are as follows:
 - `[clearElmJsonsCache]`<[boolean]()>: if `true`, clears ELM JSON cache before running calculation (default: `false`)
 - `[enableDebugOutput]`<[boolean]()>: Enable debug output including CQL, ELM, results (default: `false`)
 - `[includeClauseResults]` <[boolean]()>: Option to include clause results (default: `false`)
-- `[measurementPeriodEnd]`<[string]()>: End of measurement period
-- `[measurementPeriodStart]`<[string]()>: Start of measurement period
+- `[measurementPeriodEnd]`<[string]()>: End of measurement period. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+- `[measurementPeriodStart]`<[string]()>: Start of measurement period. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
 - `[patientSource]`<[DataProvider](https://github.com/cqframework/cql-execution/blob/e4d3f24571daf3ae9f891df11bb22fc964f6de5d/src/types/cql-patient.interfaces.ts#L8)>: PatientSource to use. **If provided, the `patientBundles` argument must be `[]`**. See the [Custom PatientSource section](#custom-patientsource) for more info
 - `[reportType]`<['individual' | 'subject-list' | 'summary']()>: The type of FHIR MeasureReport to return (default: `'individual'`)
 - `[returnELM]`<[boolean]()>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
@@ -491,7 +491,7 @@ fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundl
 
 ## Measures with Observation Functions
 
-For [Continuous Variable Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#continuous-variable-measure) and [Ratio Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#ratio-measures), some of the measure populations can have an associates "measure observation", which is a CQL function that will return some result based on some information present on the data during calculation. In the case of these measures, `fqm-execution` will include an `observations` property on the `populationResult` object for each measure observation population. This `observations` property
+For [Continuous Variable Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#continuous-variable-measure) and [Ratio Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#ratio-measures), some of the measure populations can have an associated "measure observation", which is a CQL function that will return some result based on some information present on the data during calculation. In the case of these measures, `fqm-execution` will include an `observations` property on the `populationResult` object for each measure observation population. This `observations` property
 will be a list of the raw results returned from the execution of that CQL function on each unit of measure (e.g. on each `Encounter` resource for an `Encounter`-based episode measure).
 
 In the following example, consider an `Encounter`-based measure with two relevant episodes (`"episode-1"` and `"episode-2"`) on the patient `patient-1` in group `group-1`. The measure observation function `daysObservation` will be measuring the duration, in days, of each `Encounter` resource that lands in the denominator.
@@ -577,7 +577,7 @@ From these results, it can be seen that `"episode-1"` has a duration of `1` day,
 
 ## `meta.profile` Checking
 
-`fqm-execution` can be configured to use a [trusted environment with cql-exec-fhir](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-criteriaReference.html), where resources returned as the result of an ELM Retrieve expressions will only be included if they have a `meta.profile` list that contains the canonical URL of the profile being asked for by the Retrieve. To enable this environment, use the `trustMetaProfile` calculation option during calculation:
+`fqm-execution` can be configured to use a [trusted environment with cql-exec-fhir](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-criteriaReference.html), where resources returned as the result of an ELM Retrieve expression will only be included if they have a `meta.profile` list that contains the canonical URL of the profile being asked for by the Retrieve. To enable this environment, use the `trustMetaProfile` calculation option during calculation:
 
 ```typescript
 import { Calculator } from 'fqm-execution';
