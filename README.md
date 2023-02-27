@@ -354,10 +354,6 @@ Get data requirements for a given Library bundle with a root Library reference
 
 [Promise<CalculatorTypes.DRCalculationOutput>](https://github.com/projecttacoma/fqm-execution/blob/7c43b94521963703bdb43932bad60e5be3e7eeaa/src/types/Calculator.ts#L421)
 
-```typescript
-const libraryDataRequirements = await Calculator.calculateLibraryDataRequirements(measureBundle, options);
-```
-
 ### `.calculateMeasureReports`
 
 Get individual FHIR MeasureReports for each patient.
