@@ -979,7 +979,7 @@ const evaluateMeasure = async (args, { req }) => {
 
 For suggestions or contributions, please use [GitHub Issues](https://github.com/projecttacoma/fqm-execution/issues) or open a [Pull Request](https://github.com/projecttacoma/fqm-execution/pulls).
 
-For more information, please see our [contribution guide](/contributing).
+For more information, please see our [contribution guide](/contributing.md).
 
 # License
 
