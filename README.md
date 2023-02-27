@@ -16,7 +16,7 @@
 
 ---
 
-# Table of contents
+# Table of Contents
 
 - [Introduction](#introduction)
 - [Installation](#installation)
