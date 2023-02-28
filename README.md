@@ -178,7 +178,7 @@ during the results processing (e.g. a patient cannot be in the numerator if they
 
 ### Episode-based Measures
 
-For episode-based measures, calculation is largely the same as the [basic example](#interpreting-calculation-results), but the detailed results responses allows for a more granular view of which populations each individual episode landed into via an `episodeResults` list that appears in each
+For episode-based measures, calculation is largely the same as the [basic example](#interpreting-calculation-results), but the detailed results responses allow for a more granular view of which populations each individual episode landed into via an `episodeResults` list that appears in each
 `detailedResult` object for episode-based measures only.
 
 In this case, there is still an overall `populationResults` list for convenience, where a given `populationResult` is `true` if _any_ of the episodes have result `true` for that population in the individual `episodeResults` list. Continuing the example from above, the following would be what the results
@@ -573,7 +573,7 @@ From these results, it can be seen that `"episode-1"` has a duration of `1` day,
 
 ## `meta.profile` Checking
 
-`fqm-execution` can be configured to use a [trusted environment with cql-exec-fhir](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-criteriaReference.html), where resources returned as the result of an ELM Retrieve expression will only be included if they have a `meta.profile` list that contains the canonical URL of the profile being asked for by the Retrieve. To enable this environment, use the `trustMetaProfile` calculation option during calculation:
+`fqm-execution` can be configured to use a [trusted environment with cql-exec-fhir](https://github.com/cqframework/cql-exec-fhir#optional-trusted-environment-with-metaprofile), where resources returned as the result of an ELM Retrieve expression will only be included if they have a `meta.profile` list that contains the canonical URL of the profile being asked for by the Retrieve. To enable this environment, use the `trustMetaProfile` calculation option during calculation:
 
 ```typescript
 import { Calculator } from 'fqm-execution';
@@ -694,7 +694,7 @@ const { results } = await Calculator.calculateMeasureReports(measureBundle, pati
  */
 ```
 
-**NOTE**: Measure logic highlighting is not available when calculation a population `MeasureReport` with `reportType = 'summary'`
+**NOTE**: Measure logic highlighting is not available when calculating a population `MeasureReport` with `reportType = 'summary'`
 
 ## Group Clause Coverage Highlighting
 
