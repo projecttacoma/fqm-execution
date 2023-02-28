@@ -426,8 +426,8 @@ The options that we support for calculation are as follows:
 - `[clearElmJsonsCache]`<[boolean]()>: if `true`, clears ELM JSON cache before running calculation (default: `false`)
 - `[enableDebugOutput]`<[boolean]()>: Enable debug output including CQL, ELM, results (default: `false`)
 - `[includeClauseResults]` <[boolean]()>: Option to include clause results (default: `false`)
-- `[measurementPeriodEnd]`<[string]()>: End of measurement period. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
-- `[measurementPeriodStart]`<[string]()>: Start of measurement period. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+- `[measurementPeriodEnd]`<[string]()>: End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+- `[measurementPeriodStart]`<[string]()>: Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
 - `[patientSource]`<[DataProvider](https://github.com/cqframework/cql-execution/blob/e4d3f24571daf3ae9f891df11bb22fc964f6de5d/src/types/cql-patient.interfaces.ts#L8)>: PatientSource to use. **If provided, the `patientBundles` argument must be `[]`**. See the [Custom PatientSource section](#custom-patientsource) for more info
 - `[reportType]`<['individual' | 'subject-list' | 'summary']()>: The type of FHIR MeasureReport to return (default: `'individual'`)
 - `[returnELM]`<[boolean]()>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
@@ -463,8 +463,8 @@ Options:
   -m, --measure-bundle <measure-bundle>       Path to measure bundle.
   -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is one of the following: dataRequirements, queryInfo, valueSets.
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
-  -s, --measurement-period-start <date>       Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there).
-  -e, --measurement-period-end <date>         End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).
+  -s, --measurement-period-start <date>       Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+  -e, --measurement-period-end <date>         End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
   --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing ValueSets.
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
   --trust-meta-profile                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)

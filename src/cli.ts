@@ -54,12 +54,12 @@ program
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(
     '-s, --measurement-period-start <date>',
-    'Start date for the measurement period, in YYYY-MM-DD format (defaults to the start date defined in the Measure, or 2019-01-01 if not set there).',
+    'Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence',
     undefined
   )
   .option(
     '-e, --measurement-period-end <date>',
-    'End date for the measurement period, in YYYY-MM-DD format (defaults to the end date defined in the Measure, or 2019-12-31 if not set there).',
+    'End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence',
     undefined
   )
   .option(
