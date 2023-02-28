@@ -92,7 +92,7 @@ Add the following contents to `.vscode/launch.json` in the root of the project d
 
 This will allow you to run the CLI from the `Run` tab in VS Code, and will halt execution of the program at any breakpoints or `debugger` statements in the code, to allow for debugging of the functionality.
 
-**NOTE**: The `dataRequirements`, `queryInfo`, and `valueSets` commands do not require patient bundle(s) to be specified in the `args` array
+**NOTE**: The `dataRequirements`, `libraryDataRequirements`, `queryInfo`, and `valueSets` commands do not require patient bundle(s) to be specified in the `args` array
 
 # Testing
 

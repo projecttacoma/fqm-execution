@@ -49,7 +49,7 @@ program
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'Path to measure bundle.')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
-    'Paths to patient bundles. Required unless output type is one of the following: dataRequirements, queryInfo, valueSets.'
+    'Paths to patient bundles. Required unless output type is one of the following: dataRequirements, libraryDataRequirements, queryInfo, valueSets.'
   )
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(

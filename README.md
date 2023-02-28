@@ -428,7 +428,7 @@ The options that we support for calculation are as follows:
 - `[calculateClauseCoverage]`<[boolean]()>: Include HTML structure with clause coverage highlighting (default: `true`)
 - `[calculateHTML]`<[boolean]()>: Include HTML structure for highlighting (default: `true`)
 - `[calculateSDEs]`<[boolean]()>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
-- `[clearElmJsonsCache]`<[boolean]()>: if `true`, clears ELM JSON cache before running calculation (default: `false`)
+- `[clearElmJsonsCache]`<[boolean]()>: If `true`, clears ELM JSON cache before running calculation (default: `false`)
 - `[enableDebugOutput]`<[boolean]()>: Enable debug output including CQL, ELM, results (default: `false`)
 - `[includeClauseResults]` <[boolean]()>: Option to include clause results (default: `false`)
 - `[measurementPeriodEnd]`<[string]()>: End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
@@ -437,7 +437,7 @@ The options that we support for calculation are as follows:
 - `[reportType]`<['individual' | 'summary']()>: The type of FHIR MeasureReport to return (default: `'individual'`)
 - `[returnELM]`<[boolean]()>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
 - `[rootLibRef]`<[string]()>: Reference to root library to be used in `calculateLibraryDataRequirements`. Should be a canonical URL but resource ID will work if matching one exists in the bundle
-- `[trustMetaProfile]`<[boolean]()>: If `true` trust the content of `meta.profile` as a source of truth for what profiles the data that `cql-exec-fhir` grabs validates against. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `false`)
+- `[trustMetaProfile]`<[boolean]()>: If `true`, trust the content of `meta.profile` as a source of truth for what profiles the data that `cql-exec-fhir` grabs validates against. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `false`)
 - `[useElmJsonsCaching]`<[boolean]()>: If `true`, cache ELM JSONs and associated data for access in subsequent runs within 10 minutes (default: `false`)
 - `[useValueSetCaching]`<[boolean]()>: If `true`, ValueSets retrieved from a terminology service will be cached and used in subsequent runs where this is also `true` (default: `false`)
 - `[verboseCalculationResults]`<[boolean]()>: If `false`, detailed results will only contain information necessary to interpreting simple population results (default: `true`)
@@ -466,7 +466,7 @@ Options:
   --slim                                      Use slimmed-down calculation results interfaces (default: false)
   --report-type <report-type>                 Type of report, "individual", "summary"
   -m, --measure-bundle <measure-bundle>       Path to measure bundle.
-  -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is one of the following: dataRequirements, queryInfo, valueSets.
+  -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is one of the following: dataRequirements, libraryDataRequirements, queryInfo, valueSets.
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
   -s, --measurement-period-start <date>       Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
   -e, --measurement-period-end <date>         End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
