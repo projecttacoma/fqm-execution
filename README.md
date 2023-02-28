@@ -110,26 +110,29 @@ import { Calculator } from 'fqm-execution';
 // ...
 
 const { results } = await Calculator.calculate(measureBundle, patientBundles, options[, valueSetCache]);
-/*        ^?
-          [
-              {
-                "patientId": "<some-patient-id>",
-                "detailedResults": [
-                  {
-                    "groupId": "<some-group-id>",
-                    "statementResults": [<raw results of each root CQL statement from the engine>],
-                    "populationResults": [<results for inclusion in each eCQM population for this patient>],
-                    "populationRelevance": [<list of which populations were considered for inclusion for this patient>],
-                    "clauseResults": [<specific clause-level results of each snippet of CQL>],
-                    "html": "<html markup of logic highlighting>"
-                  }
-                ],
-                "evaluatedResource": [<resources processed by the engine during execution of this patient>],
-                "patientObject": {<JSON of the patient resource for easier access to properties of this patient>},
-                "supplementalData": [<results of supplemental data element calculation for this patient>"]
-              }
-         ]
-*/
+```
+
+The calculation results returned above will have the following structure:
+
+```
+[
+  {
+    "patientId": "<some-patient-id>",
+    "detailedResults": [
+      {
+        "groupId": "<some-group-id>",
+        "statementResults": [<raw results of each root CQL statement from the engine>],
+        "populationResults": [<results for inclusion in each eCQM population for this patient>],
+        "populationRelevance": [<list of which populations were considered for inclusion for this patient>],
+        "clauseResults": [<specific clause-level results of each snippet of CQL>],
+        "html": "<html markup of logic highlighting>"
+      }
+    ],
+    "evaluatedResource": [<resources processed by the engine during execution of this patient>],
+    "patientObject": {<JSON of the patient resource for easier access to properties of this patient>},
+    "supplementalData": [<results of supplemental data element calculation for this patient>"]
+  }
+]
 ```
 
 ## Interpreting Calculation Results
