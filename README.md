@@ -333,7 +333,7 @@ Get data requirements for a given Measure.
 
 ### `.calculateGapsInCare`
 
-Get gaps in care for each patient. Output adheres to the [DEQM Gaps In Care Bundle Profile](https://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-bundle-deqm.html)
+Get gaps in care for each patient. Output adheres to the [DEQM Gaps In Care Bundle Profile](https://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-bundle-deqm.html).
 
 **Parameters**:
 
@@ -348,7 +348,7 @@ Get gaps in care for each patient. Output adheres to the [DEQM Gaps In Care Bund
 
 ### `.calculateLibraryDataRequirements`
 
-Get data requirements for a given Library bundle with a root Library reference
+Get data requirements for a given Library bundle with a root Library reference.
 
 **Parameters**:
 
