@@ -94,11 +94,13 @@ To calculate a FHIR-based eCQM, `fqm-execution` needs the following information:
   - The [FHIR Library](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-library-cqfm.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
     - **NOTE**: These `Library` resources _must_ contain `base64`-encoded ELM JSON content directly on the resource. `fqm-execution` does not do any real-time translation of CQL to ELM
   - Any [FHIR ValueSet](http://hl7.org/fhir/valueset.html) resources that are used in the measure logic\*
-- One or more FHIR `Bundle` resources that contain:
+- One or more FHIR `Bundle` resources\*\* that contain:
   - One [FHIR Patient](http://hl7.org/fhir/patient.html) resource
   - Any other FHIR resources that contain relevant data for the above patient that should be considered during measure calculation
 
 \*`ValueSet` resources can be omitted if you follow the approach outlined in the [ValueSet Resolution](#valueset-resolution) section
+
+\*\*A patient `Bundle` may not be required in all types of calculation, such as [data requirements](#data-requirements) or [query info](#query-info) calculation
 
 ## Calculating an eCQM
 
