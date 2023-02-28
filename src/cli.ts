@@ -45,7 +45,7 @@ program.command('valueSets').action(() => {
 program
   .option('--debug', 'Enable debug output.', false)
   .option('--slim', 'Use slimmed-down calculation results interfaces', false)
-  .option('--report-type <report-type>', 'Type of report, "individual", "summary", "subject-list".')
+  .option('--report-type <report-type>', 'Type of report, "individual", "summary"')
   .requiredOption('-m, --measure-bundle <measure-bundle>', 'Path to measure bundle.')
   .option(
     '-p, --patient-bundles <patient-bundles...>',
