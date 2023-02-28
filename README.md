@@ -703,7 +703,7 @@ const { results } = await Calculator.calculateMeasureReports(measureBundle, pati
 
 ## Group Clause Coverage Highlighting
 
-`fqm-execution` can generated highlighted HTML that indicates which individual pieces of the measure logic CQL were processed at all during calculation, regardless of whether or not they held "truthy" or "falsy" value. This is often referred to as "Clause Coverage". "Covered" clauses will
+`fqm-execution` can generate highlighted HTML that indicates which individual pieces of the measure logic CQL were processed at all during calculation, regardless of whether or not they held "truthy" or "falsy" values. This is often referred to as "Clause Coverage". "Covered" clauses will
 have a blue background and dashed underline in the highlighted HTML, indicating that those clauses were processed during measure calculation. This is useful for testing measure logic, as it is often desired to create a set of patients that cover 100% of the measure logic.
 
 The highlighted HTML also provides an approximate percentage for what percentage of the measure logic is covered by the patients that were passed in to execution.
@@ -759,17 +759,17 @@ class CustomRecordObject implements RecordObject {
 
   // Required by cql-execution API (but not currently used in the cql-exec-fhir FHIR data model)
   getCode(field: any) {
-    /* Implementation that returns the value the field on this object as a cql-execution Code type */
+    /* Implementation that returns the value of the field on this object as a cql-execution Code type */
   }
 
   // Required by cql-execution API (but not currently used in the cql-exec-fhir FHIR data model)
   getDate(field: any) {
-    /* Implementation that returns the value the field on this object as a cql-execution Date type */
+    /* Implementation that returns the value of the field on this object as a cql-execution Date type */
   }
 
   // Required by cql-execution API (but not currently used in the cql-exec-fhir FHIR data model)
   getDateOrInterval(field: any) {
-    /* Implementation that returns the value the field on this object as a cql-execution Date or Interval type */
+    /* Implementation that returns the value of the field on this object as a cql-execution Date or Interval type */
   }
 }
 
@@ -861,7 +861,7 @@ if (somePopulationRelevanceResult === Enums.Relevance.NA) {
 ## Displaying Highlighted HTML in a React App
 
 A common use case for the highlighted logic HTML described in the [Measure Logic Highlighting section](#measure-logic-highlighting) is displaying it in a web application of some kind. In the case of React trying to render an HTML string directly will not work
-to due React's security measures to prevent Cross Site Scripting by escaping/sanitizing HTML strings that attempt to be rendered in the DOM.
+due to React's security measures to prevent Cross Site Scripting by escaping/sanitizing HTML strings that attempt to be rendered in the DOM.
 
 To display the highlighted HTML in a React app, it is recommended to use a package such as [html-react-parser](https://www.npmjs.com/package/html-react-parser) to parse the content of the highlighted HTML string into actual `ReactNode` entities that can be rendered in the DOM:
 
