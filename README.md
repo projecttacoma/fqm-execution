@@ -860,7 +860,7 @@ if (somePopulationRelevanceResult === Enums.Relevance.NA) {
 
 ## Displaying Highlighted HTML in a React App
 
-A common use case for the highlighted logic HTML described in the [Measure Logic Highlighting section](#measure-logic-highlighting) is displaying it in a web application of some kind. In the case of React trying to render an HTML string directly will not work
+A common use case for the highlighted logic HTML described in the [Measure Logic Highlighting section](#measure-logic-highlighting) is displaying it in a web application of some kind. In the case of React, trying to render an HTML string directly will not work
 due to React's security measures to prevent Cross Site Scripting by escaping/sanitizing HTML strings that attempt to be rendered in the DOM.
 
 To display the highlighted HTML in a React app, it is recommended to use a package such as [html-react-parser](https://www.npmjs.com/package/html-react-parser) to parse the content of the highlighted HTML string into actual `ReactNode` entities that can be rendered in the DOM:
