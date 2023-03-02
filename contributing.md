@@ -3,7 +3,7 @@
 ## Issue Reports
 
 Any issues or suggestions to improve `fqm-execution` can be reported through a [GitHub issue](https://github.com/projecttacoma/fqm-execution/issues/new?assignees=&labels=&template=general-issue-template.md&title=). Filling out the issue template as completely as possible
-helps us replicate and track down the sources of issues faster
+helps us replicate and track down the sources of issues faster.
 
 ## Pull Requests
 
@@ -90,7 +90,7 @@ Error throws with this message commonly come from `cql-execution`. The most comm
 2. Visually inspect the content of the ELM JSON for this library, and ensure that the operands for the function being called are the correct data types (e.g. see if it should be wrapped in a `FHIRHelpers.To___` function call)
 3. Ensure that the FHIR data present in the patient `Bundle` are valid according to the FHIR specification
 
-If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository. To verify that the issue indeed comes from `cql-execution`, consider using the [execution extractor command line utility](https://github.com/mgramigna/execution-extractor) to extract all of the ELM content, ValueSets, etc. and run it through `cql-execution` directly without needing to go through `fqm-execution`. If the error still persists, then the issue lies outside `fqm-execution`, and it either a problem with the input or with `cql-execution` itself.
+If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository. To verify that the issue indeed comes from `cql-execution`, consider using the [execution extractor command line utility](https://github.com/mgramigna/execution-extractor) to extract all of the ELM content, ValueSets, etc. and run it through `cql-execution` directly without needing to go through `fqm-execution`. If the error still persists, then the issue lies outside `fqm-execution`, and is either a problem with the input or with `cql-execution` itself.
 
 ### Unexpected Population Results
 
