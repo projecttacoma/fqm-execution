@@ -128,7 +128,7 @@ Add the following contents to `.vscode/launch.json` in the root of the project d
               "${workspaceFolder}/build/**/*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart",
-            "args": ["<reports | detailed | raw | gaps | dataRequirements | queryInfo | valueSets>", "-m", "${workspaceFolder}/relative/path/to/measure/bundle.json", "-p", "${workspaceFolder}/relative/path/to/patient/bundle.json", "-o"]
+            "args": ["<reports | detailed | raw | gaps | dataRequirements | libraryDataRequirements | queryInfo | valueSets>", "-m", "${workspaceFolder}/relative/path/to/measure/bundle.json", "-p", "${workspaceFolder}/relative/path/to/patient/bundle.json", "-o"]
           }
     ]
 }
