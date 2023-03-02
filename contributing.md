@@ -87,10 +87,10 @@ In general, runtime errors that come directly from `fqm-execution` are quite rar
 Error throws with this message commonly come from `cql-execution`. The most common cause for this kind of error is a mismatch in data types for either the ELM expressions or the patient data itself (e.g. trying to do a `union` on arguments that are not list-like). The recommended approach for debugging this kind of issue is:
 
 1. Try to isolate the ELM library and expression where the issue comes from
-2. Visually inspect the content of the ELM JSON for this library, and ensure that the operands for the function being called are the correct data types (e.g. see if it is should be wrapped in a `FHIRHelpers.To___` function call)
+2. Visually inspect the content of the ELM JSON for this library, and ensure that the operands for the function being called are the correct data types (e.g. see if it should be wrapped in a `FHIRHelpers.To___` function call)
 3. Ensure that the FHIR data present in the patient `Bundle` are valid according to the FHIR specification
 
-If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository. To verify that the issue indeed comes from `cql-execution`, consider using the [execution extractor command line utility](https://github.com/mgramigna/execution-extractor) to extract all of the ELM content, ValueSets , etc. and run it through `cql-execution` directly without needing to go through `fqm-execution`. If the error still persists, then the issue lies outside `fqm-execution`, and it either a problem with the input or with `cql-execution` itself.
+If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository. To verify that the issue indeed comes from `cql-execution`, consider using the [execution extractor command line utility](https://github.com/mgramigna/execution-extractor) to extract all of the ELM content, ValueSets, etc. and run it through `cql-execution` directly without needing to go through `fqm-execution`. If the error still persists, then the issue lies outside `fqm-execution`, and it either a problem with the input or with `cql-execution` itself.
 
 ### Unexpected Population Results
 
