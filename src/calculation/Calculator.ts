@@ -38,6 +38,7 @@ import { Interval, DataProvider } from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
 import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
+import { omit } from 'lodash';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -532,6 +533,9 @@ export async function calculateLibraryDataRequirements(
   libraryBundle: fhir4.Bundle,
   options: CalculationOptions = {}
 ): Promise<DRCalculationOutput> {
+  // omit measurementPeriodStart/measurementPeriodEnd since there is no measure
+  options = omit(options, 'measurementPeriodStart', 'measurementPeriodEnd');
+
   if (options.rootLibRef === undefined) {
     throw new UnexpectedProperty('Root lib ref must be provided in order to calculate library dataRequirements');
   }
