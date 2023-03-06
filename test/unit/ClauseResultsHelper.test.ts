@@ -4,6 +4,18 @@ import { getJSONFixture } from './helpers/testHelpers';
 
 describe('ClauseResultsHelpers', () => {
   describe('findAllLocalIdsInStatementByName', () => {
+    test('finds localIds for statement with comparison operator', () => {
+      const libraryElm: ELM = getJSONFixture('elm/Comparison.json');
+
+      const statementName = 'ipop';
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // For the fixture loaded for this test it is known that the localId for the literal is 15 and 
+      // the localId for the comparison expression itself is 16
+      expect(localIds[15]).not.toBeUndefined();
+      expect(localIds[15]).toEqual({ localId: '15', sourceLocalId: '16' });
+    });
+
     test('finds localIds for library FunctionRefs while finding localIds in statements', () => {
       // Loads Anticoagulation Therapy for Atrial Fibrillation/Flutter measure.
       // This measure has the MAT global functions library included and the measure uses the
