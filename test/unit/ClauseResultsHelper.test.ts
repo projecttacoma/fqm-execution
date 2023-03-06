@@ -10,7 +10,7 @@ describe('ClauseResultsHelpers', () => {
       const statementName = 'ipop';
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
-      // For the fixture loaded for this test it is known that the localId for the literal is 15 and 
+      // For the fixture loaded for this test it is known that the localId for the literal is 15 and
       // the localId for the comparison expression itself is 16
       expect(localIds[15]).not.toBeUndefined();
       expect(localIds[15]).toEqual({ localId: '15', sourceLocalId: '16' });
