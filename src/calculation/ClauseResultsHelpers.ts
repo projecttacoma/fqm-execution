@@ -147,6 +147,15 @@ export function findAllLocalIdsInStatement(
         // the sourceLocalId is the FunctionRef itself to match how library statement references work.
         localIds[libraryClauseLocalId] = { localId: libraryClauseLocalId, sourceLocalId: statement.localId };
       }
+      // Comparison operators are special cases that we need to recurse into and set the localId of a literal type to 
+      // the localId of the whole comparison expression
+    } else if (k === 'type' && (v === 'Equal' || v === 'Equivalent' || v === 'Greater' || v === 'GreaterOrEqual' ||v === 'Less' || v === 'LessOrEqual' || v === 'NotEqual') ) {
+      const rootStatement = statement;
+      findLocalIdsForComparisonOperators(statement, libraryName, localIds, aliasMap, emptyResultClauses, rootStatement);
+      // We need to break here so that we don't recurse through everything again since the key "operand"
+      // after "type" is an array so the last else if statement would be hit and go through everything again
+      // Is there a better way to do this?
+      break;
       // else if they key is localId push the value
     } else if (k === 'localId') {
       localIds[v] = { localId: v };
@@ -192,6 +201,26 @@ export function findAllLocalIdsInSort(
     }
     return result;
   })();
+}
+
+export function findLocalIdsForComparisonOperators(
+  statement: any,
+  libraryName: string,
+  localIds: any,
+  aliasMap: any,
+  emptyResultClauses: any[],
+  rootStatement: any
+): any {
+  for (const k in statement) {
+    const v = statement[k];
+    if (Array.isArray(v) || typeof v === 'object') {
+      findLocalIdsForComparisonOperators(v, libraryName, localIds, aliasMap, emptyResultClauses, rootStatement);
+    } else if (k === 'type' && v === 'Literal') {
+      localIds[statement.localId] = { localId: statement.localId, sourceLocalId: rootStatement.localId};
+    } else {
+      localIds[v] = { localId: v }   
+    }
+  }
 }
 
 /**
