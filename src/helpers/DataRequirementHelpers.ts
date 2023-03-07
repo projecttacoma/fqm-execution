@@ -79,9 +79,9 @@ export async function getDataRequirements(
   const allRetrievesPromises = allRetrieves.map(async retrieve => {
     // If the retrieves have a localId for the query and a known library name, we can get more info
     // on how the query filters the sources.
-    if (retrieve.queryLocalId && retrieve.queryLibraryName) {
+    if (retrieve.queryLocalId && retrieve.queryLibraryName && parameters['Measurement Period']) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
-      if (library && parameters['Measurement Period']) {
+      if (library) {
         retrieve.queryInfo = await parseQueryInfo(
           library,
           elmJSONs,

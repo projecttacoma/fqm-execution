@@ -354,6 +354,7 @@ Get data requirements for a given Library bundle with a root Library reference.
 
 - `libraryBundle` <[fhir4.Bundle](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/5f88f0c7a11e86a19fc2356d0e11dfa7f472e3c9/types/fhir/r4.d.ts#L4325)>
 - `[options]` <[CalculatorTypes.CalculationOptions](https://github.com/projecttacoma/fqm-execution/blob/7c43b94521963703bdb43932bad60e5be3e7eeaa/src/types/Calculator.ts#L12)>
+  - Note: `measurementPeriodStart`/`measurementPeriodEnd` are omitted from library data requirements calculation if provided.
 
 **Returns**:
 
