@@ -1,4 +1,4 @@
-import { ELM, ELMStatement } from '../types/ELMTypes';
+import { ELM, ELMBinaryExpression, ELMStatement } from '../types/ELMTypes';
 
 /**
  * Finds all localIds in a statement by it's library and statement name.
@@ -159,11 +159,7 @@ export function findAllLocalIdsInStatement(
         v === 'LessOrEqual' ||
         v === 'NotEqual')
     ) {
-      const rootStatement = statement;
-      findLocalIdsForComparisonOperators(statement, libraryName, localIds, aliasMap, emptyResultClauses, rootStatement);
-      // We need to break here so that we don't recurse through everything again since the key "operand"
-      // after "type" is an array so the last else if statement would be hit and go through everything again
-      // Is there a better way to do this?
+      findLocalIdsForComparisonOperators(statement as ELMBinaryExpression, libraryName, emptyResultClauses);
       // else if they key is localId push the value
     } else if (k === 'localId') {
       localIds[v] = { localId: v };
@@ -217,28 +213,19 @@ export function findAllLocalIdsInSort(
  * the correct html highlighting
  * @param statement
  * @param libraryName
- * @param localIds
- * @param aliasMap
  * @param emptyResultClauses
- * @param rootStatement
  */
 export function findLocalIdsForComparisonOperators(
-  statement: any,
+  statement: ELMBinaryExpression,
   libraryName: string,
-  localIds: any,
-  aliasMap: any,
-  emptyResultClauses: any[],
-  rootStatement: any
+  emptyResultClauses: any[]
 ): any {
-  for (const k in statement) {
-    const v = statement[k];
-    if (Array.isArray(v) || typeof v === 'object') {
-      findLocalIdsForComparisonOperators(v, libraryName, localIds, aliasMap, emptyResultClauses, rootStatement);
-    } else if (k === 'type' && v === 'Literal') {
+  for (const operand of Array.from(statement.operand)) {
+    if (operand.type === 'Literal' && operand.localId) {
       emptyResultClauses.push({
         lib: libraryName,
-        aliasLocalId: statement.localId,
-        expressionLocalId: rootStatement.localId
+        aliasLocalId: operand.localId,
+        expressionLocalId: statement.localId
       });
     }
   }
