@@ -208,9 +208,8 @@ export function findAllLocalIdsInSort(
 }
 
 /**
- * Finds all localIds in a structure whose type is a comparison operator and sets
- * all localIds of literals to the overall comparison expression in order to get
- * the correct html highlighting
+ * Checks if an operand in the ELM Binary Expression is of type Literal and if so,
+ * pushes its localId and the overall statement localId to emptyResultClauses
  * @param statement
  * @param libraryName
  * @param emptyResultClauses
