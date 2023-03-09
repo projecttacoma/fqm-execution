@@ -208,11 +208,12 @@ export function findAllLocalIdsInSort(
 }
 
 /**
- * Checks if an operand in the ELM Binary Expression is of type Literal and if so,
- * pushes its localId and the overall statement localId to emptyResultClauses
- * @param statement
- * @param libraryName
- * @param emptyResultClauses
+ * Due to how the cql-to-elm translator is written as of version 2.4.0, the comparison annotation includes the Literal
+ * (if there is one) and is marked as the localId of the Literal making the highlighting look like the comparison always
+ * passes.
+ * This function adds a mapping to ensure that if there is a Literal, the result of the comparison clause should be the
+ * result of the Literal clause as well. This will make the highlighting of the comparison and literal follow the result
+ * of the comparison.
  */
 export function findLocalIdsForComparisonOperators(
   statement: ELMBinaryExpression,
