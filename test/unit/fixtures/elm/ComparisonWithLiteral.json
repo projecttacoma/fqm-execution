@@ -2,14 +2,13 @@
   "library": {
     "annotation": [
       {
-        "translatorVersion": "2.4.0",
-        "translatorOptions": "EnableAnnotations,EnableLocators,DisableListDemotion,DisableListPromotion",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
         "type": "CqlToElmInfo"
       },
       {
         "type": "Annotation",
         "s": {
-          "r": "21",
+          "r": "16",
           "s": [
             {
               "value": [
@@ -36,9 +35,10 @@
         },
         {
           "localId": "1",
-          "locator": "3:1-3:28",
-          "localIdentifier": "QICore",
+          "locator": "3:1-3:26",
+          "localIdentifier": "FHIR",
           "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
           "annotation": [
             {
               "type": "Annotation",
@@ -55,7 +55,7 @@
                     "s": [
                       {
                         "value": [
-                          "QICore"
+                          "FHIR"
                         ]
                       }
                     ]
@@ -63,7 +63,7 @@
                   {
                     "value": [
                       " version ",
-                      "'4.1.1'"
+                      "'4.0.1'"
                     ]
                   }
                 ]
@@ -200,121 +200,14 @@
             "operand": {
               "locator": "9:1-9:15",
               "dataType": "{http://hl7.org/fhir}Patient",
-              "templateId": "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
               "type": "Retrieve"
             }
           }
         },
         {
-          "localId": "10",
-          "locator": "11:1-12:55",
-          "name": "age",
-          "context": "Patient",
-          "accessLevel": "Public",
-          "annotation": [
-            {
-              "type": "Annotation",
-              "s": {
-                "r": "10",
-                "s": [
-                  {
-                    "value": [
-                      "",
-                      "define ",
-                      "\"age\"",
-                      ":\n  "
-                    ]
-                  },
-                  {
-                    "r": "9",
-                    "s": [
-                      {
-                        "value": [
-                          "AgeInYearsAt",
-                          "("
-                        ]
-                      },
-                      {
-                        "r": "8",
-                        "s": [
-                          {
-                            "value": [
-                              "date from "
-                            ]
-                          },
-                          {
-                            "r": "7",
-                            "s": [
-                              {
-                                "value": [
-                                  "start of "
-                                ]
-                              },
-                              {
-                                "r": "6",
-                                "s": [
-                                  {
-                                    "value": [
-                                      "\"Measurement Period\""
-                                    ]
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        "value": [
-                          ")"
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            }
-          ],
-          "expression": {
-            "localId": "9",
-            "locator": "12:3-12:55",
-            "precision": "Year",
-            "type": "CalculateAgeAt",
-            "operand": [
-              {
-                "path": "value",
-                "type": "Property",
-                "source": {
-                  "path": "birthDate",
-                  "type": "Property",
-                  "source": {
-                    "name": "Patient",
-                    "type": "ExpressionRef"
-                  }
-                }
-              },
-              {
-                "localId": "8",
-                "locator": "12:16-12:54",
-                "type": "DateFrom",
-                "operand": {
-                  "localId": "7",
-                  "locator": "12:26-12:54",
-                  "type": "Start",
-                  "operand": {
-                    "localId": "6",
-                    "locator": "12:35-12:54",
-                    "name": "Measurement Period",
-                    "type": "ParameterRef"
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          "localId": "17",
-          "locator": "14:1-15:61",
+          "localId": "12",
+          "locator": "11:1-12:61",
           "name": "ipop",
           "context": "Patient",
           "accessLevel": "Public",
@@ -322,7 +215,7 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "17",
+                "r": "12",
                 "s": [
                   {
                     "value": [
@@ -333,10 +226,10 @@
                     ]
                   },
                   {
-                    "r": "16",
+                    "r": "11",
                     "s": [
                       {
-                        "r": "14",
+                        "r": "9",
                         "s": [
                           {
                             "value": [
@@ -345,7 +238,7 @@
                             ]
                           },
                           {
-                            "r": "13",
+                            "r": "8",
                             "s": [
                               {
                                 "value": [
@@ -353,7 +246,7 @@
                                 ]
                               },
                               {
-                                "r": "12",
+                                "r": "7",
                                 "s": [
                                   {
                                     "value": [
@@ -361,7 +254,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "11",
+                                    "r": "6",
                                     "s": [
                                       {
                                         "value": [
@@ -382,7 +275,7 @@
                         ]
                       },
                       {
-                        "r": "15",
+                        "r": "10",
                         "value": [
                           " ",
                           ">=",
@@ -397,39 +290,35 @@
             }
           ],
           "expression": {
-            "localId": "16",
-            "locator": "15:3-15:61",
+            "localId": "11",
+            "locator": "12:3-12:61",
             "type": "GreaterOrEqual",
             "operand": [
               {
-                "localId": "14",
-                "locator": "15:3-15:55",
+                "localId": "9",
+                "locator": "12:3-12:55",
                 "precision": "Year",
                 "type": "CalculateAgeAt",
                 "operand": [
                   {
-                    "path": "value",
+                    "path": "birthDate.value",
                     "type": "Property",
                     "source": {
-                      "path": "birthDate",
-                      "type": "Property",
-                      "source": {
-                        "name": "Patient",
-                        "type": "ExpressionRef"
-                      }
+                      "name": "Patient",
+                      "type": "ExpressionRef"
                     }
                   },
                   {
-                    "localId": "13",
-                    "locator": "15:16-15:54",
+                    "localId": "8",
+                    "locator": "12:16-12:54",
                     "type": "DateFrom",
                     "operand": {
-                      "localId": "12",
-                      "locator": "15:26-15:54",
+                      "localId": "7",
+                      "locator": "12:26-12:54",
                       "type": "Start",
                       "operand": {
-                        "localId": "11",
-                        "locator": "15:35-15:54",
+                        "localId": "6",
+                        "locator": "12:35-12:54",
                         "name": "Measurement Period",
                         "type": "ParameterRef"
                       }
@@ -438,8 +327,8 @@
                 ]
               },
               {
-                "localId": "15",
-                "locator": "15:60-15:61",
+                "localId": "10",
+                "locator": "12:60-12:61",
                 "valueType": "{urn:hl7-org:elm-types:r1}Integer",
                 "value": "66",
                 "type": "Literal"
@@ -448,8 +337,8 @@
           }
         },
         {
-          "localId": "19",
-          "locator": "17:1-18:6",
+          "localId": "14",
+          "locator": "14:1-15:6",
           "name": "denom",
           "context": "Patient",
           "accessLevel": "Public",
@@ -457,10 +346,10 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "19",
+                "r": "14",
                 "s": [
                   {
-                    "r": "18",
+                    "r": "13",
                     "value": [
                       "",
                       "define ",
@@ -474,16 +363,16 @@
             }
           ],
           "expression": {
-            "localId": "18",
-            "locator": "18:3-18:6",
+            "localId": "13",
+            "locator": "15:3-15:6",
             "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
             "value": "true",
             "type": "Literal"
           }
         },
         {
-          "localId": "21",
-          "locator": "20:1-21:7",
+          "localId": "16",
+          "locator": "17:1-18:7",
           "name": "numer",
           "context": "Patient",
           "accessLevel": "Public",
@@ -491,10 +380,10 @@
             {
               "type": "Annotation",
               "s": {
-                "r": "21",
+                "r": "16",
                 "s": [
                   {
-                    "r": "20",
+                    "r": "15",
                     "value": [
                       "",
                       "define ",
@@ -508,8 +397,8 @@
             }
           ],
           "expression": {
-            "localId": "20",
-            "locator": "21:3-21:7",
+            "localId": "15",
+            "locator": "18:3-18:7",
             "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
             "value": "false",
             "type": "Literal"

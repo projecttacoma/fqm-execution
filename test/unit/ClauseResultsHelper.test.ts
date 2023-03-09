@@ -5,19 +5,21 @@ import { getJSONFixture } from './helpers/testHelpers';
 describe('ClauseResultsHelpers', () => {
   describe('findAllLocalIdsInStatementByName', () => {
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
+      // ELM from test/unit/fixtures/cql/comparisonWithLiteral.cql
       const libraryElm: ELM = getJSONFixture('elm/ComparisonWithLiteral.json');
 
       const statementName = 'ipop';
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
-      // For the fixture loaded for this test it is known that the localId for the literal is 15 and
-      // the localId for the comparison expression itself is 16 so the sourceLocalId for the literal
-      // should be 16
-      expect(localIds[15]).not.toBeUndefined();
-      expect(localIds[15]).toEqual({ localId: '15', sourceLocalId: '16' });
+      // For the fixture loaded for this test it is known that the localId for the literal is 10 and
+      // the localId for the comparison expression itself is 11 so the sourceLocalId for the literal
+      // should be 11
+      expect(localIds[10]).not.toBeUndefined();
+      expect(localIds[10]).toEqual({ localId: '10', sourceLocalId: '11' });
     });
 
     test('finds localIds for an ELM Binary Expression with a comparison operator without a literal', () => {
+      // ELM from test/unit/fixtures/cql/comparisonWithoutLiteral.cql
       const libraryElm: ELM = getJSONFixture('elm/ComparisonWithoutLiteral.json');
 
       const statementName = 'ipop';
