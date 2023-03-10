@@ -1,4 +1,4 @@
-import { ELM, ELMStatement } from '../types/ELMTypes';
+import { ELM, ELMBinaryExpression, ELMStatement } from '../types/ELMTypes';
 
 /**
  * Finds all localIds in a statement by it's library and statement name.
@@ -147,6 +147,19 @@ export function findAllLocalIdsInStatement(
         // the sourceLocalId is the FunctionRef itself to match how library statement references work.
         localIds[libraryClauseLocalId] = { localId: libraryClauseLocalId, sourceLocalId: statement.localId };
       }
+      // Comparison operators are special cases that we need to recurse into and set the localId of a literal type to
+      // the localId of the whole comparison expression
+    } else if (
+      k === 'type' &&
+      (v === 'Equal' ||
+        v === 'Equivalent' ||
+        v === 'Greater' ||
+        v === 'GreaterOrEqual' ||
+        v === 'Less' ||
+        v === 'LessOrEqual' ||
+        v === 'NotEqual')
+    ) {
+      findLocalIdsForComparisonOperators(statement as ELMBinaryExpression, libraryName, emptyResultClauses);
       // else if they key is localId push the value
     } else if (k === 'localId') {
       localIds[v] = { localId: v };
@@ -192,6 +205,30 @@ export function findAllLocalIdsInSort(
     }
     return result;
   })();
+}
+
+/**
+ * Due to how the cql-to-elm translator is written as of version 2.4.0, the comparison annotation includes the Literal
+ * (if there is one) and is marked as the localId of the Literal making the highlighting look like the comparison always
+ * passes.
+ * This function adds a mapping to ensure that if there is a Literal, the result of the comparison clause should be the
+ * result of the Literal clause as well. This will make the highlighting of the comparison and literal follow the result
+ * of the comparison.
+ */
+export function findLocalIdsForComparisonOperators(
+  statement: ELMBinaryExpression,
+  libraryName: string,
+  emptyResultClauses: any[]
+): any {
+  for (const operand of Array.from(statement.operand)) {
+    if (operand.type === 'Literal' && operand.localId) {
+      emptyResultClauses.push({
+        lib: libraryName,
+        aliasLocalId: operand.localId,
+        expressionLocalId: statement.localId
+      });
+    }
+  }
 }
 
 /**
