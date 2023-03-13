@@ -164,32 +164,63 @@ describe('ClauseResultsHelpers', () => {
   });
 
   describe('isSupplementalDataElementStatement', () => {
-    let supplementalDataElements: any;
-    beforeEach(() => {
-      // Use the supplementalData from this measure for these tests.
-      const measure: fhir4.Measure = getJSONFixture('measure/simple-measure.json');
-      supplementalDataElements = measure.supplementalData;
-    });
-
     test('returns true if the statement is in a Supplemental Data Element given the statement name and the criteria.language is text/cql', () => {
-      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(supplementalDataElements, 'SDE');
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql',
+              expression: 'SDE'
+            }
+          }
+        ],
+        'SDE'
+      );
       expect(result).toEqual(true);
     });
 
     test('returns true if the statement is in a Supplemental Data Element given the statement name and the criteria.language is text/cql.identifier', () => {
-      supplementalDataElements[0].criteria.language = 'text/cql.identifier';
-      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(supplementalDataElements, 'SDE');
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql.identifier',
+              expression: 'SDE'
+            }
+          }
+        ],
+        'SDE'
+      );
       expect(result).toEqual(true);
     });
 
     test('returns true if the statement is in a Supplemental Data Element given the statement name and the criteria.language is text/cql-identifier', () => {
-      supplementalDataElements[0].criteria.language = 'text/cql-identifier';
-      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(supplementalDataElements, 'SDE');
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql-identifier',
+              expression: 'SDE'
+            }
+          }
+        ],
+        'SDE'
+      );
       expect(result).toEqual(true);
     });
 
     test('returns false if the statement is not in the a Supplemental Data Element given the statement name', () => {
-      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(supplementalDataElements, 'invalid');
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql-identifier',
+              expression: 'invalid'
+            }
+          }
+        ],
+        'SDE'
+      );
       expect(result).toEqual(false);
     });
 
