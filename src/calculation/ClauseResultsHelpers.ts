@@ -360,7 +360,13 @@ export function isSupplementalDataElementStatement(
 ): boolean {
   if (supplementalDataElements != undefined) {
     for (const supplementalData of supplementalDataElements) {
-      if (supplementalData.criteria.language === 'text/cql' && supplementalData.criteria.expression === statementName) {
+      // text/cql-identifier if correct, but text/cql.identifier used to be correct so for backwards compatibility we want to support both
+      if (
+        (supplementalData.criteria.language === 'text/cql' ||
+          supplementalData.criteria.language === 'text/cql.identifier' ||
+          supplementalData.criteria.language === 'text/cql-identifier') &&
+        supplementalData.criteria.expression === statementName
+      ) {
         return true;
       }
     }
