@@ -162,4 +162,71 @@ describe('ClauseResultsHelpers', () => {
       expect(ret).toBeNull();
     });
   });
+
+  describe('isSupplementalDataElementStatement', () => {
+    test('returns true if the statement is in a Supplemental Data Element given the statement name and the criteria.language is text/cql', () => {
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql',
+              expression: 'SDE'
+            }
+          }
+        ],
+        'SDE'
+      );
+      expect(result).toEqual(true);
+    });
+
+    test('returns true if the statement is in a Supplemental Data Element given the statement name and the criteria.language is text/cql.identifier', () => {
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql.identifier',
+              expression: 'SDE'
+            }
+          }
+        ],
+        'SDE'
+      );
+      expect(result).toEqual(true);
+    });
+
+    test('returns true if the statement is in a Supplemental Data Element given the statement name and the criteria.language is text/cql-identifier', () => {
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql-identifier',
+              expression: 'SDE'
+            }
+          }
+        ],
+        'SDE'
+      );
+      expect(result).toEqual(true);
+    });
+
+    test('returns false if the statement is not in the a Supplemental Data Element given the statement name', () => {
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(
+        [
+          {
+            criteria: {
+              language: 'text/cql-identifier',
+              expression: 'invalid'
+            }
+          }
+        ],
+        'SDE'
+      );
+      expect(result).toEqual(false);
+    });
+
+    test('returns false if the Supplemental Data Element array is undefined', () => {
+      const result = ClauseResultsHelpers.isSupplementalDataElementStatement(undefined, 'SDE');
+      expect(result).toEqual(false);
+    });
+  });
 });
