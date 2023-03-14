@@ -360,7 +360,8 @@ export function isSupplementalDataElementStatement(
 ): boolean {
   if (supplementalDataElements != undefined) {
     for (const supplementalData of supplementalDataElements) {
-      // text/cql-identifier if correct, but text/cql.identifier used to be correct so for backwards compatibility we want to support both
+      // text/cql-identifier is correct (https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#conformance-requirement-3-7),
+      // but text/cql.identifier used to be correct so for backwards compatibility we want to support both
       if (
         (supplementalData.criteria.language === 'text/cql' ||
           supplementalData.criteria.language === 'text/cql.identifier' ||
