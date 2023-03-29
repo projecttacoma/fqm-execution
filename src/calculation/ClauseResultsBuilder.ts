@@ -46,8 +46,8 @@ import {
  * @param {string} mainLibraryId - The identifier of the main library.
  * @param {ELM[]} elmLibraries - All ELM libraries for the measure.
  * @param {fhir4.MeasureGroup} populationGroup - The population group being calculated.
- * @param {boolean} calculateSDEs - Wether or not to treat SDEs as calculed/relevant or not.
- * @returns {StatementResult[]} The StatementResults list for each statement with it its relevance status populated.
+ * @param {boolean} calculateSDEs - Whether or not to treat SDEs as calculated/relevant or not.
+ * @returns {StatementResult[]} The StatementResults list for each statement with its relevance status populated.
  */
 export function buildStatementRelevanceMap(
   measure: fhir4.Measure,
@@ -132,7 +132,7 @@ export function buildStatementRelevanceMap(
 /**
  * Recursive helper function for the buildStatementRelevanceMap function. This marks a statement as relevant (or not
  * relevant but applicable) in the StatementResults list. It recurses and marks dependent statements also relevant
- * unless they have already been marked as 'TRUE' for their relevance statue. This function will never be called on
+ * unless they have already been marked as 'TRUE' for their relevance status. This function will never be called on
  * statements that are 'NA'.
  *
  * @private
@@ -816,7 +816,7 @@ export function buildPopulationGroupRelevanceMap(
   measureScoringCode?: string
 ): PopulationResult[] {
   // Episode of care measure
-  if (results.episodeResults) {
+  if (results.episodeResults && results.episodeResults.length > 0) {
     return buildPopulationRelevanceForAllEpisodes(results.episodeResults, group, measureScoringCode);
 
     // Normal patient based measure
