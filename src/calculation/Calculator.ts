@@ -71,12 +71,12 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
   // Get the default measurement period out of the Measure object
-  const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measureBundle);
+  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
+  const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measure);
   // Set the measurement period start/end, but only if the caller didn't specify one
   options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
   options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
 
-  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
   const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [];
 
   const results = await Execution.execute(measureBundle, patientSource, options, valueSetCache, debugObject);
