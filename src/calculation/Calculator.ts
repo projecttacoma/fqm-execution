@@ -570,7 +570,15 @@ export async function calculateDataRequirements(
     measureBundle,
     measure
   );
-  return DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options, effectivePeriod);
+  const dataRequirements = await DataRequirementHelpers.getDataRequirements(
+    cqls,
+    rootLibIdentifier,
+    elmJSONs,
+    options,
+    effectivePeriod
+  );
+  dataRequirements.results.relatedArtifact = DataRequirementHelpers.getFlattenedRelatedArtifacts(measureBundle);
+  return dataRequirements;
 }
 
 /**
