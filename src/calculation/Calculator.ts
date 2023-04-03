@@ -43,7 +43,7 @@ import { omit } from 'lodash';
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
  *
- * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param measureBundle Bundle with a Measure Resource and all necessary data for execution.
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
  * @param valueSetCache Cache of existing valuesets
@@ -70,8 +70,9 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
-  // Get the default measurement period out of the Measure object
+
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
+  // Get the default measurement period out of the Measure object
   const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measure);
   // Set the measurement period start/end, but only if the caller didn't specify one
   options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
@@ -79,7 +80,7 @@ export async function calculate<T extends CalculationOptions>(
 
   const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [];
 
-  const results = await Execution.execute(measureBundle, patientSource, options, valueSetCache, debugObject);
+  const results = await Execution.execute(measure, measureBundle, patientSource, options, valueSetCache, debugObject);
   if (!results.rawResults) {
     throw new Error(results.errorMessage ?? 'something happened with no error message');
   }
@@ -339,7 +340,7 @@ export async function calculateAggregateMeasureReport(
 /**
  * Get raw results from cql-execution
  *
- * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
+ * @param measureBundle Bundle with a Measure Resource and all necessary data for execution.
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
  * @param valueSetCache Cache of existing valuesets
@@ -354,7 +355,8 @@ export async function calculateRaw(
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
   // Get the PatientSource to use for calculation.
   const patientSource = resolvePatientSource(patientBundles, options);
-  const results = await Execution.execute(measureBundle, patientSource, options, valueSetCache, debugObject);
+  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
+  const results = await Execution.execute(measure, measureBundle, patientSource, options, valueSetCache, debugObject);
   if (results.rawResults) {
     return { results: results.rawResults, debugOutput: debugObject, valueSetCache: results.valueSetCache };
   } else {
