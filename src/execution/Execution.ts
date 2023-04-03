@@ -4,9 +4,10 @@ import { parseTimeStringAsUTC, getMissingDependentValuesets } from './ValueSetHe
 import { ValueSetResolver } from './ValueSetResolver';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
 import { retrieveELMInfo } from '../helpers/elm/ELMInfoCache';
+import { MeasureWithLibrary } from '../helpers/MeasureBundleHelpers';
 
 export async function execute(
-  measure: fhir4.Measure,
+  measure: MeasureWithLibrary,
   measureBundle: fhir4.Bundle,
   patientSource: DataProvider,
   options: CalculationOptions,

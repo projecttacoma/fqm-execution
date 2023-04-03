@@ -3,7 +3,8 @@ import { retrieveELMInfo, clearElmInfoCache } from '../../../src/helpers/elm/ELM
 import { getJSONFixture } from './testHelpers';
 
 const measureBundle: fhir4.Bundle = getJSONFixture('bundle/measure-with-library-dependencies.json');
-const measure = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure')?.resource as fhir4.Measure;
+const measure = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure')
+  ?.resource as MeasureBundleHelpers.MeasureWithLibrary;
 const TEST_ELFB_OUTPUT = { cqls: [], rootLibIdentifier: { id: 'test-id', version: 'test-version' }, elmJSONs: [] };
 
 describe('ELMInfoCache tests', () => {

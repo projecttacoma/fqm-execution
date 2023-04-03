@@ -312,13 +312,15 @@ export function extractLibrariesFromBundle(
  * Returns the cqls, rootLibIdentifier, and elmJSONs for a collection of libraries
  * within a Measure Bundle
  */
-export function extractLibrariesFromMeasureBundle(measureBundle: fhir4.Bundle): {
+export function extractLibrariesFromMeasureBundle(
+  measureBundle: fhir4.Bundle,
+  measure?: MeasureWithLibrary
+): {
   cqls: ExtractedLibrary[];
   rootLibIdentifier: ELMIdentifier;
   elmJSONs: ELM[];
 } {
-  const measure = extractMeasureFromBundle(measureBundle);
-  const rootLibRef = measure.library[0];
+  const rootLibRef = measure ? measure.library[0] : extractMeasureFromBundle(measureBundle).library[0];
   let rootLibId: string;
   if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
   else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);

@@ -9,7 +9,6 @@ import { ExtractedLibrary, ValueSetMap } from '../../types/CQLTypes';
 import { ELM, ELMIdentifier } from '../../types/ELMTypes';
 import { PopulationType } from '../../types/Enums';
 import { findObsMsrPopl } from '../DetailedResultsHelpers';
-import { isEpisodeOfCareGroup } from '../MeasureBundleHelpers';
 
 export interface ELMInfoCacheType {
   rep: Repository;
@@ -35,7 +34,7 @@ const ELMInfoCache = new Map<string, ELMInfoCacheType>();
  * @returns {Object} an object containing cqls, elmJSONs, rootLibIdentifier, codeService, rep, and vsMap
  */
 export function retrieveELMInfo(
-  measure: fhir4.Measure,
+  measure: MeasureBundleHelpers.MeasureWithLibrary,
   measureBundle: fhir4.Bundle,
   valueSets: fhir4.ValueSet[],
   useElmJsonsCaching?: boolean
@@ -45,7 +44,10 @@ export function retrieveELMInfo(
   if (!(ELMInfoCache.get(key) && cacheEntryIsValid(ELMInfoCache.get(key)?.lastAccessed))) {
     const vsMap = valueSetsForCodeService(valueSets);
 
-    const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromMeasureBundle(measureBundle);
+    const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromMeasureBundle(
+      measureBundle,
+      measure
+    );
 
     // add expressions for collecting for all measure observations
     measure.group?.forEach(group => {
@@ -58,7 +60,7 @@ export function retrieveELMInfo(
           if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
             const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifier.id);
             if (mainLib) {
-              const elmFunction = isEpisodeOfCareGroup(measure, group)
+              const elmFunction = MeasureBundleHelpers.isEpisodeOfCareGroup(measure, group)
                 ? generateEpisodeELMJSONFunction(obsrvPop.criteria.expression, msrPop.criteria.expression)
                 : generateBooleanELMJSONFunction(obsrvPop.criteria.expression);
 
