@@ -23,7 +23,7 @@ import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
 import { parseQueryInfo } from '../gaps/QueryFilterParser';
 import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
-import { DateTime, Interval, Library } from 'cql-execution';
+import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
@@ -459,7 +459,7 @@ export function getFlattenedRelatedArtifacts(measureBundle: fhir4.Bundle): fhir4
   const relatedArtifacts: fhir4.RelatedArtifact[] = [
     {
       type: 'depends-on',
-      display: 'Measure',
+      display: measure.name ? `Measure ${measure.name}` : 'Measure',
       resource: measure.url ?? `Measure/${measure.id}`
     }
   ];
