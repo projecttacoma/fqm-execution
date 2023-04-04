@@ -565,7 +565,8 @@ export async function calculateDataRequirements(
 ): Promise<DRCalculationOutput> {
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromMeasureBundle(measureBundle);
-  const effectivePeriod = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle).effectivePeriod;
+  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
+  const effectivePeriod = measure.effectivePeriod;
   return DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options, effectivePeriod);
 }
 
