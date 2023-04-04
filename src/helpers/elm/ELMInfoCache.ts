@@ -1,5 +1,10 @@
 import { CodeService, Repository } from 'cql-execution';
-import { MeasureBundleHelpers } from '../..';
+import {
+  isEpisodeOfCareGroup,
+  MeasureWithLibrary,
+  extractLibrariesFromMeasureBundle,
+  codeableConceptToPopulationType
+} from '../MeasureBundleHelpers';
 import {
   generateEpisodeELMJSONFunction,
   generateBooleanELMJSONFunction
@@ -9,7 +14,6 @@ import { ExtractedLibrary, ValueSetMap } from '../../types/CQLTypes';
 import { ELM, ELMIdentifier } from '../../types/ELMTypes';
 import { PopulationType } from '../../types/Enums';
 import { findObsMsrPopl } from '../DetailedResultsHelpers';
-import { isEpisodeOfCareGroup } from '../MeasureBundleHelpers';
 
 export interface ELMInfoCacheType {
   rep: Repository;
@@ -35,7 +39,7 @@ const ELMInfoCache = new Map<string, ELMInfoCacheType>();
  * @returns {Object} an object containing cqls, elmJSONs, rootLibIdentifier, codeService, rep, and vsMap
  */
 export function retrieveELMInfo(
-  measure: fhir4.Measure,
+  measure: MeasureWithLibrary,
   measureBundle: fhir4.Bundle,
   valueSets: fhir4.ValueSet[],
   useElmJsonsCaching?: boolean
@@ -45,14 +49,12 @@ export function retrieveELMInfo(
   if (!(ELMInfoCache.get(key) && cacheEntryIsValid(ELMInfoCache.get(key)?.lastAccessed))) {
     const vsMap = valueSetsForCodeService(valueSets);
 
-    const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromMeasureBundle(measureBundle);
+    const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromMeasureBundle(measureBundle, measure);
 
     // add expressions for collecting for all measure observations
     measure.group?.forEach(group => {
       group.population
-        ?.filter(
-          population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.OBSERV
-        )
+        ?.filter(population => codeableConceptToPopulationType(population.code) === PopulationType.OBSERV)
         ?.forEach(obsrvPop => {
           const msrPop = findObsMsrPopl(group, obsrvPop);
           if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {

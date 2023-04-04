@@ -1,12 +1,13 @@
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
 import { DataProvider, DateTime, Interval, Executor, Results } from 'cql-execution';
 import { parseTimeStringAsUTC, getMissingDependentValuesets } from './ValueSetHelper';
-import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import { ValueSetResolver } from './ValueSetResolver';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
 import { retrieveELMInfo } from '../helpers/elm/ELMInfoCache';
+import { MeasureWithLibrary } from '../helpers/MeasureBundleHelpers';
 
 export async function execute(
+  measure: MeasureWithLibrary,
   measureBundle: fhir4.Bundle,
   patientSource: DataProvider,
   options: CalculationOptions,
@@ -14,8 +15,6 @@ export async function execute(
   debugObject?: DebugOutput
 ): Promise<RawExecutionData> {
   // Determine "root" library by looking at which lib is referenced by populations, and pull out the ELM
-
-  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
 
   // check for any missing valuesets
   const valueSets: fhir4.ValueSet[] = [];

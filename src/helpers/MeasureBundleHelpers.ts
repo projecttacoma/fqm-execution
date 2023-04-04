@@ -186,20 +186,15 @@ export function codeableConceptToPopulationType(concept: fhir4.CodeableConcept |
 }
 
 /**
- * Pulls the measurement period out of the Measure resource in the provided bundle, assuming one is set.
+ * Pulls the measurement period out of the provided FHIR Measure resource, assuming one is set.
  * NOTE: the default start/end values are also set in Execution.ts
  * so if this date is changed from 2019 it must also be changed there
  *
- * @param {fhir4.Bundle} measureBundle the FHIR Bundle object containing the Measure resource.
+ * @param measure FHIR Measure resource
  * @returns {CalculationOptions} object with only the measurement period start/end fields filled out,
  * or the year 2019 set as the calculation period if not set in the Measure.
  */
-export function extractMeasurementPeriod(measureBundle: fhir4.Bundle): CalculationOptions {
-  const measureEntry = measureBundle.entry?.find(e => e.resource?.resourceType === 'Measure');
-  if (!measureEntry || !measureEntry.resource) {
-    throw new UnexpectedResource('Measure resource was not found in provided measure bundle');
-  }
-  const measure = measureEntry.resource as fhir4.Measure;
+export function extractMeasurementPeriod(measure: fhir4.Measure): CalculationOptions {
   return {
     measurementPeriodStart: measure.effectivePeriod?.start || '2019-01-01',
     measurementPeriodEnd: measure.effectivePeriod?.end || '2019-12-31'
@@ -317,13 +312,15 @@ export function extractLibrariesFromBundle(
  * Returns the cqls, rootLibIdentifier, and elmJSONs for a collection of libraries
  * within a Measure Bundle
  */
-export function extractLibrariesFromMeasureBundle(measureBundle: fhir4.Bundle): {
+export function extractLibrariesFromMeasureBundle(
+  measureBundle: fhir4.Bundle,
+  measure?: MeasureWithLibrary
+): {
   cqls: ExtractedLibrary[];
   rootLibIdentifier: ELMIdentifier;
   elmJSONs: ELM[];
 } {
-  const measure = extractMeasureFromBundle(measureBundle);
-  const rootLibRef = measure.library[0];
+  const rootLibRef = measure ? measure.library[0] : extractMeasureFromBundle(measureBundle).library[0];
   let rootLibId: string;
   if (isValidLibraryURL(rootLibRef)) rootLibId = rootLibRef;
   else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);

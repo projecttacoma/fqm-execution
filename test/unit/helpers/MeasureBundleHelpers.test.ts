@@ -683,94 +683,62 @@ describe('MeasureBundleHelpers tests', () => {
 
   describe('extractMeasurementPeriod', () => {
     it('Measurement period start set on measure', () => {
-      const measureBundleFixture: fhir4.Bundle = {
-        resourceType: 'Bundle',
-        entry: [
-          {
-            resource: {
-              resourceType: 'Measure',
-              effectivePeriod: {
-                start: '2000-01-01'
-              },
-              status: 'draft'
-            }
-          }
-        ],
-        type: 'transaction'
+      const measureFixture: fhir4.Measure = {
+        resourceType: 'Measure',
+        effectivePeriod: {
+          start: '2000-01-01'
+        },
+        status: 'draft'
       };
 
-      const mpConfig = extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = extractMeasurementPeriod(measureFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
     });
 
     it('Measurement period end set on measure', () => {
-      const measureBundleFixture: fhir4.Bundle = {
-        resourceType: 'Bundle',
-        entry: [
-          {
-            resource: {
-              resourceType: 'Measure',
-              effectivePeriod: {
-                end: '2000-12-31'
-              },
-              status: 'draft'
-            }
-          }
-        ],
-        type: 'transaction'
+      const measureFixture: fhir4.Measure = {
+        resourceType: 'Measure',
+        effectivePeriod: {
+          end: '2000-12-31'
+        },
+        status: 'draft'
       };
 
-      const mpConfig = extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = extractMeasurementPeriod(measureFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2019-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
     });
 
     it('Measurement period start and end set on measure', () => {
-      const measureBundleFixture: fhir4.Bundle = {
-        resourceType: 'Bundle',
-        entry: [
-          {
-            resource: {
-              resourceType: 'Measure',
-              effectivePeriod: {
-                start: '2000-01-01',
-                end: '2000-12-31'
-              },
-              status: 'draft'
-            }
-          }
-        ],
-        type: 'transaction'
+      const measureFixture: fhir4.Measure = {
+        resourceType: 'Measure',
+        effectivePeriod: {
+          start: '2000-01-01',
+          end: '2000-12-31'
+        },
+        status: 'draft'
       };
 
-      const mpConfig = extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = extractMeasurementPeriod(measureFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
     });
 
     it('Neither set on measure', () => {
-      const measureBundleFixture: fhir4.Bundle = {
-        resourceType: 'Bundle',
-        entry: [
-          {
-            resource: {
-              resourceType: 'Measure',
-              effectivePeriod: {
-                start: '',
-                end: ''
-              },
-              status: 'draft'
-            }
-          }
-        ],
-        type: 'transaction'
+      const measureFixture: fhir4.Measure = {
+        resourceType: 'Measure',
+        effectivePeriod: {
+          start: '',
+          end: ''
+        },
+        status: 'draft'
       };
 
-      const mpConfig = extractMeasurementPeriod(measureBundleFixture);
+      const mpConfig = extractMeasurementPeriod(measureFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2019-01-01');
       expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
