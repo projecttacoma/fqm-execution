@@ -1,5 +1,10 @@
 import { CodeService, Repository } from 'cql-execution';
-import { MeasureBundleHelpers } from '../..';
+import {
+  isEpisodeOfCareGroup,
+  MeasureWithLibrary,
+  extractLibrariesFromMeasureBundle,
+  codeableConceptToPopulationType
+} from '../MeasureBundleHelpers';
 import {
   generateEpisodeELMJSONFunction,
   generateBooleanELMJSONFunction
@@ -34,7 +39,7 @@ const ELMInfoCache = new Map<string, ELMInfoCacheType>();
  * @returns {Object} an object containing cqls, elmJSONs, rootLibIdentifier, codeService, rep, and vsMap
  */
 export function retrieveELMInfo(
-  measure: MeasureBundleHelpers.MeasureWithLibrary,
+  measure: MeasureWithLibrary,
   measureBundle: fhir4.Bundle,
   valueSets: fhir4.ValueSet[],
   useElmJsonsCaching?: boolean
@@ -44,23 +49,18 @@ export function retrieveELMInfo(
   if (!(ELMInfoCache.get(key) && cacheEntryIsValid(ELMInfoCache.get(key)?.lastAccessed))) {
     const vsMap = valueSetsForCodeService(valueSets);
 
-    const { cqls, rootLibIdentifier, elmJSONs } = MeasureBundleHelpers.extractLibrariesFromMeasureBundle(
-      measureBundle,
-      measure
-    );
+    const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromMeasureBundle(measureBundle, measure);
 
     // add expressions for collecting for all measure observations
     measure.group?.forEach(group => {
       group.population
-        ?.filter(
-          population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.OBSERV
-        )
+        ?.filter(population => codeableConceptToPopulationType(population.code) === PopulationType.OBSERV)
         ?.forEach(obsrvPop => {
           const msrPop = findObsMsrPopl(group, obsrvPop);
           if (msrPop?.criteria?.expression && obsrvPop.criteria?.expression) {
             const mainLib = elmJSONs.find(elm => elm.library.identifier.id === rootLibIdentifier.id);
             if (mainLib) {
-              const elmFunction = MeasureBundleHelpers.isEpisodeOfCareGroup(measure, group)
+              const elmFunction = isEpisodeOfCareGroup(measure, group)
                 ? generateEpisodeELMJSONFunction(obsrvPop.criteria.expression, msrPop.criteria.expression)
                 : generateBooleanELMJSONFunction(obsrvPop.criteria.expression);
 
