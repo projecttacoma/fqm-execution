@@ -3,7 +3,7 @@ import * as DataRequirementHelpers from '../../src/helpers/DataRequirementHelper
 
 describe('DataRequirementHelpers', () => {
   describe('getFlattenedRelatedArtifacts', () => {
-    test('throws error if bundle with no measure is passed in empty measure bundle is passed in', () => {
+    test('throws error if bundle with no measure is passed in', () => {
       expect(() => {
         DataRequirementHelpers.getFlattenedRelatedArtifacts({
           resourceType: 'Bundle',
