@@ -225,17 +225,7 @@ export function extractLibrariesFromLibraryBundle(
   rootLibIdentifier: ELMIdentifier;
   elmJSONs: ELM[];
 } {
-  let rootLibId: string;
-  let rootLibVersion: string | undefined;
-  if (isValidLibraryURL(rootLibRef)) {
-    if (rootLibRef.includes('|')) {
-      const splitRootLibRef = rootLibRef.split('|');
-      rootLibId = splitRootLibRef[0];
-      rootLibVersion = splitRootLibRef[1];
-    } else {
-      rootLibId = rootLibRef;
-    }
-  } else rootLibId = rootLibRef.substring(rootLibRef.indexOf('/') + 1);
+  const { libId: rootLibId, libVersion: rootLibVersion } = parseLibRef(rootLibRef);
 
   const { cqls, rootLibIdentifier, elmJSONs } = extractLibrariesFromBundle(libraryBundle, rootLibId, rootLibVersion);
 
@@ -244,6 +234,28 @@ export function extractLibrariesFromLibraryBundle(
   }
 
   return { cqls, rootLibIdentifier, elmJSONs };
+}
+
+/**
+ * Parses a library reference as canonical url or Library/id to an id and version.
+ *
+ * @param rootLibRef
+ * @returns Library id and version
+ */
+export function parseLibRef(libRef: string): { libId: string; libVersion: string | undefined } {
+  let libId: string;
+  let libVersion: string | undefined;
+  if (isValidLibraryURL(libRef)) {
+    if (libRef.includes('|')) {
+      const splitLibRef = libRef.split('|');
+      libId = splitLibRef[0];
+      libVersion = splitLibRef[1];
+    } else {
+      libId = libRef;
+    }
+  } else libId = libRef.substring(libRef.indexOf('/') + 1);
+
+  return { libId, libVersion };
 }
 
 /**

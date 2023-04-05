@@ -548,7 +548,12 @@ export async function calculateLibraryDataRequirements(
     options.rootLibRef
   );
 
-  return DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options);
+  const dataRequirements = await DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options);
+  dataRequirements.results.relatedArtifact = DataRequirementHelpers.getFlattenedRelatedArtifacts(
+    libraryBundle,
+    options.rootLibRef
+  );
+  return dataRequirements;
 }
 
 /**
