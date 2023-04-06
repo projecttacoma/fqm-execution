@@ -548,7 +548,12 @@ export async function calculateLibraryDataRequirements(
     options.rootLibRef
   );
 
-  return DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options);
+  const dataRequirements = await DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options);
+  dataRequirements.results.relatedArtifact = DataRequirementHelpers.getFlattenedRelatedArtifacts(
+    libraryBundle,
+    options.rootLibRef
+  );
+  return dataRequirements;
 }
 
 /**
@@ -570,7 +575,15 @@ export async function calculateDataRequirements(
     measureBundle,
     measure
   );
-  return DataRequirementHelpers.getDataRequirements(cqls, rootLibIdentifier, elmJSONs, options, effectivePeriod);
+  const dataRequirements = await DataRequirementHelpers.getDataRequirements(
+    cqls,
+    rootLibIdentifier,
+    elmJSONs,
+    options,
+    effectivePeriod
+  );
+  dataRequirements.results.relatedArtifact = DataRequirementHelpers.getFlattenedRelatedArtifacts(measureBundle);
+  return dataRequirements;
 }
 
 /**

@@ -13,7 +13,8 @@ import {
   getObservationResultForPopulation,
   extractLibrariesFromMeasureBundle,
   extractLibrariesFromLibraryBundle,
-  isRatioMeasure
+  isRatioMeasure,
+  parseLibRef
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
 import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
@@ -1133,6 +1134,27 @@ describe('MeasureBundleHelpers tests', () => {
         populationType: PopulationType.OBSERV,
         criteriaExpression: 'numerFunc',
         result: false
+      });
+    });
+  });
+
+  describe('parseLibRef', () => {
+    it('handles canonical with version', () => {
+      expect(parseLibRef('http://example.org/TestLibrary|1.0.1')).toEqual({
+        libId: 'http://example.org/TestLibrary',
+        libVersion: '1.0.1'
+      });
+    });
+
+    it('handles canonical without version', () => {
+      expect(parseLibRef('http://example.org/TestLibrary')).toEqual({
+        libId: 'http://example.org/TestLibrary'
+      });
+    });
+
+    it('handles Library/id reference', () => {
+      expect(parseLibRef('Library/TestLibrary')).toEqual({
+        libId: 'TestLibrary'
       });
     });
   });

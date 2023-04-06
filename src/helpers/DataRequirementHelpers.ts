@@ -25,6 +25,7 @@ import * as RetrievesHelper from '../gaps/RetrievesFinder';
 import { uniqBy } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
+import * as MeasureBundleHelpers from './MeasureBundleHelpers';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -444,4 +445,68 @@ function hasMeasurementPeriodInfo(options: CalculationOptions, effectivePeriod?:
   return Boolean(
     options.measurementPeriodStart || options.measurementPeriodEnd || effectivePeriod?.start || effectivePeriod?.end
   );
+}
+
+/**
+ * Get a flattened list of all related artifacts in the measure bundle.
+ *
+ * @param measureBundle The measure bundle to fetch all RelatedArtifacts from
+ * @returns List of flattened related artifacts.
+ */
+export function getFlattenedRelatedArtifacts(
+  measureBundle: fhir4.Bundle,
+  rootLibRef?: string
+): fhir4.RelatedArtifact[] {
+  const relatedArtifacts: fhir4.RelatedArtifact[] = [];
+
+  if (rootLibRef) {
+    // if a rootLibIdentifier is defined we should be excluding the measure info
+    const { libId: rootLibId, libVersion: rootLibVersion } = MeasureBundleHelpers.parseLibRef(rootLibRef);
+    // find the root library resource
+    const libraryEntry = measureBundle.entry?.find(entry => {
+      if (entry.resource?.resourceType === 'Library') {
+        const library = entry.resource as fhir4.Library;
+        return (
+          (library.url === rootLibId && (!rootLibVersion || library.version === rootLibVersion)) ||
+          library.id === rootLibId
+        );
+      }
+    });
+    if (libraryEntry?.resource) {
+      const library = libraryEntry.resource as fhir4.Library;
+      // add the root library itself
+      relatedArtifacts.push({
+        type: 'depends-on',
+        display: library.name ? `Library ${library.name}` : 'Library',
+        resource: library.url ?? `Library/${library.id}`
+      });
+    }
+  } else {
+    const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
+    // add the measure itself
+    relatedArtifacts.push({
+      type: 'depends-on',
+      display: measure.name ? `Measure ${measure.name}` : 'Measure',
+      resource: measure.url ?? `Measure/${measure.id}`
+    });
+
+    // copy over related artifacts from measure
+    if (measure.relatedArtifact) {
+      relatedArtifacts.push(...measure.relatedArtifact);
+    }
+  }
+
+  // copy over all related artifacts from all libraries
+  const libraries = measureBundle.entry?.filter(entry => entry.resource?.resourceType === 'Library');
+  if (libraries) {
+    libraries.forEach(libraryEntry => {
+      const library = libraryEntry.resource as fhir4.Library;
+      if (library.relatedArtifact) {
+        relatedArtifacts.push(...library.relatedArtifact);
+      }
+    });
+  }
+
+  // unique the relatedArtifacts
+  return uniqBy(relatedArtifacts, JSON.stringify);
 }
