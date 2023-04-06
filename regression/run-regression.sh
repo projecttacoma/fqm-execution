@@ -70,13 +70,13 @@ git checkout $BASE_BRANCH
 npx ts-node --files ./regression/regression.ts "$BASE_BRANCH-$TIMESTAMP" $VERBOSE
 
 FAILURES=()
-MASTER_BASE="regression/output/$BASE_BRANCH-$TIMESTAMP"
-BRANCH_BASE="regression/output/$CURRENT_BRANCH-$TIMESTAMP"
-for fname in $BRANCH_BASE/**/*.json; do
+BASE_BRANCH_BASE_PATH="regression/output/$BASE_BRANCH-$TIMESTAMP"
+CURRENT_BRANCH_BASE_PATH="regression/output/$CURRENT_BRANCH-$TIMESTAMP"
+for fname in $CURRENT_BRANCH_BASE_PATH/**/*.json; do
   # Gets the name of the test file itself ignoring the base path
   END_PATH=${fname#*/*/*/}
-  P1="$BRANCH_BASE/$END_PATH"
-  P2="$MASTER_BASE/$END_PATH"
+  P1="$CURRENT_BRANCH_BASE_PATH/$END_PATH"
+  P2="$BASE_BRANCH_BASE_PATH/$END_PATH"
 
   if ! test -f "$P1"; then
     echo -e "${RED}FAIL${NC}: $P1 does not exist"
