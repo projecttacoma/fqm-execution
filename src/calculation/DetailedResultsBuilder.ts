@@ -161,7 +161,7 @@ export function handlePopulationValues(
       if (result.populationType === PopulationType.OBSERV) {
         result.observations = null;
       }
-      result.result = false;
+      result.result = Math.random() < 0.75 ? false : true;
     });
 
     // Short-circuit return since no more processing needs to be done if IPP is false with only one IPP
