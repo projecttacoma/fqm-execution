@@ -1,6 +1,79 @@
 import { RelatedArtifact } from 'fhir/r4';
 import * as DataRequirementHelpers from '../../src/helpers/DataRequirementHelpers';
 
+const TEST_MEASURE: fhir4.BundleEntry = {
+  resource: {
+    resourceType: 'Measure',
+    status: 'draft',
+    id: 'TestMeasure',
+    url: 'http://example.org/Measure/TestMeasure',
+    library: ['http://example.org/Library/TestMainLibrary'],
+    relatedArtifact: [
+      {
+        type: 'depends-on',
+        display: 'Main Library',
+        resource: 'http://example.org/Library/TestMainLibrary'
+      }
+    ]
+  }
+};
+
+const TEST_MAIN_LIBRARY: fhir4.BundleEntry = {
+  resource: {
+    resourceType: 'Library',
+    status: 'draft',
+    type: {},
+    id: 'TestMainLibrary',
+    url: 'http://example.org/Library/TestMainLibrary',
+    relatedArtifact: [
+      {
+        type: 'depends-on',
+        display: 'FHIR model information',
+        resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
+      }
+    ]
+  }
+};
+
+const TEST_MAIN_LIBRARY_USING_SUPPORTING: fhir4.BundleEntry = {
+  resource: {
+    resourceType: 'Library',
+    status: 'draft',
+    type: {},
+    id: 'TestMainLibrary',
+    url: 'http://example.org/Library/TestMainLibrary',
+    relatedArtifact: [
+      {
+        type: 'depends-on',
+        display: 'FHIR model information',
+        resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
+      },
+      {
+        type: 'depends-on',
+        display: 'Supporting Library',
+        resource: 'http://example.org/Library/SupportingLibrary'
+      }
+    ]
+  }
+};
+
+const TEST_SUPPORTING_LIBRARY: fhir4.BundleEntry = {
+  resource: {
+    resourceType: 'Library',
+    status: 'draft',
+    type: {},
+    id: 'SupportingLibrary',
+    url: 'http://example.org/Library/SupportingLibrary',
+    relatedArtifact: [
+      {
+        type: 'depends-on',
+        display: 'FHIR model information',
+        resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
+      }
+    ]
+  }
+};
+
 describe('DataRequirementHelpers', () => {
   describe('getFlattenedRelatedArtifacts', () => {
     test('throws error if bundle with no measure is passed in', () => {
@@ -16,39 +89,18 @@ describe('DataRequirementHelpers', () => {
       const result = DataRequirementHelpers.getFlattenedRelatedArtifacts({
         resourceType: 'Bundle',
         type: 'transaction',
-        entry: [
-          {
-            resource: {
-              resourceType: 'Measure',
-              status: 'draft',
-              id: 'TestMeasure',
-              url: 'http://example.org/Measure/TestMeasure',
-              library: ['http://example.org/Library/TestMainLibrary']
-            }
-          },
-          {
-            resource: {
-              resourceType: 'Library',
-              status: 'draft',
-              type: {},
-              id: 'TestMainLibrary',
-              url: 'http://example.org/Library/TestMainLibrary',
-              relatedArtifact: [
-                {
-                  type: 'depends-on',
-                  display: 'FHIR model information',
-                  resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
-                }
-              ]
-            }
-          }
-        ]
+        entry: [TEST_MEASURE, TEST_MAIN_LIBRARY]
       });
       const expectedResult: RelatedArtifact[] = [
         {
           type: 'depends-on',
           display: 'Measure',
           resource: 'http://example.org/Measure/TestMeasure'
+        },
+        {
+          type: 'depends-on',
+          display: 'Main Library',
+          resource: 'http://example.org/Library/TestMainLibrary'
         },
         {
           type: 'depends-on',
@@ -76,22 +128,7 @@ describe('DataRequirementHelpers', () => {
               library: ['http://example.org/Library/TestMainLibrary']
             }
           },
-          {
-            resource: {
-              resourceType: 'Library',
-              status: 'draft',
-              type: {},
-              id: 'TestMainLibrary',
-              url: 'http://example.org/Library/TestMainLibrary',
-              relatedArtifact: [
-                {
-                  type: 'depends-on',
-                  display: 'FHIR model information',
-                  resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
-                }
-              ]
-            }
-          }
+          TEST_MAIN_LIBRARY
         ]
       });
       const expectedResult: RelatedArtifact[] = [
@@ -115,61 +152,7 @@ describe('DataRequirementHelpers', () => {
       const result = DataRequirementHelpers.getFlattenedRelatedArtifacts({
         resourceType: 'Bundle',
         type: 'transaction',
-        entry: [
-          {
-            resource: {
-              resourceType: 'Measure',
-              status: 'draft',
-              id: 'TestMeasure',
-              url: 'http://example.org/Measure/TestMeasure',
-              library: ['http://example.org/Library/TestMainLibrary'],
-              relatedArtifact: [
-                {
-                  type: 'depends-on',
-                  display: 'Main Library',
-                  resource: 'http://example.org/Library/TestMainLibrary'
-                }
-              ]
-            }
-          },
-          {
-            resource: {
-              resourceType: 'Library',
-              status: 'draft',
-              type: {},
-              id: 'TestMainLibrary',
-              url: 'http://example.org/Library/TestMainLibrary',
-              relatedArtifact: [
-                {
-                  type: 'depends-on',
-                  display: 'FHIR model information',
-                  resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
-                },
-                {
-                  type: 'depends-on',
-                  display: 'Supporting Library',
-                  resource: 'http://example.org/Library/SupportingLibrary'
-                }
-              ]
-            }
-          },
-          {
-            resource: {
-              resourceType: 'Library',
-              status: 'draft',
-              type: {},
-              id: 'SupportingLibrary',
-              url: 'http://example.org/Library/SupportingLibrary',
-              relatedArtifact: [
-                {
-                  type: 'depends-on',
-                  display: 'FHIR model information',
-                  resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
-                }
-              ]
-            }
-          }
-        ]
+        entry: [TEST_MEASURE, TEST_MAIN_LIBRARY_USING_SUPPORTING, TEST_SUPPORTING_LIBRARY]
       });
       const expectedResult: RelatedArtifact[] = [
         {
@@ -203,61 +186,7 @@ describe('DataRequirementHelpers', () => {
         {
           resourceType: 'Bundle',
           type: 'transaction',
-          entry: [
-            {
-              resource: {
-                resourceType: 'Measure',
-                status: 'draft',
-                id: 'TestMeasure',
-                url: 'http://example.org/Measure/TestMeasure',
-                library: ['http://example.org/Library/TestMainLibrary'],
-                relatedArtifact: [
-                  {
-                    type: 'depends-on',
-                    display: 'Main Library',
-                    resource: 'http://example.org/Library/TestMainLibrary'
-                  }
-                ]
-              }
-            },
-            {
-              resource: {
-                resourceType: 'Library',
-                status: 'draft',
-                type: {},
-                id: 'TestMainLibrary',
-                url: 'http://example.org/Library/TestMainLibrary',
-                relatedArtifact: [
-                  {
-                    type: 'depends-on',
-                    display: 'FHIR model information',
-                    resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
-                  },
-                  {
-                    type: 'depends-on',
-                    display: 'Supporting Library',
-                    resource: 'http://example.org/Library/SupportingLibrary'
-                  }
-                ]
-              }
-            },
-            {
-              resource: {
-                resourceType: 'Library',
-                status: 'draft',
-                type: {},
-                id: 'SupportingLibrary',
-                url: 'http://example.org/Library/SupportingLibrary',
-                relatedArtifact: [
-                  {
-                    type: 'depends-on',
-                    display: 'FHIR model information',
-                    resource: 'http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1'
-                  }
-                ]
-              }
-            }
-          ]
+          entry: [TEST_MEASURE, TEST_MAIN_LIBRARY_USING_SUPPORTING, TEST_SUPPORTING_LIBRARY]
         },
         'http://example.org/Library/TestMainLibrary'
       );
