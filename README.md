@@ -706,11 +706,9 @@ const { results } = await Calculator.calculateMeasureReports(measureBundle, pati
 
 However, highlighted HTML provided by `fqm-execution` is not solely based on whether individual pieces of the measure logic CQL had "truthy" or "falsy" values. When there are populations that depend on each other, a relevance hierarchy is built to ensure that populations that are subsets of others aren't considered for membership until membership is determined for their superset population. This process is similar to proportion measure scoring for proportion measures depicted in [this flowchart](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#proportion-measure-scoring). If a statement's superset statement is false, then no highlighting will appear, regardless of whether that statement's value is "truthy" or "falsy". This pattern reflects the actual population results that are being returned during calculation.
 
-The following example shows what logic highlighting would look like for a proportion boolean measure where the Initial Population evaluates to false but the Denominator and Numerator statements both evaluated to true.
+The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false.
 
 ![Screenshot of Highlighting HTML Measure Logic](./static/logic-highlighting-example-2.png)
-
-The lack of highlighting indicates that the Denominator and Numerator were not considered for membership since the Initial Population criteria was not met for this measure. This follows the
 
 ## Group Clause Coverage Highlighting
 
