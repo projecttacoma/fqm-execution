@@ -39,14 +39,17 @@ async function main() {
     // where the `*-files` directory contains the patient
     const filesPath = path.join(basePath, `${dir.shortName}-files`);
 
-    // Skip measures with no test patients provided
+    // Skip measures with no `*-files` directory
     if (!fs.existsSync(filesPath)) continue;
+
+    const testFilePaths = fs.readdirSync(filesPath).filter(p => p.startsWith('tests-'));
+
+    // Skip measures with no test patients in the `*-files` directory
+    if (testFilePaths.length === 0) continue;
 
     const regressionResultsPath = path.join(REGRESSION_OUTPUT_DIR, dir.shortName);
 
     fs.mkdirSync(regressionResultsPath);
-
-    const testFilePaths = fs.readdirSync(filesPath).filter(p => p.startsWith('tests-'));
 
     // It is assumed that the bundle lives under the base directory with `-bundle.json` added to the extension
     const measureBundle = JSON.parse(
