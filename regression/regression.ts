@@ -68,7 +68,7 @@ async function main() {
         console.log(`${FG_GREEN}%s${RESET}: Results written to ${testResultsPath}`, 'SUCCESS');
       } catch (e) {
         // Errors will not halt regression. For the purposes of these tests, what matters is that there aren't any new errors that weren't there before
-        // or that the behavior related to the error differs from the main branch to the branch in question.
+        // or that the behavior related to the error differs from the base branch to the branch in question.
         // Errors that occur will be diffed just like normal calculation results
         fs.writeFileSync(
           testResultsPath,

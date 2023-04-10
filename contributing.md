@@ -166,7 +166,12 @@ npm run check
 
 The above command will:
 
-1. Download all known `ecqm-content` repositories that have previously been a source of input for `fqm-execution`
+1. Download all known [ecqm-content repositories](https://github.com/cqframework/ecqm-content) that have previously been a source of input for `fqm-execution`, which is currently:
+
+- [connectathon](https://github.com/DBCG/connectathon/)
+- [ecqm-content-r4-2021](https://github.com/cqframework/ecqm-content-r4-2021)
+- [ecqm-content-qicore-2022](https://github.com/cqframework/ecqm-content-qicore-2022)
+
 2. Run every measure bundle in those repositories through calculation for every test patient provided in that repository
 3. Run the same calculations on the "base" branch to compare the results with (default is the `master` branch, but this can be customized with `-b/--base-branch`
 4. Compare the contents of the calculation results across the two branches. If any calculation results differ, the offending files will be reported as failures in the console
