@@ -704,9 +704,9 @@ const { results } = await Calculator.calculateMeasureReports(measureBundle, pati
 
 ### Population Relevance for Highlighting
 
-However, highlighted HTML provided by `fqm-execution` is not solely based on whether individual pieces of the measure logic CQL had "truthy" or "falsy" values. When there are populations that depend on each other, a relevance hierarchy is built to ensure that populations that are subsets of others aren't considered for membership until membership is determined for their superset population. This process is similar to proportion measure scoring for proportion measures depicted in [this flowchart](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#proportion-measure-scoring). If a statement's superset statement is false, then no highlighting will appear, regardless of whether that statement's value is "truthy" or "falsy". This pattern reflects the actual population results that are being returned during calculation.
+However, highlighted HTML provided by `fqm-execution` is not solely based on whether individual pieces of the measure logic CQL had "truthy" or "falsy" values. When there are populations that depend on each other, a relevance hierarchy is built to ensure that populations that are subsets of others aren't considered for membership until membership is determined for their superset population. If a statement's superset statement is false, then no highlighting will appear, regardless of whether that statement's value is "truthy" or "falsy". This pattern reflects the actual population results that are being returned during calculation.
 
-The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false.
+The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false. The relevance calculation matches the semantics for proportion measures defined in [this flowchart](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#proportion-measure-scoring).
 
 ![Screenshot of Highlighting HTML Measure Logic](./static/logic-highlighting-example-2.png)
 
