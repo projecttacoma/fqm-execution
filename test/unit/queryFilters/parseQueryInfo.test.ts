@@ -525,7 +525,7 @@ describe('Parse Query Info', () => {
       await parseQueryInfo(simpleQueryELM, allELM, '360', undefined, PARAMETERS, PATIENT);
       fail('parseQueryInfo failed to throw error when provided incorrect localid');
     } catch (e) {
-      expect(e.message).toEqual('Clause 360 in SimpleQueries was not a Query or not found.');
+      expect(e).toHaveProperty('message', 'Clause 360 in SimpleQueries was not a Query or not found.');
     }
   });
 

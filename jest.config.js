@@ -1,4 +1,5 @@
 module.exports = {
+  preset: 'ts-jest',
   collectCoverageFrom: ['src/**/*.ts'],
   coveragePathIgnorePatterns: [
     'src/integration-tests',
@@ -7,11 +8,6 @@ module.exports = {
     'src/helpers/DebugHelpers.ts',
     'src/execution/Execution.ts'
   ],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json'
-    }
-  },
   moduleFileExtensions: ['ts', 'js', 'd.ts'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
