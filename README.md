@@ -1,7 +1,8 @@
 <p align="center">
   <h1 align="center">fqm-execution</h1>
   <p align="center">
-    Library for calculating HL7® FHIR® standard<a href="#footnote-1">[1]</a>-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
+    Library for calculating HL7® FHIR® standard<a href="#footnote-1"><sup>1</sup></a>-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
+    <br/>
   </p>
 </p>
 <div align="center">
@@ -51,7 +52,7 @@
 
 # Introduction
 
-`fqm-execution` is a library[^fn] for calculating FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL). It wraps the [cql-execution](https://github.com/cqframework/cql-execution) and [cql-exec-fhir](https://github.com/cqframework/cql-exec-fhir/)
+`fqm-execution` is a library for calculating FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL). It wraps the [cql-execution](https://github.com/cqframework/cql-execution) and [cql-exec-fhir](https://github.com/cqframework/cql-exec-fhir/)
 libraries in order to provide eCQM-specific output/interpretation of the raw results returned from executing the CQL/ELM on provided patient data.
 
 More information about FHIR eCQMs can be found in the [FHIR Quality Measure Implementation Guide](https://build.fhir.org/ig/HL7/cqf-measures/index.html), which informs the majority of how `fqm-execution` calculation behaves.
@@ -1008,4 +1009,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ---
 
-<p id="footnote-1">[1] FHIR® is the registered trademark of Health Level Seven International (HL7).</p>
+<a id="footnote-1">[1] FHIR® is the registered trademark of Health Level Seven International (HL7).</a>
