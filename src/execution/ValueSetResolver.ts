@@ -41,7 +41,11 @@ export class ValueSetResolver {
         const res = await this.instance.get<fhir4.ValueSet>(`${normalizedUrl}/$expand`);
         valuesets.push(res.data);
       } catch (e) {
-        errors.push(`Valueset with URL ${normalizedUrl} could not be retrieved. Reason: ${e.message}`);
+        if (e instanceof Error) {
+          errors.push(`Valueset with URL ${normalizedUrl} could not be retrieved. Reason: ${e.message}`);
+        } else {
+          errors.push(`Valueset with URL ${normalizedUrl} could not be retrieved. Reason: ${String(e)}`);
+        }
       }
     }
 

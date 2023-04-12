@@ -21,6 +21,7 @@ import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
 import { getJSONFixture } from './testHelpers';
 import { getMissingDependentValuesets } from '../../../src/execution/ValueSetHelper';
 import { PopulationResult } from '../../../src/types/Calculator';
+import { UnexpectedResource } from '../../../src/types/errors/CustomErrors';
 
 const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
@@ -976,7 +977,9 @@ describe('MeasureBundleHelpers tests', () => {
         await addValueSetsToMeasureBundle(measureBundle, {});
         fail('addValueSetsToMeasureBundle failed to throw error for missing API key');
       } catch (e) {
-        expect(e.message).toEqual(
+        expect(e).toBeInstanceOf(UnexpectedResource);
+        expect(e).toHaveProperty(
+          'message',
           'Missing the following valuesets: http://example.com/example-valueset-1, and no API key was provided to resolve them'
         );
       }
@@ -1002,7 +1005,8 @@ describe('MeasureBundleHelpers tests', () => {
         await addValueSetsToMeasureBundle(measureBundle, { vsAPIKey: 'an_api_key' });
         fail('addValueSetsToMeasureBundle failed to throw error from getExpansionForValuesetUrls');
       } catch (e) {
-        expect(e.message).toEqual(errorMessage);
+        expect(e).toBeInstanceOf(Error);
+        expect(e).toHaveProperty('message', errorMessage);
         expect(vsrSpy).toHaveBeenCalledWith(getMissingDependentValuesets(measureBundle));
       }
     });
