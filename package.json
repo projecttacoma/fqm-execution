@@ -12,7 +12,6 @@
   ],
   "dependencies": {
     "@types/fhir": "0.0.34",
-    "atob": "^2.1.2",
     "axios": "^0.21.1",
     "commander": "^6.1.0",
     "cql-exec-fhir": "^2.1.3",
