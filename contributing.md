@@ -158,6 +158,34 @@ When contributing new code, ensure that all tests, lint, and prettier checks pas
 npm run check
 ```
 
+`fqm-execution` also comes with a "regression" script, which is useful for ensuring that any changes made on a given branch did not change the calculation results for past known-good measures. To run the regression script:
+
+```bash
+./regression/run-regression.sh [-b|--base-branch <branch-name>] [-v|--verbose]
+```
+
+The above command will:
+
+1. Download all known [ecqm-content repositories](https://github.com/cqframework/ecqm-content) that have previously been a source of input for `fqm-execution`, which is currently:
+
+- [connectathon](https://github.com/DBCG/connectathon/)
+- [ecqm-content-r4-2021](https://github.com/cqframework/ecqm-content-r4-2021)
+- [ecqm-content-qicore-2022](https://github.com/cqframework/ecqm-content-qicore-2022)
+
+2. Run every measure bundle in those repositories through calculation for every test patient provided in that repository
+3. Run the same calculations on the "base" branch to compare the results with (default is the `master` branch, but this can be customized with `-b/--base-branch`
+4. Compare the contents of the calculation results across the two branches. If any calculation results differ, the offending files will be reported as failures in the console
+
+Full command options:
+
+```
+Usage: ./regression/run-regression.sh [-b|--base-branch <branch-name>] [-v|--verbose]
+
+Options:
+    -b/--base-branch:   Base branch to compare results with (default: master)
+    -v/--verbose:       Use verbose regression. Will print out diffs of failing JSON files with spacing (default: false)
+```
+
 # License
 
 Copyright 2020-2023 The MITRE Corporation
