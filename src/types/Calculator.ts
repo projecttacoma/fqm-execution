@@ -97,12 +97,20 @@ export interface ExecutionResult<T extends PopulationGroupResult> {
  */
 export interface SDEResult {
   /** Name of the SDE */
-  name: string;
+  name?: string;
   /** Raw result of SDE clause */
   rawResult?: any;
   /** Pretty result for this SDE. */
   pretty?: string;
+  /** The id of the SDE as defined in the measure. */
+  id?: string;
+  /** Criteria expression for this SDE. */
+  criteriaExpression?: string;
+  /** Measure data usage for this SDE. */
+  usage?: SupplementalDataUsage;
 }
+
+export type SupplementalDataUsage = 'supplemental-data' | 'risk-adjustment-factor';
 
 /**
  * Stripped-down version of verbose detailed results

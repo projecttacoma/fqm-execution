@@ -758,4 +758,22 @@ describe('ClauseResultsBuilder', () => {
       });
     });
   });
+
+  describe('getSDEValues', () => {
+    test('should create proper SDE results', () => {
+      const sdeStatementResults: cql.StatementResults = { SDE: [] };
+      const result = ClauseResultsBuilder.getSDEValues(simpleMeasure, sdeStatementResults);
+      const expectedResult = [
+        {
+          name: 'sde-code',
+          rawResult: [],
+          pretty: '[]',
+          id: 'sde-id',
+          criteriaExpression: 'SDE',
+          usage: 'supplemental-data'
+        }
+      ];
+      expect(result).toEqual(expectedResult);
+    });
+  });
 });
