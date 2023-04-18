@@ -215,12 +215,12 @@ export function generateGuidanceResponses(
       ];
     }
 
-    let gapCoding: fhir4.Coding[];
+    let gapStatus: fhir4.CodeableConcept[];
 
     if (q.reasonDetail?.hasReasonDetail && q.reasonDetail.reasons.length > 0) {
-      gapCoding = q.reasonDetail.reasons.map(generateReasonCoding);
+      gapStatus = q.reasonDetail.reasons.map(generateReasonCode);
     } else {
-      gapCoding =
+      const gapCoding: fhir4.Coding[] =
         improvementNotation === ImprovementNotation.POSITIVE
           ? [
               {
@@ -236,11 +236,12 @@ export function generateGuidanceResponses(
                 display: CareGapReasonCodeDisplay[CareGapReasonCode.PRESENT]
               }
             ];
+      gapStatus = [
+        {
+          coding: gapCoding
+        }
+      ];
     }
-
-    const gapStatus: fhir4.CodeableConcept = {
-      coding: gapCoding
-    };
 
     const dataRequirement: fhir4.DataRequirement = {
       type: q.dataType,
@@ -253,7 +254,7 @@ export function generateGuidanceResponses(
       resourceType: 'GuidanceResponse',
       id: uuidv4(),
       dataRequirement: [dataRequirement],
-      reasonCode: [gapStatus],
+      reasonCode: gapStatus,
       status: 'data-required',
       moduleUri: measureURL
     };
@@ -274,16 +275,20 @@ export function generateGuidanceResponses(
 }
 
 /**
- * Creates a FHIR Coding object representing a reason detail for the GuidanceResponse resource.
+ * Creates a FHIR CodeableConcept object representing a reason detail for the GuidanceResponse resource.
  *
  * @param reason The reason detail data for a single reason.
- * @returns The FHIR Coding object to add to the GuidanceResponse.reasonCode.coding field.
+ * @returns The FHIR CodeableConcept object to add to the GuidanceResponse.reasonCode field.
  */
-export function generateReasonCoding(reason: ReasonDetailData): fhir4.Coding {
+export function generateReasonCode(reason: ReasonDetailData): fhir4.CodeableConcept {
   const reasonCoding: fhir4.Coding = {
     system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
     code: reason.code,
     display: CareGapReasonCodeDisplay[reason.code]
+  };
+
+  const gapStatus: fhir4.CodeableConcept = {
+    coding: [reasonCoding]
   };
 
   // If there is a referenced resource create and add the extension
@@ -305,9 +310,9 @@ export function generateReasonCoding(reason: ReasonDetailData): fhir4.Coding {
         valueString: reason.path
       });
     }
-    reasonCoding.extension = [detailExt];
+    gapStatus.extension = [detailExt];
   }
-  return reasonCoding;
+  return gapStatus;
 }
 
 /**

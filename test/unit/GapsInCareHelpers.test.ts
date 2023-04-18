@@ -7,7 +7,7 @@ import {
   calculateReasonDetail,
   groupGapQueries,
   generateGuidanceResponses,
-  generateReasonCoding,
+  generateReasonCode,
   hasDetailedReasonCode
 } from '../../src/gaps/GapsReportBuilder';
 import {
@@ -1527,29 +1527,28 @@ describe('Guidance Response', () => {
           {
             system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
             code: 'DateOutOfRange',
-            display: 'Date is out of specified range',
+            display: 'Date is out of specified range'
+          }
+        ],
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
             extension: [
               {
-                url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
-                extension: [
-                  {
-                    url: 'reference',
-                    valueReference: {
-                      reference: 'Procedure/denom-EXM130-2'
-                    }
-                  },
-                  {
-                    url: 'path',
-                    valueString: 'performed.end'
-                  }
-                ]
+                url: 'reference',
+                valueReference: {
+                  reference: 'Procedure/denom-EXM130-2'
+                }
+              },
+              {
+                url: 'path',
+                valueString: 'performed.end'
               }
             ]
           }
         ]
       }
     ];
-
     const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE).guidanceResponses;
 
     expect(grs).toHaveLength(1);
@@ -1572,7 +1571,8 @@ describe('Guidance Response ReasonCode Coding', () => {
       code: 'Missing',
       display: 'Missing Data Element'
     };
-    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+    const expectedReasonCode: fhir4.CodeableConcept = { coding: [expectedCoding] };
+    expect(generateReasonCode(reasonDetail)).toEqual(expectedReasonCode);
   });
 
   test('should handle reason detail with reference and no path', () => {
@@ -1583,22 +1583,26 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
       code: 'Present',
-      display: 'Data Element is Present',
+      display: 'Data Element is Present'
+    };
+
+    const expectedDetailExt: fhir4.Extension = {
+      url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
       extension: [
         {
-          url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
-          extension: [
-            {
-              url: 'reference',
-              valueReference: {
-                reference: 'Procedure/denom-EXM130-2'
-              }
-            }
-          ]
+          url: 'reference',
+          valueReference: {
+            reference: 'Procedure/denom-EXM130-2'
+          }
         }
       ]
     };
-    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+
+    const expectedReasonCode: fhir4.CodeableConcept = {
+      coding: [expectedCoding],
+      extension: [expectedDetailExt]
+    };
+    expect(generateReasonCode(reasonDetail)).toEqual(expectedReasonCode);
   });
 
   test('should handle reason detail with reference and path', () => {
@@ -1610,26 +1614,28 @@ describe('Guidance Response ReasonCode Coding', () => {
     const expectedCoding: fhir4.Coding = {
       system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
       code: 'DateOutOfRange',
-      display: 'Date is out of specified range',
+      display: 'Date is out of specified range'
+    };
+    const expectedDetailExt: fhir4.Extension = {
+      url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
       extension: [
         {
-          url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
-          extension: [
-            {
-              url: 'reference',
-              valueReference: {
-                reference: 'Procedure/denom-EXM130-2'
-              }
-            },
-            {
-              url: 'path',
-              valueString: 'performed.end'
-            }
-          ]
+          url: 'reference',
+          valueReference: {
+            reference: 'Procedure/denom-EXM130-2'
+          }
+        },
+        {
+          url: 'path',
+          valueString: 'performed.end'
         }
       ]
     };
-    expect(generateReasonCoding(reasonDetail)).toEqual(expectedCoding);
+    const expectedReasonCode: fhir4.CodeableConcept = {
+      coding: [expectedCoding],
+      extension: [expectedDetailExt]
+    };
+    expect(generateReasonCode(reasonDetail)).toEqual(expectedReasonCode);
   });
 
   describe('hasDetailedReasonCode', () => {
