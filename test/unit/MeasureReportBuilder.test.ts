@@ -79,7 +79,10 @@ const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
           code: 'example',
           system: 'http://example.com',
           display: 'Example'
-        }
+        },
+        id: 'sde-id',
+        criteriaExpression: 'SDE',
+        usage: 'supplemental-data'
       }
     ]
   }
@@ -164,7 +167,10 @@ const ratioExecutionResults: ExecutionResult<DetailedPopulationGroupResult>[] = 
           code: 'example',
           system: 'http://example.com',
           display: 'Example'
-        }
+        },
+        id: 'sde-id',
+        criteriaExpression: 'SDE',
+        usage: 'supplemental-data'
       }
     ]
   }
@@ -210,7 +216,10 @@ const cvExecutionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
           code: 'example',
           system: 'http://example.com',
           display: 'Example'
-        }
+        },
+        id: 'sde-id',
+        criteriaExpression: 'SDE',
+        usage: 'supplemental-data'
       }
     ]
   }
