@@ -109,6 +109,7 @@ export interface SDEResult {
   /** Measure data usage for this SDE. */
   usage: SupplementalDataUsage;
 }
+
 /**
  * Allowed usages according to valueSet https://terminology.hl7.org/3.1.0/ValueSet-measure-data-usage.html.
  * Using typeof with allowed usages lets us both define a type (using SupplementalDataUsage) and determine

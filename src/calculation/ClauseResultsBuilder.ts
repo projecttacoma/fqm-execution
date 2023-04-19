@@ -878,20 +878,12 @@ export function getSDEValues(measure: fhir4.Measure, statementResults: cql.State
       if (sde.criteria?.expression) {
         const expression = sde.criteria.expression;
         const result = statementResults[expression];
-        if (
-          !(
-            sde.usage &&
-            sde.usage.length > 0 &&
-            sde.usage[0].coding &&
-            sde.usage[0].coding.length > 0 &&
-            isSupplementalDataUsage(sde.usage[0].coding[0].code)
-          )
-        ) {
+        const usage = sde.usage?.[0]?.coding?.[0].code;
+        if (!isSupplementalDataUsage(usage)) {
           throw new UnexpectedProperty(
             'Expected sde usage code from the MeasureDataUsage valueset: https://terminology.hl7.org/3.1.0/ValueSet-measure-data-usage.html'
           );
         }
-        const usage = sde.usage[0].coding[0].code;
         results.push({
           name: sde.code?.text || expression,
           rawResult: result,
