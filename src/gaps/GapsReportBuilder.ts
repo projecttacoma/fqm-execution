@@ -236,6 +236,7 @@ export function generateGuidanceResponses(
                 display: CareGapReasonCodeDisplay[CareGapReasonCode.PRESENT]
               }
             ];
+
       gapStatus = [
         {
           coding: gapCoding
@@ -287,7 +288,7 @@ export function generateReasonCode(reason: ReasonDetailData): fhir4.CodeableConc
     display: CareGapReasonCodeDisplay[reason.code]
   };
 
-  const gapStatus: fhir4.CodeableConcept = {
+  const reasonCode: fhir4.CodeableConcept = {
     coding: [reasonCoding]
   };
 
@@ -310,9 +311,9 @@ export function generateReasonCode(reason: ReasonDetailData): fhir4.CodeableConc
         valueString: reason.path
       });
     }
-    gapStatus.extension = [detailExt];
+    reasonCode.extension = [detailExt];
   }
-  return gapStatus;
+  return reasonCode;
 }
 
 /**

@@ -1549,6 +1549,7 @@ describe('Guidance Response', () => {
         ]
       }
     ];
+
     const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE).guidanceResponses;
 
     expect(grs).toHaveLength(1);
@@ -1566,12 +1567,15 @@ describe('Guidance Response ReasonCode Coding', () => {
     const reasonDetail: ReasonDetailData = {
       code: CareGapReasonCode.MISSING
     };
-    const expectedCoding: fhir4.Coding = {
-      system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
-      code: 'Missing',
-      display: 'Missing Data Element'
+    const expectedReasonCode: fhir4.CodeableConcept = {
+      coding: [
+        {
+          system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
+          code: 'Missing',
+          display: 'Missing Data Element'
+        }
+      ]
     };
-    const expectedReasonCode: fhir4.CodeableConcept = { coding: [expectedCoding] };
     expect(generateReasonCode(reasonDetail)).toEqual(expectedReasonCode);
   });
 
@@ -1580,6 +1584,7 @@ describe('Guidance Response ReasonCode Coding', () => {
       code: CareGapReasonCode.PRESENT,
       reference: 'Procedure/denom-EXM130-2'
     };
+
     const expectedCoding: fhir4.Coding = {
       system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
       code: 'Present',
@@ -1602,6 +1607,7 @@ describe('Guidance Response ReasonCode Coding', () => {
       coding: [expectedCoding],
       extension: [expectedDetailExt]
     };
+
     expect(generateReasonCode(reasonDetail)).toEqual(expectedReasonCode);
   });
 
@@ -1611,11 +1617,13 @@ describe('Guidance Response ReasonCode Coding', () => {
       reference: 'Procedure/denom-EXM130-2',
       path: 'performed.end'
     };
+
     const expectedCoding: fhir4.Coding = {
       system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
       code: 'DateOutOfRange',
       display: 'Date is out of specified range'
     };
+
     const expectedDetailExt: fhir4.Extension = {
       url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
       extension: [
@@ -1631,10 +1639,12 @@ describe('Guidance Response ReasonCode Coding', () => {
         }
       ]
     };
+
     const expectedReasonCode: fhir4.CodeableConcept = {
       coding: [expectedCoding],
       extension: [expectedDetailExt]
     };
+
     expect(generateReasonCode(reasonDetail)).toEqual(expectedReasonCode);
   });
 
