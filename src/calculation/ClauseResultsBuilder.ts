@@ -14,7 +14,8 @@ import {
   PopulationResult,
   SDEResult,
   StatementResult,
-  SupplementalDataUsage
+  SupplementalDataUsage,
+  isSupplementalDataUsage
 } from '../types/Calculator';
 import { UnexpectedProperty } from '../types/errors/CustomErrors';
 
@@ -883,8 +884,7 @@ export function getSDEValues(measure: fhir4.Measure, statementResults: cql.State
             sde.usage.length > 0 &&
             sde.usage[0].coding &&
             sde.usage[0].coding.length > 0 &&
-            sde.usage[0].coding[0].code &&
-            ['supplemental-data', 'risk-adjustment-factor'].includes(sde.usage[0].coding[0].code)
+            isSupplementalDataUsage(sde.usage[0].coding[0].code)
           )
         ) {
           throw new UnexpectedProperty(

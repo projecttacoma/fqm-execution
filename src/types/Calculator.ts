@@ -107,10 +107,18 @@ export interface SDEResult {
   /** Criteria expression for this SDE. */
   criteriaExpression?: string;
   /** Measure data usage for this SDE. */
-  usage?: SupplementalDataUsage;
+  usage: SupplementalDataUsage;
 }
-
-export type SupplementalDataUsage = 'supplemental-data' | 'risk-adjustment-factor';
+/**
+ * Allowed usages according to valueSet https://terminology.hl7.org/3.1.0/ValueSet-measure-data-usage.html.
+ * Using typeof with allowed usages lets us both define a type (using SupplementalDataUsage) and determine
+ * whether a value is validly typed (using usageValues const).
+ */
+export const usageValues = ['supplemental-data', 'risk-adjustment-factor'] as const;
+export type SupplementalDataUsage = typeof usageValues[number];
+export function isSupplementalDataUsage(u: unknown): u is SupplementalDataUsage {
+  return usageValues.includes(u as SupplementalDataUsage);
+}
 
 /**
  * Stripped-down version of verbose detailed results
