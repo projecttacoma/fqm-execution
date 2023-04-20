@@ -14,7 +14,6 @@ import {
   PopulationResult,
   SDEResult,
   StatementResult,
-  SupplementalDataUsage,
   isSupplementalDataUsage
 } from '../types/Calculator';
 import { UnexpectedProperty } from '../types/errors/CustomErrors';
@@ -881,7 +880,7 @@ export function getSDEValues(measure: fhir4.Measure, statementResults: cql.State
         const usage = sde.usage?.[0]?.coding?.[0].code;
         if (!isSupplementalDataUsage(usage)) {
           throw new UnexpectedProperty(
-            'Expected sde usage code from the MeasureDataUsage valueset: https://terminology.hl7.org/3.1.0/ValueSet-measure-data-usage.html'
+            `Received usage: ${usage}. Expected sde usage code from the MeasureDataUsage valueset: https://terminology.hl7.org/3.1.0/ValueSet-measure-data-usage.html`
           );
         }
         results.push({
@@ -890,7 +889,7 @@ export function getSDEValues(measure: fhir4.Measure, statementResults: cql.State
           pretty: prettyResult(result),
           id: sde.id,
           criteriaExpression: expression,
-          usage: usage as SupplementalDataUsage
+          usage: usage
         });
       }
     });
