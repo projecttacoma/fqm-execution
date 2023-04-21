@@ -1560,6 +1560,131 @@ describe('Guidance Response', () => {
     expect(gr.reasonCode).toBeDefined();
     expect(gr.reasonCode).toEqual(expectedReasonCodeableConcept);
   });
+
+  test('should return one element in coding reasonCode array with the reason detail extension, and one without', () => {
+    const drWithDateAndCode: fhir4.DataRequirement[] = [
+      {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com/test-vs'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
+              }
+            ]
+          }
+        ],
+        dateFilter: [
+          {
+            path: 'performed.end',
+            valuePeriod: {
+              start: '2009-12-31',
+              end: '2019-12-31'
+            }
+          }
+        ]
+      }
+    ];
+
+    const query: GapsDataTypeQuery = {
+      ...baseQuery,
+      queryInfo: {
+        sources: [
+          {
+            alias: 'P',
+            resourceType: 'Procedure'
+          }
+        ],
+        filter: {
+          type: 'and',
+          children: [
+            {
+              type: 'equals',
+              alias: 'P',
+              value: 'completed',
+              attribute: 'status'
+            },
+            {
+              type: 'during',
+              alias: 'P',
+              attribute: 'performed.end',
+              valuePeriod: {
+                start: '2009-12-31',
+                end: '2019-12-31'
+              }
+            }
+          ]
+        }
+      },
+      reasonDetail: {
+        hasReasonDetail: true,
+        reasons: [
+          {
+            code: CareGapReasonCode.DATEOUTOFRANGE,
+            reference: 'Procedure/denom-EXM130-2',
+            path: 'performed.end'
+          },
+          {
+            code: CareGapReasonCode.PRESENT
+          }
+        ]
+      }
+    };
+
+    const expectedCodingWithExtension = {
+      coding: [
+        {
+          system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
+          code: 'DateOutOfRange',
+          display: 'Date is out of specified range'
+        }
+      ],
+      extension: [
+        {
+          url: 'http://hl7.org/fhir/us/davinci-deqm/StructureDefinition/reasonDetail',
+          extension: [
+            {
+              url: 'reference',
+              valueReference: {
+                reference: 'Procedure/denom-EXM130-2'
+              }
+            },
+            {
+              url: 'path',
+              valueString: 'performed.end'
+            }
+          ]
+        }
+      ]
+    };
+
+    const expectedCodingWithoutExt = {
+      coding: [
+        {
+          code: 'Present',
+          system: 'http://hl7.org/fhir/us/davinci-deqm/CodeSystem/care-gap-reason',
+          display: 'Data Element is Present'
+        }
+      ]
+    };
+
+    const grs = generateGuidanceResponses([query], '', ImprovementNotation.POSITIVE).guidanceResponses;
+
+    expect(grs).toHaveLength(1);
+
+    const [gr] = grs;
+
+    expect(gr.dataRequirement).toEqual(drWithDateAndCode);
+    expect(gr.reasonCode).toBeDefined();
+    expect(gr.reasonCode).toContainEqual(expectedCodingWithExtension);
+    expect(gr.reasonCode).toContainEqual(expectedCodingWithoutExt);
+  });
 });
 
 describe('Guidance Response ReasonCode Coding', () => {
