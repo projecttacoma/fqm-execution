@@ -758,4 +758,35 @@ describe('ClauseResultsBuilder', () => {
       });
     });
   });
+
+  describe('getSDEValues', () => {
+    test('should create proper SDE results', () => {
+      const sdeStatementResults: cql.StatementResults = { SDE: [] };
+      const result = ClauseResultsBuilder.getSDEValues(simpleMeasure, sdeStatementResults);
+      const expectedResult = [
+        {
+          name: 'sde-code',
+          rawResult: [],
+          pretty: '[]',
+          id: 'sde-id',
+          criteriaExpression: 'SDE',
+          usage: 'supplemental-data'
+        }
+      ];
+      expect(result).toEqual(expectedResult);
+    });
+
+    test('should throw error when SDE usage is invalid', () => {
+      const invalidMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWithGroup;
+      if (invalidMeasure.supplementalData?.[0]?.usage?.[0]?.coding?.[0].code) {
+        invalidMeasure.supplementalData[0].usage[0].coding[0].code = 'invalid';
+      }
+      const sdeStatementResults: cql.StatementResults = { SDE: [] };
+      expect(() => {
+        ClauseResultsBuilder.getSDEValues(invalidMeasure, sdeStatementResults);
+      }).toThrowError(
+        'Received usage: invalid. Expected sde usage code from the MeasureDataUsage valueset: https://terminology.hl7.org/3.1.0/ValueSet-measure-data-usage.html'
+      );
+    });
+  });
 });

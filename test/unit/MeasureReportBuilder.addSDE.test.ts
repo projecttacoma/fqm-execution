@@ -65,7 +65,10 @@ const executionResultsTemplate: ExecutionResult<DetailedPopulationGroupResult>[]
           code: 'example',
           system: 'http://example.com',
           display: 'Example'
-        }
+        },
+        id: 'sde-id',
+        criteriaExpression: 'SDE',
+        usage: 'supplemental-data'
       }
     ]
   }
@@ -92,7 +95,10 @@ describe('MeasureReportBuilder Class', () => {
             code: 'example',
             system: 'http://example.com',
             display: 'Example'
-          }
+          },
+          id: 'sde-id',
+          criteriaExpression: 'SDE',
+          usage: 'supplemental-data'
         }
       ];
       builder.addPatientResults(executionResult);
@@ -124,7 +130,10 @@ describe('MeasureReportBuilder Class', () => {
               system: 'http://example.com',
               display: 'Example'
             }
-          ]
+          ],
+          id: 'sde-id',
+          criteriaExpression: 'SDE',
+          usage: 'supplemental-data'
         }
       ];
       builder.addPatientResults(executionResult);
@@ -161,7 +170,10 @@ describe('MeasureReportBuilder Class', () => {
                 value: 'Asian'
               }
             }
-          ]
+          ],
+          id: 'sde-id',
+          criteriaExpression: 'SDE',
+          usage: 'supplemental-data'
         }
       ];
       builder.addPatientResults(executionResult);
@@ -186,7 +198,10 @@ describe('MeasureReportBuilder Class', () => {
       executionResult.supplementalData = [
         {
           name: 'sde-code',
-          rawResult: undefined
+          rawResult: undefined,
+          id: 'sde-id',
+          criteriaExpression: 'SDE',
+          usage: 'supplemental-data'
         }
       ];
       builder.addPatientResults(executionResult);
