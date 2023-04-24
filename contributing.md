@@ -104,7 +104,7 @@ If everything from steps 1-3 seems correct, there may be an issue with the popul
 
 ### Population Results with Equivalent DateTime Comparisons
 
-A commonly seen unexpected population result may come up for when two compared `DateTime` properties are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime` properties.
+A commonly seen unexpected population result may come up when two compared `DateTime` properties are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime` properties.
 
 Consider the following `DateTime` data:
 - a: "2021-12-01T08:00:00.000+00:00"
