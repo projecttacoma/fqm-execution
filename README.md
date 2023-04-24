@@ -2,7 +2,7 @@
   <h1 align="center">fqm-execution</h1>
 <div align="center">
 
-Library for calculating HL7® FHIR® standard<sup id="fn-1">[\[1\]](#fnref-1)</sup>-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
+Library for calculating Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL) using the HL7® FHIR® standard<sup id="fn-1">[\[1\]](#fnref-1)</sup>
 
 </div>
 </p>
