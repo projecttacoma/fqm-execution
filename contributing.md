@@ -88,7 +88,7 @@ Error throws with this message commonly come from `cql-execution`. The most comm
 
 1. Try to isolate the ELM library and expression where the issue comes from
 2. Visually inspect the content of the ELM JSON for this library, and ensure that the operands for the function being called are the correct data types (e.g. see if it should be wrapped in a `FHIRHelpers.To___` function call)
-3. Ensure that the FHIR data present in the patient `Bundle` are valid according to the FHIR specification
+3. Ensure that the HL7® FHIR®<sup id="fn-1">[\[1\]](#fnref-1)</sup> data present in the patient `Bundle` are valid according to the FHIR specification
 
 If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository. To verify that the issue indeed comes from `cql-execution`, consider using the [execution extractor command line utility](https://github.com/mgramigna/execution-extractor) to extract all of the ELM content, ValueSets, etc. and run it through `cql-execution` directly without needing to go through `fqm-execution`. If the error still persists, then the issue lies outside `fqm-execution`, and is either a problem with the input or with `cql-execution` itself.
 
@@ -214,3 +214,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 ```
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+---
+
+<strong id="fnref-1">[\[1\]](#fn-1) FHIR® is the registered trademark of Health Level Seven International (HL7). </strong>
