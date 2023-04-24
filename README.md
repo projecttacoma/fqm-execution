@@ -1,10 +1,10 @@
 <p align="center">
   <h1 align="center">fqm-execution</h1>
-<center>
+<div align="center">
 
 Library for calculating HL7® FHIR® standard<sup id="fn-1">[\[1\]](#fnref-1)</sup>-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
 
-</center>
+</div>
 </p>
 <div align="center">
   <a href="https://projecttacoma.github.io/fqm-execution">docs</a>
