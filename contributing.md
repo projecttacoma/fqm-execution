@@ -104,15 +104,15 @@ If everything from steps 1-3 seems correct, there may be an issue with the popul
 
 ### Population Results with Equivalent DateTime Comparisons
 
-A commonly seen unexpected population result may come up for when two compared `DateTimes` are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime`s.
+A commonly seen unexpected population result may come up for when two compared `DateTimes` are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime`'s.
 
 Consider the following date data:
 - a: "2021-12-01T08:00:00.000+00:00"
 - b: "2021-12-01T08:00:00+00:00"
 
-While these describe the same time as relevant to most human processes, the calculation engine must consider the uncertainty that comes from less precision in comparing these times. For the `b` `DateTime`, `cql-execution` constructs an uncertainty containing the range of 0 to 999 milliseconds for a given `DateTime`. 
+While these describe the "same time" according to human inspection, the calculation engine must consider the uncertainty that comes from the less precise `DateTime` `b`. For the `b` `DateTime`, `cql-execution` constructs an uncertainty containing the range of 0 to 999 milliseconds. 
 
-When evaluating a statement about `b`,`cql-execution` needs to account for all possible `b` values. This will be represented as an `Uncertainty`. `b` may be anywhere in the range "2021-12-01T08:00:00+00.000:00" to "2021-12-01T08:00:00.999+00:00". As such, if we're comparing `a` and `b`, the engine can guarantee that `a` is <= `b` but not that `b` is <= `a`. If `b` must be before or equivalent to `a`, the result of the comparison clause will be null and show falsy values in highlighting.
+When evaluating a statement about `b`,`cql-execution` needs to account for all possible `b` values. This will be represented as an `Uncertainty`. `b` may be anywhere in the range "2021-12-01T08:00:00.000+00:00" to "2021-12-01T08:00:00.999+00:00". As such, if we're comparing `a` and `b`, the engine can guarantee that `a` is <= `b` but not guarantee that `b` is <= `a`. If `b` must be before or equivalent to `a`, the result of the comparison clause will be `null` and show falsy values in highlighting.
 
 To fix: consider changing your test data to have matching precision, millisecond precision preferred.
 
