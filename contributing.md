@@ -104,17 +104,17 @@ If everything from steps 1-3 seems correct, there may be an issue with the popul
 
 ### Population Results with Equivalent DateTime Comparisons
 
-A commonly seen unexpected population result may come up for when two compared `DateTimes` are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime`'s.
+A commonly seen unexpected population result may come up for when two compared `DateTime` properties are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime` properties.
 
-Consider the following date data:
+Consider the following `DateTime` data:
 - a: "2021-12-01T08:00:00.000+00:00"
 - b: "2021-12-01T08:00:00+00:00"
 
-While these describe the "same time" according to human inspection, the calculation engine must consider the uncertainty that comes from the less precise `DateTime` `b`. For the `b` `DateTime`, `cql-execution` constructs an uncertainty containing the range of 0 to 999 milliseconds. 
+While these describe the "same time" according to human inspection, the calculation engine must consider the uncertainty that comes from the less precise `DateTime` `b`. For the `b` `DateTime`, `cql-execution` constructs an `Uncertainty` containing the range of 0 to 999 milliseconds. 
 
 When evaluating a statement about `b`,`cql-execution` needs to account for all possible `b` values. This will be represented as an `Uncertainty`. `b` may be anywhere in the range "2021-12-01T08:00:00.000+00:00" to "2021-12-01T08:00:00.999+00:00". As such, if we're comparing `a` and `b`, the engine can guarantee that `a` is <= `b` but not guarantee that `b` is <= `a`. If `b` must be before or equivalent to `a`, the result of the comparison clause will be `null` and show falsy values in highlighting.
 
-To fix: consider changing your test data to have matching precision, millisecond precision preferred.
+To fix: Consider changing your test data to have matching precision, millisecond precision preferred. Alternatively, the precision you wish to use for the comparison can be added to the logic. ex. `during seconds of`. 
 
 Examples of this issue and a description of the resolution can be seen in [Issue #177](https://github.com/projecttacoma/fqm-execution/issues/177) and [Issue #224](https://github.com/projecttacoma/fqm-execution/issues/224)
 
