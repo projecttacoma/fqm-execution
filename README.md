@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">fqm-execution</h1>
   <p align="center">
-    Library for calculating HL7® FHIR® standard<a href="#footnote-1"><sup>1</sup></a>-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
+    Library for calculating HL7® FHIR® standard<a href="#/?id=footnote-1"><sup>1</sup></a>-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
     <br/>
   </p>
 </p>
@@ -1009,4 +1009,6 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ---
 
-<a id="footnote-1">[1] FHIR® is the registered trademark of Health Level Seven International (HL7).</a>
+<p id="footnote-1">
+<a href="#/?id=footnote-1">[1] FHIR® is the registered trademark of Health Level Seven International (HL7).</a>
+</p>
