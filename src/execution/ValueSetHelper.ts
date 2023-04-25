@@ -107,7 +107,7 @@ export function getMissingDependentValuesets(
     throw new UnexpectedResource('Expected measure bundle to contain entries');
   }
   const libraryEntries = measureBundle.entry?.filter(
-    e => e.resource?.resourceType === 'Library' && e.resource.dataRequirement
+    e => e.resource?.resourceType === 'Library' && (e.resource.dataRequirement || e.resource.relatedArtifact)
   );
 
   // create an array of valueset urls
@@ -115,25 +115,43 @@ export function getMissingDependentValuesets(
     const libraryResource = lib.resource as fhir4.Library;
     if (!libraryResource) {
       throw new UnexpectedResource('Library entry not included in measure bundle');
-    } else if (!libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
+    } else if (
+      !libraryResource.relatedArtifact &&
+      !(libraryResource.dataRequirement && libraryResource.dataRequirement.length > 0)
+    ) {
       throw new UnexpectedProperty(
-        'Expected library entry to have resource with dataRequirements that have codeFilters'
+        'Expected Library entry to have resource with relatedArtifacts or dataRequirements that have codeFilters'
       );
     }
     // pull all valueset urls out of this library's dataRequirements
-    const libraryVSURL: string[] = libraryResource.dataRequirement.reduce((accumulator, dr) => {
-      if (dr.codeFilter && dr.codeFilter.length > 0) {
-        // get each valueset url for each codeFilter (if valueset url exists)
-        const vs: string[] = dr.codeFilter
-          .filter(cf => cf.valueSet)
-          .map(cf => {
-            return cf.valueSet as string;
-          });
-        return accumulator.concat(vs);
-      } else {
-        return accumulator;
-      }
-    }, [] as string[]);
+    const libraryVSURL: string[] = [];
+    if (libraryResource.dataRequirement) {
+      libraryVSURL.push(
+        ...libraryResource.dataRequirement.reduce((accumulator, dr) => {
+          if (dr.codeFilter && dr.codeFilter.length > 0) {
+            // get each valueset url for each codeFilter (if valueset url exists)
+            const vs: string[] = dr.codeFilter
+              .filter(cf => cf.valueSet)
+              .map(cf => {
+                return cf.valueSet as string;
+              });
+            return accumulator.concat(vs);
+          } else {
+            return accumulator;
+          }
+        }, [] as string[])
+      );
+    }
+    if (libraryResource.relatedArtifact) {
+      libraryVSURL.push(
+        ...libraryResource.relatedArtifact.reduce((acc: string[], ra) => {
+          if (ra.url && ra.url.includes('ValueSet')) {
+            acc.push(ra.url);
+          }
+          return acc;
+        }, [])
+      );
+    }
     return acc.concat(libraryVSURL as string[]);
   }, [] as string[]);
 
