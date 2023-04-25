@@ -1,9 +1,10 @@
 <p align="center">
   <h1 align="center">fqm-execution</h1>
-  <p align="center">
-    Library for calculating FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL)
-    <br/>
-  </p>
+<div align="center">
+
+Library for calculating Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL) using the HL7® FHIR® standard<sup id="fn-1">[\[1\]](#fnref-1)</sup>
+
+</div>
 </p>
 <div align="center">
   <a href="https://projecttacoma.github.io/fqm-execution">docs</a>
@@ -1006,3 +1007,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 ```
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+---
+
+<strong id="fnref-1">[\[1\]](#fn-1) FHIR® is the registered trademark of Health Level Seven International (HL7). </strong>
