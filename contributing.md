@@ -88,7 +88,7 @@ Error throws with this message commonly come from `cql-execution`. The most comm
 
 1. Try to isolate the ELM library and expression where the issue comes from
 2. Visually inspect the content of the ELM JSON for this library, and ensure that the operands for the function being called are the correct data types (e.g. see if it should be wrapped in a `FHIRHelpers.To___` function call)
-3. Ensure that the FHIR data present in the patient `Bundle` are valid according to the FHIR specification
+3. Ensure that the HL7® FHIR®<sup id="fn-1">[\[1\]](#fnref-1)</sup> data present in the patient `Bundle` are valid according to the FHIR specification
 
 If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository. To verify that the issue indeed comes from `cql-execution`, consider using the [execution extractor command line utility](https://github.com/mgramigna/execution-extractor) to extract all of the ELM content, ValueSets, etc. and run it through `cql-execution` directly without needing to go through `fqm-execution`. If the error still persists, then the issue lies outside `fqm-execution`, and is either a problem with the input or with `cql-execution` itself.
 
@@ -101,6 +101,23 @@ In some cases, `fqm-execution` will succeed in its calculation, but the data ret
 3. Inspect the raw results coming back from `cql-execution` using the CLI `raw` command or the `.calculateRaw` API function and ensure that the proper raw data is being returned for each expression
 
 If everything from steps 1-3 seems correct, there may be an issue with the population processing logic in `fqm-execution`. In this case, please feel free to submit an issue or a pull request.
+
+### Population Results with Equivalent DateTime Comparisons
+
+A commonly seen unexpected population result may come up when two compared `DateTime` properties are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime` properties.
+
+Consider the following `DateTime` data:
+- a: "2021-12-01T08:00:00.000+00:00"
+- b: "2021-12-01T08:00:00+00:00"
+
+While these describe the "same time" according to human inspection, the calculation engine must consider the uncertainty that comes from the less precise `DateTime` `b`. For the `b` `DateTime`, `cql-execution` constructs an `Uncertainty` containing the range of 0 to 999 milliseconds. 
+
+When evaluating a statement about `b`,`cql-execution` needs to account for all possible `b` values. This will be represented as an `Uncertainty`. `b` may be anywhere in the range "2021-12-01T08:00:00.000+00:00" to "2021-12-01T08:00:00.999+00:00". As such, if we're comparing `a` and `b`, the engine can guarantee that `a` is <= `b` but not guarantee that `b` is <= `a`. If `b` must be before or equivalent to `a`, the result of the comparison clause will be `null` and show falsy values in highlighting.
+
+To fix: Consider changing your test data to have matching precision, millisecond precision preferred. Alternatively, the precision you wish to use for the comparison can be added to the logic. ex. `during seconds of`. 
+
+Examples of this issue and a description of the resolution can be seen in [Issue #177](https://github.com/projecttacoma/fqm-execution/issues/177) and [Issue #224](https://github.com/projecttacoma/fqm-execution/issues/224)
+
 
 ## VS Code Debugger Setup
 
@@ -197,3 +214,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 ```
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+---
+
+<strong id="fnref-1">[\[1\]](#fn-1) FHIR® is the registered trademark of Health Level Seven International (HL7). </strong>
