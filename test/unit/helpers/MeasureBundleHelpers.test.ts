@@ -971,7 +971,7 @@ describe('MeasureBundleHelpers tests', () => {
 
   describe('addValueSetsToMeasureBundle', () => {
     it('throws an error if no API key is provided for retrieving the ValueSet resource(s)', async () => {
-      const measureBundle = getJSONFixture('bundle/measure-missing-vs.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/missing-vs/measure-missing-codeFilter-vs.json') as fhir4.Bundle;
 
       try {
         await addValueSetsToMeasureBundle(measureBundle, {});
@@ -980,14 +980,14 @@ describe('MeasureBundleHelpers tests', () => {
         expect(e).toBeInstanceOf(UnexpectedResource);
         expect(e).toHaveProperty(
           'message',
-          'Missing the following valuesets: http://example.com/example-valueset-1, and no API key was provided to resolve them'
+          'Missing the following valuesets: http://example.com/ValueSet, and no API key was provided to resolve them'
         );
       }
     });
 
     it('throws an error if error messages array from ValueSetResolver.getExpansionForValuesetUrls is populated', async () => {
       // Bundle with one missing valueset and one missing valueset with invalid url
-      const measureBundle = getJSONFixture('bundle/measure-missing-vs.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/missing-vs/measure-missing-codeFilter-vs.json') as fhir4.Bundle;
       const errorMessage =
         'Valueset with URL http://example.com/testValueset could not be retrieved. Reason: Request failed with status code 404';
       // missing VS that has valid URL in the measure bundle
@@ -1023,7 +1023,7 @@ describe('MeasureBundleHelpers tests', () => {
 
     it('returns new bundle with added ValueSet resource when measure bundle is missing one ValueSet resource', async () => {
       // measure bundle with one missing ValueSet
-      const measureBundle = getJSONFixture('bundle/measure-missing-vs.json') as fhir4.Bundle;
+      const measureBundle = getJSONFixture('bundle/missing-vs/measure-missing-codeFilter-vs.json') as fhir4.Bundle;
       // missing ValueSet resource
       const missingVSUrl = getMissingDependentValuesets(measureBundle);
       const missingVS = getJSONFixture('valuesets/example-vs-1.json');

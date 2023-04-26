@@ -92,8 +92,8 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
 }
 
 /**
- * Collates dependent valuesets from a measure by going through all of the valuesets listed in the measure bundle's libraries' relatedArtifacts and
- * dataCriteria's codeFilters, then finds all valuesets that are not already contained in the measure bundle.
+ * Collates dependent valuesets from a measure by going through all of the valuesets listed in the relatedArtifacts of the measure bundle's measure and libraries,
+ * as well as the libraries dataCriteria's codeFilters, then finds all valuesets that are not already contained in the measure bundle.
  *
  * @param {fhir4.Bundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
  * @param {fhir4.ValueSet[]} valueSetCache - Cache of existing valueset objects on disk to include in lookup
@@ -111,7 +111,7 @@ export function getMissingDependentValuesets(
   );
 
   // create an array of valueset urls
-  const vsURLs: string[] = libraryEntries.reduce((acc, lib) => {
+  const vsUrls: string[] = libraryEntries.reduce((acc, lib) => {
     const libraryResource = lib.resource as fhir4.Library;
     if (!libraryResource) {
       throw new UnexpectedResource('Library entry not included in measure bundle');
@@ -124,9 +124,9 @@ export function getMissingDependentValuesets(
       );
     }
     // pull all valueset urls out of this library's dataRequirements
-    const libraryVSURL: string[] = [];
+    const libraryVsUrls: string[] = [];
     if (libraryResource.dataRequirement) {
-      libraryVSURL.push(
+      libraryVsUrls.push(
         ...libraryResource.dataRequirement.reduce((accumulator, dr) => {
           if (dr.codeFilter && dr.codeFilter.length > 0) {
             // get each valueset url for each codeFilter (if valueset url exists)
@@ -143,20 +143,36 @@ export function getMissingDependentValuesets(
       );
     }
     if (libraryResource.relatedArtifact) {
-      libraryVSURL.push(
+      libraryVsUrls.push(
         ...libraryResource.relatedArtifact.reduce((acc: string[], ra) => {
-          if (ra.url && ra.url.includes('ValueSet')) {
+          if (ra.type === 'depends-on' && ra.url && ra.url.includes('ValueSet')) {
             acc.push(ra.url);
           }
           return acc;
         }, [])
       );
     }
-    return acc.concat(libraryVSURL as string[]);
+    return acc.concat(libraryVsUrls as string[]);
   }, [] as string[]);
 
+  const measures = measureBundle.entry.filter(e => e.resource?.resourceType === 'Measure');
+  if (measures.length !== 1) {
+    throw new UnexpectedResource(
+      `Expected Measure Bundle to contain exactly 1 Measure resource. Found: ${measures.length}`
+    );
+  }
+  // check Measure for dependent valueset relatedArtifacts
+  vsUrls.push(
+    ...((measures[0].resource as fhir4.Measure).relatedArtifact?.reduce((acc: string[], ra) => {
+      if (ra.type === 'depends-on' && ra.url && ra.url.includes('ValueSet')) {
+        acc.push(ra.url);
+      }
+      return acc;
+    }, []) || [])
+  );
+
   // unique-ify
-  const uniqueVS = vsURLs.filter((value, index, self) => self.indexOf(value) === index);
+  const uniqueVS = vsUrls.filter((value, index, self) => self.indexOf(value) === index);
 
   // full array of all valueset URLs present across measureBundle and cache
   const existingValueSets = measureBundle.entry
