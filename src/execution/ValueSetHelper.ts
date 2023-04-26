@@ -92,7 +92,7 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
 }
 
 /**
- * Collates dependent valuesets from a measure by going through all of the valuesets listed in the relatedArtifacts of the measure bundle's measure and libraries,
+ * Collates dependent valuesets from a measure by going through all of the valuesets listed in the relatedArtifacts of the measure bundle's libraries,
  * as well as the libraries dataCriteria's codeFilters, then finds all valuesets that are not already contained in the measure bundle.
  *
  * @param {fhir4.Bundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
