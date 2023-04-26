@@ -4,6 +4,12 @@
   "entry": [
     {
       "resource": {
+        "resourceType": "Measure",
+        "status": "draft"
+      }
+    },
+    {
+      "resource": {
         "resourceType": "Library",
         "status": "draft",
         "type": {
@@ -14,16 +20,10 @@
             }
           ]
         },
-        "dataRequirement": [
+        "relatedArtifact": [
           {
-            "type": "Encounter",
-            "profile": ["http://hl7.org/fhir/StructureDefinition/Encounter"],
-            "codeFilter": [
-              {
-                "path": "type",
-                "valueSet": "http://example.com/example-valueset-1"
-              }
-            ]
+            "type": "depends-on",
+            "url": "http://example.com/ValueSet"
           }
         ]
       }

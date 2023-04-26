@@ -24,11 +24,21 @@ describe('ValueSetHelper', () => {
       const vs = getMissingDependentValuesets(measureBundle);
       expect(vs.length).toEqual(0);
     });
-    test('Finds all valuesets that are missing in the missingVS measure bundle', () => {
-      const measureBundle: fhir4.Bundle = getJSONFixture('bundle/measure-missing-vs.json');
+
+    test('Finds all valuesets that are missing in the codeFilter missingVS measure bundle', () => {
+      const measureBundle: fhir4.Bundle = getJSONFixture('bundle/missing-vs/measure-missing-codeFilter-vs.json');
       const vs = getMissingDependentValuesets(measureBundle);
       expect(vs.length).toEqual(1);
-      expect(vs[0]).toEqual('http://example.com/example-valueset-1');
+      expect(vs[0]).toEqual('http://example.com/ValueSet');
+    });
+
+    test('Finds all valuesets that are missing in the Library relatedArtifact missingVS measure bundle', () => {
+      const measureBundle: fhir4.Bundle = getJSONFixture(
+        'bundle/missing-vs/measure-missing-library-relatedArtifact-vs.json'
+      );
+      const vs = getMissingDependentValuesets(measureBundle);
+      expect(vs.length).toEqual(1);
+      expect(vs[0]).toEqual('http://example.com/ValueSet');
     });
   });
 

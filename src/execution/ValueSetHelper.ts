@@ -92,8 +92,8 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
 }
 
 /**
- * Collates dependent valuesets from a measure by going through all of the measure bundle's libraries' dataCriteria's codeFilters' valueset.
- * Then finds all valuesets that are not already contained in the measure bundle.
+ * Collates dependent valuesets from a measure by going through all of the valuesets listed in the relatedArtifacts of the measure bundle's libraries,
+ * as well as the libraries dataCriteria's codeFilters, then finds all valuesets that are not already contained in the measure bundle.
  *
  * @param {fhir4.Bundle} measureBundle - A measure bundle object that contains all libraries and valuesets used by the measure
  * @param {fhir4.ValueSet[]} valueSetCache - Cache of existing valueset objects on disk to include in lookup
@@ -107,38 +107,56 @@ export function getMissingDependentValuesets(
     throw new UnexpectedResource('Expected measure bundle to contain entries');
   }
   const libraryEntries = measureBundle.entry?.filter(
-    e => e.resource?.resourceType === 'Library' && e.resource.dataRequirement
+    e => e.resource?.resourceType === 'Library' && (e.resource.dataRequirement || e.resource.relatedArtifact)
   );
 
   // create an array of valueset urls
-  const vsURLs: string[] = libraryEntries.reduce((acc, lib) => {
+  const vsUrls: string[] = libraryEntries.reduce((acc, lib) => {
     const libraryResource = lib.resource as fhir4.Library;
     if (!libraryResource) {
       throw new UnexpectedResource('Library entry not included in measure bundle');
-    } else if (!libraryResource.dataRequirement || !(libraryResource.dataRequirement.length > 0)) {
+    } else if (
+      !libraryResource.relatedArtifact &&
+      !(libraryResource.dataRequirement && libraryResource.dataRequirement.length > 0)
+    ) {
       throw new UnexpectedProperty(
-        'Expected library entry to have resource with dataRequirements that have codeFilters'
+        'Expected Library entry to have resource with relatedArtifacts or dataRequirements that have codeFilters'
       );
     }
     // pull all valueset urls out of this library's dataRequirements
-    const libraryVSURL: string[] = libraryResource.dataRequirement.reduce((accumulator, dr) => {
-      if (dr.codeFilter && dr.codeFilter.length > 0) {
-        // get each valueset url for each codeFilter (if valueset url exists)
-        const vs: string[] = dr.codeFilter
-          .filter(cf => cf.valueSet)
-          .map(cf => {
-            return cf.valueSet as string;
-          });
-        return accumulator.concat(vs);
-      } else {
-        return accumulator;
-      }
-    }, [] as string[]);
-    return acc.concat(libraryVSURL as string[]);
+    const libraryVsUrls: string[] = [];
+    if (libraryResource.dataRequirement) {
+      libraryVsUrls.push(
+        ...libraryResource.dataRequirement.reduce((accumulator, dr) => {
+          if (dr.codeFilter && dr.codeFilter.length > 0) {
+            // get each valueset url for each codeFilter (if valueset url exists)
+            const vs: string[] = dr.codeFilter
+              .filter(cf => cf.valueSet)
+              .map(cf => {
+                return cf.valueSet as string;
+              });
+            return accumulator.concat(vs);
+          } else {
+            return accumulator;
+          }
+        }, [] as string[])
+      );
+    }
+    if (libraryResource.relatedArtifact) {
+      libraryVsUrls.push(
+        ...libraryResource.relatedArtifact.reduce((accumulator: string[], ra) => {
+          if (ra.type === 'depends-on' && ra.url && ra.url.includes('ValueSet')) {
+            accumulator.push(ra.url);
+          }
+          return accumulator;
+        }, [])
+      );
+    }
+    return acc.concat(libraryVsUrls as string[]);
   }, [] as string[]);
 
   // unique-ify
-  const uniqueVS = vsURLs.filter((value, index, self) => self.indexOf(value) === index);
+  const uniqueVS = vsUrls.filter((value, index, self) => self.indexOf(value) === index);
 
   // full array of all valueset URLs present across measureBundle and cache
   const existingValueSets = measureBundle.entry
