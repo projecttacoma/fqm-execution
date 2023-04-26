@@ -144,32 +144,16 @@ export function getMissingDependentValuesets(
     }
     if (libraryResource.relatedArtifact) {
       libraryVsUrls.push(
-        ...libraryResource.relatedArtifact.reduce((acc: string[], ra) => {
+        ...libraryResource.relatedArtifact.reduce((accumulator: string[], ra) => {
           if (ra.type === 'depends-on' && ra.url && ra.url.includes('ValueSet')) {
-            acc.push(ra.url);
+            accumulator.push(ra.url);
           }
-          return acc;
+          return accumulator;
         }, [])
       );
     }
     return acc.concat(libraryVsUrls as string[]);
   }, [] as string[]);
-
-  const measures = measureBundle.entry.filter(e => e.resource?.resourceType === 'Measure');
-  if (measures.length !== 1) {
-    throw new UnexpectedResource(
-      `Expected Measure Bundle to contain exactly 1 Measure resource. Found: ${measures.length}`
-    );
-  }
-  // check Measure for dependent valueset relatedArtifacts
-  vsUrls.push(
-    ...((measures[0].resource as fhir4.Measure).relatedArtifact?.reduce((acc: string[], ra) => {
-      if (ra.type === 'depends-on' && ra.url && ra.url.includes('ValueSet')) {
-        acc.push(ra.url);
-      }
-      return acc;
-    }, []) || [])
-  );
 
   // unique-ify
   const uniqueVS = vsUrls.filter((value, index, self) => self.indexOf(value) === index);
