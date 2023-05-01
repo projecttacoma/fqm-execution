@@ -427,23 +427,23 @@ Add missing ValueSet resources to a measure bundle.
 
 The options that we support for calculation are as follows:
 
-- `[calculateClauseCoverage]`<[boolean]()>: Include HTML structure with clause coverage highlighting (default: `true`)
-- `[calculateHTML]`<[boolean]()>: Include HTML structure for highlighting (default: `true`)
-- `[calculateSDEs]`<[boolean]()>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
-- `[clearElmJsonsCache]`<[boolean]()>: If `true`, clears ELM JSON cache before running calculation (default: `false`)
-- `[enableDebugOutput]`<[boolean]()>: Enable debug output including CQL, ELM, results (default: `false`)
-- `[includeClauseResults]` <[boolean]()>: Option to include clause results (default: `false`)
-- `[measurementPeriodEnd]`<[string]()>: End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
-- `[measurementPeriodStart]`<[string]()>: Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+- `[calculateClauseCoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause coverage highlighting (default: `true`)
+- `[calculateHTML]`<[boolean](#calculation-options)>: Include HTML structure for highlighting (default: `true`)
+- `[calculateSDEs]`<[boolean](#calculation-options)>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
+- `[clearElmJsonsCache]`<[boolean](#calculation-options)>: If `true`, clears ELM JSON cache before running calculation (default: `false`)
+- `[enableDebugOutput]`<[boolean](#calculation-options)>: Enable debug output including CQL, ELM, results (default: `false`)
+- `[includeClauseResults]` <[boolean](#calculation-options)>: Option to include clause results (default: `false`)
+- `[measurementPeriodEnd]`<[string](#calculation-options)>: End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+- `[measurementPeriodStart]`<[string](#calculation-options)>: Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
 - `[patientSource]`<[DataProvider](https://github.com/cqframework/cql-execution/blob/e4d3f24571daf3ae9f891df11bb22fc964f6de5d/src/types/cql-patient.interfaces.ts#L8)>: PatientSource to use. **If provided, the `patientBundles` argument must be `[]`**. See the [Custom PatientSource section](#custom-patientsource) for more info
-- `[reportType]`<['individual' | 'summary']()>: The type of FHIR MeasureReport to return (default: `'individual'`)
-- `[returnELM]`<[boolean]()>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
-- `[rootLibRef]`<[string]()>: Reference to root library to be used in `calculateLibraryDataRequirements`. Should be a canonical URL but resource ID will work if matching one exists in the bundle
-- `[trustMetaProfile]`<[boolean]()>: If `true`, trust the content of `meta.profile` as a source of truth for what profiles the data that `cql-exec-fhir` grabs validates against. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `false`)
-- `[useElmJsonsCaching]`<[boolean]()>: If `true`, cache ELM JSONs and associated data for access in subsequent runs within 10 minutes (default: `false`)
-- `[useValueSetCaching]`<[boolean]()>: If `true`, ValueSets retrieved from a terminology service will be cached and used in subsequent runs where this is also `true` (default: `false`)
-- `[verboseCalculationResults]`<[boolean]()>: If `false`, detailed results will only contain information necessary to interpreting simple population results (default: `true`)
-- `[vsAPIKey]`<[string]()>: API key, to be used to access a terminology service for downloading any missing ValueSets
+- `[reportType]`<['individual' | 'summary'](#calculation-options)>: The type of FHIR MeasureReport to return (default: `'individual'`)
+- `[returnELM]`<[boolean](#calculation-options)>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
+- `[rootLibRef]`<[string](#calculation-options)>: Reference to root library to be used in `calculateLibraryDataRequirements`. Should be a canonical URL but resource ID will work if matching one exists in the bundle
+- `[trustMetaProfile]`<[boolean](#calculation-options)>: If `true`, trust the content of `meta.profile` as a source of truth for what profiles the data that `cql-exec-fhir` grabs validates against. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `false`)
+- `[useElmJsonsCaching]`<[boolean](#calculation-options)>: If `true`, cache ELM JSONs and associated data for access in subsequent runs within 10 minutes (default: `false`)
+- `[useValueSetCaching]`<[boolean](#calculation-options)>: If `true`, ValueSets retrieved from a terminology service will be cached and used in subsequent runs where this is also `true` (default: `false`)
+- `[verboseCalculationResults]`<[boolean](#calculation-options)>: If `false`, detailed results will only contain information necessary to interpreting simple population results (default: `true`)
+- `[vsAPIKey]`<[string](#calculation-options)>: API key, to be used to access a terminology service for downloading any missing ValueSets
 
 ## CLI
 
