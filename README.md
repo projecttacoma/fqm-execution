@@ -819,52 +819,50 @@ const { results } = await Calculator.calculate(measureBundle, [], {
 
 ## Usage with TypeScript
 
-`fqm-execution` exports custom-defined TypeScript interfaces used within the code to allow for easy integration into other TypeScript projects. The TypeScript files defining these interfaces can be found [here](https://github.com/projecttacoma/fqm-execution/tree/master/src/types).
+`fqm-execution` exports custom-defined TypeScript interfaces used within the code to allow for easy integration into other TypeScript projects. The TypeScript files defining these interfaces can be found [here](https://github.com/projecttacoma/fqm-execution/tree/master/src/types), and the specific types that are exposed via `fqm-execution`'s exports can be seen [here](https://github.com/projecttacoma/fqm-execution/blob/master/src/index.ts#L16). They are described as follows:
 
-The TypeScript interfaces can be imported into another project like so:
+- [src/types/Calculator.ts](https://github.com/projecttacoma/fqm-execution/blob/master/src/types/Calculator.ts): Contains all interfaces used to specify types during calculation (e.g. return types of calculation functions, type of calculation options object)
+- [src/types/CQLTypes.ts](https://github.com/projecttacoma/fqm-execution/blob/master/src/types/CQLTypes.ts): Low-level types that interface with the `cql-execution` engine. Unlikely to be needed outside of `fqm-execution` itself, but provided anyway for convenience
+- [src/types/ELMTypes.ts](https://github.com/projecttacoma/fqm-execution/blob/master/src/types/ELMTypes.ts): Low-level types that define basic structure of ELM. Does not define the entire ELM logical specification. Unlikely to be needed outside of `fqm-execution` itself, but provided anyway for convenience
+- [src/types/Enums.ts](https://github.com/projecttacoma/fqm-execution/blob/master/src/types/Enums.ts): Contains any `enum`s used across the codebase, specifically with respect to population results reporting (e.g. population types, scoring types, truthy/falsy result reporting)
+
+Types defined in any of the above files are exported by the root `fqm-execution` library, and can be imported directly:
 
 ```typescript
-import { CalculatorTypes, Enums, CQLTypes, ELMTypes } from 'fqm-execution';
-```
+import { CalculationOptions, PopulationType, MeasureScoreType, FinalResult, Relevance } from 'fqm-execution';
 
-- `CalculatorTypes`: Contains all interfaces used to specify types during calculation (e.g. return types of calculation functions, type of calculation options object)
-
-```typescript
-import { CalculatorTypes } from 'fqm-execution';
-
-const calculationOptions: CalculatorTypes.CalculationOptions = {
+const calculationOptions: CalculationOptions = {
   /* type-safe options */
 };
-```
-
-- `Enums`: Contains any `enum`s used across the codebase, specifically with respect to population results reporting (e.g. population types, scoring types, truthy/falsy result reporting)
-
-```typescript
-import { Enums } from 'fqm-execution';
 
 // Check if a population is the code for initial population
-if (somePopulation === Enums.PopulationType.IPP) {
+if (somePopulation === PopulationType.IPP) {
   // ...
 }
 
 // Check if some measure scoring code is the code for ratio measure scoring
-if (someScoringCode === Enums.MeasureScoreType.RATIO) {
+if (someScoringCode === MeasureScoreType.RATIO) {
   // ...
 }
 
 // Check if some population result has a truthy final result
-if (somePopulationFinalResult === Enums.FinalResult.TRUE) {
+if (somePopulationFinalResult === FinalResult.TRUE) {
   // ...
 }
 
 // Check if some population result is not relevant for eCQM calculation (i.e. wasn't considered)
-if (somePopulationRelevanceResult === Enums.Relevance.NA) {
+if (somePopulationRelevanceResult === Relevance.NA) {
   // ...
 }
 ```
 
-- `CQLTypes`: Low-level types that interface with the `cql-execution` engine. Unlikely to be needed outside of `fqm-execution` itself, but provided anyway for convenience
-- `ELMTypes`: Low-level types that define basic structure of ELM. Does not define the entire ELM logical specification. Unlikely to be needed outside of `fqm-execution` itself, but provided anyway for convenience
+### DEPRECATION NOTICE
+
+The following style of importing `fqm-execution` types is still supported, but will be removed in the next major version of `fqm-execution`:
+
+```typescript
+import { CalculatorTypes, Enums, CQLTypes, ELMTypes } from 'fqm-execution';
+```
 
 # Recipes
 
