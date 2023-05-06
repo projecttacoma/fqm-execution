@@ -1,0 +1,145 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "c84134fd-e80e-497c-9fe5-476ee710c83c",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pt-encounter-only",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-065cb220-32d2-4f9e-9224-68f30c6f8023"
+          }
+        ],
+        "name": [
+          {
+            "family": "Cronin801",
+            "given": ["Janie789"]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/065cb220-32d2-4f9e-9224-68f30c6f8023"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "pt2-encounter",
+        "status": "in-progress",
+        "class": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "IMP",
+                "display": "inpatient encounter"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/pt-encounter-only"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/pt2-encounter"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "d038b97e-4d9a-49bd-8ca5-b1b626888453",
+        "measure": "http://example.com/Measure/measure-ComponentOne",
+        "period": {
+          "start": "2022-01-01T06:00:00.000Z",
+          "end": "2022-12-31T06:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": ["http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#0c8a0c6e-b7e6-4cfe-ba7e-ebc7cf78b99f"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "0c8a0c6e-b7e6-4cfe-ba7e-ebc7cf78b99f",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "065cb220-32d2-4f9e-9224-68f30c6f8023"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/d038b97e-4d9a-49bd-8ca5-b1b626888453"
+      }
+    }
+  ]
+}

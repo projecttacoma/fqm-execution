@@ -1,0 +1,145 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "1c8e5286-eb56-4b96-8315-42717ca8bf2c",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pt-proc-only",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-eb8f72bc-33df-4380-803a-354971c62d3a"
+          }
+        ],
+        "name": [
+          {
+            "family": "Franey950",
+            "given": ["Daisy998"]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/eb8f72bc-33df-4380-803a-354971c62d3a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "pt-1-proc",
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "80146002",
+              "display": "Appendectomy (Procedure)"
+            }
+          ],
+          "text": "Appendectomy"
+        },
+        "subject": {
+          "reference": "Patient/pt-proc-only"
+        },
+        "occurrenceDateTime": "2013-04-05"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/pt-1-proc"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "3515e910-7f2d-43bd-84d3-73fec6e3cae1",
+        "measure": "http://example.com/Measure/measure-ComponentOne",
+        "period": {
+          "start": "2022-01-01T06:00:00.000Z",
+          "end": "2022-12-31T06:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": ["http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#da935be1-9edd-43fd-9ced-6452a9a75cef"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "da935be1-9edd-43fd-9ced-6452a9a75cef",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "eb8f72bc-33df-4380-803a-354971c62d3a"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/3515e910-7f2d-43bd-84d3-73fec6e3cae1"
+      }
+    }
+  ]
+}
