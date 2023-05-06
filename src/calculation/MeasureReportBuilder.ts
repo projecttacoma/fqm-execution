@@ -20,15 +20,29 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   scoringCode: string;
   numeratorAggregateMethod: string;
   denominatorAggregateMethod: string;
+  isComposite: boolean;
+  compositeScoringType: 'all-or-nothing' | '';
 
-  constructor(measureBundle: fhir4.Bundle, options: CalculationOptions) {
+  constructor(measureBundle: fhir4.Bundle, options: CalculationOptions, compositeMeasure?: fhir4.Measure) {
     this.report = <fhir4.MeasureReport>{
       id: uuidv4(),
       resourceType: 'MeasureReport'
     };
     this.measureBundle = measureBundle;
-    this.measure = extractMeasureFromBundle(measureBundle);
+    this.measure = compositeMeasure ?? extractMeasureFromBundle(measureBundle);
     this.scoringCode = getScoringCodeFromMeasure(this.measure) || '';
+
+    // TODO (connectathon): if composite we are going to try just All or Nothing
+    // If this is a composite measure get ready to collect
+    if (compositeMeasure) {
+      // determine composite calc but actually just do All Or Nothing for now
+      this.isComposite = true;
+      this.compositeScoringType = 'all-or-nothing';
+    } else {
+      this.isComposite = false;
+      this.compositeScoringType = '';
+    }
+
     this.options = options;
     // if report type is specified use it, otherwise default to individual report.
     if (this.options.reportType) {
@@ -77,6 +91,38 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     // create group population group based on measure resource
     this.report.group = [];
     this.report.evaluatedResource = [];
+
+    //TODO (connectathon): when composite we make a fake group with denom, numer
+    if (this.isComposite) {
+      this.report.group = [
+        {
+          population: [
+            {
+              count: 0,
+              code: {
+                coding: [
+                  {
+                    system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                    code: 'denominator'
+                  }
+                ]
+              }
+            },
+            {
+              count: 0,
+              code: {
+                coding: [
+                  {
+                    system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                    code: 'numerator'
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ];
+    }
 
     // build population groups from measure resource
     this.measure.group?.forEach(measureGroup => {
@@ -170,52 +216,134 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       this.report.subject = subjectReference;
     }
 
-    results.detailedResults.forEach((groupResults, i) => {
-      if (this.isIndividual) {
-        // add narrative for relevant clauses
-        if (isDetailedResult(groupResults) && this.report.text && groupResults.html) {
-          this.report.text.div += groupResults.html;
-        }
-      }
+    if (this.isComposite) {
+      //TODO (connectathon): assume all or nothing
+      if (this.compositeScoringType === 'all-or-nothing') {
+        let inIpp = false;
+        let inDenom = false;
+        let inNumer = true;
 
-      // find corresponding group in report
-      // default to index if group is missing an ID
-      let groupScoringCode = this.scoringCode;
-      const group = this.report.group?.find(g => g.id == groupResults.groupId) || this.report.group?.[i];
-      if (!group) {
-        throw new UnexpectedProperty(`Group ${groupResults.groupId} not found in measure report`);
-      }
-      if (group.id) {
-        const measureGroup = this.measure?.group?.find(g => g.id === group.id);
-        if (measureGroup) {
-          groupScoringCode = this.getGroupScoringCode(measureGroup);
+        results.componentResults?.forEach(componentResult => {
+          const ippResult = componentResult.populationResults?.find(
+            pop => pop.populationType === PopulationType.IPP
+          )?.result;
+          if (ippResult === true) {
+            inIpp = true;
+          }
+
+          const denomResult = componentResult.populationResults?.find(
+            pop => pop.populationType === PopulationType.DENOM
+          )?.result;
+          if (denomResult === true) {
+            inDenom = true;
+          }
+
+          const numerResult = componentResult.populationResults?.find(
+            pop => pop.populationType === PopulationType.NUMER
+          )?.result;
+          if (numerResult === false) {
+            inNumer = false;
+          }
+        });
+
+        if (inIpp) {
+          if (inDenom) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore TODO (connectathon): lol
+            this.report.group[0].population[0].count++;
+            if (inNumer) {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore TODO (connectathon): lol
+              this.report.group[0].population[1].count++;
+            }
+          }
         }
       }
-      // iterate over population results for episodes and increment the counters
-      // TODO: handle EXM111 (doesn't identify itself as a episode of care measure). if it's an episode of care, you need to iterate over
-      // stratifications : may need to clone results for one population group and adjust (in this case, just a straight clone)
-      if (groupResults?.episodeResults) {
-        groupResults.episodeResults.forEach(er => {
-          er.populationResults?.forEach(pr => {
+    } else {
+      results.detailedResults.forEach((groupResults, i) => {
+        if (this.isIndividual) {
+          // add narrative for relevant clauses
+          if (isDetailedResult(groupResults) && this.report.text && groupResults.html) {
+            this.report.text.div += groupResults.html;
+          }
+        }
+
+        // find corresponding group in report
+        // default to index if group is missing an ID
+        let groupScoringCode = this.scoringCode;
+        const group = this.report.group?.find(g => g.id == groupResults.groupId) || this.report.group?.[i];
+        if (!group) {
+          throw new UnexpectedProperty(`Group ${groupResults.groupId} not found in measure report`);
+        }
+        if (group.id) {
+          const measureGroup = this.measure?.group?.find(g => g.id === group.id);
+          if (measureGroup) {
+            groupScoringCode = this.getGroupScoringCode(measureGroup);
+          }
+        }
+        // iterate over population results for episodes and increment the counters
+        // TODO: handle EXM111 (doesn't identify itself as a episode of care measure). if it's an episode of care, you need to iterate over
+        // stratifications : may need to clone results for one population group and adjust (in this case, just a straight clone)
+        if (groupResults?.episodeResults) {
+          groupResults.episodeResults.forEach(er => {
+            er.populationResults?.forEach(pr => {
+              this.incrementPopulationInGroup(group, pr, groupScoringCode);
+            });
+
+            // TODO: update this when we support CV for summary/subject-list reports
+            // Consider moving measure score calculation out of this function
+            if (groupScoringCode === MeasureScoreType.CV) {
+              group.measureScore = this.calcMeasureScoreCV(this.measure, groupResults, group.id || '');
+              this.addScoreObservation(group.measureScore, this.measure, this.report);
+            }
+
+            // add to stratifier results if there are any
+            if (group.stratifier) {
+              er.stratifierResults?.forEach(stratResults => {
+                // only add to results if this episode is in the strata
+                if (stratResults.result) {
+                  const strata = group.stratifier?.find(s => s.code && s.code[0].text === stratResults.strataCode);
+                  const stratum = strata?.stratum?.[0];
+                  if (stratum) {
+                    er.populationResults?.forEach(pr => {
+                      this.incrementPopulationInStratum(stratum, pr, groupScoringCode);
+                    });
+                    // TODO: update this when we support CV for summary/subject-list reports
+                    if (groupScoringCode === MeasureScoreType.CV) {
+                      stratum.measureScore = this.calcMeasureScoreCV(
+                        this.measure,
+                        groupResults,
+                        group.id || '',
+                        stratResults.strataCode
+                      );
+                    }
+                  } else {
+                    throw new UnexpectedProperty(
+                      `Stratum ${stratResults.strataCode} in group ${group.id} not found in measure reports`
+                    );
+                  }
+                }
+              });
+            }
+          });
+        } else {
+          groupResults.populationResults?.forEach(pr => {
             this.incrementPopulationInGroup(group, pr, groupScoringCode);
           });
-
           // TODO: update this when we support CV for summary/subject-list reports
-          // Consider moving measure score calculation out of this function
           if (groupScoringCode === MeasureScoreType.CV) {
             group.measureScore = this.calcMeasureScoreCV(this.measure, groupResults, group.id || '');
             this.addScoreObservation(group.measureScore, this.measure, this.report);
           }
-
           // add to stratifier results if there are any
           if (group.stratifier) {
-            er.stratifierResults?.forEach(stratResults => {
-              // only add to results if this episode is in the strata
+            groupResults.stratifierResults?.forEach(stratResults => {
+              // only add to results if this patient is in the strata
               if (stratResults.result) {
                 const strata = group.stratifier?.find(s => s.code && s.code[0].text === stratResults.strataCode);
                 const stratum = strata?.stratum?.[0];
                 if (stratum) {
-                  er.populationResults?.forEach(pr => {
+                  groupResults.populationResults?.forEach(pr => {
                     this.incrementPopulationInStratum(stratum, pr, groupScoringCode);
                   });
                   // TODO: update this when we support CV for summary/subject-list reports
@@ -235,46 +363,9 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
               }
             });
           }
-        });
-      } else {
-        groupResults.populationResults?.forEach(pr => {
-          this.incrementPopulationInGroup(group, pr, groupScoringCode);
-        });
-        // TODO: update this when we support CV for summary/subject-list reports
-        if (groupScoringCode === MeasureScoreType.CV) {
-          group.measureScore = this.calcMeasureScoreCV(this.measure, groupResults, group.id || '');
-          this.addScoreObservation(group.measureScore, this.measure, this.report);
         }
-        // add to stratifier results if there are any
-        if (group.stratifier) {
-          groupResults.stratifierResults?.forEach(stratResults => {
-            // only add to results if this patient is in the strata
-            if (stratResults.result) {
-              const strata = group.stratifier?.find(s => s.code && s.code[0].text === stratResults.strataCode);
-              const stratum = strata?.stratum?.[0];
-              if (stratum) {
-                groupResults.populationResults?.forEach(pr => {
-                  this.incrementPopulationInStratum(stratum, pr, groupScoringCode);
-                });
-                // TODO: update this when we support CV for summary/subject-list reports
-                if (groupScoringCode === MeasureScoreType.CV) {
-                  stratum.measureScore = this.calcMeasureScoreCV(
-                    this.measure,
-                    groupResults,
-                    group.id || '',
-                    stratResults.strataCode
-                  );
-                }
-              } else {
-                throw new UnexpectedProperty(
-                  `Stratum ${stratResults.strataCode} in group ${group.id} not found in measure reports`
-                );
-              }
-            }
-          });
-        }
-      }
-    });
+      });
+    }
     if (this.calculateSDEs) {
       this.addSDE(results);
     }
@@ -558,6 +649,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   ): fhir4.Quantity {
     switch (scoringCode) {
       case MeasureScoreType.PROP:
+      case MeasureScoreType.COMPOSITE:
         // (Numerator - Numerator Exclusions) / (Denominator - D Exclusions - D Exceptions).
         const numeratorCount =
           this.populationTotal(population, PopulationType.NUMER) -

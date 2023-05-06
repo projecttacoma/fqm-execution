@@ -5,7 +5,8 @@ export enum MeasureScoreType {
   PROP = 'proportion',
   RATIO = 'ratio',
   CV = 'continuous-variable',
-  COHORT = 'cohort'
+  COHORT = 'cohort',
+  COMPOSITE = 'composite'
 }
 
 /**

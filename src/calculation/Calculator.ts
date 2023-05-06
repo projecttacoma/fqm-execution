@@ -70,6 +70,7 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
 
+  // TODO (connectathon)
   const compositeMeasureResource = measureBundle.entry?.find(
     e =>
       e.resource?.resourceType === 'Measure' &&
@@ -391,7 +392,14 @@ export async function calculateAggregateMeasureReport(
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
   const { results, debugOutput } = calculationResults;
 
-  const builder = new MeasureReportBuilder(measureBundle, options);
+  // TODO (connectathon)
+  const compositeMeasureResource = measureBundle.entry?.find(
+    e =>
+      e.resource?.resourceType === 'Measure' &&
+      MeasureBundleHelpers.getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
+  )?.resource as fhir4.Measure | undefined;
+
+  const builder = new MeasureReportBuilder(measureBundle, options, compositeMeasureResource);
 
   results.forEach(result => {
     builder.addPatientResults(result);
