@@ -81,6 +81,8 @@ export interface ExecutionResult<T extends PopulationGroupResult> {
   detailedResults?: T extends DetailedPopulationGroupResult
     ? DetailedPopulationGroupResult[]
     : SimplePopulationGroupResult[];
+  /** Component results for the patient */
+  componentResults?: ComponentResults[];
   /** SDE values, if specified for calculation */
   supplementalData?: SDEResult[];
   /** Resources evaluated during execution */
@@ -90,6 +92,12 @@ export interface ExecutionResult<T extends PopulationGroupResult> {
    * added to CQL.
    */
   patientObject?: CQLPatient;
+}
+
+export interface ComponentResults {
+  groupId: string;
+  componentCanonical?: string;
+  populationResults?: PopulationResult[];
 }
 
 /**

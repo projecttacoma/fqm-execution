@@ -242,6 +242,16 @@ export async function calculate<T extends CalculationOptions>(
 
         // add this group result to the patient results
         patientExecutionResult.detailedResults?.push(detailedGroupResult);
+        if (isCompositeExecution) {
+          if (!patientExecutionResult.componentResults) {
+            patientExecutionResult.componentResults = [];
+          }
+          patientExecutionResult.componentResults.push({
+            groupId: detailedGroupResult.groupId,
+            componentCanonical: detailedGroupResult.componentCanonical,
+            populationResults: detailedGroupResult.populationResults
+          });
+        }
       });
 
       // put raw SDE values onto execution result
