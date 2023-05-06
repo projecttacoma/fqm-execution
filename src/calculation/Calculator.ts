@@ -94,6 +94,7 @@ export async function calculate<T extends CalculationOptions>(
   const elmLibraries: ELM[] = [];
   let mainLibraryName = '';
 
+  // TODO (connectathon): maybe change helper to avoid this cast
   for (const measure of measuresToExecute as MeasureBundleHelpers.MeasureWithLibrary[]) {
     // Get the default measurement period out of the Measure object
     const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measure);
