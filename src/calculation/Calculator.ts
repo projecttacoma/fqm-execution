@@ -39,6 +39,7 @@ import { PatientSource } from 'cql-exec-fhir';
 import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
 import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
 import { omit } from 'lodash';
+import { ELM } from '../types/ELMTypes';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -84,9 +85,14 @@ export async function calculate<T extends CalculationOptions>(
   // Get the PatientSource to use for calculation.
   let patientSource = resolvePatientSource(patientBundles, options);
 
-  // const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
-
   const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [];
+  let overallClauseCoverageHTML: string | undefined;
+  let groupClauseCoverageHTML: Record<string, string> | undefined;
+
+  // TODO (connectathon): bleh
+  let newValueSetCache: fhir4.ValueSet[] | undefined = [...valueSetCache];
+  const elmLibraries: ELM[] = [];
+  let mainLibraryName = '';
 
   for (const measure of measuresToExecute as MeasureBundleHelpers.MeasureWithLibrary[]) {
     // Get the default measurement period out of the Measure object
@@ -95,7 +101,14 @@ export async function calculate<T extends CalculationOptions>(
     options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
     options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
 
-    const results = await Execution.execute(measure, measureBundle, patientSource, options, valueSetCache, debugObject);
+    const results = await Execution.execute(
+      measure,
+      measureBundle,
+      patientSource,
+      options,
+      newValueSetCache,
+      debugObject
+    );
     if (!results.rawResults) {
       throw new Error(results.errorMessage ?? 'something happened with no error message');
     }
@@ -104,8 +117,18 @@ export async function calculate<T extends CalculationOptions>(
     if (!results.elmLibraries || !results.mainLibraryName) {
       throw new UnexpectedResource('no libraries were found');
     }
-    const elmLibraries = results.elmLibraries;
-    const mainLibraryName = results.mainLibraryName;
+
+    // TODO (connectathon): make sure this actually works lol
+    if (options.useValueSetCaching && results.valueSetCache) {
+      newValueSetCache = newValueSetCache.concat(results.valueSetCache);
+    }
+
+    // TODO (connectathon): make sure this actually works lol
+    if (options.returnELM) {
+      elmLibraries.push(...results.elmLibraries);
+    }
+
+    mainLibraryName = results.mainLibraryName;
 
     // Grab all patient IDs from the raw results.
     const patientIds = Object.keys(rawResults.patientResults);
@@ -207,6 +230,7 @@ export async function calculate<T extends CalculationOptions>(
               name: `clauses-${detailedGroupResult.groupId}.html`,
               html
             };
+
             if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
               debugObject.html?.push(debugHtml);
             } else {
@@ -230,41 +254,37 @@ export async function calculate<T extends CalculationOptions>(
     });
 
     patientSource = resolvePatientSource(patientBundles, options);
+
+    if (!isCompositeExecution && options.calculateClauseCoverage) {
+      groupClauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
+      overallClauseCoverageHTML = '';
+      Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
+        overallClauseCoverageHTML += result;
+        if (debugObject && options.enableDebugOutput) {
+          const debugHTML = {
+            name: `clause-coverage-${groupId}.html`,
+            html: result
+          };
+          if (Array.isArray(debugObject.html)) {
+            debugObject.html.push(debugHTML);
+          } else {
+            debugObject.html = [debugHTML];
+          }
+        }
+      });
+      // don't necessarily need this file, but adding it for backwards compatibility
+      if (debugObject && options.enableDebugOutput) {
+        debugObject.html?.push({
+          name: 'overall-clause-coverage.html',
+          html: overallClauseCoverageHTML
+        });
+      }
+    }
   }
 
   if (debugObject && options.enableDebugOutput) {
     debugObject.detailedResults = executionResults;
   }
-
-  // TODO (connectathon): figure this out
-
-  // let overallClauseCoverageHTML: string | undefined;
-  // let groupClauseCoverageHTML: Record<string, string> | undefined;
-  // if (options.calculateClauseCoverage) {
-  //   groupClauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
-  //   overallClauseCoverageHTML = '';
-  //   Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
-  //     overallClauseCoverageHTML += result;
-  //     if (debugObject && options.enableDebugOutput) {
-  //       const debugHTML = {
-  //         name: `clause-coverage-${groupId}.html`,
-  //         html: result
-  //       };
-  //       if (Array.isArray(debugObject.html)) {
-  //         debugObject.html.push(debugHTML);
-  //       } else {
-  //         debugObject.html = [debugHTML];
-  //       }
-  //     }
-  //   });
-  //   // don't necessarily need this file, but adding it for backwards compatibility
-  //   if (debugObject && options.enableDebugOutput) {
-  //     debugObject.html?.push({
-  //       name: 'overall-clause-coverage.html',
-  //       html: overallClauseCoverageHTML
-  //     });
-  //   }
-  // }
 
   let prunedExecutionResults: ExecutionResult<PopulationGroupResult>[];
   if (options.verboseCalculationResults === false) {
@@ -276,31 +296,15 @@ export async function calculate<T extends CalculationOptions>(
 
   return {
     results: prunedExecutionResults,
-    debugOutput: debugObject
+    debugOutput: debugObject,
+    ...(options.returnELM && {
+      elmLibraries,
+      mainLibraryName
+    }),
+    ...(options.useValueSetCaching && newValueSetCache && { valueSetCache: newValueSetCache }),
+    ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
+    ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
   };
-
-  // TODO (connectathon): figure this out re: scopes etc.
-  // return with the ELM libraries and main library name for further processing if requested.
-  // if (options.returnELM) {
-  //   return {
-  //     results: prunedExecutionResults,
-  //     debugOutput: debugObject,
-  //     elmLibraries: results.elmLibraries,
-  //     mainLibraryName: results.mainLibraryName,
-  //     parameters: results.parameters,
-  //     ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
-  //     ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
-  //     ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
-  //   };
-  // } else {
-  //   return {
-  //     results: prunedExecutionResults,
-  //     debugOutput: debugObject,
-  //     ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
-  //     ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
-  //     ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
-  //   };
-  // }
 }
 
 /**
