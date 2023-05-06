@@ -128,6 +128,7 @@ export function isSupplementalDataUsage(u: unknown): u is SupplementalDataUsage 
 export interface SimplePopulationGroupResult {
   /** Index of this population group id. */
   groupId: string;
+  componentCanonical?: string;
   /**
    * Results for each stratifier in this population group. If this is an episode of care
    * measure these results will the overall results for each episode. i.e. if there is at

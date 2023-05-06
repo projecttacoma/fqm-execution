@@ -25,6 +25,36 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
   )?.code;
 }
 
+export function extractComponentsFromMeasure(
+  compositeMeasureResource: fhir4.Measure,
+  measureBundle: fhir4.Bundle
+): fhir4.Measure[] {
+  const componentRefs = compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
+  if (componentRefs == null || componentRefs.length < 2) {
+    throw new Error('Composite measures must specify at least two components');
+  }
+
+  const uniqueCanonicals = new Set(componentRefs.map(ra => ra.resource as string));
+
+  const allMeasuresInBundle =
+    measureBundle.entry?.filter(e => e.resource?.resourceType === 'Measure').map(e => e.resource as fhir4.Measure) ??
+    [];
+
+  return allMeasuresInBundle.filter(measure => {
+    if (!measure.url) return false;
+
+    if (uniqueCanonicals.has(measure.url)) {
+      return true;
+    }
+
+    if (measure.version) {
+      return uniqueCanonicals.has(`${measure.url}|${measure.version}`);
+    }
+
+    return false;
+  });
+}
+
 /**
  * Checks if a given measure/measure group has scoring code 'ratio.'
  * @param group measure group (used to extract scoring code if present on the group)
