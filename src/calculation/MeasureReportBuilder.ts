@@ -216,8 +216,10 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     }
 
     if (this.isComposite) {
-      //TODO (connectathon): assume all or nothing
+      //TODO: support all composite scoring types
       if (this.compositeScoringType === CompositeScoreType.ALLORNOTHING) {
+        //https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#all-or-nothing-scoring
+
         let inIpp = false;
         let inDenom = false;
         let inNumer = true;
@@ -258,6 +260,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
           }
         }
       } else if (this.compositeScoringType === CompositeScoreType.OPPORTUNITY) {
+        // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#opportunity-scoring
+
         let inIpp = false;
         let inDenom = false;
 
@@ -275,7 +279,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
           if (denomResult === true) {
             inDenom = true;
           }
-          
+
           const numerResults = componentResult.populationResults
             ?.filter(pop => pop.populationType === PopulationType.NUMER)
             ?.map(r => r.result);
@@ -295,6 +299,38 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
             });
           }
         });
+      } else if (this.compositeScoringType === CompositeScoreType.LINEAR) {
+        // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#patient-level-linear-combination-scoring
+
+        // Always increment the denominator for linear scoring when processing a patient result
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore TODO (connectathon): lol
+        this.report.group[0].population[0].count++;
+
+        const [patientNumerCount, patientDenomCount] = results.componentResults?.reduce(
+          (sums, componentResult) => {
+            if (
+              componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
+            ) {
+              sums[0] += 1;
+            }
+
+            if (
+              componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
+            ) {
+              sums[1] += 1;
+            }
+
+            return sums;
+          },
+          [0, 0]
+        ) ?? [0, 0];
+
+        if (patientDenomCount !== 0) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore TODO (connectathon): lol
+          this.report.group[0].population[1].count += (patientNumerCount * 1.0) / patientDenomCount;
+        }
       }
     } else {
       results.detailedResults.forEach((groupResults, i) => {
