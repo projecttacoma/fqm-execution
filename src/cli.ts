@@ -51,6 +51,7 @@ program
     '-p, --patient-bundles <patient-bundles...>',
     'Paths to patient bundles. Required unless output type is one of the following: dataRequirements, libraryDataRequirements, queryInfo, valueSets.'
   )
+  .option('--patients-directory <directory>', 'Directory containing only JSON files for the patient bundles to use')
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(
     '-s, --measurement-period-start <date>',
@@ -138,12 +139,18 @@ async function populatePatientBundles() {
   // data requirements/queryInfo/valueSets doesn't care about patient bundles, so just leave as an empty array if we're using that report type
   if (!['dataRequirements', 'queryInfo', 'valueSets', 'libraryDataRequirements'].includes(program.outputType)) {
     // Since patient bundles are no longer a mandatory CLI option, we should check if we were given any before
-    if (!program.patientBundles) {
+    if (!program.patientBundles && !program.patientsDirectory) {
       console.error(`Must specify patient bundles when output type is "${program.outputType}"`);
       program.help();
     }
 
-    patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+    if (program.patientsDirectory) {
+      patientBundles = fs
+        .readdirSync(program.patientsDirectory)
+        .map(p => parseBundle(path.join(program.patientsDirectory, p)));
+    } else {
+      patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
+    }
 
     // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
     // from patientBundles and wipe patientBundles to be an empty array.
