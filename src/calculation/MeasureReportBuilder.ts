@@ -1,10 +1,11 @@
 import { ExecutionResult, CalculationOptions, PopulationResult, PopulationGroupResult } from '../types/Calculator';
-import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
+import { PopulationType, MeasureScoreType, AggregationType, CompositeScoreType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import {
   extractMeasureFromBundle,
   getScoringCodeFromMeasure,
-  getScoringCodeFromGroup
+  getScoringCodeFromGroup,
+  getCompositeScoringFromMeasure
 } from '../helpers/MeasureBundleHelpers';
 import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomErrors';
 import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
@@ -21,7 +22,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   numeratorAggregateMethod: string;
   denominatorAggregateMethod: string;
   isComposite: boolean;
-  compositeScoringType: 'all-or-nothing' | '';
+  compositeScoringType: string;
 
   constructor(measureBundle: fhir4.Bundle, options: CalculationOptions, compositeMeasure?: fhir4.Measure) {
     this.report = <fhir4.MeasureReport>{
@@ -32,12 +33,10 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     this.measure = compositeMeasure ?? extractMeasureFromBundle(measureBundle);
     this.scoringCode = getScoringCodeFromMeasure(this.measure) || '';
 
-    // TODO (connectathon): if composite we are going to try just All or Nothing
     // If this is a composite measure get ready to collect
     if (compositeMeasure) {
-      // determine composite calc but actually just do All Or Nothing for now
       this.isComposite = true;
-      this.compositeScoringType = 'all-or-nothing';
+      this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure) ?? CompositeScoreType.ALLORNOTHING;
     } else {
       this.isComposite = false;
       this.compositeScoringType = '';
@@ -218,7 +217,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
 
     if (this.isComposite) {
       //TODO (connectathon): assume all or nothing
-      if (this.compositeScoringType === 'all-or-nothing') {
+      if (this.compositeScoringType === CompositeScoreType.ALLORNOTHING) {
         let inIpp = false;
         let inDenom = false;
         let inNumer = true;
@@ -258,6 +257,44 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
             }
           }
         }
+      } else if (this.compositeScoringType === CompositeScoreType.OPPORTUNITY) {
+        let inIpp = false;
+        let inDenom = false;
+
+        results.componentResults?.forEach(componentResult => {
+          const ippResult = componentResult.populationResults?.find(
+            pop => pop.populationType === PopulationType.IPP
+          )?.result;
+          if (ippResult === true) {
+            inIpp = true;
+          }
+
+          const denomResult = componentResult.populationResults?.find(
+            pop => pop.populationType === PopulationType.DENOM
+          )?.result;
+          if (denomResult === true) {
+            inDenom = true;
+          }
+          
+          const numerResults = componentResult.populationResults
+            ?.filter(pop => pop.populationType === PopulationType.NUMER)
+            ?.map(r => r.result);
+
+          if (inIpp) {
+            if (inDenom) {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore TODO (connectathon): lol
+              this.report.group[0].population[0].count++;
+            }
+            numerResults?.forEach(result => {
+              if (result) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore TODO (connectathon): lol
+                this.report.group[0].population[1].count++;
+              }
+            });
+          }
+        });
       }
     } else {
       results.detailedResults.forEach((groupResults, i) => {

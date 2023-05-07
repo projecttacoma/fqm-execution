@@ -822,6 +822,16 @@ describe('MeasureBundleHelpers tests', () => {
     });
   });
 
+  describe('extractComponentsFromMeasure', () => {
+    it('returns array of measure objects if they exist', () => {
+      throw new Error('TODO');
+    });
+
+    it('throws an error if the Library is not present on any component measure', () => {
+      throw new Error('TODO');
+    });
+  });
+
   describe('extractLibrariesFromLibraryBundle', () => {
     it('properly gets libraries from test library Bundle using resourceID for rootLibRef', () => {
       const measureBundle = getJSONFixture('bundle/measure-with-library-dependencies.json') as fhir4.Bundle;

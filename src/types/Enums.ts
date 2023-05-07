@@ -10,6 +10,16 @@ export enum MeasureScoreType {
 }
 
 /**
+ * Enum for composite score types: Matching http://terminology.hl7.org/CodeSystem/composite-measure-scoring
+ */
+export enum CompositeScoreType {
+  ALLORNOTHING = 'all-or-nothing',
+  OPPORTUNITY = 'opportunity',
+  LINEAR = 'linear',
+  WEIGHTED = 'weighted'
+}
+
+/**
  * Enum for measure aggregation types. Matching // http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-aggregate-method.html
  */
 export enum AggregationType {

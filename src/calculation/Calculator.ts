@@ -70,12 +70,7 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
 
-  // TODO (connectathon)
-  const compositeMeasureResource = measureBundle.entry?.find(
-    e =>
-      e.resource?.resourceType === 'Measure' &&
-      MeasureBundleHelpers.getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
-  )?.resource as fhir4.Measure | undefined;
+  const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
 
   const isCompositeExecution = compositeMeasureResource != null;
 
@@ -95,8 +90,7 @@ export async function calculate<T extends CalculationOptions>(
   const elmLibraries: ELM[] = [];
   let mainLibraryName = '';
 
-  // TODO (connectathon): maybe change helper to avoid this cast
-  for (const measure of measuresToExecute as MeasureBundleHelpers.MeasureWithLibrary[]) {
+  for (const measure of measuresToExecute) {
     // Get the default measurement period out of the Measure object
     const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measure);
     // Set the measurement period start/end, but only if the caller didn't specify one
@@ -357,6 +351,11 @@ export async function calculateIndividualMeasureReports(
   if (options.reportType && options.reportType !== 'individual') {
     throw new UnsupportedProperty('calculateMeasureReports only supports reportType "individual".');
   }
+
+  const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
+  if (compositeMeasureResource) {
+    throw new Error('Composite measures require reportType "summary".');
+  }
   // options should be updated by this call if measurementPeriod wasn't initially passed in
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
   const { results, debugOutput } = calculationResults;
@@ -392,12 +391,7 @@ export async function calculateAggregateMeasureReport(
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
   const { results, debugOutput } = calculationResults;
 
-  // TODO (connectathon)
-  const compositeMeasureResource = measureBundle.entry?.find(
-    e =>
-      e.resource?.resourceType === 'Measure' &&
-      MeasureBundleHelpers.getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
-  )?.resource as fhir4.Measure | undefined;
+  const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
 
   const builder = new MeasureReportBuilder(measureBundle, options, compositeMeasureResource);
 

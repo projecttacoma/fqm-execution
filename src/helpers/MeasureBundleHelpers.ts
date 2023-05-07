@@ -25,10 +25,22 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
   )?.code;
 }
 
+export function getCompositeScoringFromMeasure(measure: fhir4.Measure): string | undefined {
+  return measure.compositeScoring?.coding?.find(
+    c => c.system === 'http://terminology.hl7.org/CodeSystem/composite-measure-scoring'
+  )?.code;
+}
+
+/**
+ * Extracts all component measures that are defined on the relatedArtifact of a composite measure.
+ * @param compositeMeasureResource composite measure resource
+ * @param measureBundle FHIR Measure Bundle
+ * @returns array of measures with libraries included
+ */
 export function extractComponentsFromMeasure(
   compositeMeasureResource: fhir4.Measure,
   measureBundle: fhir4.Bundle
-): fhir4.Measure[] {
+): MeasureWithLibrary[] {
   const componentRefs = compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
   if (componentRefs == null || componentRefs.length < 2) {
     throw new Error('Composite measures must specify at least two components');
@@ -37,10 +49,15 @@ export function extractComponentsFromMeasure(
   const uniqueCanonicals = new Set(componentRefs.map(ra => ra.resource as string));
 
   const allMeasuresInBundle =
-    measureBundle.entry?.filter(e => e.resource?.resourceType === 'Measure').map(e => e.resource as fhir4.Measure) ??
-    [];
+    measureBundle.entry
+      ?.filter(e => e.resource?.resourceType === 'Measure')
+      .map(e => e.resource as MeasureWithLibrary) ?? [];
 
   return allMeasuresInBundle.filter(measure => {
+    // if (!measure.library) {
+    //   throw new UnexpectedProperty('Measure resource must specify a "library"');
+    // }
+
     if (!measure.url) return false;
 
     if (uniqueCanonicals.has(measure.url)) {
@@ -53,6 +70,15 @@ export function extractComponentsFromMeasure(
 
     return false;
   });
+}
+
+export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Measure | undefined {
+  const compositeMeasureResource = measureBundle.entry?.find(
+    e =>
+      e.resource?.resourceType === 'Measure' && getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
+  )?.resource as fhir4.Measure | undefined;
+
+  return compositeMeasureResource;
 }
 
 /**
