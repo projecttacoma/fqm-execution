@@ -23,6 +23,7 @@ New releases are generally scheduled for the Wednesday at the end of a sprint.  
 Issues are closed upon resolution or inactivity.  This includes the following:
 - An issue may require only information.  In this case, the issue will be closed after the information is provided.
 - An issue may require an update to `fqm-execution`.  In this case, the issue will be closed after a pull request has been accepted resolving the issue.  The next release of `fqm-execution` will include the update.
+- An issue may require an update to a dependency project.  In this case, the issue will be closed once the update has been implemented in the dependency project and the updated dependency is incorporated in a release of `fqm-execution`.
 - An issue may be filed with no follow up activity from the submitter (e.g. more information is required, but not provided).  In this case, the issue will be closed and a new issue will need to be filed to revisit if necessary.
 
 # Dependency Linking
