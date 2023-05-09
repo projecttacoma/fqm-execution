@@ -29,7 +29,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     this.measureBundle = measureBundle;
     this.measure = extractMeasureFromBundle(measureBundle);
     this.scoringCode = getScoringCodeFromMeasure(this.measure) || '';
-
     this.options = options;
     // if report type is specified use it, otherwise default to individual report.
     if (this.options.reportType) {
@@ -559,7 +558,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   ): fhir4.Quantity {
     switch (scoringCode) {
       case MeasureScoreType.PROP:
-      case MeasureScoreType.COMPOSITE:
         // (Numerator - Numerator Exclusions) / (Denominator - D Exclusions - D Exceptions).
         const numeratorCount =
           this.populationTotal(population, PopulationType.NUMER) -
