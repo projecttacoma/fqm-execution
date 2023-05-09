@@ -16,6 +16,9 @@ We will gladly accept pull requests to help improve `fqm-execution`. When submit
 - Relevant high-level code changes required for the pull request
 - Instructions for the reviewer on how to test the pull request and verify the expected behavior
 
+## Governance
+Guidelines covering project governance, including issue workflow and release expectations, can be found in the [governance guidelines](governance.md).
+
 # Development Environment
 
 ## Prerequisites
