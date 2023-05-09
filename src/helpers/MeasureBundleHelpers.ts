@@ -1,4 +1,4 @@
-import { PopulationType, MeasureScoreType } from '../types/Enums';
+import { PopulationType, MeasureScoreType, CompositeScoreType } from '../types/Enums';
 import { CalculationOptions, PopulationResult, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
@@ -25,10 +25,10 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
   )?.code;
 }
 
-export function getCompositeScoringFromMeasure(measure: fhir4.Measure): string | undefined {
+export function getCompositeScoringFromMeasure(measure: fhir4.Measure): CompositeScoreType | undefined {
   return measure.compositeScoring?.coding?.find(
     c => c.system === 'http://terminology.hl7.org/CodeSystem/composite-measure-scoring'
-  )?.code;
+  )?.code as CompositeScoreType | undefined;
 }
 
 /**

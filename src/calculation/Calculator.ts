@@ -40,6 +40,7 @@ import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
 import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
 import { omit } from 'lodash';
 import { ELM } from '../types/ELMTypes';
+import { CompositeReportBuilder } from './CompositeReportBuilder';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -393,7 +394,9 @@ export async function calculateAggregateMeasureReport(
 
   const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
 
-  const builder = new MeasureReportBuilder(measureBundle, options, compositeMeasureResource);
+  const builder = compositeMeasureResource
+    ? new CompositeReportBuilder(compositeMeasureResource, options)
+    : new MeasureReportBuilder(measureBundle, options);
 
   results.forEach(result => {
     builder.addPatientResults(result);
