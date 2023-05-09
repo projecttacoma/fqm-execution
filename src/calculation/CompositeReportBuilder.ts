@@ -1,6 +1,8 @@
 import { PopulationGroupResult, CalculationOptions, ExecutionResult } from '../types/Calculator';
 import { getCompositeScoringFromMeasure } from '../helpers/MeasureBundleHelpers';
 import { CompositeScoreType, PopulationType } from '../types/Enums';
+import { v4 as uuidv4 } from 'uuid';
+import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
 
 export type CompositeMeasureReport = fhir4.MeasureReport & {
   group: [
@@ -13,20 +15,23 @@ export type CompositeMeasureReport = fhir4.MeasureReport & {
   ];
 };
 
-export class CompositeReportBuilder<T extends PopulationGroupResult> {
+export class CompositeReportBuilder<T extends PopulationGroupResult> extends AbstractMeasureReportBuilder<
+  T,
+  CompositeMeasureReport
+> {
   report: CompositeMeasureReport;
-  measure: fhir4.Measure;
-  options: CalculationOptions;
   compositeScoringType: CompositeScoreType;
   compositeFraction: { numerator: number; denominator: number };
 
-  constructor(compositeMeasure: fhir4.Measure, calculationOptions: CalculationOptions) {
-    this.measure = compositeMeasure;
+  constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
+    super(compositeMeasure, options);
+
     this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure) ?? 'all-or-nothing';
     this.compositeFraction = { numerator: 0, denominator: 0 };
-    this.options = calculationOptions;
+    this.options = options;
     this.report = {
       resourceType: 'MeasureReport',
+      id: uuidv4(),
       status: 'complete',
       type: 'summary',
       period: {

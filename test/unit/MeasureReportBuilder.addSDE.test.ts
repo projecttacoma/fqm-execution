@@ -15,15 +15,6 @@ patientSource.loadBundles([patient1]);
 const patient1Id = '3413754c-73f0-4559-9f67-df8e593ce7e1';
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
-const simpleMeasureBundle: fhir4.Bundle = {
-  resourceType: 'Bundle',
-  type: 'collection',
-  entry: [
-    {
-      resource: simpleMeasure
-    }
-  ]
-};
 
 const executionResultsTemplate: ExecutionResult<DetailedPopulationGroupResult>[] = [
   {
@@ -78,7 +69,7 @@ describe('MeasureReportBuilder Class', () => {
   let builder: MeasureReportBuilder<DetailedPopulationGroupResult>;
   let executionResult: ExecutionResult<DetailedPopulationGroupResult>;
   beforeEach(() => {
-    builder = new MeasureReportBuilder(simpleMeasureBundle, {
+    builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual',
       calculateSDEs: true
     });

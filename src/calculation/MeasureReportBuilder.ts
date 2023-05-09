@@ -2,18 +2,16 @@ import { ExecutionResult, CalculationOptions, PopulationResult, PopulationGroupR
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  extractMeasureFromBundle,
   getScoringCodeFromMeasure,
-  getScoringCodeFromGroup
+  getScoringCodeFromGroup,
+  extractMeasureFromBundle
 } from '../helpers/MeasureBundleHelpers';
 import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomErrors';
 import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
+import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
 
-export default class MeasureReportBuilder<T extends PopulationGroupResult> {
+export default class MeasureReportBuilder<T extends PopulationGroupResult> extends AbstractMeasureReportBuilder<T> {
   report: fhir4.MeasureReport;
-  measureBundle: fhir4.Bundle;
-  measure: fhir4.Measure;
-  options: CalculationOptions;
   isIndividual: boolean;
   calculateSDEs: boolean;
   patientCount: number;
@@ -21,15 +19,16 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   numeratorAggregateMethod: string;
   denominatorAggregateMethod: string;
 
-  constructor(measureBundle: fhir4.Bundle, options: CalculationOptions) {
+  constructor(measure: fhir4.Measure, options: CalculationOptions) {
+    super(measure, options);
+
     this.report = <fhir4.MeasureReport>{
       id: uuidv4(),
       resourceType: 'MeasureReport'
     };
-    this.measureBundle = measureBundle;
-    this.measure = extractMeasureFromBundle(measureBundle);
+
     this.scoringCode = getScoringCodeFromMeasure(this.measure) || '';
-    this.options = options;
+
     // if report type is specified use it, otherwise default to individual report.
     if (this.options.reportType) {
       this.isIndividual = this.options.reportType === 'individual';
@@ -642,7 +641,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   ): fhir4.MeasureReport[] {
     const reports: fhir4.MeasureReport[] = [];
     executionResults.forEach(result => {
-      const builder = new MeasureReportBuilder(measureBundle, options);
+      const measure = extractMeasureFromBundle(measureBundle);
+      const builder = new MeasureReportBuilder(measure, options);
       builder.addPatientResults(result);
       reports.push(builder.getReport());
     });

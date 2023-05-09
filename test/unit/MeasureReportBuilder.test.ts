@@ -440,18 +440,8 @@ describe('Measure with specified group CV scoring', () => {
 });
 
 describe('MeasureReportBuilder Class', () => {
-  let measureBundle: fhir4.Bundle;
-
-  beforeAll(() => {
-    measureBundle = {
-      resourceType: 'Bundle',
-      entry: [{ resource: simpleMeasure }],
-      type: 'transaction'
-    };
-  });
-
   test('should properly recognize individual propery', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual'
     });
 
@@ -459,7 +449,7 @@ describe('MeasureReportBuilder Class', () => {
   });
 
   test('should properly recognize summary propery', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'summary'
     });
 
@@ -467,7 +457,7 @@ describe('MeasureReportBuilder Class', () => {
   });
 
   test('should persist calculateSDEs for individual reports', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual',
       calculateSDEs: true
     });
@@ -476,7 +466,7 @@ describe('MeasureReportBuilder Class', () => {
   });
 
   test('should not calculateSDEs for summary reports', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'summary',
       calculateSDEs: true
     });
@@ -485,7 +475,7 @@ describe('MeasureReportBuilder Class', () => {
   });
 
   test('should add basic individual metadata', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual',
       calculateSDEs: true,
       calculateHTML: true,
@@ -510,7 +500,7 @@ describe('MeasureReportBuilder Class', () => {
   });
 
   test('should add basic summary metadata', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'summary',
       calculateSDEs: true,
       calculateHTML: true,
@@ -535,7 +525,7 @@ describe('MeasureReportBuilder Class', () => {
   });
 
   test('no detailed results should throw error', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual',
       measurementPeriodStart: '2021-01-01',
       measurementPeriodEnd: '2021-12-31'
@@ -549,7 +539,7 @@ describe('MeasureReportBuilder Class', () => {
   });
 
   test('should add subject for individual report', () => {
-    const builder = new MeasureReportBuilder(measureBundle, {
+    const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual',
       measurementPeriodStart: '2021-01-01',
       measurementPeriodEnd: '2021-12-31'
