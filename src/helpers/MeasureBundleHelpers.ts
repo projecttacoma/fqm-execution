@@ -50,13 +50,17 @@ export function extractComponentsFromMeasure(
 
   const allMeasuresInBundle =
     measureBundle.entry
-      ?.filter(e => e.resource?.resourceType === 'Measure')
-      .map(e => e.resource as MeasureWithLibrary) ?? [];
+      ?.filter(
+        e =>
+          // Ensure that only measures with logic libraries should be considered
+          e.resource?.resourceType === 'Measure' && (e.resource as fhir4.Measure).url !== compositeMeasureResource.url
+      )
+      .map(e => e.resource as fhir4.Measure) ?? [];
 
   return allMeasuresInBundle.filter(measure => {
-    // if (!measure.library) {
-    //   throw new UnexpectedProperty('Measure resource must specify a "library"');
-    // }
+    if (!measure.library) {
+      throw new UnexpectedProperty('Measure resource must specify a "library"');
+    }
 
     if (!measure.url) return false;
 
@@ -69,7 +73,7 @@ export function extractComponentsFromMeasure(
     }
 
     return false;
-  });
+  }) as MeasureWithLibrary[];
 }
 
 export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Measure | undefined {

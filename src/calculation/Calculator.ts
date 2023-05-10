@@ -114,7 +114,6 @@ export async function calculate<T extends CalculationOptions>(
       throw new UnexpectedResource('no libraries were found');
     }
 
-    // TODO (connectathon): make sure this actually works lol
     if (options.useValueSetCaching && results.valueSetCache) {
       newValueSetCache = newValueSetCache.concat(results.valueSetCache);
     }
