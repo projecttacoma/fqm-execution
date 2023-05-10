@@ -130,27 +130,15 @@ export async function calculate<T extends CalculationOptions>(
     // Grab all patient IDs from the raw results.
     const patientIds = Object.keys(rawResults.patientResults);
 
-    // TODO (connectathon): this is terrible
-    let isNewResult = false;
-
     // Iterate over patient bundles and make results for each of them.
     patientIds.forEach(patientId => {
       let patientExecutionResult: ExecutionResult<DetailedPopulationGroupResult>;
 
-      if (isCompositeExecution) {
-        const existingResult = executionResults.find(er => er.patientId === patientId);
-        if (existingResult) {
-          patientExecutionResult = existingResult;
-        } else {
-          // fix
-          patientExecutionResult = {
-            patientId: patientId,
-            detailedResults: [],
-            evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
-            patientObject: rawResults.patientResults[patientId]['Patient']
-          };
-          isNewResult = true;
-        }
+      // For composite execution, we want to modify the results of a previously existing patient
+      // For non-composite execution, there should never be a case where the same patientId occurs twice in this loop
+      const existingResult = executionResults.find(er => er.patientId === patientId);
+      if (existingResult) {
+        patientExecutionResult = existingResult;
       } else {
         patientExecutionResult = {
           patientId: patientId,
@@ -158,7 +146,8 @@ export async function calculate<T extends CalculationOptions>(
           evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
           patientObject: rawResults.patientResults[patientId]['Patient']
         };
-        isNewResult = true;
+
+        executionResults.push(patientExecutionResult);
       }
 
       // Grab statement results for the patient
@@ -253,10 +242,6 @@ export async function calculate<T extends CalculationOptions>(
       // put raw SDE values onto execution result
       if (options.calculateSDEs) {
         patientExecutionResult.supplementalData = ResultsHelpers.getSDEValues(measure, patientStatementResults);
-      }
-
-      if (isNewResult) {
-        executionResults.push(patientExecutionResult);
       }
     });
 
