@@ -23,8 +23,7 @@ describe('Composite measure all-or-nothing scoring', () => {
   it('should calculate overall numerator patient into numerator for both components', async () => {
     const { results } = await calculate(MEASURE_BUNDLE, [PATIENT_COMP1_NUMER_COMP2_NUMER], {
       measurementPeriodStart: '2023-01-01',
-      measurementPeriodEnd: '2023-12-31',
-      verboseCalculationResults: false
+      measurementPeriodEnd: '2023-12-31'
     });
 
     expect(results).toHaveLength(1);

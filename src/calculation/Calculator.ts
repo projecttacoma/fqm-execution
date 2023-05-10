@@ -38,7 +38,7 @@ import { Interval, DataProvider } from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
 import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
-import { omit } from 'lodash';
+import _, { omit } from 'lodash';
 import { ELM } from '../types/ELMTypes';
 import { getReportBuilder } from '../helpers/reportBuilderFactory';
 
@@ -120,7 +120,6 @@ export async function calculate<T extends CalculationOptions>(
       newValueSetCache = newValueSetCache.concat(results.valueSetCache);
     }
 
-    // TODO (connectathon): make sure this actually works lol
     if (options.returnELM) {
       elmLibraries.push(...results.elmLibraries);
     }
@@ -290,7 +289,12 @@ export async function calculate<T extends CalculationOptions>(
     results: prunedExecutionResults,
     debugOutput: debugObject,
     ...(options.returnELM && {
-      elmLibraries,
+      elmLibraries: _.uniqWith(
+        elmLibraries,
+        (libOne, libTwo) =>
+          libOne.library.identifier.id === libTwo.library.identifier.id &&
+          libOne.library.identifier.version === libOne.library.identifier.version
+      ),
       mainLibraryName
     }),
     ...(options.useValueSetCaching && newValueSetCache && { valueSetCache: newValueSetCache }),
