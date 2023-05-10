@@ -86,7 +86,6 @@ export async function calculate<T extends CalculationOptions>(
   let overallClauseCoverageHTML: string | undefined;
   let groupClauseCoverageHTML: Record<string, string> | undefined;
 
-  // TODO (connectathon): bleh
   let newValueSetCache: fhir4.ValueSet[] | undefined = [...valueSetCache];
   const elmLibraries: ELM[] = [];
   let mainLibraryName = '';
@@ -297,7 +296,13 @@ export async function calculate<T extends CalculationOptions>(
       ),
       mainLibraryName
     }),
-    ...(options.useValueSetCaching && newValueSetCache && { valueSetCache: newValueSetCache }),
+    ...(options.useValueSetCaching &&
+      newValueSetCache && {
+        valueSetCache: _.uniqWith(
+          newValueSetCache,
+          (vsOne, vsTwo) => vsOne.url === vsTwo.url && vsOne.version === vsTwo.version
+        )
+      }),
     ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
     ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
   };
