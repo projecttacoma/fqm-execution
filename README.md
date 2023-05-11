@@ -39,6 +39,7 @@ Library for calculating Electronic Clinical Quality Measures (eCQMs) written in 
   - [Measures with Observation Functions](#measures-with-observation-functions)
   - [`meta.profile` Checking](#metaprofile-checking)
   - [Supplemental Data Elements](#supplemental-data-elements)
+  - [Composite Measure](#composite-measures)
   - [Slim Calculation Mode](#slim-calculation-mode)
   - [Measure Logic Highlighting](#measure-logic-highlighting)
   - [Group Clause Coverage Highlighting](#group-clause-coverage-highlighting)
@@ -469,6 +470,7 @@ Options:
   --report-type <report-type>                 Type of report, "individual", "summary"
   -m, --measure-bundle <measure-bundle>       Path to measure bundle.
   -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is one of the following: dataRequirements, libraryDataRequirements, queryInfo, valueSets.
+  --patients-directory <directory>            Directory containing only JSON files for the patient bundles to use
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
   -s, --measurement-period-start <date>       Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
   -e, --measurement-period-end <date>         End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
@@ -618,6 +620,131 @@ When enabled, the overall patient-level results will contain the raw results of 
   }
 ];
 ```
+
+## Composite Measures
+
+:warning: Composite measure support is highly experimental, and may change as the [specification](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html) evolves :warning:
+
+`fqm-execution` supports the calculation of [composite measures](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html) under the following conditions:
+
+- The provided measure bundle **must** contain only one composite `Measure` resource (i.e. a FHIR `Measure` resource with `composite` as the scoring code)
+  - See the [conformance requirements of a composite measure](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#component-quality-measures) and the [CQFMCompositeMeasure profile](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-composite-measure-cqfm.html) for specific guidance regarding a composite `Measure` resource
+- The provided measure bundle **must** contain all component `Measure` resources and their dependent `Library` resources needed for calculation
+  - **NOTE**: Dependent `ValueSet` resources should either be included in the measure bundle itself or resolved via one of the [ValueSet resolution strategies](#valueset-resolution)
+
+When the above criteria are met, `fqm-execution` will infer the need for composite measure calculation, and will report calculation results for all of the referenced components in the composite measure, so the syntax for calculating a composite measure is the same as any other measure:
+
+```typescript
+import { Calculator } from 'fqm-execution';
+
+// ...
+
+const { results } = await Calculator.calculate(compositeMeasureBundle, patientBundles, options[, valueSetCache]);
+```
+
+The calculation results can be interpreted with a strategy similar to the one outlined in the [interpreting calculation results section](#interpreting-calculation-results), with a few differences:
+
+- Each `detailedResult` object will include a `componentCanonical` property, which will match the canonical referenced in each `relatedArtifact` with type `composed-of` in the composite `Measure` resource.
+- Each patient execution result object will include a `componentResults` list which contains the results overall population results for every group of every component for this patient
+  - **NOTE**: Every group of every component is included in the results regardless of presence of the [cqfm-groupId extension](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-groupId.html). Consumers of this results object are responsible for parsing out the relevant `groupId` from each component result when using this extension.
+
+```typescript
+[
+  {
+    patientId: 'patient-1',
+    detailedResults: [
+      {
+        groupId: 'component-1-group-1',
+        componentCanonical: 'http://example.com/Measure/example-measure-component|0.0.1',
+        populationResults: [
+          {
+            populationType: 'initial-population',
+            criteriaExpression: 'Initial Population',
+            result: true
+          },
+          {
+            populationType: 'denominator',
+            criteriaExpression: 'Denominator',
+            result: true
+          },
+          {
+            populationType: 'numerator',
+            criteriaExpression: 'Numerator',
+            result: false
+          }
+        ]
+      },
+      {
+        groupId: 'component-2-group-1',
+        componentCanonical: 'http://example.com/Measure/example-measure-component-2|0.0.1',
+        populationResults: [
+          {
+            populationType: 'initial-population',
+            criteriaExpression: 'Initial Population',
+            result: true
+          },
+          {
+            populationType: 'denominator',
+            criteriaExpression: 'Denominator',
+            result: true
+          },
+          {
+            populationType: 'numerator',
+            criteriaExpression: 'Numerator',
+            result: true
+          }
+        ]
+      }
+    ],
+    componentResults: [
+      {
+        groupId: 'component-1-group-1',
+        componentCanonical: 'http://example.com/Measure/example-measure-component|0.0.1',
+        populationResults: [
+          {
+            populationType: 'initial-population',
+            criteriaExpression: 'Initial Population',
+            result: true
+          },
+          {
+            populationType: 'denominator',
+            criteriaExpression: 'Denominator',
+            result: true
+          },
+          {
+            populationType: 'numerator',
+            criteriaExpression: 'Numerator',
+            result: true
+          }
+        ]
+      },
+      {
+        groupId: 'component-2-group-1',
+        componentCanonical: 'http://example.com/Measure/example-measure-component-2|0.0.1',
+        populationResults: [
+          {
+            populationType: 'initial-population',
+            criteriaExpression: 'Initial Population',
+            result: true
+          },
+          {
+            populationType: 'denominator',
+            criteriaExpression: 'Denominator',
+            result: true
+          },
+          {
+            populationType: 'numerator',
+            criteriaExpression: 'Numerator',
+            result: true
+          }
+        ]
+      }
+    ]
+  }
+];
+```
+
+For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts#L73).
 
 ## Slim Calculation Mode
 
