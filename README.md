@@ -714,7 +714,7 @@ The calculation results can be interpreted with a strategy similar to the one ou
           {
             populationType: 'numerator',
             criteriaExpression: 'Numerator',
-            result: true
+            result: false
           }
         ]
       },
