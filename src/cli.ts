@@ -51,7 +51,10 @@ program
     '-p, --patient-bundles <patient-bundles...>',
     'Paths to patient bundles. Required unless output type is one of the following: dataRequirements, libraryDataRequirements, queryInfo, valueSets.'
   )
-  .option('--patients-directory <directory>', 'Path to directory containing only JSON files for the patient bundles to use')
+  .option(
+    '--patients-directory <directory>',
+    'Path to directory containing only JSON files for the patient bundles to use'
+  )
   .option('--as-patient-source', 'Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.')
   .option(
     '-s, --measurement-period-start <date>',
