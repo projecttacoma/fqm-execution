@@ -39,7 +39,7 @@ Library for calculating Electronic Clinical Quality Measures (eCQMs) written in 
   - [Measures with Observation Functions](#measures-with-observation-functions)
   - [`meta.profile` Checking](#metaprofile-checking)
   - [Supplemental Data Elements](#supplemental-data-elements)
-  - [Composite Measure](#composite-measures)
+  - [Composite Measures](#composite-measures)
   - [Slim Calculation Mode](#slim-calculation-mode)
   - [Measure Logic Highlighting](#measure-logic-highlighting)
   - [Group Clause Coverage Highlighting](#group-clause-coverage-highlighting)
@@ -470,7 +470,7 @@ Options:
   --report-type <report-type>                 Type of report, "individual", "summary"
   -m, --measure-bundle <measure-bundle>       Path to measure bundle.
   -p, --patient-bundles <patient-bundles...>  Paths to patient bundles. Required unless output type is one of the following: dataRequirements, libraryDataRequirements, queryInfo, valueSets.
-  --patients-directory <directory>            Directory containing only JSON files for the patient bundles to use
+  --patients-directory <directory>            Path to directory containing only JSON files for the patient bundles to use
   --as-patient-source                         Load bundles by creating cql-exec-fhir PatientSource to pass into library calls.
   -s, --measurement-period-start <date>       Start of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
   -e, --measurement-period-end <date>         End of measurement period in `YYYY-MM-DD` format. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
@@ -645,7 +645,7 @@ const { results } = await Calculator.calculate(compositeMeasureBundle, patientBu
 The calculation results can be interpreted with a strategy similar to the one outlined in the [interpreting calculation results section](#interpreting-calculation-results), with a few differences:
 
 - Each `detailedResult` object will include a `componentCanonical` property, which will match the canonical referenced in each `relatedArtifact` with type `composed-of` in the composite `Measure` resource.
-- Each patient execution result object will include a `componentResults` list which contains the results overall population results for every group of every component for this patient
+- Each patient execution result object will include a `componentResults` list which contains the overall population results for every group of every component for this patient
   - **NOTE**: Every group of every component is included in the results regardless of presence of the [cqfm-groupId extension](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-groupId.html). Consumers of this results object are responsible for parsing out the relevant `groupId` from each component result when using this extension.
 
 ```typescript
