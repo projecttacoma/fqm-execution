@@ -823,7 +823,7 @@ describe('MeasureBundleHelpers tests', () => {
     });
   });
 
-  describe.only('extractComponentsFromMeasure', () => {
+  describe('extractComponentsFromMeasure', () => {
     it('throws an error if composite measure has no relatedArtifact', () => {
       const compositeMeasure: fhir4.Measure = {
         resourceType: 'Measure',
