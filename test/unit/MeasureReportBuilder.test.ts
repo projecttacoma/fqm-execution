@@ -532,9 +532,11 @@ describe('MeasureReportBuilder Class', () => {
     });
 
     expect(() =>
-      builder.addPatientResults({
-        patientId: patient1Id
-      })
+      builder.addResults([
+        {
+          patientId: patient1Id
+        }
+      ])
     ).toThrowError();
   });
 
@@ -545,10 +547,12 @@ describe('MeasureReportBuilder Class', () => {
       measurementPeriodEnd: '2021-12-31'
     });
 
-    builder.addPatientResults({
-      patientId: patient1Id,
-      detailedResults: []
-    });
+    builder.addResults([
+      {
+        patientId: patient1Id,
+        detailedResults: []
+      }
+    ]);
 
     const report = builder.getReport();
 

@@ -147,6 +147,12 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     });
   }
 
+  public addResults(results: ExecutionResult<T>[]) {
+    results.forEach(result => {
+      this.addPatientResults(result);
+    });
+  }
+
   public addPatientResults(result: ExecutionResult<T>) {
     // if this is a individual measure report and we have already received a patient we should throw
     // an error

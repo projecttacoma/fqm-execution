@@ -389,9 +389,7 @@ export async function calculateAggregateMeasureReport(
 
   const builder = getReportBuilder(measureBundle, options);
 
-  results.forEach(result => {
-    builder.addPatientResults(result);
-  });
+  builder.addResults(results);
 
   const report = builder.getReport();
 

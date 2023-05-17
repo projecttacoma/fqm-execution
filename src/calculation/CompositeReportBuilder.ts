@@ -22,6 +22,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   report: CompositeMeasureReport;
   compositeScoringType: CompositeScoreType;
   compositeFraction: { numerator: number; denominator: number };
+  weightedComponents: Record<string, number>;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
     super(compositeMeasure, options);
@@ -29,6 +30,24 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure) ?? 'all-or-nothing';
     this.compositeFraction = { numerator: 0, denominator: 0 };
     this.options = options;
+    this.weightedComponents = {};
+
+    // if the weight is not specified, then we assume the weight is 1
+    compositeMeasure.relatedArtifact?.forEach(ra => {
+      if (ra.resource && ra.type === 'composed-of') {
+        let weight = 1;
+        ra.extension?.forEach(extension => {
+          if (
+            extension.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight' &&
+            extension.valueDecimal
+          ) {
+            weight = extension.valueDecimal;
+          }
+        });
+        this.weightedComponents[ra.resource] = weight;
+      }
+    });
+
     this.report = {
       resourceType: 'MeasureReport',
       id: uuidv4(),
@@ -69,6 +88,71 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       ],
       evaluatedResource: []
     };
+  }
+
+  public addResults(results: ExecutionResult<T>[]) {
+    // the weighted composite scoring type is component-based, but the others are individual-based
+    if (this.compositeScoringType === 'weighted') {
+      this.addComponentResults(results);
+    } else {
+      results.forEach(result => {
+        this.addPatientResults(result);
+      });
+    }
+  }
+
+  private addComponentResults(results: ExecutionResult<T>[]) {
+    // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
+    const componentPopulationResults: Record<string, { numerator: number; denominator: number; weight: number }> = {};
+
+    results.forEach(result => {
+      result.componentResults?.forEach(componentResult => {
+        if (componentResult.componentCanonical && !componentPopulationResults[componentResult.componentCanonical]) {
+          componentPopulationResults[componentResult.componentCanonical] = {
+            numerator: 0,
+            denominator: 0,
+            weight: this.weightedComponents[componentResult.componentCanonical]
+          };
+        }
+
+        if (componentResult.componentCanonical && componentPopulationResults[componentResult.componentCanonical]) {
+          if (
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
+          ) {
+            componentPopulationResults[componentResult.componentCanonical].numerator++;
+          }
+
+          if (
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
+          ) {
+            componentPopulationResults[componentResult.componentCanonical].denominator++;
+          }
+        }
+      });
+
+      if (result.evaluatedResource) {
+        result.evaluatedResource.forEach(resource => {
+          const reference: fhir4.Reference = {
+            reference: `${resource.resourceType}/${resource.id}`
+          };
+          if (!this.report.evaluatedResource?.some(r => r.reference === reference.reference)) {
+            if (!this.report.evaluatedResource) {
+              this.report.evaluatedResource = [reference];
+            } else {
+              this.report.evaluatedResource.push(reference);
+            }
+          }
+        });
+      }
+    });
+
+    // Multiply each of the component ratios by the weight associated with the component
+    // TODO: this may need to change if an extension is created for non-integer counts on the measure report
+    Object.values(componentPopulationResults).forEach(value => {
+      this.compositeFraction.numerator += value.weight * (value.numerator / value.denominator);
+    });
+
+    this.compositeFraction.denominator = Object.entries(componentPopulationResults).length;
   }
 
   public addPatientResults(result: ExecutionResult<T>) {
@@ -173,9 +257,6 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       if (patientDenomCount !== 0) {
         this.compositeFraction.numerator += (patientNumerCount * 1.0) / patientDenomCount;
       }
-    } else if (this.compositeScoringType === 'weighted') {
-      // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
-      throw new Error('Weighted scoring not implemented for composite measures');
     }
 
     this.addEvaluatedResources(result);
