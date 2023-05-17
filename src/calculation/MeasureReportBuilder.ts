@@ -147,7 +147,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     });
   }
 
-  public addPatientResults(results: ExecutionResult<T>) {
+  public addPatientResults(result: ExecutionResult<T>) {
     // if this is a individual measure report and we have already received a patient we should throw
     // an error
     if (this.isIndividual && this.patientCount > 0) {
@@ -156,20 +156,20 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
       );
     }
 
-    if (!results.detailedResults) {
+    if (!result.detailedResults) {
       throw new Error('ExecutionResults are missing detailedResults.');
     }
 
     // if we are creating an individual report create the patient reference.
     if (this.isIndividual) {
-      const patId = `Patient/${results.patientId}`;
+      const patId = `Patient/${result.patientId}`;
       const subjectReference: fhir4.Reference = {
         reference: patId
       };
       this.report.subject = subjectReference;
     }
 
-    results.detailedResults.forEach((groupResults, i) => {
+    result.detailedResults.forEach((groupResults, i) => {
       if (this.isIndividual) {
         // add narrative for relevant clauses
         if (isDetailedResult(groupResults) && this.report.text && groupResults.html) {
@@ -275,11 +275,11 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
       }
     });
     if (this.calculateSDEs) {
-      this.addSDE(results);
+      this.addSDE(result);
     }
 
-    if (results.evaluatedResource) {
-      results.evaluatedResource.forEach(resource => {
+    if (result.evaluatedResource) {
+      result.evaluatedResource.forEach(resource => {
         const reference: fhir4.Reference = {
           reference: `${resource.resourceType}/${resource.id}`
         };

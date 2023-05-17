@@ -5,6 +5,6 @@ export abstract class AbstractMeasureReportBuilder<T extends PopulationGroupResu
 
   constructor(public measure: fhir4.Measure, public options: CalculationOptions) {}
 
-  abstract addPatientResults(results: ExecutionResult<T>): void;
+  abstract addPatientResults(result: ExecutionResult<T>): void;
   abstract getReport(): R;
 }

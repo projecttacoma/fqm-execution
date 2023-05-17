@@ -70,14 +70,14 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     };
   }
 
-  public addPatientResults(results: ExecutionResult<T>) {
+  public addPatientResults(result: ExecutionResult<T>) {
     // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#all-or-nothing-scoring
     if (this.compositeScoringType === 'all-or-nothing') {
       let inIpp = false;
       let inDenom = false;
       let inNumer = true;
 
-      results.componentResults?.forEach(componentResult => {
+      result.componentResults?.forEach(componentResult => {
         const ippResult = componentResult.populationResults?.find(
           pop => pop.populationType === PopulationType.IPP
         )?.result;
@@ -114,7 +114,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       let inIpp = false;
       let inDenom = false;
 
-      results.componentResults?.forEach(componentResult => {
+      result.componentResults?.forEach(componentResult => {
         const ippResult = componentResult.populationResults?.find(
           pop => pop.populationType === PopulationType.IPP
         )?.result;
@@ -150,16 +150,16 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       // Always increment the denominator for linear scoring when processing a patient result
       this.compositeFraction.denominator++;
 
-      const [patientNumerCount, patientDenomCount] = results.componentResults?.reduce(
+      const [patientDenomCount, patientNumerCount] = result.componentResults?.reduce(
         (sums, componentResult) => {
           if (
-            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
           ) {
             sums[0] += 1;
           }
 
           if (
-            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
           ) {
             sums[1] += 1;
           }
@@ -177,8 +177,8 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       throw new Error('Weighted scoring not implemented for composite measures');
     }
 
-    if (results.evaluatedResource) {
-      results.evaluatedResource.forEach(resource => {
+    if (result.evaluatedResource) {
+      result.evaluatedResource.forEach(resource => {
         const reference: fhir4.Reference = {
           reference: `${resource.resourceType}/${resource.id}`
         };
