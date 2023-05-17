@@ -364,7 +364,7 @@ Get data requirements for a given Library bundle with a root Library reference.
 
 ### `.calculateMeasureReports`
 
-Get individual FHIR MeasureReports for each patient.
+Get individual FHIR MeasureReports for each patient, or a summary report for an entire set of patients.
 
 **Parameters**:
 
@@ -624,6 +624,8 @@ When enabled, the overall patient-level results will contain the raw results of 
 ## Composite Measures
 
 :warning: Composite measure support is highly experimental, and may change as the [specification](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html) evolves :warning:
+
+**NOTE**: Composite measures are currently only supported for the [`calculate`](#calculate) and [`calculateMeasureReports`](#calculatemeasurereports) API functions.
 
 `fqm-execution` supports the calculation of [composite measures](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html) under the following conditions:
 
