@@ -15,7 +15,8 @@ import {
   extractLibrariesFromLibraryBundle,
   isRatioMeasure,
   parseLibRef,
-  extractComponentsFromMeasure
+  extractComponentsFromMeasure,
+  extractCompositeMeasure
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
 import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
@@ -1396,6 +1397,105 @@ describe('MeasureBundleHelpers tests', () => {
       expect(parseLibRef('Library/TestLibrary')).toEqual({
         libId: 'TestLibrary'
       });
+    });
+  });
+
+  describe('extractCompositeMeasure', () => {
+    it('should return the only composite measure in a bundle of multiple measures', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        url: 'http://example.com/Measure/simple-measure',
+        version: '0.0.1',
+        status: 'draft',
+        library: ['http://example.com/Library/example']
+      };
+
+      const compositeMeasure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'draft',
+        scoring: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+              code: 'composite',
+              display: 'Composite'
+            }
+          ]
+        }
+      };
+
+      const measureBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        type: 'collection',
+        entry: [
+          {
+            resource: compositeMeasure
+          },
+          {
+            resource: measure
+          },
+          {
+            resource: measure
+          }
+        ]
+      };
+
+      expect(extractCompositeMeasure(measureBundle)).toEqual(compositeMeasure);
+    });
+
+    it('should return undefined when there are no composite measures in the bundle', () => {
+      const measure: fhir4.Measure = {
+        resourceType: 'Measure',
+        url: 'http://example.com/Measure/simple-measure',
+        version: '0.0.1',
+        status: 'draft',
+        library: ['http://example.com/Library/example']
+      };
+
+      const measureBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        type: 'collection',
+        entry: [
+          {
+            resource: measure
+          }
+        ]
+      };
+
+      expect(extractCompositeMeasure(measureBundle)).toBeUndefined();
+    });
+
+    it('should throw an error when there is more than one composite measure in the bundle', () => {
+      const compositeMeasure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'draft',
+        scoring: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+              code: 'composite',
+              display: 'Composite'
+            }
+          ]
+        }
+      };
+
+      const measureBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        type: 'collection',
+        entry: [
+          {
+            resource: compositeMeasure
+          },
+          {
+            resource: compositeMeasure
+          }
+        ]
+      };
+
+      expect(() => extractCompositeMeasure(measureBundle)).toThrow(
+        /composite measure calculation must only include one composite measure resource in the measure bundle/i
+      );
     });
   });
 });

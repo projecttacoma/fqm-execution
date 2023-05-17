@@ -77,12 +77,24 @@ export function extractComponentsFromMeasure(
 }
 
 export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Measure | undefined {
-  const compositeMeasureResource = measureBundle.entry?.find(
-    e =>
-      e.resource?.resourceType === 'Measure' && getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
-  )?.resource as fhir4.Measure | undefined;
+  const allCompositeMeasures = measureBundle.entry
+    ?.filter(
+      e =>
+        e.resource?.resourceType === 'Measure' && getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
+    )
+    ?.map(e => e.resource as fhir4.Measure);
 
-  return compositeMeasureResource;
+  if (!allCompositeMeasures || allCompositeMeasures.length === 0) {
+    return undefined;
+  }
+
+  if (allCompositeMeasures.length > 1) {
+    throw new Error(
+      'Composite measure calculation must only include one composite Measure resource in the measure bundle'
+    );
+  }
+
+  return allCompositeMeasures[0];
 }
 
 /**
