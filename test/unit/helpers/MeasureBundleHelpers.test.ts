@@ -1057,6 +1057,40 @@ describe('MeasureBundleHelpers tests', () => {
         /measure resource must specify a "library"/i
       );
     });
+
+    it('throws an error if a composite references a component that is not provided in the bundle', () => {
+      const compositeMeasure: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'draft',
+        scoring: {
+          coding: [
+            {
+              system: 'http://terminology.hl7.org/CodeSystem/measure-scoring',
+              code: 'composite',
+              display: 'Composite'
+            }
+          ]
+        },
+        relatedArtifact: [
+          { type: 'composed-of', resource: 'http://example.com/Measure/does-not-exist-1' },
+          { type: 'composed-of', resource: 'http://example.com/Measure/does-not-exist-2' }
+        ]
+      };
+
+      const measureBundle: fhir4.Bundle = {
+        resourceType: 'Bundle',
+        type: 'collection',
+        entry: [
+          {
+            resource: compositeMeasure
+          }
+        ]
+      };
+
+      expect(() => extractComponentsFromMeasure(compositeMeasure, measureBundle)).toThrow(
+        /missing components from measure bundle: "http:\/\/example.com\/Measure\/does-not-exist-1, http:\/\/example.com\/Measure\/does-not-exist-2"/i
+      );
+    });
   });
 
   describe('extractLibrariesFromLibraryBundle', () => {

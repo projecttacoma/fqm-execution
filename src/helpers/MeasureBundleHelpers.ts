@@ -46,7 +46,7 @@ export function extractComponentsFromMeasure(
     throw new Error('Composite measures must specify at least two components');
   }
 
-  const uniqueCanonicals = new Set(componentRefs.map(ra => ra.resource as string));
+  const uniqueCanonicalsFromComposite = new Set(componentRefs.map(ra => ra.resource as string));
 
   const allMeasuresInBundle =
     measureBundle.entry
@@ -57,6 +57,16 @@ export function extractComponentsFromMeasure(
       )
       .map(e => e.resource as fhir4.Measure) ?? [];
 
+  const uniqueCanonicalsInBundle = new Set(allMeasuresInBundle.map(m => `${m.url}${m.version ? `|${m.version}` : ''}`));
+
+  const missingCanonicalsInBundle = new Set(
+    [...uniqueCanonicalsFromComposite].filter(c => !uniqueCanonicalsInBundle.has(c))
+  );
+
+  if (missingCanonicalsInBundle.size > 0) {
+    throw new Error(`Missing components from measure bundle: "${[...missingCanonicalsInBundle].join(', ')}"`);
+  }
+
   return allMeasuresInBundle.filter(measure => {
     if (!measure.library) {
       throw new UnexpectedProperty('Measure resource must specify a "library"');
@@ -64,12 +74,12 @@ export function extractComponentsFromMeasure(
 
     if (!measure.url) return false;
 
-    if (uniqueCanonicals.has(measure.url)) {
+    if (uniqueCanonicalsFromComposite.has(measure.url)) {
       return true;
     }
 
     if (measure.version) {
-      return uniqueCanonicals.has(`${measure.url}|${measure.version}`);
+      return uniqueCanonicalsFromComposite.has(`${measure.url}|${measure.version}`);
     }
 
     return false;
