@@ -118,9 +118,7 @@ export async function calculate<T extends CalculationOptions>(
       newValueSetCache = newValueSetCache.concat(results.valueSetCache);
     }
 
-    if (options.returnELM) {
-      elmLibraries.push(...results.elmLibraries);
-    }
+    elmLibraries.push(...results.elmLibraries);
 
     mainLibraryName = results.mainLibraryName;
 
