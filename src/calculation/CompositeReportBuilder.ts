@@ -66,7 +66,8 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             }
           ]
         }
-      ]
+      ],
+      evaluatedResource: []
     };
   }
 
@@ -177,20 +178,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       throw new Error('Weighted scoring not implemented for composite measures');
     }
 
-    if (result.evaluatedResource) {
-      result.evaluatedResource.forEach(resource => {
-        const reference: fhir4.Reference = {
-          reference: `${resource.resourceType}/${resource.id}`
-        };
-        if (!this.report.evaluatedResource?.some(r => r.reference === reference.reference)) {
-          if (!this.report.evaluatedResource) {
-            this.report.evaluatedResource = [reference];
-          } else {
-            this.report.evaluatedResource.push(reference);
-          }
-        }
-      });
-    }
+    this.addEvaluatedResources(result);
   }
 
   getReport(): CompositeMeasureReport {

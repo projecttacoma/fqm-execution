@@ -278,16 +278,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
       this.addSDE(result);
     }
 
-    if (result.evaluatedResource) {
-      result.evaluatedResource.forEach(resource => {
-        const reference: fhir4.Reference = {
-          reference: `${resource.resourceType}/${resource.id}`
-        };
-        if (!this.report.evaluatedResource?.find(r => r.reference === reference.reference)) {
-          this.report.evaluatedResource?.push(reference);
-        }
-      });
-    }
+    this.addEvaluatedResources(result);
 
     this.patientCount++;
   }
