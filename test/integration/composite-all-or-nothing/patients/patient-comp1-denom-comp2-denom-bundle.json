@@ -1,0 +1,141 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "91b45537-5322-4082-8c03-e5e6455961c7",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pt-nothing",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-2ab82f98-bd61-4d13-913c-d9a115a31094"
+          }
+        ],
+        "name": [
+          {
+            "family": "Greenfelder917",
+            "given": [
+              "Kristin981"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/pt-nothing"
+      },
+      "fullUrl": "urn:uuid:pt-nothing"
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "aeb0edd6-7d52-4f1e-a418-fa73f04145f6",
+        "measure": "http://hl7.org/fhir/us/cqfmeasures/Measure/EXM130",
+        "period": {
+          "start": "2018-01-01T05:00:00.000Z",
+          "end": "2018-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#e0b33154-5ed3-4d0c-b017-19357450edf1"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "e0b33154-5ed3-4d0c-b017-19357450edf1",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "pt-nothing"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population",
+                      "display": "Initial Population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator",
+                      "display": "Numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator",
+                      "display": "Denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator-exclusion",
+                      "display": "Denominator Exclusion"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/aeb0edd6-7d52-4f1e-a418-fa73f04145f6"
+      },
+      "fullUrl": "urn:uuid:aeb0edd6-7d52-4f1e-a418-fa73f04145f6"
+    }
+  ]
+}

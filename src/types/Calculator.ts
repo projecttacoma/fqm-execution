@@ -81,6 +81,8 @@ export interface ExecutionResult<T extends PopulationGroupResult> {
   detailedResults?: T extends DetailedPopulationGroupResult
     ? DetailedPopulationGroupResult[]
     : SimplePopulationGroupResult[];
+  /** Component results for the patient */
+  componentResults?: ComponentResults[];
   /** SDE values, if specified for calculation */
   supplementalData?: SDEResult[];
   /** Resources evaluated during execution */
@@ -90,6 +92,12 @@ export interface ExecutionResult<T extends PopulationGroupResult> {
    * added to CQL.
    */
   patientObject?: CQLPatient;
+}
+
+export interface ComponentResults {
+  groupId: string;
+  componentCanonical?: string;
+  populationResults?: PopulationResult[];
 }
 
 /**
@@ -128,6 +136,7 @@ export function isSupplementalDataUsage(u: unknown): u is SupplementalDataUsage 
 export interface SimplePopulationGroupResult {
   /** Index of this population group id. */
   groupId: string;
+  componentCanonical?: string;
   /**
    * Results for each stratifier in this population group. If this is an episode of care
    * measure these results will the overall results for each episode. i.e. if there is at

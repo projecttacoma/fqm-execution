@@ -38,7 +38,9 @@ import { Interval, DataProvider } from 'cql-execution';
 import { PatientSource } from 'cql-exec-fhir';
 import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
 import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
-import { omit } from 'lodash';
+import _, { omit } from 'lodash';
+import { ELM } from '../types/ELMTypes';
+import { getReportBuilder } from '../helpers/reportBuilderFactory';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -63,159 +65,214 @@ export async function calculate<T extends CalculationOptions>(
   if (options.clearElmJsonsCache) {
     clearElmInfoCache();
   }
-  // Get the PatientSource to use for calculation.
-  const patientSource = resolvePatientSource(patientBundles, options);
 
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
 
-  const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
-  // Get the default measurement period out of the Measure object
-  const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measure);
-  // Set the measurement period start/end, but only if the caller didn't specify one
-  options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
-  options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
+  const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
+
+  const isCompositeExecution = compositeMeasureResource != null;
+
+  const measuresToExecute = isCompositeExecution
+    ? MeasureBundleHelpers.extractComponentsFromMeasure(compositeMeasureResource, measureBundle)
+    : [MeasureBundleHelpers.extractMeasureFromBundle(measureBundle)];
+
+  // Get the PatientSource to use for calculation.
+  let patientSource = resolvePatientSource(patientBundles, options);
 
   const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [];
+  let overallClauseCoverageHTML: string | undefined;
+  let groupClauseCoverageHTML: Record<string, string> | undefined;
 
-  const results = await Execution.execute(measure, measureBundle, patientSource, options, valueSetCache, debugObject);
-  if (!results.rawResults) {
-    throw new Error(results.errorMessage ?? 'something happened with no error message');
-  }
-  const rawResults = results.rawResults;
+  let newValueSetCache: fhir4.ValueSet[] | undefined = [...valueSetCache];
+  const elmLibraries: ELM[] = [];
+  let mainLibraryName = '';
 
-  if (!results.elmLibraries || !results.mainLibraryName) {
-    throw new UnexpectedResource('no libraries were found');
-  }
-  const elmLibraries = results.elmLibraries;
-  const mainLibraryName = results.mainLibraryName;
+  for (const measure of measuresToExecute) {
+    // Get the default measurement period out of the Measure object
+    const measurementPeriod = MeasureBundleHelpers.extractMeasurementPeriod(measure);
+    // Set the measurement period start/end, but only if the caller didn't specify one
+    options.measurementPeriodStart = options.measurementPeriodStart ?? measurementPeriod.measurementPeriodStart;
+    options.measurementPeriodEnd = options.measurementPeriodEnd ?? measurementPeriod.measurementPeriodEnd;
 
-  // Grab all patient IDs from the raw results.
-  const patientIds = Object.keys(rawResults.patientResults);
+    const results = await Execution.execute(
+      measure,
+      measureBundle,
+      patientSource,
+      options,
+      newValueSetCache,
+      debugObject
+    );
+    if (!results.rawResults) {
+      throw new Error(results.errorMessage ?? 'something happened with no error message');
+    }
+    const rawResults = results.rawResults;
 
-  // Iterate over patient bundles and make results for each of them.
-  patientIds.forEach(patientId => {
-    const patientExecutionResult: ExecutionResult<DetailedPopulationGroupResult> = {
-      patientId: patientId,
-      detailedResults: [],
-      evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
-      patientObject: rawResults.patientResults[patientId]['Patient']
-    };
-
-    // Grab statement results for the patient
-    const patientStatementResults = rawResults.patientResults[patientId];
-    // Grab localId results for the patient
-    const patientLocalIdResults = rawResults.localIdPatientResultsMap[patientId];
-
-    // iterator to use for group ID if they are defined in the population groups
-    let i = 1;
-
-    // use scoring code from measure as a fallback when building population group
-    // relevance map (if scoring code is not present at the group level)
-    const measureScoringCode = MeasureBundleHelpers.getScoringCodeFromMeasure(measure);
-
-    // Iterate over measure population groups
-    measure.group?.forEach(group => {
-      // build initial results set with population values
-      const detailedGroupResult = CalculatorHelpers.createPopulationValues(measure, group, patientStatementResults);
-
-      // fix groupId to an auto incremented if it was not found.
-      if (detailedGroupResult.groupId === 'unknown') {
-        detailedGroupResult.groupId = `population-group-${i++}`;
-      }
-
-      // get the relevance information for each population
-      detailedGroupResult.populationRelevance = ResultsHelpers.buildPopulationGroupRelevanceMap(
-        detailedGroupResult,
-        group,
-        measureScoringCode
-      );
-
-      // use relevance info to fill out statement relevance information and create initial statementResults structure
-      detailedGroupResult.statementResults = ResultsHelpers.buildStatementRelevanceMap(
-        measure,
-        detailedGroupResult.populationRelevance,
-        mainLibraryName,
-        elmLibraries,
-        group,
-        options.calculateSDEs ?? false
-      );
-
-      // adds result information to the statement results and builds up clause results
-      detailedGroupResult.clauseResults = ResultsHelpers.buildStatementAndClauseResults(
-        measure,
-        elmLibraries,
-        patientLocalIdResults,
-        detailedGroupResult.statementResults,
-        true,
-        true
-      );
-
-      if (options.calculateHTML) {
-        const html = generateHTML(
-          elmLibraries,
-          detailedGroupResult.statementResults,
-          detailedGroupResult.clauseResults,
-          detailedGroupResult.groupId
-        );
-        detailedGroupResult.html = html;
-        if (debugObject && options.enableDebugOutput) {
-          const debugHtml = {
-            name: `clauses-${detailedGroupResult.groupId}.html`,
-            html
-          };
-          if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
-            debugObject.html?.push(debugHtml);
-          } else {
-            debugObject.html = [debugHtml];
-          }
-        }
-      }
-
-      // add this group result to the patient results
-      patientExecutionResult.detailedResults?.push(detailedGroupResult);
-    });
-
-    // put raw SDE values onto execution result
-    if (options.calculateSDEs) {
-      patientExecutionResult.supplementalData = ResultsHelpers.getSDEValues(measure, patientStatementResults);
+    if (!results.elmLibraries || !results.mainLibraryName) {
+      throw new UnexpectedResource('no libraries were found');
     }
 
-    executionResults.push(patientExecutionResult);
-  });
+    if (options.useValueSetCaching && results.valueSetCache) {
+      newValueSetCache = newValueSetCache.concat(results.valueSetCache);
+    }
+
+    if (options.returnELM) {
+      elmLibraries.push(...results.elmLibraries);
+    }
+
+    mainLibraryName = results.mainLibraryName;
+
+    // Grab all patient IDs from the raw results.
+    const patientIds = Object.keys(rawResults.patientResults);
+
+    // Iterate over patient bundles and make results for each of them.
+    patientIds.forEach(patientId => {
+      let patientExecutionResult: ExecutionResult<DetailedPopulationGroupResult>;
+
+      // For composite execution, we want to modify the results of a previously existing patient
+      // For non-composite execution, there should never be a case where the same patientId occurs twice in this loop
+      const existingResult = executionResults.find(er => er.patientId === patientId);
+      if (existingResult) {
+        patientExecutionResult = existingResult;
+      } else {
+        patientExecutionResult = {
+          patientId: patientId,
+          detailedResults: [],
+          evaluatedResource: rawResults.patientEvaluatedRecords[patientId],
+          patientObject: rawResults.patientResults[patientId]['Patient']
+        };
+
+        executionResults.push(patientExecutionResult);
+      }
+
+      // Grab statement results for the patient
+      const patientStatementResults = rawResults.patientResults[patientId];
+      // Grab localId results for the patient
+      const patientLocalIdResults = rawResults.localIdPatientResultsMap[patientId];
+
+      // iterator to use for group ID if they are defined in the population groups
+      let i = 1;
+
+      // use scoring code from measure as a fallback when building population group
+      // relevance map (if scoring code is not present at the group level)
+      const measureScoringCode = MeasureBundleHelpers.getScoringCodeFromMeasure(measure);
+
+      // Iterate over measure population groups
+      measure.group?.forEach(group => {
+        // build initial results set with population values
+        const detailedGroupResult = CalculatorHelpers.createPopulationValues(measure, group, patientStatementResults);
+
+        if (isCompositeExecution) {
+          detailedGroupResult.componentCanonical = `${measure.url}${measure.version ? `|${measure.version}` : ''}`;
+        }
+
+        // fix groupId to an auto incremented if it was not found.
+        if (detailedGroupResult.groupId === 'unknown') {
+          detailedGroupResult.groupId = `population-group-${i++}`;
+        }
+
+        // get the relevance information for each population
+        detailedGroupResult.populationRelevance = ResultsHelpers.buildPopulationGroupRelevanceMap(
+          detailedGroupResult,
+          group,
+          measureScoringCode
+        );
+
+        // use relevance info to fill out statement relevance information and create initial statementResults structure
+        detailedGroupResult.statementResults = ResultsHelpers.buildStatementRelevanceMap(
+          measure,
+          detailedGroupResult.populationRelevance,
+          mainLibraryName,
+          elmLibraries,
+          group,
+          options.calculateSDEs ?? false
+        );
+
+        // adds result information to the statement results and builds up clause results
+        detailedGroupResult.clauseResults = ResultsHelpers.buildStatementAndClauseResults(
+          measure,
+          elmLibraries,
+          patientLocalIdResults,
+          detailedGroupResult.statementResults,
+          true,
+          true
+        );
+
+        if (options.calculateHTML) {
+          const html = generateHTML(
+            elmLibraries,
+            detailedGroupResult.statementResults,
+            detailedGroupResult.clauseResults,
+            detailedGroupResult.groupId
+          );
+          detailedGroupResult.html = html;
+          if (debugObject && options.enableDebugOutput) {
+            const debugHtml = {
+              name: `clauses-${detailedGroupResult.groupId}.html`,
+              html
+            };
+
+            if (Array.isArray(debugObject.html) && debugObject.html?.length !== 0) {
+              debugObject.html?.push(debugHtml);
+            } else {
+              debugObject.html = [debugHtml];
+            }
+          }
+        }
+
+        // add this group result to the patient results
+        patientExecutionResult.detailedResults?.push(detailedGroupResult);
+        if (isCompositeExecution) {
+          if (!patientExecutionResult.componentResults) {
+            patientExecutionResult.componentResults = [];
+          }
+          patientExecutionResult.componentResults.push({
+            groupId: detailedGroupResult.groupId,
+            componentCanonical: detailedGroupResult.componentCanonical,
+            populationResults: detailedGroupResult.populationResults
+          });
+        }
+      });
+
+      // put raw SDE values onto execution result
+      if (options.calculateSDEs) {
+        patientExecutionResult.supplementalData = ResultsHelpers.getSDEValues(measure, patientStatementResults);
+      }
+    });
+
+    patientSource = resolvePatientSource(patientBundles, options);
+
+    if (!isCompositeExecution && options.calculateClauseCoverage) {
+      groupClauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
+      overallClauseCoverageHTML = '';
+      Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
+        overallClauseCoverageHTML += result;
+        if (debugObject && options.enableDebugOutput) {
+          const debugHTML = {
+            name: `clause-coverage-${groupId}.html`,
+            html: result
+          };
+          if (Array.isArray(debugObject.html)) {
+            debugObject.html.push(debugHTML);
+          } else {
+            debugObject.html = [debugHTML];
+          }
+        }
+      });
+      // don't necessarily need this file, but adding it for backwards compatibility
+      if (debugObject && options.enableDebugOutput) {
+        debugObject.html?.push({
+          name: 'overall-clause-coverage.html',
+          html: overallClauseCoverageHTML
+        });
+      }
+    }
+  }
 
   if (debugObject && options.enableDebugOutput) {
     debugObject.detailedResults = executionResults;
-  }
-
-  let overallClauseCoverageHTML: string | undefined;
-  let groupClauseCoverageHTML: Record<string, string> | undefined;
-  if (options.calculateClauseCoverage) {
-    groupClauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
-    overallClauseCoverageHTML = '';
-    Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
-      overallClauseCoverageHTML += result;
-      if (debugObject && options.enableDebugOutput) {
-        const debugHTML = {
-          name: `clause-coverage-${groupId}.html`,
-          html: result
-        };
-        if (Array.isArray(debugObject.html)) {
-          debugObject.html.push(debugHTML);
-        } else {
-          debugObject.html = [debugHTML];
-        }
-      }
-    });
-    // don't necessarily need this file, but adding it for backwards compatibility
-    if (debugObject && options.enableDebugOutput) {
-      debugObject.html?.push({
-        name: 'overall-clause-coverage.html',
-        html: overallClauseCoverageHTML
-      });
-    }
   }
 
   let prunedExecutionResults: ExecutionResult<PopulationGroupResult>[];
@@ -226,27 +283,28 @@ export async function calculate<T extends CalculationOptions>(
     prunedExecutionResults = executionResults as ExecutionResult<DetailedPopulationGroupResult>[];
   }
 
-  // return with the ELM libraries and main library name for further processing if requested.
-  if (options.returnELM) {
-    return {
-      results: prunedExecutionResults,
-      debugOutput: debugObject,
-      elmLibraries: results.elmLibraries,
-      mainLibraryName: results.mainLibraryName,
-      parameters: results.parameters,
-      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
-      ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
-      ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
-    };
-  } else {
-    return {
-      results: prunedExecutionResults,
-      debugOutput: debugObject,
-      ...(options.useValueSetCaching && results.valueSetCache && { valueSetCache: results.valueSetCache }),
-      ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
-      ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
-    };
-  }
+  return {
+    results: prunedExecutionResults,
+    debugOutput: debugObject,
+    ...(options.returnELM && {
+      elmLibraries: _.uniqWith(
+        elmLibraries,
+        (libOne, libTwo) =>
+          libOne.library.identifier.id === libTwo.library.identifier.id &&
+          libOne.library.identifier.version === libOne.library.identifier.version
+      ),
+      mainLibraryName
+    }),
+    ...(options.useValueSetCaching &&
+      newValueSetCache && {
+        valueSetCache: _.uniqWith(
+          newValueSetCache,
+          (vsOne, vsTwo) => vsOne.url === vsTwo.url && vsOne.version === vsTwo.version
+        )
+      }),
+    ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
+    ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
+  };
 }
 
 /**
@@ -287,6 +345,11 @@ export async function calculateIndividualMeasureReports(
   if (options.reportType && options.reportType !== 'individual') {
     throw new UnsupportedProperty('calculateMeasureReports only supports reportType "individual".');
   }
+
+  const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
+  if (compositeMeasureResource) {
+    throw new Error('Composite measures require reportType "summary".');
+  }
   // options should be updated by this call if measurementPeriod wasn't initially passed in
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
   const { results, debugOutput } = calculationResults;
@@ -322,7 +385,7 @@ export async function calculateAggregateMeasureReport(
   const calculationResults = await calculate(measureBundle, patientBundles, options, valueSetCache);
   const { results, debugOutput } = calculationResults;
 
-  const builder = new MeasureReportBuilder(measureBundle, options);
+  const builder = getReportBuilder(measureBundle, options);
 
   results.forEach(result => {
     builder.addPatientResults(result);

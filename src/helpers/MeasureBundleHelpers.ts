@@ -1,4 +1,4 @@
-import { PopulationType, MeasureScoreType } from '../types/Enums';
+import { PopulationType, MeasureScoreType, CompositeScoreType } from '../types/Enums';
 import { CalculationOptions, PopulationResult, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
@@ -23,6 +23,88 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
       c.system === 'http://hl7.org/fhir/measure-scoring' ||
       c.system === 'http://terminology.hl7.org/CodeSystem/measure-scoring'
   )?.code;
+}
+
+export function getCompositeScoringFromMeasure(measure: fhir4.Measure): CompositeScoreType | undefined {
+  return measure.compositeScoring?.coding?.find(
+    c => c.system === 'http://terminology.hl7.org/CodeSystem/composite-measure-scoring'
+  )?.code as CompositeScoreType | undefined;
+}
+
+/**
+ * Extracts all component measures that are defined on the relatedArtifact of a composite measure.
+ * @param compositeMeasureResource composite measure resource
+ * @param measureBundle FHIR Measure Bundle
+ * @returns array of measures with libraries included
+ */
+export function extractComponentsFromMeasure(
+  compositeMeasureResource: fhir4.Measure,
+  measureBundle: fhir4.Bundle
+): MeasureWithLibrary[] {
+  const componentRefs = compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
+  if (componentRefs == null || componentRefs.length < 2) {
+    throw new Error('Composite measures must specify at least two components');
+  }
+
+  const uniqueCanonicalsFromComposite = new Set(componentRefs.map(ra => ra.resource as string));
+
+  const allMeasuresInBundle =
+    measureBundle.entry
+      ?.filter(
+        e =>
+          // Ensure that only measures with logic libraries should be considered
+          e.resource?.resourceType === 'Measure' && (e.resource as fhir4.Measure).url !== compositeMeasureResource.url
+      )
+      .map(e => e.resource as fhir4.Measure) ?? [];
+
+  const uniqueCanonicalsInBundle = new Set(allMeasuresInBundle.map(m => `${m.url}${m.version ? `|${m.version}` : ''}`));
+
+  const missingCanonicalsInBundle = new Set(
+    [...uniqueCanonicalsFromComposite].filter(c => !uniqueCanonicalsInBundle.has(c))
+  );
+
+  if (missingCanonicalsInBundle.size > 0) {
+    throw new Error(`Missing components from measure bundle: "${[...missingCanonicalsInBundle].join(', ')}"`);
+  }
+
+  return allMeasuresInBundle.filter(measure => {
+    if (!measure.library) {
+      throw new UnexpectedProperty(`Measure resource "Measure/${measure.id}" must specify a "library"`);
+    }
+
+    if (!measure.url) return false;
+
+    if (uniqueCanonicalsFromComposite.has(measure.url)) {
+      return true;
+    }
+
+    if (measure.version) {
+      return uniqueCanonicalsFromComposite.has(`${measure.url}|${measure.version}`);
+    }
+
+    return false;
+  }) as MeasureWithLibrary[];
+}
+
+export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Measure | undefined {
+  const allCompositeMeasures = measureBundle.entry
+    ?.filter(
+      e =>
+        e.resource?.resourceType === 'Measure' && getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
+    )
+    ?.map(e => e.resource as fhir4.Measure);
+
+  if (!allCompositeMeasures || allCompositeMeasures.length === 0) {
+    return undefined;
+  }
+
+  if (allCompositeMeasures.length > 1) {
+    throw new Error(
+      'Composite measure calculation must only include one composite Measure resource in the measure bundle'
+    );
+  }
+
+  return allCompositeMeasures[0];
 }
 
 /**
@@ -358,7 +440,7 @@ export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWi
   const measure = measureEntry.resource as MeasureWithLibrary;
 
   if (!measure.library) {
-    throw new UnexpectedProperty('Measure resource must specify a "library"');
+    throw new UnexpectedProperty(`Measure resource "Measure/${measure.id}" must specify a "library"`);
   }
 
   return measure;

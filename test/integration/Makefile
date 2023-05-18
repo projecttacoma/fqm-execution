@@ -8,7 +8,7 @@ endif
 
 # Prevents the presence of a directory with the same name skipping Makefile targets
 # TODO: Add other targets once defined
-.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction
+.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction composite-all-or-nothing
 
 # This loop grabs the important directory name from the full path to the cql file
 # This directory name MUST match the make target name in this file
@@ -30,6 +30,12 @@ proportion-boolean:
 
 ratio-Encounter-reuseObservationFunction:
 	ecqm-bundler -c ./ratio-Encounter-reuseObservationFunction/cql/ratio-Encounter-reuseObservationFunction.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --detailed-msrobs "daysObs|numer" "daysObs|denom" --scoring-code ratio --basis Encounter -o ./ratio-Encounter-reuseObservationFunction/ratio-Encounter-reuseObservationFunction-bundle.json
+
+composite-all-or-nothing:
+	ecqm-bundler generate -c ./composite-all-or-nothing/cql/all-or-nothing-component-one.cql --deps-directory ./helpers/cql --measure-version "0.0.1" --ipop "Initial Population" --numer "Numerator" --denom "Denominator" -o /tmp/comp1.json \
+	  && ecqm-bundler generate -c ./composite-all-or-nothing/cql/all-or-nothing-component-two.cql --deps-directory ./helpers/cql --ipop "Initial Population" --numer "Numerator" --denom "Denominator" --measure-version "0.0.1" -o /tmp/comp2.json \
+		&& ecqm-bundler make-composite /tmp/comp1.json /tmp/comp2.json --composite-scoring "all-or-nothing" --detailed-component "measure-AllOrNothingComponentTwo|0.0.1" "measure-AllOrNothingComponentOne|0.0.1" -o ./composite-all-or-nothing/composite-all-or-nothing-bundle.json \
+		&& rm /tmp/comp1.json /tmp/comp2.json
 
 clean:
 	-docker stop cql-translation-service

@@ -2,18 +2,16 @@ import { ExecutionResult, CalculationOptions, PopulationResult, PopulationGroupR
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  extractMeasureFromBundle,
   getScoringCodeFromMeasure,
-  getScoringCodeFromGroup
+  getScoringCodeFromGroup,
+  extractMeasureFromBundle
 } from '../helpers/MeasureBundleHelpers';
 import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomErrors';
 import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
+import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
 
-export default class MeasureReportBuilder<T extends PopulationGroupResult> {
+export default class MeasureReportBuilder<T extends PopulationGroupResult> extends AbstractMeasureReportBuilder<T> {
   report: fhir4.MeasureReport;
-  measureBundle: fhir4.Bundle;
-  measure: fhir4.Measure;
-  options: CalculationOptions;
   isIndividual: boolean;
   calculateSDEs: boolean;
   patientCount: number;
@@ -21,15 +19,16 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   numeratorAggregateMethod: string;
   denominatorAggregateMethod: string;
 
-  constructor(measureBundle: fhir4.Bundle, options: CalculationOptions) {
+  constructor(measure: fhir4.Measure, options: CalculationOptions) {
+    super(measure, options);
+
     this.report = <fhir4.MeasureReport>{
       id: uuidv4(),
       resourceType: 'MeasureReport'
     };
-    this.measureBundle = measureBundle;
-    this.measure = extractMeasureFromBundle(measureBundle);
+
     this.scoringCode = getScoringCodeFromMeasure(this.measure) || '';
-    this.options = options;
+
     // if report type is specified use it, otherwise default to individual report.
     if (this.options.reportType) {
       this.isIndividual = this.options.reportType === 'individual';
@@ -148,7 +147,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
     });
   }
 
-  public addPatientResults(results: ExecutionResult<T>) {
+  public addPatientResults(result: ExecutionResult<T>) {
     // if this is a individual measure report and we have already received a patient we should throw
     // an error
     if (this.isIndividual && this.patientCount > 0) {
@@ -157,20 +156,20 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       );
     }
 
-    if (!results.detailedResults) {
+    if (!result.detailedResults) {
       throw new Error('ExecutionResults are missing detailedResults.');
     }
 
     // if we are creating an individual report create the patient reference.
     if (this.isIndividual) {
-      const patId = `Patient/${results.patientId}`;
+      const patId = `Patient/${result.patientId}`;
       const subjectReference: fhir4.Reference = {
         reference: patId
       };
       this.report.subject = subjectReference;
     }
 
-    results.detailedResults.forEach((groupResults, i) => {
+    result.detailedResults.forEach((groupResults, i) => {
       if (this.isIndividual) {
         // add narrative for relevant clauses
         if (isDetailedResult(groupResults) && this.report.text && groupResults.html) {
@@ -276,19 +275,10 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
       }
     });
     if (this.calculateSDEs) {
-      this.addSDE(results);
+      this.addSDE(result);
     }
 
-    if (results.evaluatedResource) {
-      results.evaluatedResource.forEach(resource => {
-        const reference: fhir4.Reference = {
-          reference: `${resource.resourceType}/${resource.id}`
-        };
-        if (!this.report.evaluatedResource?.find(r => r.reference === reference.reference)) {
-          this.report.evaluatedResource?.push(reference);
-        }
-      });
-    }
+    this.addEvaluatedResources(result);
 
     this.patientCount++;
   }
@@ -642,7 +632,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> {
   ): fhir4.MeasureReport[] {
     const reports: fhir4.MeasureReport[] = [];
     executionResults.forEach(result => {
-      const builder = new MeasureReportBuilder(measureBundle, options);
+      const measure = extractMeasureFromBundle(measureBundle);
+      const builder = new MeasureReportBuilder(measure, options);
       builder.addPatientResults(result);
       reports.push(builder.getReport());
     });

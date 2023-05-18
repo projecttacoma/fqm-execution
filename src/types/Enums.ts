@@ -5,8 +5,15 @@ export enum MeasureScoreType {
   PROP = 'proportion',
   RATIO = 'ratio',
   CV = 'continuous-variable',
-  COHORT = 'cohort'
+  COHORT = 'cohort',
+  COMPOSITE = 'composite'
 }
+
+/**
+ * Enum for composite score types: Matching http://terminology.hl7.org/CodeSystem/composite-measure-scoring
+ */
+export const compositeScoringCodes = ['all-or-nothing', 'opportunity', 'linear', 'weighted'] as const;
+export type CompositeScoreType = typeof compositeScoringCodes[number];
 
 /**
  * Enum for measure aggregation types. Matching // http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-aggregate-method.html

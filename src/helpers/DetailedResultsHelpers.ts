@@ -22,9 +22,10 @@ export function pruneDetailedResults(
       const prunedDetailedResults: SimplePopulationGroupResult[] = er.detailedResults.map(dr => {
         return {
           groupId: dr.groupId,
-          ...(dr.populationResults ? { populationResults: dr.populationResults } : {}),
-          ...(dr.episodeResults ? { episodeResults: dr.episodeResults } : {}),
-          ...(dr.stratifierResults ? { stratifierResults: dr.stratifierResults } : {})
+          ...(dr.componentCanonical && { componentCanonical: dr.componentCanonical }),
+          ...(dr.populationResults && { populationResults: dr.populationResults }),
+          ...(dr.episodeResults && { episodeResults: dr.episodeResults }),
+          ...(dr.stratifierResults && { stratifierResults: dr.stratifierResults })
         };
       });
 

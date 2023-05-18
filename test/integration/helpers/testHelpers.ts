@@ -23,6 +23,17 @@ export function getGroupByIndex(
   return resultsGroup as DetailedPopulationGroupResult;
 }
 
+export function getPopulationResultAssertion(expectedPopulations: Partial<Record<PopulationType, boolean>>) {
+  return expect.arrayContaining(
+    Object.entries(expectedPopulations).map(([popType, value]) =>
+      expect.objectContaining({
+        populationType: popType as PopulationType,
+        result: value
+      })
+    )
+  );
+}
+
 /**
  * Formats expectedPopulations object into an array of objects which can be passed into an
  * expect.arrayContaining and compared with result
@@ -31,15 +42,10 @@ export function assertPopulationResults(
   result: DetailedPopulationGroupResult,
   expectedPopulations: Partial<Record<PopulationType, boolean>>
 ) {
-  const expectedPopulationResults: PopulationResult[] = Object.entries(expectedPopulations).map(([popType, value]) =>
-    expect.objectContaining({
-      populationType: popType as PopulationType,
-      result: value
-    })
-  );
+  const expectedPopulationResults = getPopulationResultAssertion(expectedPopulations);
   expect(result).toEqual(
     expect.objectContaining({
-      populationResults: expect.arrayContaining(expectedPopulationResults)
+      populationResults: expectedPopulationResults
     })
   );
 }
