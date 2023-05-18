@@ -87,7 +87,7 @@ export async function calculate<T extends CalculationOptions>(
   let groupClauseCoverageHTML: Record<string, string> | undefined;
 
   let newValueSetCache: fhir4.ValueSet[] | undefined = [...valueSetCache];
-  const elmLibraries: ELM[] = [];
+  const allELM: ELM[] = [];
   let mainLibraryName = '';
 
   for (const measure of measuresToExecute) {
@@ -118,8 +118,10 @@ export async function calculate<T extends CalculationOptions>(
       newValueSetCache = newValueSetCache.concat(results.valueSetCache);
     }
 
+    const executedELM = results.elmLibraries;
+
     if (options.returnELM) {
-      elmLibraries.push(...results.elmLibraries);
+      allELM.push(...executedELM);
     }
 
     mainLibraryName = results.mainLibraryName;
@@ -185,7 +187,7 @@ export async function calculate<T extends CalculationOptions>(
           measure,
           detailedGroupResult.populationRelevance,
           mainLibraryName,
-          elmLibraries,
+          executedELM,
           group,
           options.calculateSDEs ?? false
         );
@@ -193,7 +195,7 @@ export async function calculate<T extends CalculationOptions>(
         // adds result information to the statement results and builds up clause results
         detailedGroupResult.clauseResults = ResultsHelpers.buildStatementAndClauseResults(
           measure,
-          elmLibraries,
+          executedELM,
           patientLocalIdResults,
           detailedGroupResult.statementResults,
           true,
@@ -202,7 +204,7 @@ export async function calculate<T extends CalculationOptions>(
 
         if (options.calculateHTML) {
           const html = generateHTML(
-            elmLibraries,
+            executedELM,
             detailedGroupResult.statementResults,
             detailedGroupResult.clauseResults,
             detailedGroupResult.groupId
@@ -245,7 +247,7 @@ export async function calculate<T extends CalculationOptions>(
     patientSource = resolvePatientSource(patientBundles, options);
 
     if (!isCompositeExecution && options.calculateClauseCoverage) {
-      groupClauseCoverageHTML = generateClauseCoverageHTML(elmLibraries, executionResults);
+      groupClauseCoverageHTML = generateClauseCoverageHTML(executedELM, executionResults);
       overallClauseCoverageHTML = '';
       Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
         overallClauseCoverageHTML += result;
@@ -288,7 +290,7 @@ export async function calculate<T extends CalculationOptions>(
     debugOutput: debugObject,
     ...(options.returnELM && {
       elmLibraries: _.uniqWith(
-        elmLibraries,
+        allELM,
         (libOne, libTwo) =>
           libOne.library.identifier.id === libTwo.library.identifier.id &&
           libOne.library.identifier.version === libOne.library.identifier.version
