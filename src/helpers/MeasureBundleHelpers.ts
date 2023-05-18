@@ -69,7 +69,7 @@ export function extractComponentsFromMeasure(
 
   return allMeasuresInBundle.filter(measure => {
     if (!measure.library) {
-      throw new UnexpectedProperty('Measure resource must specify a "library"');
+      throw new UnexpectedProperty(`Measure resource "Measure/${measure.id}" must specify a "library"`);
     }
 
     if (!measure.url) return false;
@@ -440,7 +440,7 @@ export function extractMeasureFromBundle(measureBundle: fhir4.Bundle): MeasureWi
   const measure = measureEntry.resource as MeasureWithLibrary;
 
   if (!measure.library) {
-    throw new UnexpectedProperty('Measure resource must specify a "library"');
+    throw new UnexpectedProperty(`Measure resource "Measure/${measure.id}" must specify a "library"`);
   }
 
   return measure;

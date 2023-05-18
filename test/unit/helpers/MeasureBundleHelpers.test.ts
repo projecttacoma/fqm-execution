@@ -1015,6 +1015,7 @@ describe('MeasureBundleHelpers tests', () => {
 
       const measureNoLibrary: fhir4.Measure = {
         resourceType: 'Measure',
+        id: 'measure-no-library',
         url: 'http://example.com/Measure/simple-measure-2',
         status: 'draft'
       };
@@ -1054,7 +1055,7 @@ describe('MeasureBundleHelpers tests', () => {
       };
 
       expect(() => extractComponentsFromMeasure(compositeMeasure, measureBundle)).toThrow(
-        /measure resource must specify a "library"/i
+        /measure resource "Measure\/measure-no-library" must specify a "library"/i
       );
     });
 
