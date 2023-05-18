@@ -63,9 +63,7 @@ async function main() {
       const testResultsPath = path.join(regressionResultsPath, `results-${tfp}`);
 
       try {
-        const { results } = await Calculator.calculate(measureBundle, [patientBundle], {
-          verboseCalculationResults: false
-        });
+        const { results } = await Calculator.calculate(measureBundle, [patientBundle], {});
 
         fs.writeFileSync(testResultsPath, JSON.stringify(results, undefined, verbose ? 2 : undefined), 'utf8');
         console.log(`${FG_GREEN}%s${RESET}: Results written to ${testResultsPath}`, 'SUCCESS');
