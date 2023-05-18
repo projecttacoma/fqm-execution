@@ -90,10 +90,10 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     };
   }
 
-  public addResults(results: ExecutionResult<T>[]) {
+  public addAllResults(results: ExecutionResult<T>[]) {
     // the weighted composite scoring type is component-based, but the others are individual-based
     if (this.compositeScoringType === 'weighted') {
-      this.addComponentResults(results);
+      this.addWeightedResults(results);
     } else {
       results.forEach(result => {
         this.addPatientResults(result);
@@ -101,7 +101,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     }
   }
 
-  private addComponentResults(results: ExecutionResult<T>[]) {
+  private addWeightedResults(results: ExecutionResult<T>[]) {
     // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
     const componentPopulationResults: Record<string, { numerator: number; denominator: number; weight: number }> = {};
 
@@ -139,7 +139,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       this.compositeFraction.numerator += value.weight * (value.numerator / value.denominator);
     });
 
-    this.compositeFraction.denominator = Object.entries(componentPopulationResults).length;
+    this.compositeFraction.denominator = Object.keys(componentPopulationResults).length;
   }
 
   public addPatientResults(result: ExecutionResult<T>) {

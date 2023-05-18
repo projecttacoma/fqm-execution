@@ -34,7 +34,7 @@
       "extension": [
         {
           "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight",
-          "valueDecimal": "0.2"
+          "valueDecimal": 0.2
         }
       ],
       "display": "Example Component 1",
@@ -45,7 +45,7 @@
       "extension": [
         {
           "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight",
-          "valueDecimal": "0.3"
+          "valueDecimal": 0.3
         }
       ],
       "display": "Example Component 2",

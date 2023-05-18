@@ -147,7 +147,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     });
   }
 
-  public addResults(results: ExecutionResult<T>[]) {
+  public addAllResults(results: ExecutionResult<T>[]) {
     results.forEach(result => {
       this.addPatientResults(result);
     });

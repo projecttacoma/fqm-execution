@@ -172,7 +172,7 @@ describe('addPatientResults', () => {
   });
 
   it('increments numerator and denominator for all-or-nothing scoring', () => {
-    compositeReportBuilder.addResults(compositeExecutionResults);
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.5);
     expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1);
@@ -181,7 +181,7 @@ describe('addPatientResults', () => {
 
   it('increments numerator and denominator for opportunity scoring', () => {
     compositeReportBuilder.compositeScoringType = 'opportunity';
-    compositeReportBuilder.addResults(compositeExecutionResults);
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.75);
     expect(compositeReportBuilder.compositeFraction.numerator).toEqual(3);
@@ -190,7 +190,7 @@ describe('addPatientResults', () => {
 
   it('increments numerator and denominator for linear scoring', () => {
     compositeReportBuilder.compositeScoringType = 'linear';
-    compositeReportBuilder.addResults(compositeExecutionResults);
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.75);
     expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5);
@@ -207,7 +207,7 @@ describe('addComponentResults', () => {
       simpleCompositeMeasureWeightedScoring,
       calculationOptions
     );
-    compositeReportBuilderWithWeights.addResults(compositeExecutionResults);
+    compositeReportBuilderWithWeights.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilderWithWeights.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.2);
     expect(compositeReportBuilderWithWeights.compositeFraction.numerator).toEqual(0.4);
@@ -217,7 +217,7 @@ describe('addComponentResults', () => {
   it('increments numerator and denominator for weighted scoring when a weight is not specified so it is treated as 1', () => {
     compositeReportBuilder = new CompositeReportBuilder(simpleCompositeMeasure, calculationOptions);
     compositeReportBuilder.compositeScoringType = 'weighted';
-    compositeReportBuilder.addResults(compositeExecutionResults);
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.75);
     expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5);

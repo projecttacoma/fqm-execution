@@ -389,7 +389,7 @@ export async function calculateAggregateMeasureReport(
 
   const builder = getReportBuilder(measureBundle, options);
 
-  builder.addResults(results);
+  builder.addAllResults(results);
 
   const report = builder.getReport();
 
