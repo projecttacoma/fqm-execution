@@ -136,7 +136,9 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     // Multiply each of the component ratios by the weight associated with the component
     // TODO: this may need to change if an extension is created for non-integer counts on the measure report
     Object.values(componentPopulationResults).forEach(value => {
-      this.compositeFraction.numerator += value.weight * (value.numerator / value.denominator);
+      if (value.denominator !== 0) {
+        this.compositeFraction.numerator += value.weight * (value.numerator / value.denominator);
+      }
     });
 
     this.compositeFraction.denominator = Object.keys(componentPopulationResults).length;
