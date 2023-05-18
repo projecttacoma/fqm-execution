@@ -130,20 +130,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
         }
       });
 
-      if (result.evaluatedResource) {
-        result.evaluatedResource.forEach(resource => {
-          const reference: fhir4.Reference = {
-            reference: `${resource.resourceType}/${resource.id}`
-          };
-          if (!this.report.evaluatedResource?.some(r => r.reference === reference.reference)) {
-            if (!this.report.evaluatedResource) {
-              this.report.evaluatedResource = [reference];
-            } else {
-              this.report.evaluatedResource.push(reference);
-            }
-          }
-        });
-      }
+      this.addEvaluatedResources(result);
     });
 
     // Multiply each of the component ratios by the weight associated with the component
