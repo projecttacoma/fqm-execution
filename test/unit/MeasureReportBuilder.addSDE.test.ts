@@ -92,7 +92,7 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
-      builder.addResults([executionResult]);
+      builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
       expect(report.contained as fhir4.FhirResource[]).toHaveLength(1);
@@ -127,7 +127,7 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
-      builder.addResults([executionResult]);
+      builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
       expect(report.contained as fhir4.FhirResource[]).toHaveLength(1);
@@ -167,7 +167,7 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
-      builder.addResults([executionResult]);
+      builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
       expect(report.contained as fhir4.FhirResource[]).toHaveLength(1);
@@ -195,7 +195,7 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
-      builder.addResults([executionResult]);
+      builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
       expect(report.contained as fhir4.FhirResource[]).toHaveLength(0);

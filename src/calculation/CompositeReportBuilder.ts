@@ -36,7 +36,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     compositeMeasure.relatedArtifact?.forEach(ra => {
       if (ra.resource && ra.type === 'composed-of') {
         let weight = 1;
-        ra.extension?.forEach(extension => {
+        ra.extension?.find(extension => {
           if (
             extension.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight' &&
             extension.valueDecimal
