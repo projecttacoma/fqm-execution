@@ -40,7 +40,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
         );
 
-        if (weightExtension && weightExtension.valueDecimal) {
+        if (weightExtension?.valueDecimal) {
           weight = weightExtension.valueDecimal;
         }
 
