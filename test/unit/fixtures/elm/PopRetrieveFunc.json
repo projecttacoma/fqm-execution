@@ -1,0 +1,517 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "16",
+          "s": [
+            {
+              "value": [
+                "",
+                "library Test"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "Test"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "1",
+          "locator": "3:1-3:26",
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "1",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "using "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIR"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "2",
+          "locator": "5:1-5:56",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.1.000",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "2",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "include "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIRHelpers"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'4.1.000'",
+                      " called ",
+                      "FHIRHelpers"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "parameters": {
+      "def": [
+        {
+          "localId": "5",
+          "locator": "7:1-7:49",
+          "name": "Measurement Period",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "5",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "parameter ",
+                      "\"Measurement Period\"",
+                      " "
+                    ]
+                  },
+                  {
+                    "r": "4",
+                    "s": [
+                      {
+                        "value": [
+                          "Interval<"
+                        ]
+                      },
+                      {
+                        "r": "3",
+                        "s": [
+                          {
+                            "value": [
+                              "DateTime"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          ">"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "parameterTypeSpecifier": {
+            "localId": "4",
+            "locator": "7:32-7:49",
+            "type": "IntervalTypeSpecifier",
+            "pointType": {
+              "localId": "3",
+              "locator": "7:41-7:48",
+              "name": "{urn:hl7-org:elm-types:r1}DateTime",
+              "type": "NamedTypeSpecifier"
+            }
+          }
+        }
+      ]
+    },
+    "contexts": {
+      "def": [
+        {
+          "locator": "9:1-9:15",
+          "name": "Patient"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "locator": "9:1-9:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "locator": "9:1-9:15",
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "12",
+          "locator": "11:1-12:61",
+          "name": "ipp",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "12",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"ipp\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "11",
+                    "s": [
+                      {
+                        "r": "9",
+                        "s": [
+                          {
+                            "value": [
+                              "AgeInYearsAt",
+                              "("
+                            ]
+                          },
+                          {
+                            "r": "8",
+                            "s": [
+                              {
+                                "value": [
+                                  "date from "
+                                ]
+                              },
+                              {
+                                "r": "7",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "start of "
+                                    ]
+                                  },
+                                  {
+                                    "r": "6",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Measurement Period\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              ")"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "r": "10",
+                        "value": [
+                          " ",
+                          ">=",
+                          " ",
+                          "66"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "11",
+            "locator": "12:3-12:61",
+            "type": "GreaterOrEqual",
+            "operand": [
+              {
+                "localId": "9",
+                "locator": "12:3-12:55",
+                "precision": "Year",
+                "type": "CalculateAgeAt",
+                "operand": [
+                  {
+                    "path": "birthDate.value",
+                    "type": "Property",
+                    "source": {
+                      "name": "Patient",
+                      "type": "ExpressionRef"
+                    }
+                  },
+                  {
+                    "localId": "8",
+                    "locator": "12:16-12:54",
+                    "type": "DateFrom",
+                    "operand": {
+                      "localId": "7",
+                      "locator": "12:26-12:54",
+                      "type": "Start",
+                      "operand": {
+                        "localId": "6",
+                        "locator": "12:35-12:54",
+                        "name": "Measurement Period",
+                        "type": "ParameterRef"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "localId": "10",
+                "locator": "12:60-12:61",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "66",
+                "type": "Literal"
+              }
+            ]
+          }
+        },
+        {
+          "localId": "15",
+          "locator": "18:1-19:24",
+          "name": "SimpleVSRetrieve",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "15",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"SimpleVSRetrieve\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "14",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "Condition",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"test-vs\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "14",
+            "locator": "19:3-19:24",
+            "dataType": "{http://hl7.org/fhir}Condition",
+            "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+            "codeProperty": "code",
+            "codeComparator": "in",
+            "type": "Retrieve",
+            "codes": {
+              "locator": "19:15-19:23",
+              "name": "test-vs",
+              "type": "ValueSetRef"
+            }
+          }
+        },
+        {
+          "localId": "63",
+          "locator": "76:1-77:17",
+          "name": "A Function",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "type": "FunctionDef",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "63",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define function ",
+                      "\"A Function\"",
+                      "(",
+                      "period",
+                      " "
+                    ]
+                  },
+                  {
+                    "r": "60",
+                    "s": [
+                      {
+                        "value": [
+                          "Interval<"
+                        ]
+                      },
+                      {
+                        "r": "59",
+                        "s": [
+                          {
+                            "value": [
+                              "DateTime"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          ">"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      "):\n  "
+                    ]
+                  },
+                  {
+                    "r": "62",
+                    "s": [
+                      {
+                        "r": "62",
+                        "s": [
+                          {
+                            "value": [
+                              "start of "
+                            ]
+                          },
+                          {
+                            "r": "61",
+                            "s": [
+                              {
+                                "value": [
+                                  "period"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "62",
+            "locator": "77:3-77:17",
+            "type": "Start",
+            "operand": {
+              "localId": "61",
+              "locator": "77:12-77:17",
+              "name": "period",
+              "type": "OperandRef"
+            }
+          },
+          "operand": [
+            {
+              "name": "period",
+              "operandTypeSpecifier": {
+                "localId": "60",
+                "locator": "76:37-76:54",
+                "type": "IntervalTypeSpecifier",
+                "pointType": {
+                  "localId": "59",
+                  "locator": "76:46-76:53",
+                  "name": "{urn:hl7-org:elm-types:r1}DateTime",
+                  "type": "NamedTypeSpecifier"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
