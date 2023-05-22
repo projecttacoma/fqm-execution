@@ -1,11 +1,11 @@
-import { Annotation, ELM } from '../types/ELMTypes';
+import { Annotation, ELM, ELMStatement } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
 import { ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
 import { FinalResult, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
-import { uniqWith } from 'lodash';
+import { uniqWith, partition } from 'lodash';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -34,6 +34,8 @@ export const cqlLogicUncoveredClauseStyle = {
   'border-bottom-color': 'white',
   'border-bottom-style': 'solid'
 };
+
+type StatementAnnotation = { expression: ELMStatement; libraryName: string; annotation: Annotation[] };
 
 /**
  * Convert JS object to CSS Style string
@@ -88,6 +90,7 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
 /**
  * Generate HTML structure based on ELM annotations in relevant statements
  *
+ * @param measure measure used for calculation
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param statementResults StatementResult array from calculation
  * @param clauseResults ClauseResult array from calculation
@@ -95,6 +98,7 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
+  measure: fhir4.Measure,
   elmLibraries: ELM[],
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
@@ -103,7 +107,7 @@ export function generateHTML(
   const relevantStatements = statementResults.filter(s => s.relevance !== Relevance.NA);
 
   // assemble array of statement annotations to be templated to HTML
-  const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
+  let statementAnnotations: StatementAnnotation[] = [];
   relevantStatements.forEach(s => {
     const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
     if (!matchingLibrary) {
@@ -117,11 +121,13 @@ export function generateHTML(
 
     if (matchingExpression.annotation) {
       statementAnnotations.push({
+        expression: matchingExpression,
         libraryName: s.libraryName,
         annotation: matchingExpression.annotation
       });
     }
   });
+  statementAnnotations = sortAnnotations(measure, groupId, statementAnnotations);
 
   let result = `<div><h2>Population Group: ${groupId}</h2>`;
 
@@ -137,6 +143,40 @@ export function generateHTML(
 
   result += '</div>';
   return result;
+}
+
+/**
+ * Destroys the input annotations and returns the sorted annotations in a logical order:
+ * First, population expressions, according to the order set in the measure
+ * Second, non-function expressions in alphabetical order
+ * Third, function expressions in alphabetical order
+ */
+export function sortAnnotations(measure: fhir4.Measure, groupId: string, annotations: StatementAnnotation[]) {
+  const sortedAnnotations: StatementAnnotation[] = [];
+
+  // choose first group if group doesn't have a matching id
+  const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
+
+  // add population expressions
+  group?.population?.forEach(p => {
+    // find annotation where expression name matches population
+    const idx = annotations.findIndex(a => a.expression.name === p.criteria.expression);
+    if (idx !== -1) {
+      sortedAnnotations.push(annotations[idx]);
+      // remove population expressions for remaining expression sorting
+      annotations.splice(idx, 1);
+    }
+  });
+
+  // alphebetize all by expression name and push functions to the end
+  annotations.sort((a, b) =>
+    a.expression.name > b.expression.name ? 1 : b.expression.name > a.expression.name ? -1 : 0
+  );
+  const [functions, other] = partition(annotations, a => a.expression.type === 'FunctionDef');
+  sortedAnnotations.push(...other);
+  sortedAnnotations.push(...functions);
+
+  return sortedAnnotations;
 }
 
 /**

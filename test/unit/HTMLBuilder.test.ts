@@ -15,9 +15,10 @@ import {
 } from '../../src/types/Calculator';
 import { ELM, ELMStatement } from '../../src/types/ELMTypes';
 import { FinalResult, Relevance } from '../../src/types/Enums';
-import { getELMFixture, getHTMLFixture } from './helpers/testHelpers';
+import { getELMFixture, getHTMLFixture, getJSONFixture } from './helpers/testHelpers';
 
 describe('HTMLBuilder', () => {
+  let simpleMeasure = <fhir4.Measure>{};
   let elm = <ELM>{};
   let simpleExpression: ELMStatement | undefined;
   let statementResults: StatementResult[];
@@ -29,6 +30,7 @@ describe('HTMLBuilder', () => {
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
 
   beforeEach(() => {
+    simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
     elm = getELMFixture('elm/CMS723v0.json');
     simpleExpression = elm.library.statements.def.find(d => d.localId === desiredLocalId); // Simple expression for Denominator
 
@@ -66,7 +68,7 @@ describe('HTMLBuilder', () => {
   test('simple HTML with generation with true clause', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleTrueAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML([elm], statementResults, trueClauseResults, 'test');
+    const res = generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test');
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(trueStyleString)).toBeTruthy();
@@ -75,7 +77,7 @@ describe('HTMLBuilder', () => {
   test('simple HTML with generation with false clause', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleFalseAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML([elm], statementResults, falseClauseResults, 'test');
+    const res = generateHTML(simpleMeasure, [elm], statementResults, falseClauseResults, 'test');
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(falseStyleString)).toBeTruthy();
@@ -135,7 +137,7 @@ describe('HTMLBuilder', () => {
     elm.library.identifier.id = 'NOT REAL';
 
     expect(() => {
-      generateHTML([elm], statementResults, trueClauseResults, 'test');
+      generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test');
     }).toThrowError();
   });
 
@@ -150,7 +152,7 @@ describe('HTMLBuilder', () => {
     ];
 
     expect(() => {
-      generateHTML([elm], badStatementResults, [], 'test');
+      generateHTML(simpleMeasure, [elm], badStatementResults, [], 'test');
     }).toThrowError();
   });
 
@@ -195,5 +197,93 @@ describe('HTMLBuilder', () => {
     ];
     const results = calculateClauseCoverage(statementResults, clauseResults);
     expect(results).toEqual('100');
+  });
+
+  test('html generation orders population first, then other, then function', () => {
+    const expectedHTML = getHTMLFixture('PopRetrieveFunc.html').replace(/\s/g, '');
+    const singlePopMeasure = <fhir4.Measure>{
+      resourceType: 'Measure',
+      status: 'unknown',
+      group: [
+        {
+          population: [
+            {
+              id: 'initial-population-id',
+              code: {
+                coding: [
+                  {
+                    system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                    code: 'initial-population'
+                  }
+                ]
+              },
+              criteria: {
+                expression: 'ipp',
+                language: 'text/cql'
+              }
+            }
+          ]
+        }
+      ]
+    };
+    const simpleElm = getELMFixture('elm/PopRetrieveFunc.json');
+    statementResults = [
+      {
+        libraryName: 'Test',
+        statementName: 'A Function',
+        localId: 'test-id-1',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE,
+        raw: undefined,
+        isFunction: true,
+        pretty: 'FUNCTION'
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'SimpleVSRetrieve',
+        localId: 'test-id-2',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE,
+        raw: false,
+        isFunction: false,
+        pretty: 'FALSE (false)'
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'ipp',
+        localId: 'test-id-3',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE,
+        raw: undefined,
+        isFunction: false,
+        pretty: 'IPP'
+      }
+    ];
+    const clauseResults = [
+      {
+        raw: undefined,
+        statementName: 'A Function',
+        libraryName: 'Test',
+        localId: 'test-id-1',
+        final: FinalResult.NA
+      },
+      {
+        raw: undefined,
+        statementName: 'SimpleVSRetrieve',
+        libraryName: 'Test',
+        localId: 'test-id-2',
+        final: FinalResult.TRUE
+      },
+      {
+        raw: undefined,
+        statementName: 'ipp',
+        libraryName: 'Test',
+        localId: 'test-id-3',
+        final: FinalResult.TRUE
+      }
+    ];
+    const res = generateHTML(singlePopMeasure, [simpleElm], statementResults, clauseResults, 'test');
+
+    expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
   });
 });
