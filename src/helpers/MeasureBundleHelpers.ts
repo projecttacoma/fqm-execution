@@ -1,5 +1,5 @@
 import { PopulationType, MeasureScoreType, CompositeScoreType } from '../types/Enums';
-import { CalculationOptions, PopulationResult, valueSetOutput } from '../types/Calculator';
+import { CalculationOptions, ComponentResults, PopulationResult, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
@@ -105,6 +105,46 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
   }
 
   return allCompositeMeasures[0];
+}
+
+/**
+ * Extracts CQFM Group Id from a given composite measure Related Artifact.
+ * @param relatedArtifact related artifact defined on the composite measure
+ * @returns group id, if defined
+ */
+export function getGroupIdFromComponent(relatedArtifact: fhir4.RelatedArtifact): string | null {
+  const groupIdExtension = relatedArtifact.extension?.find(({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId');
+  return groupIdExtension?.valueString ?? null;
+}
+
+/**
+ * Extracts group to use for measure report building for a given component.
+ * @param componentResults array of component results for the composite measure
+ * @param relatedArtifact related artifact defined on the composite measure
+ * @param componentGroupIds mapping of group ids defined by the CQFM Group Id extension on the composite
+ * @returns component results for the specified group, if defined
+ */
+export function extractGroupFromGroupId(componentResults: ComponentResults[], relatedArtifact: fhir4.RelatedArtifact, componentGroupIds: Record<string, string>): ComponentResults | null {
+  const componentGroups = componentResults.filter(cr => cr.componentCanonical === relatedArtifact.resource);
+  const errorMessage = 'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.';
+  if (componentGroups.length === 1) {
+    return componentGroups[0];
+  }
+
+  if (componentGroups.length === 0 || !(relatedArtifact.resource && componentGroupIds[relatedArtifact.resource])) {
+    throw new Error(errorMessage);
+  }
+
+  if (relatedArtifact.resource && componentGroupIds[relatedArtifact.resource]) {
+    const groupId = componentGroupIds[relatedArtifact.resource];
+    const groupResults = componentResults.find(cr => cr.groupId === groupId);
+    if (!groupResults) {
+      throw new Error(errorMessage);
+    }
+    return groupResults;
+  }
+
+  return null;
 }
 
 /**

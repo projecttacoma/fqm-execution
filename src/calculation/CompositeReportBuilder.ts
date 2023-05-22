@@ -1,5 +1,5 @@
 import { PopulationGroupResult, CalculationOptions, ExecutionResult } from '../types/Calculator';
-import { getCompositeScoringFromMeasure } from '../helpers/MeasureBundleHelpers';
+import { getCompositeScoringFromMeasure, getGroupIdFromComponent } from '../helpers/MeasureBundleHelpers';
 import { CompositeScoreType, PopulationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
@@ -23,6 +23,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   compositeScoringType: CompositeScoreType;
   compositeFraction: { numerator: number; denominator: number };
   weightedComponents: Record<string, number>;
+  componentGroupIds: Record<string, string>;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
     super(compositeMeasure, options);
@@ -31,6 +32,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     this.compositeFraction = { numerator: 0, denominator: 0 };
     this.options = options;
     this.weightedComponents = {};
+    this.componentGroupIds = {};
 
     // if the weight is not specified, then we assume the weight is 1
     compositeMeasure.relatedArtifact?.forEach(ra => {
@@ -45,6 +47,11 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
         }
 
         this.weightedComponents[ra.resource] = weight;
+
+        const groupId = getGroupIdFromComponent(ra);
+        if (groupId) {
+          this.componentGroupIds[ra.resource] = groupId;
+        }
       }
     });
 
