@@ -204,7 +204,7 @@ export async function calculate<T extends CalculationOptions>(
 
         if (options.calculateHTML) {
           const html = generateHTML(
-          	measure,
+            measure,
             executedELM,
             detailedGroupResult.statementResults,
             detailedGroupResult.clauseResults,
