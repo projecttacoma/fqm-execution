@@ -246,6 +246,11 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       if (patientDenomCount !== 0) {
         this.compositeFraction.numerator += (patientNumerCount * 1.0) / patientDenomCount;
       }
+    } else if (this.compositeScoringType === 'weighted') {
+      // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
+      throw new Error(
+        'addPatientResults cannot be used for weighted scoring since it is a component-based composite measure scoring method, addAllResults should be used instead'
+      );
     }
 
     this.addEvaluatedResources(result);
