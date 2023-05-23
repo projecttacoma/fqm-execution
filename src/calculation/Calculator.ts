@@ -248,7 +248,7 @@ export async function calculate<T extends CalculationOptions>(
     patientSource = resolvePatientSource(patientBundles, options);
 
     if (!isCompositeExecution && options.calculateClauseCoverage) {
-      groupClauseCoverageHTML = generateClauseCoverageHTML(executedELM, executionResults);
+      groupClauseCoverageHTML = generateClauseCoverageHTML(measure, executedELM, executionResults);
       overallClauseCoverageHTML = '';
       Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
         overallClauseCoverageHTML += result;

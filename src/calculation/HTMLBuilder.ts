@@ -88,6 +88,33 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
 });
 
 /**
+ * Sort statements into population, then non-functions, then functions
+ */
+export function sortStatements(measure: fhir4.Measure, groupId: string, statements: StatementResult[]) {
+  const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
+  const populationSet = new Set(group?.population?.map(p => p.criteria.expression));
+  function alphaCompare(a: StatementResult, b: StatementResult) {
+    return a.statementName > b.statementName ? 1 : b.statementName > a.statementName ? -1 : 0;
+  }
+  statements.sort((a, b) => {
+    // if function, alphabetize or send to end
+    if (a.isFunction) {
+      return b.isFunction ? alphaCompare(a, b) : 1;
+    }
+    if (b.isFunction) return -1;
+
+    // if population statement, leave order or send to beginning
+    if (populationSet.has(a.statementName)) {
+      return populationSet.has(b.statementName) ? 0 : -1;
+    }
+    if (populationSet.has(b.statementName)) return 1;
+
+    // if no function or population statement, alphabetize
+    return alphaCompare(a, b);
+  });
+}
+
+/**
  * Generate HTML structure based on ELM annotations in relevant statements
  *
  * @param measure measure used for calculation
@@ -105,29 +132,7 @@ export function generateHTML(
   groupId: string
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance !== Relevance.NA);
-
-  // sort relevant statements into population, then non-functions, then functions
-  const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
-  const populationSet = new Set(group?.population?.map(p => p.criteria.expression));
-  function alphaCompare(a: StatementResult, b: StatementResult) {
-    return a.statementName > b.statementName ? 1 : b.statementName > a.statementName ? -1 : 0;
-  }
-  relevantStatements.sort((a, b) => {
-    // if function, alphabetize or send to end
-    if (a.isFunction) {
-      return b.isFunction ? alphaCompare(a, b) : 1;
-    }
-    if (b.isFunction) return -1;
-
-    // if population statement, leave order or send to beginning
-    if (populationSet.has(a.statementName)) {
-      return populationSet.has(b.statementName) ? 0 : -1;
-    }
-    if (populationSet.has(b.statementName)) return 1;
-
-    // if no function or population statement, alphabetize
-    return alphaCompare(a, b);
-  });
+  sortStatements(measure, groupId, relevantStatements);
 
   // assemble array of statement annotations to be templated to HTML
   const statementAnnotations: StatementAnnotation[] = [];
@@ -170,6 +175,7 @@ export function generateHTML(
  * Generate HTML structure with clause coverage highlighting for all clauses
  * based on ELM annotations in relevant statements
  *
+ * @param measure measure used for calculation
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param executionResults array of detailed population group results across
  * all patients
@@ -177,6 +183,7 @@ export function generateHTML(
  * clause coverage HTML
  */
 export function generateClauseCoverageHTML(
+  measure: fhir4.Measure,
   elmLibraries: ELM[],
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
 ): Record<string, string> {
@@ -216,6 +223,8 @@ export function generateClauseCoverageHTML(
       relevantStatements,
       (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
     );
+
+    sortStatements(measure, groupId, uniqueRelevantStatements);
 
     // assemble array of statement annotations to be templated to HTML
     const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];

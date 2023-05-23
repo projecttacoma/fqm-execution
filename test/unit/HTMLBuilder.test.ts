@@ -98,7 +98,7 @@ describe('HTMLBuilder', () => {
         ]
       }
     ];
-    const res = generateClauseCoverageHTML([elm], executionResults);
+    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
 
     expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.test.includes(coverageStyleString)).toBeTruthy();
@@ -125,7 +125,7 @@ describe('HTMLBuilder', () => {
         ]
       }
     ];
-    const res = generateClauseCoverageHTML([elm], executionResults);
+    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
 
     expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.test2.replace(/\s/g, '')).toEqual(expectedHTML2);
