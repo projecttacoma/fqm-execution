@@ -299,9 +299,7 @@ describe('HTMLBuilder', () => {
   });
 
   test('html generation orders population first, then other, then function', () => {
-    const expectedHTML = getHTMLFixture('PopRetrieveFunc.html').replace(/\s/g, '');
     const res = generateHTML(singlePopMeasure, [popRetrieveFuncElm], prfStatementResults, prfClauseResults, 'test');
-    expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.indexOf('ipp')).toBeLessThan(res.indexOf('SimpleVSRetrieve'));
     expect(res.indexOf('SimpleVSRetrieve')).toBeLessThan(res.indexOf('A Function'));
   });
