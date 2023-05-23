@@ -1,11 +1,11 @@
-import { Annotation, ELM, ELMStatement } from '../types/ELMTypes';
+import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
 import { ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
 import { FinalResult, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
-import { uniqWith, partition } from 'lodash';
+import { uniqWith } from 'lodash';
 
 export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
@@ -35,7 +35,7 @@ export const cqlLogicUncoveredClauseStyle = {
   'border-bottom-style': 'solid'
 };
 
-type StatementAnnotation = { expression: ELMStatement; libraryName: string; annotation: Annotation[] };
+type StatementAnnotation = { libraryName: string; annotation: Annotation[] };
 
 /**
  * Convert JS object to CSS Style string
@@ -106,8 +106,31 @@ export function generateHTML(
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance !== Relevance.NA);
 
+  // sort relevant statements into population, then non-functions, then functions
+  const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
+  const populationSet = new Set(group?.population?.map(p => p.criteria.expression));
+  function alphaCompare(a: StatementResult, b: StatementResult) {
+    return a.statementName > b.statementName ? 1 : b.statementName > a.statementName ? -1 : 0;
+  }
+  relevantStatements.sort((a, b) => {
+    // if function, alphabetize or send to end
+    if (a.isFunction) {
+      return b.isFunction ? alphaCompare(a, b) : 1;
+    }
+    if (b.isFunction) return -1;
+
+    // if population statement, leave order or send to beginning
+    if (populationSet.has(a.statementName)) {
+      return populationSet.has(b.statementName) ? 0 : -1;
+    }
+    if (populationSet.has(b.statementName)) return 1;
+
+    // if no function or population statement, alphabetize
+    return alphaCompare(a, b);
+  });
+
   // assemble array of statement annotations to be templated to HTML
-  let statementAnnotations: StatementAnnotation[] = [];
+  const statementAnnotations: StatementAnnotation[] = [];
   relevantStatements.forEach(s => {
     const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
     if (!matchingLibrary) {
@@ -121,13 +144,11 @@ export function generateHTML(
 
     if (matchingExpression.annotation) {
       statementAnnotations.push({
-        expression: matchingExpression,
         libraryName: s.libraryName,
         annotation: matchingExpression.annotation
       });
     }
   });
-  statementAnnotations = sortAnnotations(measure, groupId, statementAnnotations);
 
   let result = `<div><h2>Population Group: ${groupId}</h2>`;
 
@@ -143,40 +164,6 @@ export function generateHTML(
 
   result += '</div>';
   return result;
-}
-
-/**
- * Destroys the input annotations and returns the sorted annotations in a logical order:
- * First, population expressions, according to the order set in the measure
- * Second, non-function expressions in alphabetical order
- * Third, function expressions in alphabetical order
- */
-export function sortAnnotations(measure: fhir4.Measure, groupId: string, annotations: StatementAnnotation[]) {
-  const sortedAnnotations: StatementAnnotation[] = [];
-
-  // choose first group if group doesn't have a matching id
-  const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
-
-  // add population expressions
-  group?.population?.forEach(p => {
-    // find annotation where expression name matches population
-    const idx = annotations.findIndex(a => a.expression.name === p.criteria.expression);
-    if (idx !== -1) {
-      sortedAnnotations.push(annotations[idx]);
-      // remove population expressions for remaining expression sorting
-      annotations.splice(idx, 1);
-    }
-  });
-
-  // alphebetize all by expression name and push functions to the end
-  annotations.sort((a, b) =>
-    a.expression.name > b.expression.name ? 1 : b.expression.name > a.expression.name ? -1 : 0
-  );
-  const [functions, other] = partition(annotations, a => a.expression.type === 'FunctionDef');
-  sortedAnnotations.push(...other);
-  sortedAnnotations.push(...functions);
-
-  return sortedAnnotations;
 }
 
 /**
