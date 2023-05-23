@@ -113,38 +113,46 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
  * @returns group id, if defined
  */
 export function getGroupIdFromComponent(relatedArtifact: fhir4.RelatedArtifact): string | null {
-  const groupIdExtension = relatedArtifact.extension?.find(({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId');
+  const groupIdExtension = relatedArtifact.extension?.find(
+    ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId'
+  );
   return groupIdExtension?.valueString ?? null;
 }
 
 /**
  * Extracts group to use for measure report building for a given component.
- * @param componentResults array of component results for the composite measure
- * @param relatedArtifact related artifact defined on the composite measure
  * @param componentGroupIds mapping of group ids defined by the CQFM Group Id extension on the composite
+ * @param componentResults array of component results for the composite measure
  * @returns component results for the specified group, if defined
  */
-export function extractGroupFromGroupId(componentResults: ComponentResults[], relatedArtifact: fhir4.RelatedArtifact, componentGroupIds: Record<string, string>): ComponentResults | null {
-  const componentGroups = componentResults.filter(cr => cr.componentCanonical === relatedArtifact.resource);
-  const errorMessage = 'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.';
-  if (componentGroups.length === 1) {
-    return componentGroups[0];
-  }
-
-  if (componentGroups.length === 0 || !(relatedArtifact.resource && componentGroupIds[relatedArtifact.resource])) {
-    throw new Error(errorMessage);
-  }
-
-  if (relatedArtifact.resource && componentGroupIds[relatedArtifact.resource]) {
-    const groupId = componentGroupIds[relatedArtifact.resource];
-    const groupResults = componentResults.find(cr => cr.groupId === groupId);
-    if (!groupResults) {
-      throw new Error(errorMessage);
+export function filterComponentResults(
+  componentGroupIds: Record<string, string>,
+  componentResults?: ComponentResults[]
+): ComponentResults[] {
+  const filteredComponentResults: ComponentResults[] = [];
+  componentResults?.forEach(cr => {
+    // keep component result if its group matches the group defined on the Group Id extension
+    if (cr.componentCanonical && componentGroupIds[cr.componentCanonical] === cr.groupId) {
+      filteredComponentResults.push(cr);
     }
-    return groupResults;
+    // keep component result if only one group is defined for the given component
+    else if (componentResults.filter(c => c.componentCanonical === cr.componentCanonical).length === 1) {
+      filteredComponentResults.push(cr);
+    } else {
+      if (!(cr.componentCanonical && componentGroupIds[cr.componentCanonical])) {
+        throw new Error(
+          'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.'
+        );
+      }
+    }
+  });
+  const canonicals = filteredComponentResults.map(cr => cr.componentCanonical);
+  if (canonicals.length !== new Set(canonicals).size) {
+    throw new Error(
+      'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.'
+    );
   }
-
-  return null;
+  return filteredComponentResults;
 }
 
 /**

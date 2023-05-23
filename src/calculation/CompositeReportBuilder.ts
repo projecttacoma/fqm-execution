@@ -1,5 +1,9 @@
 import { PopulationGroupResult, CalculationOptions, ExecutionResult } from '../types/Calculator';
-import { getCompositeScoringFromMeasure, getGroupIdFromComponent } from '../helpers/MeasureBundleHelpers';
+import {
+  getCompositeScoringFromMeasure,
+  getGroupIdFromComponent,
+  filterComponentResults
+} from '../helpers/MeasureBundleHelpers';
 import { CompositeScoreType, PopulationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
@@ -152,13 +156,14 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   }
 
   public addPatientResults(result: ExecutionResult<T>) {
+    const componentResults = filterComponentResults(this.componentGroupIds, result.componentResults);
     // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#all-or-nothing-scoring
     if (this.compositeScoringType === 'all-or-nothing') {
       let inIpp = false;
       let inDenom = false;
       let inNumer = true;
 
-      result.componentResults?.forEach(componentResult => {
+      componentResults.forEach(componentResult => {
         const ippResult = componentResult.populationResults?.find(
           pop => pop.populationType === PopulationType.IPP
         )?.result;
@@ -195,7 +200,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       let inIpp = false;
       let inDenom = false;
 
-      result.componentResults?.forEach(componentResult => {
+      componentResults.forEach(componentResult => {
         const ippResult = componentResult.populationResults?.find(
           pop => pop.populationType === PopulationType.IPP
         )?.result;
@@ -231,7 +236,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       // Always increment the denominator for linear scoring when processing a patient result
       this.compositeFraction.denominator++;
 
-      const [patientDenomCount, patientNumerCount] = result.componentResults?.reduce(
+      const [patientDenomCount, patientNumerCount] = componentResults.reduce(
         (sums, componentResult) => {
           if (
             componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
