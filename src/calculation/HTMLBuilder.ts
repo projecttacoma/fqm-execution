@@ -94,7 +94,7 @@ export function sortStatements(measure: fhir4.Measure, groupId: string, statemen
   const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
   const populationSet = new Set(group?.population?.map(p => p.criteria.expression));
   function alphaCompare(a: StatementResult, b: StatementResult) {
-    return a.statementName > b.statementName ? 1 : b.statementName > a.statementName ? -1 : 0;
+    return a.statementName <= b.statementName ? -1 : 1;
   }
   statements.sort((a, b) => {
     // if function, alphabetize or send to end

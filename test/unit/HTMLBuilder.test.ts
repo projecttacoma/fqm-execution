@@ -18,7 +18,6 @@ import { FinalResult, Relevance } from '../../src/types/Enums';
 import { getELMFixture, getHTMLFixture, getJSONFixture } from './helpers/testHelpers';
 
 describe('HTMLBuilder', () => {
-  let simpleMeasure = <fhir4.Measure>{};
   let elm = <ELM>{};
   let simpleExpression: ELMStatement | undefined;
   let statementResults: StatementResult[];
@@ -28,7 +27,7 @@ describe('HTMLBuilder', () => {
   const trueStyleString = objToCSS(cqlLogicClauseTrueStyle);
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
-
+  const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
   const singlePopMeasure = <fhir4.Measure>{
     resourceType: 'Measure',
     status: 'unknown',
@@ -112,7 +111,6 @@ describe('HTMLBuilder', () => {
   ];
 
   beforeEach(() => {
-    simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
     elm = getELMFixture('elm/CMS723v0.json');
     simpleExpression = elm.library.statements.def.find(d => d.localId === desiredLocalId); // Simple expression for Denominator
 
