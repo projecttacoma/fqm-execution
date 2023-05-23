@@ -180,6 +180,23 @@ describe('MeasureBundleHelpers tests', () => {
         /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified./i
       );
     });
+
+    it('should throw error if a component has more than one group but the specified group does not exist', () => {
+      const componentResults: ComponentResults[] = [
+        {
+          groupId: 'test-group-1',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-2',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        }
+      ];
+      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': 'non-existent-group' };
+      expect(() => filterComponentResults(groupIdMapping, componentResults)).toThrow(
+        /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified./i
+      );
+    });
   });
 
   describe('isRatioMeasure', () => {

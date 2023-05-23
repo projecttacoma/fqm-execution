@@ -147,7 +147,7 @@ export function filterComponentResults(
     }
   });
   const canonicals = filteredComponentResults.map(cr => cr.componentCanonical);
-  if (canonicals.length !== new Set(canonicals).size) {
+  if (canonicals.length !== new Set(componentResults?.map(cr => cr.componentCanonical)).size) {
     throw new Error(
       'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.'
     );
