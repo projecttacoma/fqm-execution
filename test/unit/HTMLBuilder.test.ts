@@ -29,6 +29,88 @@ describe('HTMLBuilder', () => {
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
 
+  const singlePopMeasure = <fhir4.Measure>{
+    resourceType: 'Measure',
+    status: 'unknown',
+    group: [
+      {
+        population: [
+          {
+            id: 'initial-population-id',
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'initial-population'
+                }
+              ]
+            },
+            criteria: {
+              expression: 'ipp',
+              language: 'text/cql'
+            }
+          }
+        ]
+      }
+    ]
+  };
+  const popRetrieveFuncElm = getELMFixture('elm/PopRetrieveFunc.json');
+  const prfStatementResults = [
+    {
+      libraryName: 'Test',
+      statementName: 'A Function',
+      localId: 'test-id-1',
+      final: FinalResult.FALSE,
+      relevance: Relevance.TRUE,
+      raw: undefined,
+      isFunction: true,
+      pretty: 'FUNCTION'
+    },
+    {
+      libraryName: 'Test',
+      statementName: 'SimpleVSRetrieve',
+      localId: 'test-id-2',
+      final: FinalResult.FALSE,
+      relevance: Relevance.TRUE,
+      raw: false,
+      isFunction: false,
+      pretty: 'FALSE (false)'
+    },
+    {
+      libraryName: 'Test',
+      statementName: 'ipp',
+      localId: 'test-id-3',
+      final: FinalResult.FALSE,
+      relevance: Relevance.TRUE,
+      raw: undefined,
+      isFunction: false,
+      pretty: 'IPP'
+    }
+  ];
+  const prfClauseResults = [
+    {
+      raw: undefined,
+      statementName: 'A Function',
+      libraryName: 'Test',
+      localId: 'test-id-1',
+      final: FinalResult.NA
+    },
+    {
+      raw: undefined,
+      statementName: 'SimpleVSRetrieve',
+      libraryName: 'Test',
+      localId: 'test-id-2',
+      final: FinalResult.TRUE
+    },
+    {
+      raw: undefined,
+      statementName: 'ipp',
+      libraryName: 'Test',
+      localId: 'test-id-3',
+      final: FinalResult.TRUE
+    }
+  ];
+
   beforeEach(() => {
     simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
     elm = getELMFixture('elm/CMS723v0.json');
@@ -133,6 +215,25 @@ describe('HTMLBuilder', () => {
     expect(res.test2.includes(coverageStyleString)).toBeTruthy();
   });
 
+  test('ordered HTML with generation with clause coverage styling', () => {
+    const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
+      {
+        patientId: 'testid',
+        detailedResults: [
+          {
+            statementResults: prfStatementResults,
+            clauseResults: prfClauseResults,
+            groupId: 'test'
+          }
+        ]
+      }
+    ];
+    const res = generateClauseCoverageHTML(singlePopMeasure, [popRetrieveFuncElm], executionResults);
+
+    expect(res.test.indexOf('ipp')).toBeLessThan(res.test.indexOf('SimpleVSRetrieve'));
+    expect(res.test.indexOf('SimpleVSRetrieve')).toBeLessThan(res.test.indexOf('A Function'));
+  });
+
   test('no library found should error', () => {
     elm.library.identifier.id = 'NOT REAL';
 
@@ -201,89 +302,9 @@ describe('HTMLBuilder', () => {
 
   test('html generation orders population first, then other, then function', () => {
     const expectedHTML = getHTMLFixture('PopRetrieveFunc.html').replace(/\s/g, '');
-    const singlePopMeasure = <fhir4.Measure>{
-      resourceType: 'Measure',
-      status: 'unknown',
-      group: [
-        {
-          population: [
-            {
-              id: 'initial-population-id',
-              code: {
-                coding: [
-                  {
-                    system: 'http://terminology.hl7.org/CodeSystem/measure-population',
-                    code: 'initial-population'
-                  }
-                ]
-              },
-              criteria: {
-                expression: 'ipp',
-                language: 'text/cql'
-              }
-            }
-          ]
-        }
-      ]
-    };
-    const simpleElm = getELMFixture('elm/PopRetrieveFunc.json');
-    statementResults = [
-      {
-        libraryName: 'Test',
-        statementName: 'A Function',
-        localId: 'test-id-1',
-        final: FinalResult.FALSE,
-        relevance: Relevance.TRUE,
-        raw: undefined,
-        isFunction: true,
-        pretty: 'FUNCTION'
-      },
-      {
-        libraryName: 'Test',
-        statementName: 'SimpleVSRetrieve',
-        localId: 'test-id-2',
-        final: FinalResult.FALSE,
-        relevance: Relevance.TRUE,
-        raw: false,
-        isFunction: false,
-        pretty: 'FALSE (false)'
-      },
-      {
-        libraryName: 'Test',
-        statementName: 'ipp',
-        localId: 'test-id-3',
-        final: FinalResult.FALSE,
-        relevance: Relevance.TRUE,
-        raw: undefined,
-        isFunction: false,
-        pretty: 'IPP'
-      }
-    ];
-    const clauseResults = [
-      {
-        raw: undefined,
-        statementName: 'A Function',
-        libraryName: 'Test',
-        localId: 'test-id-1',
-        final: FinalResult.NA
-      },
-      {
-        raw: undefined,
-        statementName: 'SimpleVSRetrieve',
-        libraryName: 'Test',
-        localId: 'test-id-2',
-        final: FinalResult.TRUE
-      },
-      {
-        raw: undefined,
-        statementName: 'ipp',
-        libraryName: 'Test',
-        localId: 'test-id-3',
-        final: FinalResult.TRUE
-      }
-    ];
-    const res = generateHTML(singlePopMeasure, [simpleElm], statementResults, clauseResults, 'test');
-
+    const res = generateHTML(singlePopMeasure, [popRetrieveFuncElm], prfStatementResults, prfClauseResults, 'test');
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.indexOf('ipp')).toBeLessThan(res.indexOf('SimpleVSRetrieve'));
+    expect(res.indexOf('SimpleVSRetrieve')).toBeLessThan(res.indexOf('A Function'));
   });
 });
