@@ -278,7 +278,7 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
         console.warn(`Unexpected result:  (${foundParams.length}) dateFilter path search parameters found`);
       } else if (foundParams.length == 0) {
         // (or no matches means we ignore this constraint and add nothing to the query)
-        console.warn(`Could not identify search parameters using dateFiler path '${path}'`);
+        console.warn(`Could not identify search parameters using dateFilter path '${path}'`);
       }
     });
   }

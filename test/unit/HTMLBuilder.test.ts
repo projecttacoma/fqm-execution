@@ -15,7 +15,7 @@ import {
 } from '../../src/types/Calculator';
 import { ELM, ELMStatement } from '../../src/types/ELMTypes';
 import { FinalResult, Relevance } from '../../src/types/Enums';
-import { getELMFixture, getHTMLFixture } from './helpers/testHelpers';
+import { getELMFixture, getHTMLFixture, getJSONFixture } from './helpers/testHelpers';
 
 describe('HTMLBuilder', () => {
   let elm = <ELM>{};
@@ -27,6 +27,88 @@ describe('HTMLBuilder', () => {
   const trueStyleString = objToCSS(cqlLogicClauseTrueStyle);
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
+  const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
+  const singlePopMeasure = <fhir4.Measure>{
+    resourceType: 'Measure',
+    status: 'unknown',
+    group: [
+      {
+        population: [
+          {
+            id: 'initial-population-id',
+            code: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                  code: 'initial-population'
+                }
+              ]
+            },
+            criteria: {
+              expression: 'ipp',
+              language: 'text/cql'
+            }
+          }
+        ]
+      }
+    ]
+  };
+  const popRetrieveFuncElm = getELMFixture('elm/PopRetrieveFunc.json');
+  const prfStatementResults = [
+    {
+      libraryName: 'Test',
+      statementName: 'A Function',
+      localId: 'test-id-1',
+      final: FinalResult.FALSE,
+      relevance: Relevance.TRUE,
+      raw: undefined,
+      isFunction: true,
+      pretty: 'FUNCTION'
+    },
+    {
+      libraryName: 'Test',
+      statementName: 'SimpleVSRetrieve',
+      localId: 'test-id-2',
+      final: FinalResult.FALSE,
+      relevance: Relevance.TRUE,
+      raw: false,
+      isFunction: false,
+      pretty: 'FALSE (false)'
+    },
+    {
+      libraryName: 'Test',
+      statementName: 'ipp',
+      localId: 'test-id-3',
+      final: FinalResult.FALSE,
+      relevance: Relevance.TRUE,
+      raw: undefined,
+      isFunction: false,
+      pretty: 'IPP'
+    }
+  ];
+  const prfClauseResults = [
+    {
+      raw: undefined,
+      statementName: 'A Function',
+      libraryName: 'Test',
+      localId: 'test-id-1',
+      final: FinalResult.NA
+    },
+    {
+      raw: undefined,
+      statementName: 'SimpleVSRetrieve',
+      libraryName: 'Test',
+      localId: 'test-id-2',
+      final: FinalResult.TRUE
+    },
+    {
+      raw: undefined,
+      statementName: 'ipp',
+      libraryName: 'Test',
+      localId: 'test-id-3',
+      final: FinalResult.TRUE
+    }
+  ];
 
   beforeEach(() => {
     elm = getELMFixture('elm/CMS723v0.json');
@@ -66,7 +148,7 @@ describe('HTMLBuilder', () => {
   test('simple HTML with generation with true clause', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleTrueAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML([elm], statementResults, trueClauseResults, 'test');
+    const res = generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test');
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(trueStyleString)).toBeTruthy();
@@ -75,7 +157,7 @@ describe('HTMLBuilder', () => {
   test('simple HTML with generation with false clause', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleFalseAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML([elm], statementResults, falseClauseResults, 'test');
+    const res = generateHTML(simpleMeasure, [elm], statementResults, falseClauseResults, 'test');
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(falseStyleString)).toBeTruthy();
@@ -96,7 +178,7 @@ describe('HTMLBuilder', () => {
         ]
       }
     ];
-    const res = generateClauseCoverageHTML([elm], executionResults);
+    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
 
     expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.test.includes(coverageStyleString)).toBeTruthy();
@@ -123,7 +205,7 @@ describe('HTMLBuilder', () => {
         ]
       }
     ];
-    const res = generateClauseCoverageHTML([elm], executionResults);
+    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
 
     expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.test2.replace(/\s/g, '')).toEqual(expectedHTML2);
@@ -131,11 +213,30 @@ describe('HTMLBuilder', () => {
     expect(res.test2.includes(coverageStyleString)).toBeTruthy();
   });
 
+  test('ordered HTML with generation with clause coverage styling', () => {
+    const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
+      {
+        patientId: 'testid',
+        detailedResults: [
+          {
+            statementResults: prfStatementResults,
+            clauseResults: prfClauseResults,
+            groupId: 'test'
+          }
+        ]
+      }
+    ];
+    const res = generateClauseCoverageHTML(singlePopMeasure, [popRetrieveFuncElm], executionResults);
+
+    expect(res.test.indexOf('ipp')).toBeLessThan(res.test.indexOf('SimpleVSRetrieve'));
+    expect(res.test.indexOf('SimpleVSRetrieve')).toBeLessThan(res.test.indexOf('A Function'));
+  });
+
   test('no library found should error', () => {
     elm.library.identifier.id = 'NOT REAL';
 
     expect(() => {
-      generateHTML([elm], statementResults, trueClauseResults, 'test');
+      generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test');
     }).toThrowError();
   });
 
@@ -150,7 +251,7 @@ describe('HTMLBuilder', () => {
     ];
 
     expect(() => {
-      generateHTML([elm], badStatementResults, [], 'test');
+      generateHTML(simpleMeasure, [elm], badStatementResults, [], 'test');
     }).toThrowError();
   });
 
@@ -195,5 +296,11 @@ describe('HTMLBuilder', () => {
     ];
     const results = calculateClauseCoverage(statementResults, clauseResults);
     expect(results).toEqual('100');
+  });
+
+  test('html generation orders population first, then other, then function', () => {
+    const res = generateHTML(singlePopMeasure, [popRetrieveFuncElm], prfStatementResults, prfClauseResults, 'test');
+    expect(res.indexOf('ipp')).toBeLessThan(res.indexOf('SimpleVSRetrieve'));
+    expect(res.indexOf('SimpleVSRetrieve')).toBeLessThan(res.indexOf('A Function'));
   });
 });

@@ -204,6 +204,7 @@ export async function calculate<T extends CalculationOptions>(
 
         if (options.calculateHTML) {
           const html = generateHTML(
+            measure,
             executedELM,
             detailedGroupResult.statementResults,
             detailedGroupResult.clauseResults,
@@ -247,7 +248,7 @@ export async function calculate<T extends CalculationOptions>(
     patientSource = resolvePatientSource(patientBundles, options);
 
     if (!isCompositeExecution && options.calculateClauseCoverage) {
-      groupClauseCoverageHTML = generateClauseCoverageHTML(executedELM, executionResults);
+      groupClauseCoverageHTML = generateClauseCoverageHTML(measure, executedELM, executionResults);
       overallClauseCoverageHTML = '';
       Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
         overallClauseCoverageHTML += result;
