@@ -1,0 +1,55 @@
+{
+  "resourceType": "Measure",
+  "id": "example-composite-measure",
+  "url": "http://example.com/Measure/Measure/example-composite-measure",
+  "status": "draft",
+  "improvementNotation": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/measure-improvement-notation",
+        "code": "increase"
+      }
+    ]
+  },
+  "scoring": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/measure-scoring",
+        "code": "composite",
+        "display": "Composite"
+      }
+    ]
+  },
+  "compositeScoring": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/composite-measure-scoring",
+        "code": "weighted"
+      }
+    ]
+  },
+  "relatedArtifact": [
+    {
+      "type": "composed-of",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight",
+          "valueDecimal": 0.2
+        }
+      ],
+      "display": "Example Component 1",
+      "resource": "http://example.com/Measure/example-component-one|0.0.1"
+    },
+    {
+      "type": "composed-of",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight",
+          "valueDecimal": 0.3
+        }
+      ],
+      "display": "Example Component 2",
+      "resource": "http://example.com/Measure/example-component-two|0.0.1"
+    }
+  ]
+}

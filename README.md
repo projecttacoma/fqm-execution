@@ -748,6 +748,8 @@ The calculation results can be interpreted with a strategy similar to the one ou
 
 For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), see the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts#L73).
 
+- **NOTE**: For composite measures with a `weighted` scoring type, the weight of each component should be defined on each related artifact in the composite measure as a [CQFM Weight extension](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-weight.html). If none is provided, then 1 is used.
+
 ## Slim Calculation Mode
 
 By default, the calculation results objects that are returned from the `calculate` function have a lot of verbose information on them. In environments where it is more essential to transmit as little information over the wire as possible, `fqm-execution` has a `verboseCalculationResults` option that can be disabled in order to keep the objects small:

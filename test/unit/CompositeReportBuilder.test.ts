@@ -9,6 +9,10 @@ import { CompositeMeasureReport, CompositeReportBuilder } from '../../src/calcul
 import { getJSONFixture } from './helpers/testHelpers';
 
 const simpleCompositeMeasure = getJSONFixture('measure/simple-composite-measure.json') as fhir4.Measure;
+const simpleCompositeMeasureWeightedScoring = getJSONFixture(
+  'measure/simple-composite-measure-weighted-scoring.json'
+) as fhir4.Measure;
+
 const compositeExecutionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
   {
     patientId: 'patient-1',
@@ -168,9 +172,7 @@ describe('addPatientResults', () => {
   });
 
   it('increments numerator and denominator for all-or-nothing scoring', () => {
-    compositeExecutionResults.forEach(result => {
-      compositeReportBuilder.addPatientResults(result);
-    });
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.5);
     expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1);
@@ -179,9 +181,7 @@ describe('addPatientResults', () => {
 
   it('increments numerator and denominator for opportunity scoring', () => {
     compositeReportBuilder.compositeScoringType = 'opportunity';
-    compositeExecutionResults.forEach(result => {
-      compositeReportBuilder.addPatientResults(result);
-    });
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.75);
     expect(compositeReportBuilder.compositeFraction.numerator).toEqual(3);
@@ -190,22 +190,38 @@ describe('addPatientResults', () => {
 
   it('increments numerator and denominator for linear scoring', () => {
     compositeReportBuilder.compositeScoringType = 'linear';
-    compositeExecutionResults.forEach(result => {
-      compositeReportBuilder.addPatientResults(result);
-    });
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.75);
     expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5);
     expect(compositeReportBuilder.compositeFraction.denominator).toEqual(2);
   });
+});
 
-  it('throws error when weighted scoring is specified', () => {
+describe('addComponentResults', () => {
+  let compositeReportBuilderWithWeights: CompositeReportBuilder<PopulationGroupResult>;
+  let compositeReportBuilder: CompositeReportBuilder<PopulationGroupResult>;
+
+  it('increments numerator and denominator for weighted scoring when a weight is specified on both artifacts', () => {
+    compositeReportBuilderWithWeights = new CompositeReportBuilder(
+      simpleCompositeMeasureWeightedScoring,
+      calculationOptions
+    );
+    compositeReportBuilderWithWeights.addAllResults(compositeExecutionResults);
+    const report = compositeReportBuilderWithWeights.getReport();
+    expect(report.group[0].measureScore?.value).toEqual(0.2);
+    expect(compositeReportBuilderWithWeights.compositeFraction.numerator).toEqual(0.4);
+    expect(compositeReportBuilderWithWeights.compositeFraction.denominator).toEqual(2);
+  });
+
+  it('increments numerator and denominator for weighted scoring when a weight is not specified so it is treated as 1', () => {
+    compositeReportBuilder = new CompositeReportBuilder(simpleCompositeMeasure, calculationOptions);
     compositeReportBuilder.compositeScoringType = 'weighted';
-    expect(() =>
-      compositeExecutionResults.forEach(result => {
-        compositeReportBuilder.addPatientResults(result);
-      })
-    ).toThrow(/weighted scoring not implemented for composite measures/i);
+    compositeReportBuilder.addAllResults(compositeExecutionResults);
+    const report = compositeReportBuilder.getReport();
+    expect(report.group[0].measureScore?.value).toEqual(0.75);
+    expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5);
+    expect(compositeReportBuilder.compositeFraction.denominator).toEqual(2);
   });
 });
 
