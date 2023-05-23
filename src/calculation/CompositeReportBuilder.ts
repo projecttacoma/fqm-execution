@@ -1,7 +1,7 @@
 import { PopulationGroupResult, CalculationOptions, ExecutionResult } from '../types/Calculator';
 import {
   getCompositeScoringFromMeasure,
-  getGroupIdFromComponent,
+  getGroupIdForComponent,
   filterComponentResults
 } from '../helpers/MeasureBundleHelpers';
 import { CompositeScoreType, PopulationType } from '../types/Enums';
@@ -52,7 +52,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
         this.weightedComponents[ra.resource] = weight;
 
-        const groupId = getGroupIdFromComponent(ra);
+        const groupId = getGroupIdForComponent(ra);
         if (groupId) {
           this.componentGroupIds[ra.resource] = groupId;
         }
@@ -156,6 +156,8 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   }
 
   public addPatientResults(result: ExecutionResult<T>) {
+    // filter component results according to CQFM Group Id extension
+    // https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-groupId.html
     const componentResults = filterComponentResults(this.componentGroupIds, result.componentResults);
     // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#all-or-nothing-scoring
     if (this.compositeScoringType === 'all-or-nothing') {

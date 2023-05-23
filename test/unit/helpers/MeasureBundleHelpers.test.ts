@@ -17,7 +17,7 @@ import {
   parseLibRef,
   extractComponentsFromMeasure,
   extractCompositeMeasure,
-  getGroupIdFromComponent,
+  getGroupIdForComponent,
   filterComponentResults
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
@@ -86,7 +86,7 @@ describe('MeasureBundleHelpers tests', () => {
     });
   });
 
-  describe('getGroupIdFromComponent', () => {
+  describe('getGroupIdForComponent', () => {
     it('should return the groupId string when defined on the extension', () => {
       const relatedArtifact: fhir4.RelatedArtifact = {
         type: 'composed-of',
@@ -100,7 +100,7 @@ describe('MeasureBundleHelpers tests', () => {
         ]
       };
 
-      expect(getGroupIdFromComponent(relatedArtifact)).toEqual('test-group');
+      expect(getGroupIdForComponent(relatedArtifact)).toEqual('test-group');
     });
 
     it('should return null when group Id extension is not present', () => {
@@ -110,7 +110,7 @@ describe('MeasureBundleHelpers tests', () => {
         resource: 'http://example.com/Measure/test-measure|0.0.1'
       };
 
-      expect(getGroupIdFromComponent(relatedArtifact)).toBeNull();
+      expect(getGroupIdForComponent(relatedArtifact)).toBeNull();
     });
 
     it('should return null when group Id is not defined on the extension', () => {
@@ -125,7 +125,7 @@ describe('MeasureBundleHelpers tests', () => {
         ]
       };
 
-      expect(getGroupIdFromComponent(relatedArtifact)).toBeNull();
+      expect(getGroupIdForComponent(relatedArtifact)).toBeNull();
     });
   });
 
