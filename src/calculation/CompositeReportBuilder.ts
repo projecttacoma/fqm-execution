@@ -117,7 +117,8 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     const componentPopulationResults: Record<string, { numerator: number; denominator: number; weight: number }> = {};
 
     results.forEach(result => {
-      result.componentResults?.forEach(componentResult => {
+      const componentResults = filterComponentResults(this.componentGroupIds, result.componentResults);
+      componentResults.forEach(componentResult => {
         if (componentResult.componentCanonical && !componentPopulationResults[componentResult.componentCanonical]) {
           componentPopulationResults[componentResult.componentCanonical] = {
             numerator: 0,
