@@ -129,13 +129,13 @@ export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): 
  * @returns component results, filtered by desired group Ids
  */
 export function filterComponentResults(
-  componentGroupIds: Record<string, string>,
+  componentGroupIds: Record<string, Set<string>>,
   componentResults?: ComponentResults[]
 ): ComponentResults[] {
   const filteredComponentResults: ComponentResults[] = [];
   componentResults?.forEach(cr => {
     // keep component result if its group matches the group defined on the group Id extension
-    if (cr.componentCanonical && componentGroupIds[cr.componentCanonical] === cr.groupId) {
+    if (cr.componentCanonical && componentGroupIds[cr.componentCanonical]?.has(cr.groupId)) {
       filteredComponentResults.push(cr);
     }
     // keep component result if only one group is defined for the given component
@@ -151,13 +151,15 @@ export function filterComponentResults(
     }
   });
   // throw error if defined group Id does not correspond to a group on the component
-  if (
-    filteredComponentResults.map(cr => cr.componentCanonical).length !==
-    new Set(componentResults?.map(cr => cr.componentCanonical)).size
-  ) {
-    throw new Error(
-      'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.'
-    );
+  for (const key in componentGroupIds) {
+    const definedGroupIds = componentResults?.filter(cr => cr.componentCanonical === key).map(cr => cr.groupId) ?? [];
+    componentGroupIds[key].forEach(groupId => {
+      if (!definedGroupIds.includes(groupId)) {
+        throw new Error(
+          'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group. The specified group does not exist.'
+        );
+      }
+    });
   }
   return filteredComponentResults;
 }

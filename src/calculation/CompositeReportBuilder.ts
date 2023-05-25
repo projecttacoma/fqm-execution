@@ -27,7 +27,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   compositeScoringType: CompositeScoreType;
   compositeFraction: { numerator: number; denominator: number };
   weightedComponents: Record<string, number>;
-  componentGroupIds: Record<string, string>;
+  componentGroupIds: Record<string, Set<string>>;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
     super(compositeMeasure, options);
@@ -54,7 +54,10 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
         const groupId = getGroupIdForComponent(ra);
         if (groupId) {
-          this.componentGroupIds[ra.resource] = groupId;
+          if (!this.componentGroupIds[ra.resource]) {
+            this.componentGroupIds[ra.resource] = new Set<string>();
+          }
+          this.componentGroupIds[ra.resource].add(groupId);
         }
       }
     });

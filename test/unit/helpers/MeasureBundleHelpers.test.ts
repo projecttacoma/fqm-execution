@@ -161,7 +161,7 @@ describe('MeasureBundleHelpers tests', () => {
         }
       ];
 
-      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': 'test-group-1' };
+      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': new Set(['test-group-1']) };
       expect(filterComponentResults(groupIdMapping, componentResults)).toHaveLength(2);
     });
 
@@ -192,10 +192,27 @@ describe('MeasureBundleHelpers tests', () => {
           componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
         }
       ];
-      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': 'non-existent-group' };
+      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': new Set(['non-existent-group']) };
       expect(() => filterComponentResults(groupIdMapping, componentResults)).toThrow(
-        /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified./i
+        /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group. The specified group does not exist./i
       );
+    });
+
+    it('should include component results for components that refer to the same measure but refer to different groups', () => {
+      const componentResults: ComponentResults[] = [
+        {
+          groupId: 'test-group-1',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-2',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        }
+      ];
+      const groupIdMapping = {
+        'http://example.com/Measure/test-measure-1|0.0.1': new Set(['test-group-1', 'test-group-2'])
+      };
+      expect(filterComponentResults(groupIdMapping, componentResults)).toHaveLength(2);
     });
   });
 
