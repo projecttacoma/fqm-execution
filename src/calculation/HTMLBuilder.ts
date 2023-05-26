@@ -35,7 +35,7 @@ export const cqlLogicUncoveredClauseStyle = {
   'border-bottom-style': 'solid'
 };
 
-type StatementAnnotation = { libraryName: string; annotation: Annotation[] };
+type StatementAnnotation = { libraryName: string; annotation: Annotation[]; statementName: string };
 
 /**
  * Convert JS object to CSS Style string
@@ -150,6 +150,7 @@ export function generateHTML(
     if (matchingExpression.annotation) {
       statementAnnotations.push({
         libraryName: s.libraryName,
+        statementName: s.statementName,
         annotation: matchingExpression.annotation
       });
     }
@@ -161,6 +162,7 @@ export function generateHTML(
   statementAnnotations.forEach(a => {
     const res = main({
       libraryName: a.libraryName,
+      statementName: a.statementName,
       clauseResults: clauseResults,
       ...a.annotation[0].s
     });
@@ -227,7 +229,7 @@ export function generateClauseCoverageHTML(
     sortStatements(measure, groupId, uniqueRelevantStatements);
 
     // assemble array of statement annotations to be templated to HTML
-    const statementAnnotations: { libraryName: string; annotation: Annotation[] }[] = [];
+    const statementAnnotations: { libraryName: string; statementName: string; annotation: Annotation[] }[] = [];
     uniqueRelevantStatements.forEach(s => {
       const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
       if (!matchingLibrary) {
@@ -242,6 +244,7 @@ export function generateClauseCoverageHTML(
       if (matchingExpression.annotation) {
         statementAnnotations.push({
           libraryName: s.libraryName,
+          statementName: s.statementName,
           annotation: matchingExpression.annotation
         });
       }
@@ -256,6 +259,7 @@ export function generateClauseCoverageHTML(
     statementAnnotations.forEach(a => {
       const res = main({
         libraryName: a.libraryName,
+        statementName: a.statementName,
         clauseResults: flattenedClauseResults,
         ...a.annotation[0].s,
         highlightCoverage: true
