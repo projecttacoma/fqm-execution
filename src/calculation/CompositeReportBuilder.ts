@@ -42,12 +42,18 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     compositeMeasure.relatedArtifact?.forEach(ra => {
       if (ra.resource && ra.type === 'composed-of') {
         let weight = 1;
-        const weightExtension = ra.extension?.find(
+        const weightExtension = ra.extension?.filter(
           ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
         );
 
-        if (weightExtension?.valueDecimal) {
-          weight = weightExtension.valueDecimal;
+        if (weightExtension && weightExtension.length > 1) {
+          throw new Error(
+            `Only one CQFM Weight extension can be defined on a component, but ${weightExtension.length} were provided.`
+          );
+        }
+
+        if (weightExtension?.[0]?.valueDecimal) {
+          weight = weightExtension[0].valueDecimal;
         }
 
         this.weightedComponents[ra.resource] = weight;

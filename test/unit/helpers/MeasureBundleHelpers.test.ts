@@ -127,6 +127,27 @@ describe('MeasureBundleHelpers tests', () => {
 
       expect(getGroupIdForComponent(relatedArtifact)).toBeNull();
     });
+
+    it('should throw error when multiple CQFM Group Id extensions are defined', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId',
+            valueString: 'test-group-1'
+          },
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId',
+            valueString: 'test-group-2'
+          }
+        ]
+      };
+      expect(() => getGroupIdForComponent(relatedArtifact)).toThrow(
+        /Only one CQFM Group Id extension can be defined on a component, but 2 were provided./i
+      );
+    });
   });
 
   describe('filterComponentResults', () => {

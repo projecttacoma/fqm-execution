@@ -114,10 +114,15 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
  * @returns group id, if defined
  */
 export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): string | null {
-  const groupIdExtension = relatedArtifact.extension?.find(
+  const groupIdExtension = relatedArtifact.extension?.filter(
     ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId'
   );
-  return groupIdExtension?.valueString ?? null;
+  if (groupIdExtension && groupIdExtension.length > 1) {
+    throw new Error(
+      `Only one CQFM Group Id extension can be defined on a component, but ${groupIdExtension.length} were provided.`
+    );
+  }
+  return groupIdExtension?.[0]?.valueString ?? null;
 }
 
 /**
@@ -132,15 +137,14 @@ export function filterComponentResults(
   componentGroupIds: Record<string, Set<string>>,
   componentResults?: ComponentResults[]
 ): ComponentResults[] {
-  const filteredComponentResults: ComponentResults[] = [];
-  componentResults?.forEach(cr => {
+  const filteredComponentResults = componentResults?.filter(cr => {
     // keep component result if its group matches the group defined on the group Id extension
     if (cr.componentCanonical && componentGroupIds[cr.componentCanonical]?.has(cr.groupId)) {
-      filteredComponentResults.push(cr);
+      return true;
     }
     // keep component result if only one group is defined for the given component
     else if (componentResults.filter(c => c.componentCanonical === cr.componentCanonical).length === 1) {
-      filteredComponentResults.push(cr);
+      return true;
     } else {
       // throw error if no group Id is defined for the component
       if (!(cr.componentCanonical && componentGroupIds[cr.componentCanonical])) {
@@ -161,7 +165,7 @@ export function filterComponentResults(
       }
     });
   }
-  return filteredComponentResults;
+  return filteredComponentResults ?? [];
 }
 
 /**
