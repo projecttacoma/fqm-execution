@@ -18,7 +18,8 @@ import {
   extractComponentsFromMeasure,
   extractCompositeMeasure,
   getGroupIdForComponent,
-  filterComponentResults
+  filterComponentResults,
+  getWeightForComponent
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
 import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
@@ -146,6 +147,67 @@ describe('MeasureBundleHelpers tests', () => {
       };
       expect(() => getGroupIdForComponent(relatedArtifact)).toThrow(
         /Only one CQFM Group Id extension can be defined on a component, but 2 were provided./i
+      );
+    });
+  });
+
+  describe('getWeightForComponent', () => {
+    it('should return the weight when defined on the extension', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight',
+            valueDecimal: 0.5
+          }
+        ]
+      };
+      expect(getWeightForComponent(relatedArtifact)).toEqual(0.5);
+    });
+
+    it('should return null when weight extension is not present', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1'
+      };
+      expect(getWeightForComponent(relatedArtifact)).toBeNull();
+    });
+
+    it('should return null when weight is not defined on the extension', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
+          }
+        ]
+      };
+      expect(getWeightForComponent(relatedArtifact)).toBeNull();
+    });
+
+    it('should throw error when multiple CQFM Weight extensions are defined', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight',
+            valueDecimal: 0.5
+          },
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight',
+            valueDecimal: 0.1
+          }
+        ]
+      };
+      expect(() => getWeightForComponent(relatedArtifact)).toThrow(
+        /Only one CQFM Weight extension can be defined on a component, but 2 were provided./i
       );
     });
   });

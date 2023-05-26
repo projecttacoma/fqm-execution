@@ -125,6 +125,19 @@ export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): 
   return groupIdExtension?.[0]?.valueString ?? null;
 }
 
+export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): number | null {
+  const weightExtension = relatedArtifact.extension?.filter(
+    ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
+  );
+
+  if (weightExtension && weightExtension.length > 1) {
+    throw new Error(
+      `Only one CQFM Weight extension can be defined on a component, but ${weightExtension.length} were provided.`
+    );
+  }
+  return weightExtension?.[0]?.valueDecimal ?? null;
+}
+
 /**
  * Filters component results using mapping of group ids defined by the CQFM Group Id extension on the
  * composite measure. Throws error if a component contains multiple groups but no group is specified to
