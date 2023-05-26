@@ -125,6 +125,12 @@ export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): 
   return groupIdExtension?.[0]?.valueString ?? null;
 }
 
+/**
+ * Extracts CQFM Weight from a given composite measure Related Artifact.
+ * https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-weight.html
+ * @param relatedArtifact related artifact defined on the composite measure
+ * @returns weight extension value, if defined
+ */
 export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): number | null {
   const weightExtension = relatedArtifact.extension?.filter(
     ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
