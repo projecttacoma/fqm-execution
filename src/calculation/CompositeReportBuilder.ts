@@ -20,6 +20,11 @@ export type CompositeMeasureReport = fhir4.MeasureReport & {
   ];
 };
 
+interface WeightedCompositeKey {
+  componentCanonical?: string;
+  groupId?: string;
+}
+
 export class CompositeReportBuilder<T extends PopulationGroupResult> extends AbstractMeasureReportBuilder<
   T,
   CompositeMeasureReport
@@ -42,15 +47,6 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     // if the weight is not specified, then we assume the weight is 1
     compositeMeasure.relatedArtifact?.forEach(ra => {
       if (ra.resource && ra.type === 'composed-of') {
-        let weight = 1;
-        const weightExtensionValue = getWeightForComponent(ra);
-
-        if (weightExtensionValue) {
-          weight = weightExtensionValue;
-        }
-
-        this.weightedComponents[ra.resource] = weight;
-
         const groupId = getGroupIdForComponent(ra);
         if (groupId) {
           if (!this.componentGroupIds[ra.resource]) {
@@ -58,6 +54,17 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           }
           this.componentGroupIds[ra.resource].add(groupId);
         }
+
+        let weight = 1;
+        const weightExtensionValue = getWeightForComponent(ra);
+        if (weightExtensionValue) {
+          weight = weightExtensionValue;
+        }
+        const key: WeightedCompositeKey = { componentCanonical: ra.resource };
+        if (groupId) {
+          key['groupId'] = groupId;
+        }
+        this.weightedComponents[JSON.stringify(key)] = weight;
       }
     });
 
@@ -121,25 +128,29 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     results.forEach(result => {
       const componentResults = filterComponentResults(this.componentGroupIds, result.componentResults);
       componentResults.forEach(componentResult => {
-        if (componentResult.componentCanonical && !componentPopulationResults[componentResult.componentCanonical]) {
-          componentPopulationResults[componentResult.componentCanonical] = {
+        const componentKey: WeightedCompositeKey = { componentCanonical: componentResult.componentCanonical };
+        if (componentResult.componentCanonical && this.componentGroupIds[componentResult.componentCanonical]) {
+          componentKey['groupId'] = componentResult.groupId;
+        }
+        if (componentResult.componentCanonical && !componentPopulationResults[JSON.stringify(componentKey)]) {
+          componentPopulationResults[JSON.stringify(componentKey)] = {
             numerator: 0,
             denominator: 0,
-            weight: this.weightedComponents[componentResult.componentCanonical]
+            weight: this.weightedComponents[JSON.stringify(componentKey)]
           };
         }
 
-        if (componentResult.componentCanonical && componentPopulationResults[componentResult.componentCanonical]) {
+        if (componentResult.componentCanonical && componentPopulationResults[JSON.stringify(componentKey)]) {
           if (
             componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
           ) {
-            componentPopulationResults[componentResult.componentCanonical].numerator++;
+            componentPopulationResults[JSON.stringify(componentKey)].numerator++;
           }
 
           if (
             componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
           ) {
-            componentPopulationResults[componentResult.componentCanonical].denominator++;
+            componentPopulationResults[JSON.stringify(componentKey)].denominator++;
           }
         }
       });
