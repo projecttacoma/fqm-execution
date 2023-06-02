@@ -224,8 +224,23 @@ describe('MeasureBundleHelpers tests', () => {
           componentCanonical: 'http://example.com/Measure/test-measure-2|0.0.1'
         }
       ];
-
-      expect(filterComponentResults({}, componentResults)).toEqual(componentResults);
+      const groupIdMapping: Record<string, Record<string, number> | number> = {
+        'http://example.com/Measure/test-measure-1|0.0.1': 1,
+        'http://example.com/Measure/test-measure-2|0.0.1': 1
+      };
+      const filteredComponentResults = filterComponentResults(groupIdMapping, componentResults);
+      expect(filteredComponentResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            groupId: 'test-group-1',
+            componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+          }),
+          expect.objectContaining({
+            groupId: 'test-group-2',
+            componentCanonical: 'http://example.com/Measure/test-measure-2|0.0.1'
+          })
+        ])
+      );
     });
 
     it('should return a filtered array of component results if a component has more than one group and specifies the groupId extension', () => {
@@ -244,8 +259,23 @@ describe('MeasureBundleHelpers tests', () => {
         }
       ];
 
-      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': new Set(['test-group-1']) };
-      expect(filterComponentResults(groupIdMapping, componentResults)).toHaveLength(2);
+      const groupIdMapping = {
+        'http://example.com/Measure/test-measure-1|0.0.1': { 'test-group-1': 1 },
+        'http://example.com/Measure/test-measure-2|0.0.1': 1
+      };
+      const filteredComponentResults = filterComponentResults(groupIdMapping, componentResults);
+      expect(filteredComponentResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            groupId: 'test-group-1',
+            componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+          }),
+          expect.objectContaining({
+            groupId: 'test-group-3',
+            componentCanonical: 'http://example.com/Measure/test-measure-2|0.0.1'
+          })
+        ])
+      );
     });
 
     it('should throw error if a component has more than one group but does not specify a specific group via the groupId extension', () => {
@@ -259,7 +289,8 @@ describe('MeasureBundleHelpers tests', () => {
           componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
         }
       ];
-      expect(() => filterComponentResults({}, componentResults)).toThrow(
+      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': 1 };
+      expect(() => filterComponentResults(groupIdMapping, componentResults)).toThrow(
         /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified./i
       );
     });
@@ -275,7 +306,7 @@ describe('MeasureBundleHelpers tests', () => {
           componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
         }
       ];
-      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': new Set(['non-existent-group']) };
+      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': { 'non-existent-group': 1 } };
       expect(() => filterComponentResults(groupIdMapping, componentResults)).toThrow(
         /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group. The specified group does not exist./i
       );
@@ -293,7 +324,7 @@ describe('MeasureBundleHelpers tests', () => {
         }
       ];
       const groupIdMapping = {
-        'http://example.com/Measure/test-measure-1|0.0.1': new Set(['test-group-1', 'test-group-2'])
+        'http://example.com/Measure/test-measure-1|0.0.1': { 'test-group-1': 1, 'test-group-2': 1 }
       };
       expect(filterComponentResults(groupIdMapping, componentResults)).toHaveLength(2);
     });

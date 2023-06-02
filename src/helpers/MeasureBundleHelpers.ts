@@ -148,25 +148,38 @@ export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): n
  * Filters component results using mapping of group ids defined by the CQFM Group Id extension on the
  * composite measure. Throws error if a component contains multiple groups but no group is specified to
  * be used for measure score calculation.
- * @param componentGroupIds mapping of group ids defined by the CQFM Group Id extension on the composite
+ * @param componentGroupIds mapping of components to group ids defined by the CQFM Group Id extension on the composite
  * @param componentResults array of component results from detailed results
  * @returns component results, filtered by desired group Ids
  */
 export function filterComponentResults(
-  componentGroupIds: Record<string, Set<string>>,
+  componentGroupIds: Record<string, Record<string, number> | number>,
   componentResults?: ComponentResults[]
 ): ComponentResults[] {
   const filteredComponentResults = componentResults?.filter(cr => {
     // keep component result if its group matches the group defined on the group Id extension
-    if (cr.componentCanonical && componentGroupIds[cr.componentCanonical]?.has(cr.groupId)) {
+    if (
+      cr.componentCanonical &&
+      typeof componentGroupIds[cr.componentCanonical] === 'object' &&
+      Object.keys(componentGroupIds[cr.componentCanonical]).includes(cr.groupId)
+    ) {
       return true;
     }
     // keep component result if only one group is defined for the given component
-    else if (componentResults.filter(c => c.componentCanonical === cr.componentCanonical).length === 1) {
+    else if (
+      cr.componentCanonical &&
+      typeof componentGroupIds[cr.componentCanonical] === 'number' &&
+      componentResults.filter(c => c.componentCanonical === cr.componentCanonical).length === 1
+    ) {
       return true;
     } else {
       // throw error if no group Id is defined for the component
-      if (!(cr.componentCanonical && componentGroupIds[cr.componentCanonical])) {
+      if (
+        cr.componentCanonical &&
+        componentGroupIds[cr.componentCanonical] &&
+        typeof componentGroupIds[cr.componentCanonical] === 'number' &&
+        componentResults.filter(c => c.componentCanonical === cr.componentCanonical).length > 1
+      ) {
         throw new Error(
           'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.'
         );
@@ -176,13 +189,15 @@ export function filterComponentResults(
   // throw error if defined group Id does not correspond to a group on the component
   for (const key in componentGroupIds) {
     const definedGroupIds = componentResults?.filter(cr => cr.componentCanonical === key).map(cr => cr.groupId) ?? [];
-    componentGroupIds[key].forEach(groupId => {
-      if (!definedGroupIds.includes(groupId)) {
-        throw new Error(
-          'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group. The specified group does not exist.'
-        );
-      }
-    });
+    if (typeof componentGroupIds[key] === 'object') {
+      Object.keys(componentGroupIds[key]).forEach(groupId => {
+        if (!definedGroupIds.includes(groupId)) {
+          throw new Error(
+            'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group. The specified group does not exist.'
+          );
+        }
+      });
+    }
   }
   return filteredComponentResults ?? [];
 }
