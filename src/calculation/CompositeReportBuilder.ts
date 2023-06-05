@@ -131,9 +131,9 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
         if (componentResult.componentCanonical) {
           // component info will either consist of mapping of groups to weights, or a single weight
           const componentInfo = this.components[componentResult.componentCanonical];
-          // if only one weight is specified, the component corresponds to a single group
-          const hasSingleGroup = typeof componentInfo === 'number';
-          if (hasSingleGroup) {
+          // if only one weight is specified, then a specific group is not defined
+          const noGroupExt = typeof componentInfo === 'number';
+          if (noGroupExt) {
             if (!(componentResult.componentCanonical in componentPopulationResults)) {
               componentPopulationResults[componentResult.componentCanonical] = {
                 numerator: 0,
@@ -175,7 +175,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             if (
               componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
             ) {
-              if (hasSingleGroup) {
+              if (noGroupExt) {
                 (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
                   .numerator++;
               } else {
@@ -191,7 +191,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             if (
               componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
             ) {
-              if (hasSingleGroup) {
+              if (noGroupExt) {
                 (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
                   .denominator++;
               } else {
