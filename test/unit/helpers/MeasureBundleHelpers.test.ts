@@ -16,13 +16,16 @@ import {
   isRatioMeasure,
   parseLibRef,
   extractComponentsFromMeasure,
-  extractCompositeMeasure
+  extractCompositeMeasure,
+  getGroupIdForComponent,
+  filterComponentResults,
+  getWeightForComponent
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
 import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
 import { getJSONFixture } from './testHelpers';
 import { getMissingDependentValuesets } from '../../../src/execution/ValueSetHelper';
-import { PopulationResult } from '../../../src/types/Calculator';
+import { ComponentResults, PopulationResult } from '../../../src/types/Calculator';
 import { UnexpectedResource } from '../../../src/types/errors/CustomErrors';
 
 const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
@@ -81,6 +84,249 @@ describe('MeasureBundleHelpers tests', () => {
       };
 
       expect(getScoringCodeFromMeasure(measure)).toBeUndefined();
+    });
+  });
+
+  describe('getGroupIdForComponent', () => {
+    it('should return the groupId string when defined on the extension', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId',
+            valueString: 'test-group'
+          }
+        ]
+      };
+
+      expect(getGroupIdForComponent(relatedArtifact)).toEqual('test-group');
+    });
+
+    it('should return null when group Id extension is not present', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1'
+      };
+
+      expect(getGroupIdForComponent(relatedArtifact)).toBeNull();
+    });
+
+    it('should return null when group Id is not defined on the extension', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId'
+          }
+        ]
+      };
+
+      expect(getGroupIdForComponent(relatedArtifact)).toBeNull();
+    });
+
+    it('should throw error when multiple CQFM Group Id extensions are defined', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId',
+            valueString: 'test-group-1'
+          },
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId',
+            valueString: 'test-group-2'
+          }
+        ]
+      };
+      expect(() => getGroupIdForComponent(relatedArtifact)).toThrow(
+        /Only one CQFM Group Id extension can be defined on a component, but 2 were provided./i
+      );
+    });
+  });
+
+  describe('getWeightForComponent', () => {
+    it('should return the weight when defined on the extension', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight',
+            valueDecimal: 0.5
+          }
+        ]
+      };
+      expect(getWeightForComponent(relatedArtifact)).toEqual(0.5);
+    });
+
+    it('should return null when weight extension is not present', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1'
+      };
+      expect(getWeightForComponent(relatedArtifact)).toBeNull();
+    });
+
+    it('should return null when weight is not defined on the extension', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
+          }
+        ]
+      };
+      expect(getWeightForComponent(relatedArtifact)).toBeNull();
+    });
+
+    it('should throw error when multiple CQFM Weight extensions are defined', () => {
+      const relatedArtifact: fhir4.RelatedArtifact = {
+        type: 'composed-of',
+        display: 'test-related-artifact',
+        resource: 'http://example.com/Measure/test-measure|0.0.1',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight',
+            valueDecimal: 0.5
+          },
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight',
+            valueDecimal: 0.1
+          }
+        ]
+      };
+      expect(() => getWeightForComponent(relatedArtifact)).toThrow(
+        /Only one CQFM Weight extension can be defined on a component, but 2 were provided./i
+      );
+    });
+  });
+
+  describe('filterComponentResults', () => {
+    it('should return original component results array if each component contains a single group', () => {
+      const componentResults: ComponentResults[] = [
+        {
+          groupId: 'test-group-1',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-2',
+          componentCanonical: 'http://example.com/Measure/test-measure-2|0.0.1'
+        }
+      ];
+      const groupIdMapping: Record<string, Record<string, number> | number> = {
+        'http://example.com/Measure/test-measure-1|0.0.1': 1,
+        'http://example.com/Measure/test-measure-2|0.0.1': 1
+      };
+      const filteredComponentResults = filterComponentResults(groupIdMapping, componentResults);
+      expect(filteredComponentResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            groupId: 'test-group-1',
+            componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+          }),
+          expect.objectContaining({
+            groupId: 'test-group-2',
+            componentCanonical: 'http://example.com/Measure/test-measure-2|0.0.1'
+          })
+        ])
+      );
+    });
+
+    it('should return a filtered array of component results if a component has more than one group and specifies the groupId extension', () => {
+      const componentResults: ComponentResults[] = [
+        {
+          groupId: 'test-group-1',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-2',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-3',
+          componentCanonical: 'http://example.com/Measure/test-measure-2|0.0.1'
+        }
+      ];
+
+      const groupIdMapping = {
+        'http://example.com/Measure/test-measure-1|0.0.1': { 'test-group-1': 1 },
+        'http://example.com/Measure/test-measure-2|0.0.1': 1
+      };
+      const filteredComponentResults = filterComponentResults(groupIdMapping, componentResults);
+      expect(filteredComponentResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            groupId: 'test-group-1',
+            componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+          }),
+          expect.objectContaining({
+            groupId: 'test-group-3',
+            componentCanonical: 'http://example.com/Measure/test-measure-2|0.0.1'
+          })
+        ])
+      );
+    });
+
+    it('should throw error if a component has more than one group but does not specify a specific group via the groupId extension', () => {
+      const componentResults: ComponentResults[] = [
+        {
+          groupId: 'test-group-1',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-2',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        }
+      ];
+      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': 1 };
+      expect(() => filterComponentResults(groupIdMapping, componentResults)).toThrow(
+        /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified./i
+      );
+    });
+
+    it('should throw error if a component has more than one group but the specified group does not exist', () => {
+      const componentResults: ComponentResults[] = [
+        {
+          groupId: 'test-group-1',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-2',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        }
+      ];
+      const groupIdMapping = { 'http://example.com/Measure/test-measure-1|0.0.1': { 'non-existent-group': 1 } };
+      expect(() => filterComponentResults(groupIdMapping, componentResults)).toThrow(
+        /For component measures that contain multiple population groups, the composite measure SHALL specify a specific group. The specified group does not exist./i
+      );
+    });
+
+    it('should include component results for components that refer to the same measure but refer to different groups', () => {
+      const componentResults: ComponentResults[] = [
+        {
+          groupId: 'test-group-1',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        },
+        {
+          groupId: 'test-group-2',
+          componentCanonical: 'http://example.com/Measure/test-measure-1|0.0.1'
+        }
+      ];
+      const groupIdMapping = {
+        'http://example.com/Measure/test-measure-1|0.0.1': { 'test-group-1': 1, 'test-group-2': 1 }
+      };
+      expect(filterComponentResults(groupIdMapping, componentResults)).toHaveLength(2);
     });
   });
 

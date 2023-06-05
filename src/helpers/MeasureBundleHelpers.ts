@@ -1,5 +1,5 @@
 import { PopulationType, MeasureScoreType, CompositeScoreType } from '../types/Enums';
-import { CalculationOptions, PopulationResult, valueSetOutput } from '../types/Calculator';
+import { CalculationOptions, ComponentResults, PopulationResult, valueSetOutput } from '../types/Calculator';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
@@ -105,6 +105,101 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
   }
 
   return allCompositeMeasures[0];
+}
+
+/**
+ * Extracts CQFM Group Id from a given composite measure Related Artifact.
+ * https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-groupId.html
+ * @param relatedArtifact related artifact defined on the composite measure
+ * @returns group id, if defined
+ */
+export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): string | null {
+  const groupIdExtension = relatedArtifact.extension?.filter(
+    ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId'
+  );
+  if (groupIdExtension && groupIdExtension.length > 1) {
+    throw new Error(
+      `Only one CQFM Group Id extension can be defined on a component, but ${groupIdExtension.length} were provided.`
+    );
+  }
+  return groupIdExtension?.[0]?.valueString ?? null;
+}
+
+/**
+ * Extracts CQFM Weight from a given composite measure Related Artifact.
+ * https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-weight.html
+ * @param relatedArtifact related artifact defined on the composite measure
+ * @returns weight extension value, if defined
+ */
+export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): number | null {
+  const weightExtension = relatedArtifact.extension?.filter(
+    ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
+  );
+
+  if (weightExtension && weightExtension.length > 1) {
+    throw new Error(
+      `Only one CQFM Weight extension can be defined on a component, but ${weightExtension.length} were provided.`
+    );
+  }
+  return weightExtension?.[0]?.valueDecimal ?? null;
+}
+
+/**
+ * Filters component results using mapping of group ids defined by the CQFM Group Id extension on the
+ * composite measure. Throws error if a component contains multiple groups but no group is specified to
+ * be used for measure score calculation.
+ * @param componentGroupIds mapping of components to group ids defined by the CQFM Group Id extension on the composite
+ * @param componentResults array of component results from detailed results
+ * @returns component results, filtered by desired group Ids
+ */
+export function filterComponentResults(
+  componentGroupIds: Record<string, Record<string, number> | number>,
+  componentResults?: ComponentResults[]
+): ComponentResults[] {
+  const filteredComponentResults = componentResults?.filter(cr => {
+    // keep component result if its group matches the group defined on the group Id extension
+    if (
+      cr.componentCanonical &&
+      typeof componentGroupIds[cr.componentCanonical] === 'object' &&
+      Object.keys(componentGroupIds[cr.componentCanonical]).includes(cr.groupId)
+    ) {
+      return true;
+    }
+    // keep component result if only one group is defined for the given component
+    else if (
+      cr.componentCanonical &&
+      typeof componentGroupIds[cr.componentCanonical] === 'number' &&
+      componentResults.filter(c => c.componentCanonical === cr.componentCanonical).length === 1
+    ) {
+      return true;
+    } else {
+      // throw error if no group Id is defined for the component
+      if (
+        cr.componentCanonical &&
+        componentGroupIds[cr.componentCanonical] &&
+        typeof componentGroupIds[cr.componentCanonical] === 'number' &&
+        componentResults.filter(c => c.componentCanonical === cr.componentCanonical).length > 1
+      ) {
+        throw new Error(
+          'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group, but no group was specified.'
+        );
+      }
+    }
+  });
+  // throw error if defined group Id does not correspond to a group on the component
+  for (const key in componentGroupIds) {
+    const definedGroupIds = componentResults?.filter(cr => cr.componentCanonical === key).map(cr => cr.groupId) ?? [];
+    if (typeof componentGroupIds[key] === 'object') {
+      Object.keys(componentGroupIds[key]).forEach(groupId => {
+        if (!definedGroupIds.includes(groupId)) {
+          throw new Error(
+            'For component measures that contain multiple population groups, the composite measure SHALL specify a specific group. The specified group does not exist.'
+          );
+        }
+      });
+    }
+  }
+  return filteredComponentResults ?? [];
 }
 
 /**
