@@ -83,12 +83,12 @@ function getHierarchicalCodes(contains: fhir4.ValueSetExpansionContains[]): CQLC
 
 // Create Date from UTC string date and time using momentJS
 export function parseTimeStringAsUTC(timeValue: string): Date {
-  return moment.utc(timeValue, moment.defaultFormat).toDate();
+  return moment.utc(timeValue, moment.defaultFormatUtc).toDate();
 }
 
 // Create Date from UTC string date and time using momentJS, shifting to 11:59:59 of the given year
 export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Date {
-  return moment.utc(timeValue, moment.defaultFormat).add(1, 'years').subtract(1, 'seconds').toDate();
+  return moment.utc(timeValue, moment.defaultFormatUtc).add(1, 'years').subtract(1, 'seconds').toDate();
 }
 
 /**

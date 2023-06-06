@@ -446,6 +446,8 @@ The options that we support for calculation are as follows:
 - `[verboseCalculationResults]`<[boolean](#calculation-options)>: If `false`, detailed results will only contain information necessary to interpreting simple population results (default: `true`)
 - `[vsAPIKey]`<[string](#calculation-options)>: API key, to be used to access a terminology service for downloading any missing ValueSets
 
+**Note**: The measurement period calculation options are formatted using the UTC time format. Timezone offsets, if provided, are not taken into account for measure calculation.
+
 ## CLI
 
 To run the globally installed CLI, use the global `fqm-execution` command
