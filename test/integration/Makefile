@@ -8,7 +8,7 @@ endif
 
 # Prevents the presence of a directory with the same name skipping Makefile targets
 # TODO: Add other targets once defined
-.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction composite-all-or-nothing
+.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction composite-all-or-nothing composite-weighted
 
 # This loop grabs the important directory name from the full path to the cql file
 # This directory name MUST match the make target name in this file
@@ -35,6 +35,12 @@ composite-all-or-nothing:
 	ecqm-bundler generate -c ./composite-all-or-nothing/cql/all-or-nothing-component-one.cql --deps-directory ./helpers/cql --measure-version "0.0.1" --ipop "Initial Population" --numer "Numerator" --denom "Denominator" -o /tmp/comp1.json \
 	  && ecqm-bundler generate -c ./composite-all-or-nothing/cql/all-or-nothing-component-two.cql --deps-directory ./helpers/cql --ipop "Initial Population" --numer "Numerator" --denom "Denominator" --measure-version "0.0.1" -o /tmp/comp2.json \
 		&& ecqm-bundler make-composite /tmp/comp1.json /tmp/comp2.json --composite-scoring "all-or-nothing" --detailed-component "measure-AllOrNothingComponentTwo|0.0.1" "measure-AllOrNothingComponentOne|0.0.1" -o ./composite-all-or-nothing/composite-all-or-nothing-bundle.json \
+		&& rm /tmp/comp1.json /tmp/comp2.json
+
+composite-weighted:
+	ecqm-bundler generate -c ./composite-weighted/cql/weighted-component-one.cql --deps-directory ./helpers/cql --measure-version "0.0.1" --ipop "Initial Population" --numer "Numerator" --denom "Denominator" -o /tmp/comp1.json \
+	  && ecqm-bundler generate -c ./composite-weighted/cql/weighted-component-two.cql --deps-directory ./helpers/cql --ipop "Initial Population" --numer "Numerator" --denom "Denominator" --measure-version "0.0.1" -o /tmp/comp2.json \
+		&& ecqm-bundler make-composite /tmp/comp1.json /tmp/comp2.json --composite-scoring "weighted" --detailed-component "measure-WeightedComponentOne|0.0.1##3" "measure-WeightedComponentTwo|0.0.1##1" -o ./composite-weighted/composite-weighted-bundle.json \
 		&& rm /tmp/comp1.json /tmp/comp2.json
 
 clean:

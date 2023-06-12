@@ -220,8 +220,8 @@ describe('addComponentResults', () => {
     compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.75);
-    expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5);
-    expect(compositeReportBuilder.compositeFraction.denominator).toEqual(2);
+    expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5); // (weight 1) * (score .5) + (weight 1) * (score 1)
+    expect(compositeReportBuilder.compositeFraction.denominator).toEqual(2); // ((weight 1) + (weight 1)
   });
 });
 
