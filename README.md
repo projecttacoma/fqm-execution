@@ -873,6 +873,13 @@ const { results, groupClauseCoverageHTML } = await Calculator.calculate(measureB
 */
 ```
 
+### Visual Issues with Coverage Highlighting
+
+Clause coverage HTML generation relies on annotations generated from the [cql-to-elm translator](https://github.com/cqframework/clinical_quality_language/blob/master/Src/java/cql-to-elm/OVERVIEW.md). In some cases, the identifying information for snippets of text in these annotations may not be consistent with what is in the actual ELM expression.
+This leads to a discrepancy in the clause coverage view where the percentage value is accurate, but parts of the HTML appear to be falsely uncovered.
+
+If a case like this is encountered where something is not highlighting despite the clause actually being covered by a given patient, please feel free to [submit an issue](/contributing.md#issue-reports).
+
 ## ValueSet Resolution
 
 If the Measure bundle provided doesn't contain all the required `ValueSet` resources (with expansions or composes) to calculate the measure, an API key can be provided to resolve the ValueSets from their provided URLs. Currently only tested with ValueSets from the [NLM FHIR ValueSet API](https://cts.nlm.nih.gov/fhir).

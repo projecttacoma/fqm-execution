@@ -1,3 +1,5 @@
+import { ELMProperty } from '../types/ELMTypes';
+import { ELMFunctionRef } from '../types/ELMTypes';
 import { ELM, ELMBinaryExpression, ELMStatement } from '../types/ELMTypes';
 
 /**
@@ -26,6 +28,7 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
     emptyResultClauses,
     null
   );
+
   // Create/change the clause for all aliases and their usages
   for (const alias of Array.from(emptyResultClauses)) {
     // Only do it if we have a clause for where the result should be fetched from
@@ -92,22 +95,24 @@ export function findAllLocalIdsInStatement(
         // Keep track of the localId of the expression that the alias references
         aliasMap[v] = statement.expression.localId;
         // Determine the localId in the elm_annotation for this alias.
-        alId = parseInt(statement.expression.localId, 10) + 1;
+        alId = (parseInt(statement.expression.localId, 10) + 1).toString();
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[v] });
       }
     } else if (k === 'scope') {
       // The scope entry references an alias but does not have an ELM local ID. However it DOES have an elm_annotations localId
       // The elm_annotation localId of the alias variable is the localId of it's parent (one less than)
       // because the result of the scope clause should be equal to the clause that the scope is referencing
-      alId = parseInt(statement.localId, 10) - 1;
-      emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[v] });
+      if (statement.localId) {
+        alId = (parseInt(statement.localId, 10) - 1).toString();
+        emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[v] });
+      }
     } else if (k === 'asTypeSpecifier') {
       // Map the localId of the asTypeSpecifier (Code, Quantity...) to the result of the result it is referencing
       // For example, in the CQL code 'Variable.result as Code' the typeSpecifier does not produce a result, therefore
       // we will set its result to whatever the result value is for 'Variable.result'
       alId = statement.asTypeSpecifier.localId;
       if (alId != null) {
-        const typeClauseId = parseInt(statement.asTypeSpecifier.localId, 10) - 1;
+        const typeClauseId = (parseInt(statement.asTypeSpecifier.localId, 10) - 1).toString();
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: typeClauseId });
       }
     } else if (k === 'sort') {
@@ -147,8 +152,23 @@ export function findAllLocalIdsInStatement(
         // the sourceLocalId is the FunctionRef itself to match how library statement references work.
         localIds[libraryClauseLocalId] = { localId: libraryClauseLocalId, sourceLocalId: statement.localId };
       }
-      // Comparison operators are special cases that we need to recurse into and set the localId of a literal type to
-      // the localId of the whole comparison expression
+
+      // FunctionRefs that use an alias in the scope need to account for the localId of the parent minus 1
+      if (v === 'FunctionRef') {
+        (statement as ELMFunctionRef).operand.forEach(o => {
+          if (o.type === 'Property') {
+            const propExpr = o as ELMProperty;
+            if (propExpr.scope != null) {
+              alId = (parseInt(statement.localId, 10) - 1).toString();
+              emptyResultClauses.push({
+                lib: libraryName,
+                aliasLocalId: alId,
+                expressionLocalId: aliasMap[propExpr.scope]
+              });
+            }
+          }
+        });
+      }
     } else if (
       k === 'type' &&
       (v === 'Equal' ||
@@ -159,12 +179,23 @@ export function findAllLocalIdsInStatement(
         v === 'LessOrEqual' ||
         v === 'NotEqual')
     ) {
+      // Comparison operators are special cases that we need to recurse into and set the localId of a literal type to
+      // the localId of the whole comparison expression
       findLocalIdsForComparisonOperators(statement as ELMBinaryExpression, libraryName, emptyResultClauses);
-      // else if they key is localId push the value
+    } else if (k === 'type' && v === 'Property') {
+      // Handle aliases that are nested within `source` attribute of a Property expression
+      // This case is similar to the one above when accessing `.scope` directly, but we need to drill into `.source.scope` instead
+      // This issue came about when working with CQL authored `using QICore` instead of FHIR
+      if (typeof statement.source === 'object' && statement.source.scope != null && statement.source.localId == null) {
+        const alias = statement.source.scope;
+        alId = (parseInt(statement.localId, 10) - 1).toString();
+        emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[alias] });
+      }
     } else if (k === 'localId') {
+      // else if they key is localId push the value
       localIds[v] = { localId: v };
-      // if the value is an array or object, recurse
     } else if (Array.isArray(v) || typeof v === 'object') {
+      // if the value is an array or object, recurse
       findAllLocalIdsInStatement(v, libraryName, annotation, localIds, aliasMap, emptyResultClauses, statement);
     }
   }
