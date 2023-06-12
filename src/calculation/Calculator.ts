@@ -69,6 +69,7 @@ export async function calculate<T extends CalculationOptions>(
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
+  options.excludeSDEsInCoverage = options.excludeSDEsInCoverage ?? false;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
 
   const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);

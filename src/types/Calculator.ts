@@ -20,6 +20,8 @@ export interface CalculationOptions {
   patientSource?: DataProvider;
   /** Include SDEs in calculation */
   calculateSDEs?: boolean;
+  /** Exclude SDEs in coverage calculation */
+  excludeSDEsInCoverage?: boolean;
   /** Include HTML structure for highlighting (defaults to logic highlighting) */
   calculateHTML?: boolean;
   /** Include HTML structure with clause coverage highlighting */
