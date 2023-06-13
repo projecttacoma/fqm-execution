@@ -25,6 +25,11 @@ describe('Composite measure weighted scoring', () => {
     expect(results).toBeDefined();
     const result = results as CompositeMeasureReport;
     expect(result.group[0].measureScore?.value).toBeDefined();
+    // Expected numerator calculation: (comp1weight 3) x (comp1score .5) + (comp2weight 1) x (comp2score 1)
+    expect(result.group[0].population?.find(e => e.code?.coding?.[0].code === 'numerator')?.count).toEqual(2.5);
+    // Expected denominator calculation: (comp1weight 3) + (comp2score 1)
+    expect(result.group[0].population?.find(e => e.code?.coding?.[0].code === 'denominator')?.count).toEqual(4);
+    // Expected measure score calculation: (numerator 2.5) / (denominator 4)
     expect(result.group[0].measureScore?.value).toEqual(0.625);
   });
 });
