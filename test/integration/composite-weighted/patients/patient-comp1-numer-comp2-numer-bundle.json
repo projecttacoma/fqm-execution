@@ -1,0 +1,170 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "fa6197d7-fa28-42a3-ab60-026a72b6026a",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pt-encounter-procedure",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-5e1e085f-ba65-4775-9beb-6f2676094aef"
+          }
+        ],
+        "name": [
+          {
+            "family": "Franey950",
+            "given": ["Sarah450"]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/5e1e085f-ba65-4775-9beb-6f2676094aef"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "d788142c-984b-4b1c-91b8-c809a90f5820",
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "80146002",
+              "display": "Appendectomy (Procedure)"
+            }
+          ],
+          "text": "Appendectomy"
+        },
+        "subject": {
+          "reference": "Patient/pt-encounter-procedure"
+        },
+        "occurrenceDateTime": "2013-04-05"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/d788142c-984b-4b1c-91b8-c809a90f5820"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "pt3-encounter",
+        "status": "in-progress",
+        "class": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "IMP",
+                "display": "inpatient encounter"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/5e1e085f-ba65-4775-9beb-6f2676094aef"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/pt3-encounter"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "8901cc25-68e8-4d49-8055-db80c7bf614f",
+        "measure": "http://example.com/Measure/measure-ComponentOne",
+        "period": {
+          "start": "2022-01-01T06:00:00.000Z",
+          "end": "2022-12-31T06:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": ["http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#f68fec94-a724-46d9-bd87-ee406f8da6bc"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "f68fec94-a724-46d9-bd87-ee406f8da6bc",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "5e1e085f-ba65-4775-9beb-6f2676094aef"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/8901cc25-68e8-4d49-8055-db80c7bf614f"
+      }
+    }
+  ]
+}

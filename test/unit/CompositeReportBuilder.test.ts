@@ -209,9 +209,9 @@ describe('addComponentResults', () => {
     );
     compositeReportBuilderWithWeights.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilderWithWeights.getReport();
-    expect(report.group[0].measureScore?.value).toEqual(0.2);
-    expect(compositeReportBuilderWithWeights.compositeFraction.numerator).toEqual(0.4);
-    expect(compositeReportBuilderWithWeights.compositeFraction.denominator).toEqual(2);
+    expect(report.group[0].measureScore?.value).toEqual(0.8);
+    expect(compositeReportBuilderWithWeights.compositeFraction.numerator).toEqual(0.4); // (weight .2) * (score .5) + (weight .3) * (score 1)
+    expect(compositeReportBuilderWithWeights.compositeFraction.denominator).toEqual(0.5); // ((weight .2) + (weight .3)
   });
 
   it('increments numerator and denominator for weighted scoring when a weight is not specified so it is treated as 1', () => {
@@ -220,8 +220,8 @@ describe('addComponentResults', () => {
     compositeReportBuilder.addAllResults(compositeExecutionResults);
     const report = compositeReportBuilder.getReport();
     expect(report.group[0].measureScore?.value).toEqual(0.75);
-    expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5);
-    expect(compositeReportBuilder.compositeFraction.denominator).toEqual(2);
+    expect(compositeReportBuilder.compositeFraction.numerator).toEqual(1.5); // (weight 1) * (score .5) + (weight 1) * (score 1)
+    expect(compositeReportBuilder.compositeFraction.denominator).toEqual(2); // ((weight 1) + (weight 1)
   });
 });
 

@@ -221,7 +221,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
         if (value.denominator !== 0) {
           this.compositeFraction.numerator += value.weight * (value.numerator / value.denominator);
         }
-        this.compositeFraction.denominator++;
+        this.compositeFraction.denominator += value.weight;
       });
   }
 
