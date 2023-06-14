@@ -192,7 +192,7 @@ export function findAllLocalIdsInStatement(
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[alias] });
       }
     } else if (k === 'localId') {
-      // else if they key is localId push the value
+      // else if the key is localId, push the value
       localIds[v] = { localId: v };
     } else if (Array.isArray(v) || typeof v === 'object') {
       // if the value is an array or object, recurse
