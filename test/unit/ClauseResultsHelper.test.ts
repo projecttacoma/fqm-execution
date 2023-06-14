@@ -73,6 +73,26 @@ describe('ClauseResultsHelpers', () => {
       expect(localIds[42]).not.toBeUndefined();
       expect(localIds[42]).toEqual({ localId: '42' });
     });
+
+    test('should use original source localId on second use of alias in direct property ref', () => {
+      const libraryElm: ELM = getJSONFixture('elm/SimpleAliasUsage.json');
+      const statementName = 'Some Encounter';
+
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
+      expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
+    });
+
+    test('should use original source localId on Property expression within FunctionRef', () => {
+      const libraryElm: ELM = getJSONFixture('elm/SimpleAliasFunctionRef.json');
+      const statementName = 'Some Encounter';
+
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
+      expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
+    });
   });
 
   describe('findLocalIdForLibraryRef for functionRefs', () => {
