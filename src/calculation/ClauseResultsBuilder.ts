@@ -17,7 +17,8 @@ import {
   isSupplementalDataUsage
 } from '../types/Calculator';
 import { UnexpectedProperty } from '../types/errors/CustomErrors';
-
+import _systemMap from '../code-system/system-map.json';
+const systemMap = _systemMap as Record<string, string>;
 /**
  * Contains helpers that generate useful data for coverage and highlighting.
  */
@@ -365,8 +366,15 @@ export function prettyResult(result: any | null, indentLevel?: number, keyIndent
   } else if (result instanceof Interval) {
     return `INTERVAL: ${prettyResult(result.low)} - ${prettyResult(result.high)}`;
   } else if (result instanceof Code) {
-    // TODO: Sort out a better way to have a friendly system display for FHIR codes
-    return `CODE: ${result.system} ${result.code}`;
+    // TODO-pretty: There appear to be some common systems that aren't in https://cts.nlm.nih.gov/fhir/metadata.
+    // Do we need any additional sources of system name lookups?
+    if (result.system) {
+      if (systemMap[result.system]) {
+        return `CODE: ${systemMap[result.system]} ${result.code}`;
+      }
+      return `CODE: ${result.system} ${result.code}`;
+    }
+    return `CODE: UNDEFINED_SYSTEM ${result.code}`;
   } else if (result instanceof Quantity) {
     let quantityResult = `QUANTITY: ${result.value}`;
     if (result.unit) {
