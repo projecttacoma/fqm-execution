@@ -208,7 +208,8 @@ export async function calculate<T extends CalculationOptions>(
             executedELM,
             detailedGroupResult.statementResults,
             detailedGroupResult.clauseResults,
-            detailedGroupResult.groupId
+            detailedGroupResult.groupId,
+            options.disableHTMLOrdering ?? false
           );
           detailedGroupResult.html = html;
           if (debugObject && options.enableDebugOutput) {
@@ -248,7 +249,12 @@ export async function calculate<T extends CalculationOptions>(
     patientSource = resolvePatientSource(patientBundles, options);
 
     if (!isCompositeExecution && options.calculateClauseCoverage) {
-      groupClauseCoverageHTML = generateClauseCoverageHTML(measure, executedELM, executionResults);
+      groupClauseCoverageHTML = generateClauseCoverageHTML(
+        measure,
+        executedELM,
+        executionResults,
+        options.disableHTMLOrdering ?? false
+      );
       overallClauseCoverageHTML = '';
       Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
         overallClauseCoverageHTML += result;
