@@ -88,6 +88,7 @@ export function buildStatementRelevanceMap(
           statementResults,
           mainLibraryId,
           sde.criteria.expression,
+          true,
           true
         );
       }
@@ -152,12 +153,16 @@ export function markStatementRelevant(
   statementResults: StatementResult[],
   libraryName: string,
   statementName: string,
-  relevant: boolean
+  relevant: boolean,
+  isSDEStatement = false
 ): void {
   // only mark the statement if it is currently 'NA' or 'FALSE'. Otherwise it already has been marked 'TRUE'
   const statementResult = getStatementResult(libraryName, statementName, statementResults);
   if (statementResult?.relevance == Relevance.NA || statementResult?.relevance == Relevance.FALSE) {
     statementResult.relevance = relevant ? Relevance.TRUE : Relevance.FALSE;
+
+    // if this is an SDE related statement mark it as an SDE statement.
+    statementResult.isSDEStatement = isSDEStatement;
 
     // grab the dependency info for this statement
     const libraryInfo = statementDependencies.find(lib => lib.libraryId === libraryName);
@@ -170,7 +175,29 @@ export function markStatementRelevant(
           statementResults,
           dependentStatement.libraryId,
           dependentStatement.statementName,
-          relevant
+          relevant,
+          isSDEStatement
+        );
+      });
+    }
+  } else if (statementResult?.isSDEStatement === true && !isSDEStatement && relevant) {
+    // If this statement has already been marked as a relevant SDE statement but we are now marking it not as a
+    // SDE statement, we need to un mark the isSDEStatement as it no longer is exclusively used for SDEs.
+    statementResult.isSDEStatement = false;
+
+    // grab the dependency info for this statement
+    const libraryInfo = statementDependencies.find(lib => lib.libraryId === libraryName);
+    const statementInfo = libraryInfo?.statementDependencies.find(stat => stat.statementName === statementName);
+    if (statementInfo) {
+      statementInfo.statementReferences.forEach(dependentStatement => {
+        markStatementRelevant(
+          elmLibraries,
+          statementDependencies,
+          statementResults,
+          dependentStatement.libraryId,
+          dependentStatement.statementName,
+          relevant,
+          isSDEStatement
         );
       });
     }

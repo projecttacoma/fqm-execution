@@ -209,6 +209,8 @@ export interface StatementResult {
   pretty?: string;
   /** TRUE if the statement is a function */
   isFunction?: boolean;
+  /** TRUE if the statement is only related to SDE calculation. */
+  isSDEStatement?: boolean;
 }
 
 /**
