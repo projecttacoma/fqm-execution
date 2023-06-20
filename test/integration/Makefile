@@ -43,6 +43,9 @@ composite-weighted:
 		&& ecqm-bundler make-composite /tmp/comp1.json /tmp/comp2.json --composite-scoring "weighted" --detailed-component "measure-WeightedComponentOne|0.0.1##3" "measure-WeightedComponentTwo|0.0.1##1" -o ./composite-weighted/composite-weighted-bundle.json \
 		&& rm /tmp/comp1.json /tmp/comp2.json
 
+proportion-Encounter-tuple:
+	ecqm-bundler -c ./proportion-Encounter-tuple/cql/proportion-Encounter-tuple.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --basis Encounter -o ./proportion-Encounter-tuple/proportion-Encounter-tuple-bundle.json
+
 clean:
 	-docker stop cql-translation-service
 	-rm .start-translator

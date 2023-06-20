@@ -1,0 +1,186 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "a050328f-a03b-4f6b-9c15-0242d7aba6b9",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "7cbaf74a-a37e-4f6e-ac7c-d375e9e67d25",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-7cbaf74a-a37e-4f6e-ac7c-d375e9e67d25"
+          }
+        ],
+        "name": [
+          {
+            "family": "Parisian361",
+            "given": [
+              "Lillian208"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/7cbaf74a-a37e-4f6e-ac7c-d375e9e67d25"
+      },
+      "fullUrl": "urn:uuid:7cbaf74a-a37e-4f6e-ac7c-d375e9e67d25"
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-1-day",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "exampleSystem",
+                "version": "exampleVersion",
+                "code": "exampleCode"
+              }
+            ]
+          }
+        ],
+        "status": "finished",
+        "subject": {
+          "reference": "Patient/7cbaf74a-a37e-4f6e-ac7c-d375e9e67d25"
+        },
+        "period": {
+          "start": "2022-09-17T04:16:36.105Z",
+          "end": "2022-09-18T04:16:36.105Z"
+        }
+      },
+      "fullUrl": "urn:uuid:enc-1-day",
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-1-day"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-3-day",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "exampleSystem",
+                "version": "exampleVersion",
+                "code": "exampleCode"
+              }
+            ]
+          }
+        ],
+        "status": "finished",
+        "subject": {
+          "reference": "Patient/7cbaf74a-a37e-4f6e-ac7c-d375e9e67d25"
+        },
+        "period": {
+          "start": "2022-04-15T15:15:16.567Z",
+          "end": "2022-04-18T15:15:16.567Z"
+        }
+      },
+      "fullUrl": "urn:uuid:enc-3-day",
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/enc-3-day"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "bbb6dea5-66dc-4c99-896a-8e51b5dd0226",
+        "measure": "http://example.com/Measure/measure-ProportionEncounterTuple",
+        "period": {
+          "start": "2022-01-01T05:00:00.000Z",
+          "end": "2022-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#e7baff5c-7d08-41b5-995f-4809d483ba2e"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "e7baff5c-7d08-41b5-995f-4809d483ba2e",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "7cbaf74a-a37e-4f6e-ac7c-d375e9e67d25"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/bbb6dea5-66dc-4c99-896a-8e51b5dd0226"
+      },
+      "fullUrl": "urn:uuid:bbb6dea5-66dc-4c99-896a-8e51b5dd0226"
+    }
+  ]
+}
