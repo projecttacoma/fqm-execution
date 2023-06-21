@@ -70,6 +70,7 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
+  options.disableHTMLOrdering = options.disableHTMLOrdering ?? false;
 
   const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
 
@@ -209,7 +210,7 @@ export async function calculate<T extends CalculationOptions>(
             detailedGroupResult.statementResults,
             detailedGroupResult.clauseResults,
             detailedGroupResult.groupId,
-            options.disableHTMLOrdering ?? false
+            options.disableHTMLOrdering
           );
           detailedGroupResult.html = html;
           if (debugObject && options.enableDebugOutput) {
@@ -252,7 +253,7 @@ export async function calculate<T extends CalculationOptions>(
         measure,
         executedELM,
         executionResults,
-        options.disableHTMLOrdering ?? false
+        options.disableHTMLOrdering
       );
       overallClauseCoverageHTML = '';
       Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
