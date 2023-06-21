@@ -247,7 +247,6 @@ export async function calculate<T extends CalculationOptions>(
     });
 
     patientSource = resolvePatientSource(patientBundles, options);
-
     if (!isCompositeExecution && options.calculateClauseCoverage) {
       groupClauseCoverageHTML = generateClauseCoverageHTML(
         measure,
