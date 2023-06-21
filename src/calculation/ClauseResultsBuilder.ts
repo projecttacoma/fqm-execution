@@ -382,7 +382,7 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
       }
       return `${typeStr}${result.system} ${result.code}`;
     }
-    return `${typeStr}: UNDEFINED_SYSTEM ${result.code}`;
+    return `${typeStr}UNDEFINED_SYSTEM ${result.code}`;
   } else if (result instanceof Quantity) {
     let quantityResult = `QUANTITY: ${result.value}`;
     if (result.unit) {
@@ -409,6 +409,7 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
       // FHIRObject approach
       return prettyFHIRObject(result, includeType, indentLevel, keyIndent);
     } else {
+      // Tuple approach
       prettyResultReturn = '{\n';
       const baseIndentation = Array(3).join(' ');
       const sortedKeys = Object.keys(result).sort();
@@ -422,7 +423,9 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
           `${baseIndentation}${currentIndentation}${key}: ${prettyResult(value, false, nextIndentLevel, keyIndent)}`
         );
         // append commas if it isn't the last key
-        if (key !== sortedKeys[sortedKeys.length - 1]) {
+        if (key === sortedKeys[sortedKeys.length - 1]) {
+          prettyResultReturn += '\n';
+        } else {
           prettyResultReturn += ',\n';
         }
       }
@@ -468,10 +471,7 @@ export function prettyFHIRObject(
   }
   const codePath = parsedCodePaths[resourceType].primaryCodePath;
   prettyResultReturn = prettyResultReturn.concat(
-    `${currentIndentation}${keyIndentation}${codePath.toUpperCase()}: ${prettyResult(
-      result.getCode(codePath),
-      false
-    )}\n`
+    `${currentIndentation}${keyIndentation}${codePath.toUpperCase()}: ${prettyResult(result.getCode(codePath), false)}`
   );
   return prettyResultReturn;
 }

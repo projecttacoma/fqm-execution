@@ -171,5 +171,16 @@ describe('ratio Encounter reuse observation function measure', () => {
       assertEpisodeObservations(group, episodeIdDenom2, [2], PopulationType.DENOM);
       assertEpisodeObservations(group, episodeIdDenom2, undefined, PopulationType.NUMER);
     });
+
+    it('shows pretty results for 3 encounter result', async () => {
+      const results = await calculate(MEASURE_BUNDLE, [PATIENT_3ENC_1IN_ALL_2IN_DENOM], CALCULATION_OPTIONS);
+      const group = getGroupByIndex(0, results.results[0]);
+      const denomResult = group.statementResults.find(s => s.statementName === 'denom');
+
+      expect(denomResult).toBeDefined();
+      expect(denomResult?.pretty).toEqual(
+        '[ENCOUNTER\nID: 73dd8d81-77d8-46e7-984c-a3db88797d43\nPERIOD: 10/08/2022 7:36 AM - 10/09/2022 7:36 AM\nTYPE: exampleSystem exampleCode,\nENCOUNTER\nID: ae5a5635-f2ed-40d4-a1bd-ec93181ae30a\nPERIOD: 03/11/2022 10:35 PM - 03/14/2022 10:35 PM\nTYPE: exampleSystem exampleCode,\nENCOUNTER\nID: 4af3c69d-ada0-4a2e-99d2-dd53b7c0e16c\nPERIOD: 03/06/2022 6:32 PM - 03/08/2022 6:32 PM\nTYPE: exampleSystem exampleCode]'
+      );
+    });
   });
 });
