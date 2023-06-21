@@ -17,8 +17,16 @@ import {
   isSupplementalDataUsage
 } from '../types/Calculator';
 import { UnexpectedProperty } from '../types/errors/CustomErrors';
+
+// code system, search parameters, and code paths for pulling pretty information from resources
 import _systemMap from '../code-system/system-map.json';
 const systemMap = _systemMap as Record<string, string>;
+import { SearchParameters } from '../compartment-definition/SearchParameters';
+import { parsedCodePaths } from '../code-attributes/codePaths';
+const clinicalDateParams = SearchParameters.entry.find(
+  e => e.fullUrl === 'http://hl7.org/fhir/SearchParameter/clinical-date'
+)?.resource;
+
 /**
  * Contains helpers that generate useful data for coverage and highlighting.
  */
@@ -351,7 +359,7 @@ export function buildStatementAndClauseResults(
  * @param {number|undefined} keyIndent - Indent count used for key indentation.
  * @returns {String} a pretty version of the given result
  */
-export function prettyResult(result: any | null, indentLevel?: number, keyIndent?: number): string {
+export function prettyResult(result: any | null, includeType = true, indentLevel?: number, keyIndent?: number): string {
   let prettyResultReturn;
   if (indentLevel == null) {
     indentLevel = 1;
@@ -364,105 +372,80 @@ export function prettyResult(result: any | null, indentLevel?: number, keyIndent
   if (result instanceof DateTime) {
     return moment.utc(result.toString()).format('MM/DD/YYYY h:mm A');
   } else if (result instanceof Interval) {
-    return `INTERVAL: ${prettyResult(result.low)} - ${prettyResult(result.high)}`;
+    const typeStr = includeType ? 'INTERVAL: ' : '';
+    return `${typeStr}${prettyResult(result.low)} - ${prettyResult(result.high)}`;
   } else if (result instanceof Code) {
-    // TODO-pretty: There appear to be some common systems that aren't in https://cts.nlm.nih.gov/fhir/metadata.
-    // Do we need any additional sources of system name lookups?
+    const typeStr = includeType ? 'CODE: ' : '';
     if (result.system) {
       if (systemMap[result.system]) {
-        return `CODE: ${systemMap[result.system]} ${result.code}`;
+        return `${typeStr}${systemMap[result.system]} ${result.code}`;
       }
-      return `CODE: ${result.system} ${result.code}`;
+      return `${typeStr}${result.system} ${result.code}`;
     }
-    return `CODE: UNDEFINED_SYSTEM ${result.code}`;
+    return `${typeStr}: UNDEFINED_SYSTEM ${result.code}`;
   } else if (result instanceof Quantity) {
     let quantityResult = `QUANTITY: ${result.value}`;
     if (result.unit) {
       quantityResult += ` ${result.unit}`;
     }
     return quantityResult;
-  } else if (result && typeof result._type === 'string' && result._type.includes('QDM::')) {
-    // If there isn't a description, use the type name as a fallback.  This mirrors the frontend where we do
-    // result.constructor.name.
-    const description = result.description ? `${result.description}\n` : `${result._type.replace('QDM::', '')}\n`;
-    let startDateTime = null;
-    let endDateTime = null;
-    let startTimeString = '';
-    let endTimeString = '';
-    // Start time of data element is start of relevant period, if data element does not have relevant period, use authorDatetime
-    if (result.relevantPeriod) {
-      if (result.relevantPeriod.low) {
-        startDateTime = result.relevantPeriod.low;
-      }
-      if (result.relevantPeriod.high) {
-        endDateTime = result.relevantPeriod.high;
-      }
-    } else if (result.prevalencePeriod) {
-      if (result.prevalencePeriod.low) {
-        startDateTime = result.prevalencePeriod.low;
-      }
-      if (result.prevalencePeriod.high) {
-        endDateTime = result.prevalencePeriod.high;
-      }
-    } else if (result.authorDatetime) {
-      // TODO: start result string will need to be updated to AUTHORED once bonnie frontend
-      // updates its pretty printer to do so.
-      startDateTime = result.authorDatetime;
-    }
-
-    if (startDateTime) {
-      startTimeString = `START: ${moment.utc(startDateTime.toString()).format('MM/DD/YYYY h:mm A')}\n`;
-    }
-    // If endTime is the infinity dateTime, clear it out because we do not want to export it
-    if (endDateTime && endDateTime.year !== 9999) {
-      endTimeString = `STOP: ${moment.utc(endDateTime.toString()).format('MM/DD/YYYY h:mm A')}\n`;
-    }
-    const system = result.dataElementCodes[0].system;
-    // TODO: Sort out a better way to have a friendly system display for FHIR codes
-    const codeDisplay =
-      result.dataElementCodes && result.dataElementCodes[0] ? `CODE: ${system} ${result.dataElementCodes[0].code}` : '';
-    // Add indentation
-    const returnString = `${description}${startTimeString}${endTimeString}${codeDisplay}`;
-    return returnString.replace(/\n/g, `\n${currentIndentation}${keyIndentation}`);
   } else if (result instanceof String || typeof result === 'string') {
     return `"${result}"`;
   } else if (result instanceof Array) {
-    prettyResultReturn = result.map((value: any) => prettyResult(value, indentLevel, keyIndent));
-    return `[${prettyResultReturn.join(`,\n${currentIndentation}${keyIndentation}`)}]`;
+    if (result.length === 1) {
+      // Don't show brackets for single result
+      return prettyResult(result[0], includeType, indentLevel, keyIndent);
+    } else {
+      prettyResultReturn = result.map((value: any) => prettyResult(value, includeType, indentLevel, keyIndent));
+      return `[${prettyResultReturn.join(`,\n${currentIndentation}${keyIndentation}`)}]`;
+    }
   } else if (result instanceof Object) {
     // if the object has it's own custom toString method, use that instead
     if (typeof result.toString === 'function' && result.toString !== Object.prototype.toString) {
       return result.toString();
     }
-    prettyResultReturn = '{\n';
-    const baseIndentation = Array(3).join(' ');
-    // TODO: Update the this function to better handle FHIR objects instead of QDM objects.
-    const sortedKeys = Object.keys(result)
-      .sort()
-      .filter(key => key !== '_type' && key !== 'qdmVersion');
-    for (const key of sortedKeys) {
-      // add 2 spaces per indent
-      const value = result[key];
-      const nextIndentLevel = indentLevel + 2;
-      // key length + ': '
-      keyIndent = key.length + 3;
-      prettyResultReturn = prettyResultReturn.concat(
-        `${baseIndentation}${currentIndentation}${key}: ${prettyResult(value, nextIndentLevel, keyIndent)}`
-      );
-      // append commas if it isn't the last key
-      if (key === sortedKeys[sortedKeys.length - 1]) {
-        prettyResultReturn += '\n';
-      } else {
-        prettyResultReturn += ',\n';
-      }
+
+    if (typeof result.getTypeInfo === 'function') {
+      // FHIRObject approach
+      return prettyFHIRObject(result, includeType);
+    } else {
+      // TODO-p: handle tuples
+      // ... user may bring their own patient source, which might not be FHIRObject(s)
+      // instead would be a CQL tuple (POJO set of key value pairs)
     }
-    prettyResultReturn += `${currentIndentation}}`;
-    return prettyResultReturn;
   }
   if (result) {
     return JSON.stringify(result, null, 2);
   }
   return 'null';
+}
+
+export function prettyFHIRObject(result: FHIRObject, includeType = true, indentLevel?: number): string {
+  const resourceType = result.getTypeInfo()._name;
+  if (resourceType === 'Period') {
+    const typeStr = includeType ? 'INTERVAL: ' : '';
+    return `${typeStr}${prettyResult(result.get('start'))} - ${prettyResult(result.get('end'))}`;
+  } else if (resourceType === 'dateTime') {
+    return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY h:mm A')}`;
+  }
+
+  // Handle resources
+  let prettyResultReturn = '';
+  const currentIndentation = Array(indentLevel).join(' ');
+  prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}${resourceType.toUpperCase()}\n`);
+  prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}ID: ${result.getId()}\n`);
+  if (clinicalDateParams?.base.includes(resourceType)) {
+    const expressionMatch = clinicalDateParams.expression.split('|').find(e => e.trim().startsWith(resourceType));
+    const expression = expressionMatch?.split('.')[1].trim() || '';
+    prettyResultReturn = prettyResultReturn.concat(
+      `${currentIndentation}${expression.toUpperCase()}: ${prettyResult(result.getDateOrInterval(expression), false)}\n`
+    );
+  }
+  const codePath = parsedCodePaths[resourceType].primaryCodePath;
+  prettyResultReturn = prettyResultReturn.concat(
+    `${currentIndentation}${codePath.toUpperCase()}: ${prettyResult(result.getCode(codePath), false)}\n`
+  );
+  return prettyResultReturn;
 }
 
 /**
