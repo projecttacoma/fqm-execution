@@ -407,11 +407,27 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
 
     if (typeof result.getTypeInfo === 'function') {
       // FHIRObject approach
-      return prettyFHIRObject(result, includeType);
+      return prettyFHIRObject(result, includeType, indentLevel, keyIndent);
     } else {
-      // TODO-p: handle tuples
-      // ... user may bring their own patient source, which might not be FHIRObject(s)
-      // instead would be a CQL tuple (POJO set of key value pairs)
+      prettyResultReturn = '{\n';
+      const baseIndentation = Array(3).join(' ');
+      const sortedKeys = Object.keys(result).sort();
+      for (const key of sortedKeys) {
+        // add 2 spaces per indent
+        const value = result[key];
+        const nextIndentLevel = indentLevel + 2;
+        // key length + ': '
+        keyIndent = key.length + 3;
+        prettyResultReturn = prettyResultReturn.concat(
+          `${baseIndentation}${currentIndentation}${key}: ${prettyResult(value, false, nextIndentLevel, keyIndent)}`
+        );
+        // append commas if it isn't the last key
+        if (key !== sortedKeys[sortedKeys.length - 1]) {
+          prettyResultReturn += ',\n';
+        }
+      }
+      prettyResultReturn += `${currentIndentation}}`;
+      return prettyResultReturn;
     }
   }
   if (result) {
@@ -420,8 +436,14 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
   return 'null';
 }
 
-export function prettyFHIRObject(result: FHIRObject, includeType = true, indentLevel?: number): string {
+export function prettyFHIRObject(
+  result: FHIRObject,
+  includeType = true,
+  indentLevel?: number,
+  keyIndent?: number
+): string {
   const resourceType = result.getTypeInfo()._name;
+  const keyIndentation = Array(keyIndent).join(' ');
   if (resourceType === 'Period') {
     const typeStr = includeType ? 'INTERVAL: ' : '';
     return `${typeStr}${prettyResult(result.get('start'))} - ${prettyResult(result.get('end'))}`;
@@ -432,18 +454,24 @@ export function prettyFHIRObject(result: FHIRObject, includeType = true, indentL
   // Handle resources
   let prettyResultReturn = '';
   const currentIndentation = Array(indentLevel).join(' ');
-  prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}${resourceType.toUpperCase()}\n`);
-  prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}ID: ${result.getId()}\n`);
+  prettyResultReturn = prettyResultReturn.concat(`${resourceType.toUpperCase()}\n`);
+  prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}${keyIndentation}ID: ${result.getId()}\n`);
   if (clinicalDateParams?.base.includes(resourceType)) {
     const expressionMatch = clinicalDateParams.expression.split('|').find(e => e.trim().startsWith(resourceType));
     const expression = expressionMatch?.split('.')[1].trim() || '';
     prettyResultReturn = prettyResultReturn.concat(
-      `${currentIndentation}${expression.toUpperCase()}: ${prettyResult(result.getDateOrInterval(expression), false)}\n`
+      `${currentIndentation}${keyIndentation}${expression.toUpperCase()}: ${prettyResult(
+        result.getDateOrInterval(expression),
+        false
+      )}\n`
     );
   }
   const codePath = parsedCodePaths[resourceType].primaryCodePath;
   prettyResultReturn = prettyResultReturn.concat(
-    `${currentIndentation}${codePath.toUpperCase()}: ${prettyResult(result.getCode(codePath), false)}\n`
+    `${currentIndentation}${keyIndentation}${codePath.toUpperCase()}: ${prettyResult(
+      result.getCode(codePath),
+      false
+    )}\n`
   );
   return prettyResultReturn;
 }
