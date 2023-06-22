@@ -845,7 +845,7 @@ The following example of a proportion boolean measure shows how the logic highli
 
 ![Screenshot of Highlighting HTML Measure Logic](./static/logic-highlighting-example-2.png)
 
-### CQL Statement Ordering
+### CQL Statement Ordering in HTML
 By default, the statements in the generated HTML output are sorted into population statements, non-functions, and functions, respectively. Non-population statements appear in alphabetical order. To disable this behavior, use the `disableHTMLOrdering` calculation option.
 
 ## Group Clause Coverage Highlighting

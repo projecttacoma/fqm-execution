@@ -122,7 +122,7 @@ export function sortStatements(measure: fhir4.Measure, groupId: string, statemen
  * @param statementResults StatementResult array from calculation
  * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
- * @param disableHTMLOrdering disables statement sorting
+ * @param disableHTMLOrdering disables CQL statement sorting
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
@@ -185,7 +185,7 @@ export function generateHTML(
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param executionResults array of detailed population group results across
  * all patients
- * @param disableHTMLOrdering disables statement sorting
+ * @param disableHTMLOrdering disables CQL statement sorting
  * @returns a lookup object where the key is the groupId and the value is the
  * clause coverage HTML
  */
