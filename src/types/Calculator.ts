@@ -44,6 +44,8 @@ export interface CalculationOptions {
   clearElmJsonsCache?: boolean;
   /** Reference to root library (should be a canonical URL but resource ID will work if matching one exists in the bundle), to be used in calculateLibraryDataRequirements */
   rootLibRef?: string;
+  /** Disables custom ordering of CQL statements in the HTML structure for highlighting */
+  disableHTMLOrdering?: boolean;
 }
 
 /**

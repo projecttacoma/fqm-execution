@@ -122,6 +122,7 @@ export function sortStatements(measure: fhir4.Measure, groupId: string, statemen
  * @param statementResults StatementResult array from calculation
  * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
+ * @param disableHTMLOrdering disables CQL statement sorting
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
@@ -129,10 +130,13 @@ export function generateHTML(
   elmLibraries: ELM[],
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
-  groupId: string
+  groupId: string,
+  disableHTMLOrdering?: boolean
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance !== Relevance.NA);
-  sortStatements(measure, groupId, relevantStatements);
+  if (!disableHTMLOrdering) {
+    sortStatements(measure, groupId, relevantStatements);
+  }
 
   // assemble array of statement annotations to be templated to HTML
   const statementAnnotations: StatementAnnotation[] = [];
@@ -181,13 +185,15 @@ export function generateHTML(
  * @param elmLibraries main ELM and dependencies to lookup statements
  * @param executionResults array of detailed population group results across
  * all patients
+ * @param disableHTMLOrdering disables CQL statement sorting
  * @returns a lookup object where the key is the groupId and the value is the
  * clause coverage HTML
  */
 export function generateClauseCoverageHTML(
   measure: fhir4.Measure,
   elmLibraries: ELM[],
-  executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
+  executionResults: ExecutionResult<DetailedPopulationGroupResult>[],
+  disableHTMLOrdering?: boolean
 ): Record<string, string> {
   const groupResultLookup: Record<string, DetailedPopulationGroupResult[]> = {};
   const htmlGroupLookup: Record<string, string> = {};
@@ -226,7 +232,9 @@ export function generateClauseCoverageHTML(
       (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
     );
 
-    sortStatements(measure, groupId, uniqueRelevantStatements);
+    if (!disableHTMLOrdering) {
+      sortStatements(measure, groupId, uniqueRelevantStatements);
+    }
 
     // assemble array of statement annotations to be templated to HTML
     const statementAnnotations: { libraryName: string; statementName: string; annotation: Annotation[] }[] = [];

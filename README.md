@@ -432,6 +432,7 @@ The options that we support for calculation are as follows:
 - `[calculateHTML]`<[boolean](#calculation-options)>: Include HTML structure for highlighting (default: `true`)
 - `[calculateSDEs]`<[boolean](#calculation-options)>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
 - `[clearElmJsonsCache]`<[boolean](#calculation-options)>: If `true`, clears ELM JSON cache before running calculation (default: `false`)
+- `[disableHTMLOrdering]`<[boolean](#calculation-options)>: Disables custom ordering of CQL statements in HTML output (default: `false`)
 - `[enableDebugOutput]`<[boolean](#calculation-options)>: Enable debug output including CQL, ELM, results (default: `false`)
 - `[includeClauseResults]` <[boolean](#calculation-options)>: Option to include clause results (default: `false`)
 - `[measurementPeriodEnd]`<[string](#calculation-options)>: End of measurement period as a valid [FHIR dateTime](https://build.fhir.org/datatypes.html#dateTime). Can be formatted as a date, date-time, or partial date. Milliseconds are optionally allowed. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
@@ -843,6 +844,9 @@ However, highlighted HTML provided by `fqm-execution` is not solely based on whe
 The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false. The relevance calculation matches the semantics for proportion measures defined in [this flowchart](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#proportion-measure-scoring).
 
 ![Screenshot of Highlighting HTML Measure Logic](./static/logic-highlighting-example-2.png)
+
+### CQL Statement Ordering in HTML
+By default, the CQL statements in the generated HTML output are sorted into population statements, non-functions, and functions, respectively. Non-population statements appear in alphabetical order. To disable this behavior, use the `disableHTMLOrdering` calculation option.
 
 ## Group Clause Coverage Highlighting
 
