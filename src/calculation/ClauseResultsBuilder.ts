@@ -3,7 +3,7 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ELMDependencyHelper from '../helpers/elm/ELMDependencyHelpers';
 import { ELM, LibraryDependencyInfo } from '../types/ELMTypes';
 import * as cql from '../types/CQLTypes';
-import { Interval, DateTime, Code, Quantity } from 'cql-execution';
+import { Interval, DateTime, Code, Quantity, Concept } from 'cql-execution';
 import moment from 'moment';
 
 import { FinalResult, PopulationType, Relevance } from '../types/Enums';
@@ -376,6 +376,8 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
     return `${typeStr}${prettyResult(result.low)} - ${prettyResult(result.high)}`;
   } else if (result instanceof Code) {
     return prettyCode(result.code, result.system, result.display, includeType);
+  } else if (result instanceof Concept) {
+    return prettyConcept(result.display, result.codes, includeType, indentLevel, keyIndent);
   } else if (result instanceof Quantity) {
     let quantityResult = `QUANTITY: ${result.value}`;
     if (result.unit) {
@@ -446,6 +448,27 @@ export function prettyCode(
   return `${typeStr}${systemStr} ${code}${displayStr}`;
 }
 
+export function prettyConcept(
+  conceptTxt: string | undefined,
+  conceptCodings: any[] | undefined,
+  includeType: boolean,
+  indentLevel?: number,
+  keyIndent?: number
+) {
+  const keyDiff = 2; //offset between concept key and code key including bracket
+  const keyIndentation = Array((keyIndent ?? 0) + keyDiff).join(' ');
+  let prettyConcept = includeType ? 'CONCEPT: ' : '';
+  if (conceptTxt) {
+    prettyConcept = prettyConcept.concat(`${conceptTxt}`);
+  }
+  if (conceptCodings) {
+    prettyConcept = prettyConcept.concat(
+      `\n${keyIndentation}${prettyResult(conceptCodings, includeType, indentLevel, (keyIndent ?? 0) + keyDiff + 1)}` //add one to account for array bracket
+    );
+  }
+  return prettyConcept;
+}
+
 export function prettyFHIRObject(
   result: FHIRObject,
   includeType = true,
@@ -467,17 +490,7 @@ export function prettyFHIRObject(
       includeType
     );
   } else if (resourceType === 'CodeableConcept') {
-    const conceptTxt = result.get('text')?.['value'];
-    const conceptCodings = result.get('coding')?.['value'];
-    let prettyConcept = 'CONCEPT: ';
-    if (conceptTxt) {
-      prettyConcept = prettyConcept.concat(`${conceptTxt}`);
-    }
-    if (conceptCodings) {
-      prettyConcept = prettyConcept.concat(`\n${prettyResult(conceptCodings, includeType, indentLevel, keyIndent)}`);
-      // TODO-pretty: handle spacing better and check null/undefined points
-    }
-    return prettyConcept;
+    return prettyConcept(result.get('text')?.['value'], result.get('coding'), includeType, indentLevel, keyIndent);
   }
 
   // Handle resources

@@ -35,8 +35,14 @@
       "resource": {
         "resourceType": "Encounter",
         "id": "enc-1-day",
+        "class":{
+          "code": "AMB",
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "display": "ambulatory"
+        },
         "type": [
           {
+            "text": "exampleConcept",
             "coding": [
               {
                 "system": "exampleSystem",
@@ -65,8 +71,14 @@
       "resource": {
         "resourceType": "Encounter",
         "id": "enc-3-day",
+        "class":{
+          "code": "AMB",
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "display": "ambulatory"
+        },
         "type": [
           {
+            "text": "exampleConcept",
             "coding": [
               {
                 "system": "exampleSystem",

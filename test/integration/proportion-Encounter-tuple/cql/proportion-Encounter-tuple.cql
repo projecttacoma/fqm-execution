@@ -26,6 +26,8 @@ define "denom":
 define "numer":
   "Enc with Durations" EncWithDurations
     where EncWithDurations.durationDays > 2
+      and "CodeableConcept Result" is not null
+      and "Coding Result" is not null
     return EncWithDurations.encounter
 
 define "Enc with Durations":
@@ -34,6 +36,12 @@ define "Enc with Durations":
       encounter: E,
       durationDays: daysObs(E)
     }
+
+define "Coding Result":
+  First("denom").class
+
+define "CodeableConcept Result":
+  First(First("denom").type)
 
 define function daysObs(e Encounter):
   duration in days of e.period

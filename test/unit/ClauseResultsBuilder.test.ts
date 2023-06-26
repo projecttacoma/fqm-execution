@@ -4,7 +4,7 @@ import { getJSONFixture, getELMFixture } from './helpers/testHelpers';
 import { PopulationResult, StatementResult } from '../../src/types/Calculator';
 import { PopulationType, Relevance, FinalResult, MeasureScoreType } from '../../src/types/Enums';
 import * as cql from '../../src/types/CQLTypes';
-import { Code } from 'cql-execution';
+import { Code, Concept } from 'cql-execution';
 
 type MeasureWithGroup = fhir4.Measure & {
   group: fhir4.MeasureGroup[];
@@ -364,6 +364,22 @@ describe('ClauseResultsBuilder', () => {
     test('should create pretty code for undefined system URL', () => {
       const code = new Code('testCode');
       expect(ClauseResultsBuilder.prettyResult(code)).toEqual('CODE: UNDEFINED_SYSTEM testCode');
+    });
+
+    test('should create pretty concept', () => {
+      const concept = new Concept([new Code('testCode1'), new Code('testCode2')], 'testConcept');
+      const forTest = ClauseResultsBuilder.prettyResult(concept);
+      console.log(forTest);
+      expect(ClauseResultsBuilder.prettyResult(concept)).toEqual(
+        'CONCEPT: testConcept\n  [CODE: UNDEFINED_SYSTEM testCode1,\n   CODE: UNDEFINED_SYSTEM testCode2]'
+      );
+    });
+
+    test('should create pretty concept without display text', () => {
+      const concept = new Concept([new Code('testCode1'), new Code('testCode2')]);
+      expect(ClauseResultsBuilder.prettyResult(concept)).toEqual(
+        'CONCEPT: \n  [CODE: UNDEFINED_SYSTEM testCode1,\n   CODE: UNDEFINED_SYSTEM testCode2]'
+      );
     });
   });
 

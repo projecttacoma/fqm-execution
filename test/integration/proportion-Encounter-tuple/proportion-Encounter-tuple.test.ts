@@ -42,19 +42,18 @@ describe('proportion Encounter tuple usage', () => {
       );
     });
 
-    // it('calculates pretty Coding and CodeableConcept', async () => {
-    //   // grab the coding result statement
-    //   const codingResult = group.statementResults.find(s => s.statementName === 'Coding Result');
-    //   expect(codingResult).toBeDefined();
-    //   // expect(codingResult?.pretty).toEqual(
-    //   //   '<TODO: add expected result>'
-    //   // );
+    it('calculates pretty Coding', async () => {
+      // grab the Coding result statement
+      const codingResult = group.statementResults.find(s => s.statementName === 'Coding Result');
+      expect(codingResult).toBeDefined();
+      expect(codingResult?.pretty).toEqual('CODE: ActCode AMB, ambulatory');
+    });
 
-    //   const codeableConceptResult = group.statementResults.find(s => s.statementName === 'CodeableConcept Result');
-    //   expect(codeableConceptResult).toBeDefined();
-    //   // expect(codeableConceptResult?.pretty).toEqual(
-    //   //   '<TODO: add expected result>'
-    //   // );
-    // });
+    it('calculates pretty CodeableConcept', async () => {
+      // grab the CodeableConcept result statement
+      const codeableConceptResult = group.statementResults.find(s => s.statementName === 'CodeableConcept Result');
+      expect(codeableConceptResult).toBeDefined();
+      expect(codeableConceptResult?.pretty).toEqual('CONCEPT: exampleConcept\n  [CODE: exampleSystem exampleCode]');
+    });
   });
 });
