@@ -8,7 +8,7 @@ endif
 
 # Prevents the presence of a directory with the same name skipping Makefile targets
 # TODO: Add other targets once defined
-.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction composite-all-or-nothing composite-weighted
+.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction composite-all-or-nothing composite-weighted proportion-Encounter-tuple
 
 # This loop grabs the important directory name from the full path to the cql file
 # This directory name MUST match the make target name in this file

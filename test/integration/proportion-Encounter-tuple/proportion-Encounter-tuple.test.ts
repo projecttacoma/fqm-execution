@@ -1,5 +1,5 @@
 import { calculate } from '../../../src/calculation/Calculator';
-import { CalculationOptions, StatementResult } from '../../../src/types/Calculator';
+import { CalculationOptions, DetailedPopulationGroupResult } from '../../../src/types/Calculator';
 import { getJSONFixture, getGroupByIndex } from '../helpers/testHelpers';
 
 const CALCULATION_OPTIONS: CalculationOptions = {
@@ -18,26 +18,43 @@ const PATIENT_2ENC_1DAY_3DAY: fhir4.Bundle = getJSONFixture(
 
 describe('proportion Encounter tuple usage', () => {
   describe('encounter with one day and encounter with 3 days', () => {
-    let tupleResult: StatementResult | undefined;
+    let group: DetailedPopulationGroupResult;
     beforeAll(async () => {
       const results = await calculate(MEASURE_BUNDLE, [PATIENT_2ENC_1DAY_3DAY], CALCULATION_OPTIONS);
-      const group = getGroupByIndex(0, results.results[0]);
-      // grab the tuple resulting statement
-      tupleResult = group.statementResults.find(s => s.statementName === 'Enc with Durations');
+      group = getGroupByIndex(0, results.results[0]);
     });
-    it('calculates raw results', async () => {
+    it('calculates raw Tuple results', async () => {
+      // grab the tuple resulting statement
+      const tupleResult = group.statementResults.find(s => s.statementName === 'Enc with Durations');
       // check the raw durationDays part of the tuples are correct
       expect(tupleResult).toBeDefined();
       expect(tupleResult?.raw[0].durationDays).toEqual(1);
       expect(tupleResult?.raw[1].durationDays).toEqual(3);
     });
 
-    it('calculates pretty results', async () => {
+    it('calculates pretty Tuple', async () => {
+      // grab the tuple resulting statement
+      const tupleResult = group.statementResults.find(s => s.statementName === 'Enc with Durations');
       // check pretty does appropriate brackets and spacing
       expect(tupleResult).toBeDefined();
       expect(tupleResult?.pretty).toEqual(
-        '[{\n  durationDays: 1,\n  encounter: ENCOUNTER\n             ID: enc-1-day\n             PERIOD: 09/17/2022 4:16 AM - 09/18/2022 4:16 AM\n             TYPE: exampleSystem exampleCode\n},\n{\n  durationDays: 3,\n  encounter: ENCOUNTER\n             ID: enc-3-day\n             PERIOD: 04/15/2022 3:15 PM - 04/18/2022 3:15 PM\n             TYPE: exampleSystem exampleCode\n}]'
+        '[{\n  durationDays: 1,\n  encounter: ENCOUNTER\n             ID: enc-1-day\n             PERIOD: 09/17/2022 4:16 AM - 09/18/2022 4:16 AM\n             TYPE: [exampleSystem exampleCode]\n},\n{\n  durationDays: 3,\n  encounter: ENCOUNTER\n             ID: enc-3-day\n             PERIOD: 04/15/2022 3:15 PM - 04/18/2022 3:15 PM\n             TYPE: [exampleSystem exampleCode]\n}]'
       );
     });
+
+    // it('calculates pretty Coding and CodeableConcept', async () => {
+    //   // grab the coding result statement
+    //   const codingResult = group.statementResults.find(s => s.statementName === 'Coding Result');
+    //   expect(codingResult).toBeDefined();
+    //   // expect(codingResult?.pretty).toEqual(
+    //   //   '<TODO: add expected result>'
+    //   // );
+
+    //   const codeableConceptResult = group.statementResults.find(s => s.statementName === 'CodeableConcept Result');
+    //   expect(codeableConceptResult).toBeDefined();
+    //   // expect(codeableConceptResult?.pretty).toEqual(
+    //   //   '<TODO: add expected result>'
+    //   // );
+    // });
   });
 });

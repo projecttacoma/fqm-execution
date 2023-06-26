@@ -375,31 +375,19 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
     const typeStr = includeType ? 'INTERVAL: ' : '';
     return `${typeStr}${prettyResult(result.low)} - ${prettyResult(result.high)}`;
   } else if (result instanceof Code) {
-    const typeStr = includeType ? 'CODE: ' : '';
-    if (result.system) {
-      if (systemMap[result.system]) {
-        return `${typeStr}${systemMap[result.system]} ${result.code}`;
-      }
-      return `${typeStr}${result.system} ${result.code}`;
-    }
-    return `${typeStr}UNDEFINED_SYSTEM ${result.code}`;
+    return prettyCode(result.code, result.system, result.display, includeType);
   } else if (result instanceof Quantity) {
     let quantityResult = `QUANTITY: ${result.value}`;
     if (result.unit) {
       quantityResult += ` ${result.unit}`;
     }
     return quantityResult;
-  } else if (result instanceof String || typeof result === 'string') {
+  } else if (typeof result === 'string') {
     return `"${result}"`;
-  } else if (result instanceof Array) {
-    if (result.length === 1) {
-      // Don't show brackets for single result
-      return prettyResult(result[0], includeType, indentLevel, keyIndent);
-    } else {
-      prettyResultReturn = result.map((value: any) => prettyResult(value, includeType, indentLevel, keyIndent));
-      return `[${prettyResultReturn.join(`,\n${currentIndentation}${keyIndentation}`)}]`;
-    }
-  } else if (result instanceof Object) {
+  } else if (Array.isArray(result)) {
+    prettyResultReturn = result.map((value: any) => prettyResult(value, includeType, indentLevel, keyIndent));
+    return `[${prettyResultReturn.join(`,\n${currentIndentation}${keyIndentation}`)}]`;
+  } else if (typeof result === 'object') {
     // if the object has it's own custom toString method, use that instead
     if (typeof result.toString === 'function' && result.toString !== Object.prototype.toString) {
       return result.toString();
@@ -439,6 +427,25 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
   return 'null';
 }
 
+export function prettyCode(
+  code: string,
+  system: string | undefined,
+  display: string | undefined,
+  includeType: boolean
+) {
+  const typeStr = includeType ? 'CODE: ' : '';
+  const displayStr = display ? `, ${display}` : '';
+  let systemStr = 'UNDEFINED_SYSTEM';
+  if (system) {
+    if (system in systemMap) {
+      systemStr = systemMap[system];
+    } else {
+      systemStr = system;
+    }
+  }
+  return `${typeStr}${systemStr} ${code}${displayStr}`;
+}
+
 export function prettyFHIRObject(
   result: FHIRObject,
   includeType = true,
@@ -452,6 +459,25 @@ export function prettyFHIRObject(
     return `${typeStr}${prettyResult(result.get('start'))} - ${prettyResult(result.get('end'))}`;
   } else if (resourceType === 'dateTime') {
     return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY h:mm A')}`;
+  } else if (resourceType === 'Coding') {
+    return prettyCode(
+      result.get('code')?.['value'],
+      result.get('system')?.['value'],
+      result.get('display')?.['value'],
+      includeType
+    );
+  } else if (resourceType === 'CodeableConcept') {
+    const conceptTxt = result.get('text')?.['value'];
+    const conceptCodings = result.get('coding')?.['value'];
+    let prettyConcept = 'CONCEPT: ';
+    if (conceptTxt) {
+      prettyConcept = prettyConcept.concat(`${conceptTxt}`);
+    }
+    if (conceptCodings) {
+      prettyConcept = prettyConcept.concat(`\n${prettyResult(conceptCodings, includeType, indentLevel, keyIndent)}`);
+      // TODO-pretty: handle spacing better and check null/undefined points
+    }
+    return prettyConcept;
   }
 
   // Handle resources

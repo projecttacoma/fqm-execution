@@ -6,14 +6,13 @@ import path from 'path';
 const inputPath = path.resolve(path.join(__dirname, '../code-system/cts-metadata.json'));
 const outputPath = path.resolve(path.join(__dirname, '../code-system/system-map.json'));
 const ctsMetadata = readFileSync(inputPath, 'utf8');
+const codeSystemData = JSON.parse(ctsMetadata) as fhir4.CapabilityStatement;
 
 /**
- * Parse cts-metadata and transform into code system url->name mapping
+ * Transform parsed cts metadata capability statement into code system url->name mapping
  */
-async function parse(codeSystemJSON: string) {
-  const codeSystemData = (await JSON.parse(codeSystemJSON)) as fhir4.CapabilityStatement;
+function createMapping(codeSystemData: fhir4.CapabilityStatement) {
   const systemMapping: Record<string, string> = {};
-
   codeSystemData.extension?.forEach(extension => {
     const systemURLExt = extension.extension?.find(e => e.url === 'system');
     const systemNameExt = extension.extension?.find(e => e.url === 'name');
@@ -24,12 +23,10 @@ async function parse(codeSystemJSON: string) {
   return systemMapping;
 }
 
-parse(ctsMetadata)
-  .then(data => {
-    writeFileSync(outputPath, JSON.stringify(data, null, 2), 'utf8');
-
-    console.log(`Wrote file to ${outputPath}`);
-  })
-  .catch(e => {
-    console.error(e);
-  });
+const data = createMapping(codeSystemData);
+try {
+  writeFileSync(outputPath, JSON.stringify(data, null, 2), 'utf8');
+  console.log(`Wrote file to ${outputPath}`);
+} catch (e) {
+  console.error(e);
+}
