@@ -429,6 +429,10 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
   return 'null';
 }
 
+/**
+ * Uses the pieces of a code object to show code, system, and display in a pretty way
+ * for whichever properties are available.
+ */
 export function prettyCode(
   code: string,
   system: string | undefined,
@@ -448,6 +452,10 @@ export function prettyCode(
   return `${typeStr}${systemStr} ${code}${displayStr}`;
 }
 
+/**
+ * Uses the pieces of a codeable concept object to show concept display text (if available)
+ * and the contained codings that belong to the concept in a pretty way
+ */
 export function prettyConcept(
   conceptTxt: string | undefined,
   conceptCodings: any[] | undefined,
@@ -469,6 +477,11 @@ export function prettyConcept(
   return prettyConcept;
 }
 
+/**
+ * Function to help prettyResult handle FHIRObject(s) specifically, handling similar types, but
+ * in a FHIRObject structure rather than a CQL object structure. Uses similar inputs put expects
+ * a FHIRObject result to be passed in.
+ */
 export function prettyFHIRObject(
   result: FHIRObject,
   includeType = true,
