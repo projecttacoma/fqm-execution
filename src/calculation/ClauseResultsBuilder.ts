@@ -353,6 +353,7 @@ export function buildStatementAndClauseResults(
  * Generates a pretty human readable representation of a result.
  *
  * @param {(Array|object|boolean|???)} result - The result from the calculation engine.
+ * @param {boolean} includeType - true if certain types should be labeled in the pretty output, like 'CODE'
  * @param {number|undefined} indentLevel - For nested objects, the indentLevel indicates how far to indent.
  *                                Note that 1 is the base because Array(1).join ' ' returns ''.
  * @param {number|undefined} keyIndent - Indent count used for key indentation.

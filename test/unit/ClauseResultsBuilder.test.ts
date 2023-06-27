@@ -368,8 +368,6 @@ describe('ClauseResultsBuilder', () => {
 
     test('should create pretty concept', () => {
       const concept = new Concept([new Code('testCode1'), new Code('testCode2')], 'testConcept');
-      const forTest = ClauseResultsBuilder.prettyResult(concept);
-      console.log(forTest);
       expect(ClauseResultsBuilder.prettyResult(concept)).toEqual(
         'CONCEPT: testConcept\n  [CODE: UNDEFINED_SYSTEM testCode1,\n   CODE: UNDEFINED_SYSTEM testCode2]'
       );
