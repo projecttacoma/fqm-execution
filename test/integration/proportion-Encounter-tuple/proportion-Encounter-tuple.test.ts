@@ -23,7 +23,7 @@ describe('proportion Encounter tuple usage', () => {
       const results = await calculate(MEASURE_BUNDLE, [PATIENT_2ENC_1DAY_3DAY], CALCULATION_OPTIONS);
       group = getGroupByIndex(0, results.results[0]);
     });
-    it('calculates raw Tuple results', async () => {
+    it('calculates raw Tuple results', () => {
       // grab the tuple resulting statement
       const tupleResult = group.statementResults.find(s => s.statementName === 'Enc with Durations');
       // check the raw durationDays part of the tuples are correct
@@ -32,7 +32,7 @@ describe('proportion Encounter tuple usage', () => {
       expect(tupleResult?.raw[1].durationDays).toEqual(3);
     });
 
-    it('calculates pretty Tuple', async () => {
+    it('calculates pretty Tuple', () => {
       // grab the tuple resulting statement
       const tupleResult = group.statementResults.find(s => s.statementName === 'Enc with Durations');
       // check pretty does appropriate brackets and spacing
@@ -42,14 +42,14 @@ describe('proportion Encounter tuple usage', () => {
       );
     });
 
-    it('calculates pretty Coding', async () => {
+    it('calculates pretty Coding', () => {
       // grab the Coding result statement
       const codingResult = group.statementResults.find(s => s.statementName === 'Coding Result');
       expect(codingResult).toBeDefined();
       expect(codingResult?.pretty).toEqual('CODE: ActCode AMB, ambulatory');
     });
 
-    it('calculates pretty CodeableConcept', async () => {
+    it('calculates pretty CodeableConcept', () => {
       // grab the CodeableConcept result statement
       const codeableConceptResult = group.statementResults.find(s => s.statementName === 'CodeableConcept Result');
       expect(codeableConceptResult).toBeDefined();

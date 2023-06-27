@@ -19,8 +19,7 @@ import {
 import { UnexpectedProperty } from '../types/errors/CustomErrors';
 
 // code system, search parameters, and code paths for pulling pretty information from resources
-import _systemMap from '../code-system/system-map.json';
-const systemMap = _systemMap as Record<string, string>;
+import { systemMap } from '../code-system/system-map';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
 import { parsedCodePaths } from '../code-attributes/codePaths';
 const clinicalDateParams = SearchParameters.entry.find(
