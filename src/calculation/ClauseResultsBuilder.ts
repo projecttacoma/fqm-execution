@@ -463,15 +463,31 @@ export function prettyConcept(
   indentLevel?: number,
   keyIndent?: number
 ) {
-  const keyDiff = 2; //offset between concept key and code key including bracket
-  const keyIndentation = Array((keyIndent ?? 0) + keyDiff).join(' ');
-  let prettyConcept = includeType ? 'CONCEPT: ' : '';
+  let prettyConcept = '';
+  let keyDiff = 0;
+  if (includeType) {
+    prettyConcept = 'CONCEPT: ';
+    keyDiff = 2; //offset between concept key and code key including bracket
+  }
+
+  let conceptTxtNL = '';
+  if (conceptTxt || includeType) {
+    // include new line (+ indentation) if there's something to help dilineate the coding list
+    const keyIndentation = Array((keyIndent ?? 0) + keyDiff).join(' ');
+    conceptTxtNL = `\n${keyIndentation}`;
+  }
+
   if (conceptTxt) {
     prettyConcept = prettyConcept.concat(`${conceptTxt}`);
   }
   if (conceptCodings) {
     prettyConcept = prettyConcept.concat(
-      `\n${keyIndentation}${prettyResult(conceptCodings, includeType, indentLevel, (keyIndent ?? 0) + keyDiff + 1)}` //add one to account for array bracket
+      `${conceptTxtNL}${prettyResult(
+        conceptCodings,
+        includeType,
+        indentLevel,
+        (keyIndent ?? 0) + (includeType ? keyDiff + 1 : keyDiff) // +1 for bracket
+      )}`
     );
   }
   return prettyConcept;
@@ -490,11 +506,13 @@ export function prettyFHIRObject(
 ): string {
   const resourceType = result.getTypeInfo()._name;
   const keyIndentation = Array(keyIndent).join(' ');
+  const typeStr = includeType ? `${resourceType.toUpperCase()}: ` : '';
   if (resourceType === 'Period') {
-    const typeStr = includeType ? 'INTERVAL: ' : '';
     return `${typeStr}${prettyResult(result.get('start'))} - ${prettyResult(result.get('end'))}`;
   } else if (resourceType === 'dateTime') {
     return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY h:mm A')}`;
+  } else if (resourceType === 'date') {
+    return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY')}`;
   } else if (resourceType === 'Coding') {
     return prettyCode(
       result.get('code')?.['value'],
@@ -504,28 +522,63 @@ export function prettyFHIRObject(
     );
   } else if (resourceType === 'CodeableConcept') {
     return prettyConcept(result.get('text')?.['value'], result.get('coding'), includeType, indentLevel, keyIndent);
+  } else if (resourceType === 'Duration') {
+    return `${typeStr}${result.get('value')?.['value']} ${result.get('unit')?.['value']}`;
+  } else if (resourceType === 'Ratio') {
+    const numer = result.get('numerator')?.['value']?.['value'];
+    const numerUnit = result.get('numerator')?.['unit']?.['value'];
+    const denom = result.get('denominator')?.['value']?.['value'];
+    const denomUnit = result.get('denominator')?.['unit']?.['value'];
+    return `${typeStr}(${numer}${numerUnit ? ` ${numerUnit}` : ''})/(${denom}${denomUnit ? ` ${denomUnit}` : ''})`;
   }
 
-  // Handle resources
-  let prettyResultReturn = '';
-  const currentIndentation = Array(indentLevel).join(' ');
-  prettyResultReturn = prettyResultReturn.concat(`${resourceType.toUpperCase()}\n`);
-  prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}${keyIndentation}ID: ${result.getId()}\n`);
-  if (clinicalDateParams?.base.includes(resourceType)) {
-    const expressionMatch = clinicalDateParams.expression.split('|').find(e => e.trim().startsWith(resourceType));
-    const expression = expressionMatch?.split('.')[1].trim() || '';
+  if (resourceType in parsedCodePaths) {
+    // Handle resources
+    let prettyResultReturn = '';
+    const currentIndentation = Array(indentLevel).join(' ');
+    prettyResultReturn = prettyResultReturn.concat(`${resourceType}\n`);
+    prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}${keyIndentation}ID: ${result.getId()}\n`);
+    if (clinicalDateParams?.base.includes(resourceType)) {
+      const expressionMatch = clinicalDateParams.expression.split('|').find(e => e.trim().startsWith(resourceType));
+      const expression = expressionMatch?.split('.')[1].trim() || '';
+      prettyResultReturn = prettyResultReturn.concat(
+        `${currentIndentation}${keyIndentation}${expression.toUpperCase()}: ${prettyResult(
+          result.getDateOrInterval(expression),
+          false
+        )}\n`
+      );
+    }
+    const codePath = parsedCodePaths[resourceType].primaryCodePath;
     prettyResultReturn = prettyResultReturn.concat(
-      `${currentIndentation}${keyIndentation}${expression.toUpperCase()}: ${prettyResult(
-        result.getDateOrInterval(expression),
-        false
-      )}\n`
+      `${currentIndentation}${keyIndentation}${codePath.toUpperCase()}: ${prettyResult(
+        result.getCode(codePath),
+        false,
+        indentLevel,
+        (keyIndent ?? 0) + codePath.length + 2 // key length + 2 for colon, space
+      )}`
     );
+    return prettyResultReturn;
   }
-  const codePath = parsedCodePaths[resourceType].primaryCodePath;
-  prettyResultReturn = prettyResultReturn.concat(
-    `${currentIndentation}${keyIndentation}${codePath.toUpperCase()}: ${prettyResult(result.getCode(codePath), false)}`
-  );
-  return prettyResultReturn;
+
+  // Handle values
+  if (result.getTypeInfo().findElement('value', true)) {
+    const value = result.get('value');
+
+    if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
+      // Try simple value
+      return `${typeStr}${value}`;
+    } else if (
+      typeof value?.['value'] === 'string' ||
+      typeof value?.['value'] === 'boolean' ||
+      typeof value?.['value'] === 'number'
+    ) {
+      // Try nested value
+      return `${typeStr}${value?.['value']}`;
+    }
+  }
+
+  // Unknown
+  return `(atypical type) ${typeStr}\n${JSON.stringify(result, null, 2)}`;
 }
 
 /**

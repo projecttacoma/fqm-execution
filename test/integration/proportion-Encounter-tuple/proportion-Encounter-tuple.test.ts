@@ -38,7 +38,7 @@ describe('proportion Encounter tuple usage', () => {
       // check pretty does appropriate brackets and spacing
       expect(tupleResult).toBeDefined();
       expect(tupleResult?.pretty).toEqual(
-        '[{\n  durationDays: 1,\n  encounter: ENCOUNTER\n             ID: enc-1-day\n             PERIOD: 09/17/2022 4:16 AM - 09/18/2022 4:16 AM\n             TYPE: [exampleSystem exampleCode]\n},\n{\n  durationDays: 3,\n  encounter: ENCOUNTER\n             ID: enc-3-day\n             PERIOD: 04/15/2022 3:15 PM - 04/18/2022 3:15 PM\n             TYPE: [exampleSystem exampleCode]\n}]'
+        '[{\n  durationDays: 1,\n  encounter: Encounter\n             ID: enc-1-day\n             PERIOD: 09/17/2022 4:16 AM - 09/18/2022 4:16 AM\n             TYPE: [exampleSystem exampleCode]\n},\n{\n  durationDays: 3,\n  encounter: Encounter\n             ID: enc-3-day\n             PERIOD: 04/15/2022 3:15 PM - 04/18/2022 3:15 PM\n             TYPE: [exampleSystem exampleCode]\n}]'
       );
     });
 

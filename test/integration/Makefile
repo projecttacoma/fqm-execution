@@ -8,7 +8,7 @@ endif
 
 # Prevents the presence of a directory with the same name skipping Makefile targets
 # TODO: Add other targets once defined
-.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction composite-all-or-nothing composite-weighted proportion-Encounter-tuple
+.PHONY: all proportion-boolean ratio-Encounter-reuseObservationFunction composite-all-or-nothing composite-weighted proportion-Encounter-tuple pretty-various-types
 
 # This loop grabs the important directory name from the full path to the cql file
 # This directory name MUST match the make target name in this file
@@ -45,6 +45,9 @@ composite-weighted:
 
 proportion-Encounter-tuple:
 	ecqm-bundler -c ./proportion-Encounter-tuple/cql/proportion-Encounter-tuple.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --basis Encounter -o ./proportion-Encounter-tuple/proportion-Encounter-tuple-bundle.json
+
+pretty-various-types:
+	ecqm-bundler -c ./pretty-various-types/cql/pretty-various-types.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipop --numer numer --denom denom --scoring-code proportion --basis boolean -o ./pretty-various-types/pretty-various-types-bundle.json
 
 clean:
 	-docker stop cql-translation-service
