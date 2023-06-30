@@ -370,7 +370,7 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
   const keyIndentation = Array(keyIndent).join(' ');
   const currentIndentation = Array(indentLevel).join(' ');
   if (result instanceof DateTime) {
-    return moment.utc(result.toString()).format('MM/DD/YYYY h:mm A');
+    return moment.utc(result.toString()).format('MM/DD/YYYY h:mm:ss A');
   } else if (result instanceof Interval) {
     const typeStr = includeType ? 'INTERVAL: ' : '';
     return `${typeStr}${prettyResult(result.low)} - ${prettyResult(result.high)}`;
@@ -389,7 +389,7 @@ export function prettyResult(result: any | null, includeType = true, indentLevel
   } else if (Array.isArray(result)) {
     prettyResultReturn = result.map((value: any) => prettyResult(value, includeType, indentLevel, keyIndent));
     return `[${prettyResultReturn.join(`,\n${currentIndentation}${keyIndentation}`)}]`;
-  } else if (typeof result === 'object') {
+  } else if (result != null && typeof result === 'object') {
     // if the object has it's own custom toString method, use that instead
     if (typeof result.toString === 'function' && result.toString !== Object.prototype.toString) {
       return result.toString();
@@ -510,25 +510,25 @@ export function prettyFHIRObject(
   if (resourceType === 'Period') {
     return `${typeStr}${prettyResult(result.get('start'))} - ${prettyResult(result.get('end'))}`;
   } else if (resourceType === 'dateTime') {
-    return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY h:mm A')}`;
+    return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY h:mm:ss A')}`;
   } else if (resourceType === 'date') {
     return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY')}`;
   } else if (resourceType === 'Coding') {
     return prettyCode(
-      result.get('code')?.['value'],
-      result.get('system')?.['value'],
-      result.get('display')?.['value'],
+      result.get('code')?.value,
+      result.get('system')?.value,
+      result.get('display')?.value,
       includeType
     );
   } else if (resourceType === 'CodeableConcept') {
-    return prettyConcept(result.get('text')?.['value'], result.get('coding'), includeType, indentLevel, keyIndent);
+    return prettyConcept(result.get('text')?.value, result.get('coding'), includeType, indentLevel, keyIndent);
   } else if (resourceType === 'Duration') {
-    return `${typeStr}${result.get('value')?.['value']} ${result.get('unit')?.['value']}`;
+    return `${typeStr}${result.get('value')?.value} ${result.get('unit')?.value}`;
   } else if (resourceType === 'Ratio') {
-    const numer = result.get('numerator')?.['value']?.['value'];
-    const numerUnit = result.get('numerator')?.['unit']?.['value'];
-    const denom = result.get('denominator')?.['value']?.['value'];
-    const denomUnit = result.get('denominator')?.['unit']?.['value'];
+    const numer = result.get('numerator')?.value?.value;
+    const numerUnit = result.get('numerator')?.unit?.value;
+    const denom = result.get('denominator')?.value?.value;
+    const denomUnit = result.get('denominator')?.unit?.value;
     return `${typeStr}(${numer}${numerUnit ? ` ${numerUnit}` : ''})/(${denom}${denomUnit ? ` ${denomUnit}` : ''})`;
   }
 
@@ -568,12 +568,12 @@ export function prettyFHIRObject(
       // Try simple value
       return `${typeStr}${value}`;
     } else if (
-      typeof value?.['value'] === 'string' ||
-      typeof value?.['value'] === 'boolean' ||
-      typeof value?.['value'] === 'number'
+      typeof value?.value === 'string' ||
+      typeof value?.value === 'boolean' ||
+      typeof value?.value === 'number'
     ) {
       // Try nested value
-      return `${typeStr}${value?.['value']}`;
+      return `${typeStr}${value?.value}`;
     }
   }
 
