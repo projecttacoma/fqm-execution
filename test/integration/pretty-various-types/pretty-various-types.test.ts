@@ -23,7 +23,7 @@ describe('calculates pretty results for various types', () => {
     const resourceListResult = group.statementResults.find(s => s.statementName === 'FHIR Encounter List');
     expect(resourceListResult).toBeDefined();
     expect(resourceListResult?.pretty).toEqual(
-      '[Encounter\nID: test-enc\nPERIOD: 01/01/2022 12:00 AM - 01/03/2022 12:00 AM\nTYPE: [[https://loinc.org asdf,\n      https://loinc.org zxcv]]]'
+      '[Encounter\nID: test-enc\nPERIOD: 01/01/2022 12:00:00 AM - 01/03/2022 12:00:00 AM\nTYPE: [[https://loinc.org asdf,\n      https://loinc.org zxcv]]]'
     );
   });
 
@@ -31,7 +31,7 @@ describe('calculates pretty results for various types', () => {
     const resourceSingleResult = group.statementResults.find(s => s.statementName === 'FHIR Encounter Single');
     expect(resourceSingleResult).toBeDefined();
     expect(resourceSingleResult?.pretty).toEqual(
-      'Encounter\nID: test-enc\nPERIOD: 01/01/2022 12:00 AM - 01/03/2022 12:00 AM\nTYPE: [[https://loinc.org asdf,\n      https://loinc.org zxcv]]'
+      'Encounter\nID: test-enc\nPERIOD: 01/01/2022 12:00:00 AM - 01/03/2022 12:00:00 AM\nTYPE: [[https://loinc.org asdf,\n      https://loinc.org zxcv]]'
     );
   });
 
@@ -52,7 +52,7 @@ describe('calculates pretty results for various types', () => {
   it('calculates pretty dateTime', () => {
     const dateTimeResult = group.statementResults.find(s => s.statementName === 'FHIR DateTime');
     expect(dateTimeResult).toBeDefined();
-    expect(dateTimeResult?.pretty).toEqual('01/01/2022 12:00 AM');
+    expect(dateTimeResult?.pretty).toEqual('01/01/2022 12:00:00 AM');
   });
 
   it('calculates pretty date', () => {
@@ -64,7 +64,7 @@ describe('calculates pretty results for various types', () => {
   it('calculates pretty period', () => {
     const periodResult = group.statementResults.find(s => s.statementName === 'FHIR Period');
     expect(periodResult).toBeDefined();
-    expect(periodResult?.pretty).toEqual('PERIOD: 01/01/2022 12:00 AM - 01/03/2022 12:00 AM');
+    expect(periodResult?.pretty).toEqual('PERIOD: 01/01/2022 12:00:00 AM - 01/03/2022 12:00:00 AM');
   });
 
   it('calculates pretty code', () => {
@@ -109,7 +109,7 @@ describe('calculates pretty results for various types', () => {
     const complexResult = group.statementResults.find(s => s.statementName === 'Kitchen Sink');
     expect(complexResult).toBeDefined();
     expect(complexResult?.pretty).toEqual(
-      '{\n  fhirCode: final,\n  fhirCodeableConcept: [https://loinc.org asdf,\n                       https://loinc.org zxcv],\n  fhirCoding: https://loinc.org asdf,\n  fhirDate: 01/01/2001,\n  fhirDateTime: 01/01/2022 12:00 AM,\n  fhirDuration: 1 days,\n  fhirEncounterList: [Encounter\n                     ID: test-enc\n                     PERIOD: 01/01/2022 12:00 AM - 01/03/2022 12:00 AM\n                     TYPE: [[https://loinc.org asdf,\n                           https://loinc.org zxcv]]],\n  fhirEncounterSingle: Encounter\n                       ID: test-enc\n                       PERIOD: 01/01/2022 12:00 AM - 01/03/2022 12:00 AM\n                       TYPE: [[https://loinc.org asdf,\n                             https://loinc.org zxcv]],\n  fhirIdentifier: test-patient-dcc365cd-3327-4fe9-b045-467428a201af,\n  fhirPeriod: 01/01/2022 12:00 AM - 01/03/2022 12:00 AM,\n  fhirRatio: (2.7 mmol/l)/(6.3 mmol/l),\n  fhirReference: (atypical type) \n{\n  "reference": {\n    "value": "Patient/123"\n  }\n},\n  fhirString: Schamberger741,\n  systemCode: http://example.com asdf, A S D F,\n  systemDateTime: 01/01/2022 12:00 AM,\n  systemInterval: 01/01/2022 12:00 AM - 12/31/2022 12:00 AM,\n  systemTyple: [{\n    id: test-enc\n  }]\n}'
+      '{\n  fhirCode: final,\n  fhirCodeableConcept: [https://loinc.org asdf,\n                       https://loinc.org zxcv],\n  fhirCoding: https://loinc.org asdf,\n  fhirDate: 01/01/2001,\n  fhirDateTime: 01/01/2022 12:00:00 AM,\n  fhirDuration: 1 days,\n  fhirEncounterList: [Encounter\n                     ID: test-enc\n                     PERIOD: 01/01/2022 12:00:00 AM - 01/03/2022 12:00:00 AM\n                     TYPE: [[https://loinc.org asdf,\n                           https://loinc.org zxcv]]],\n  fhirEncounterSingle: Encounter\n                       ID: test-enc\n                       PERIOD: 01/01/2022 12:00:00 AM - 01/03/2022 12:00:00 AM\n                       TYPE: [[https://loinc.org asdf,\n                             https://loinc.org zxcv]],\n  fhirIdentifier: test-patient-dcc365cd-3327-4fe9-b045-467428a201af,\n  fhirPeriod: 01/01/2022 12:00:00 AM - 01/03/2022 12:00:00 AM,\n  fhirRatio: (2.7 mmol/l)/(6.3 mmol/l),\n  fhirReference: (atypical type) \n{\n  "reference": {\n    "value": "Patient/123"\n  }\n},\n  fhirString: Schamberger741,\n  systemCode: http://example.com asdf, A S D F,\n  systemDateTime: 01/01/2022 12:00:00 AM,\n  systemInterval: 01/01/2022 12:00:00 AM - 12/31/2022 12:00:00 AM,\n  systemTyple: [{\n    id: test-enc\n  }]\n}'
     );
   });
 });

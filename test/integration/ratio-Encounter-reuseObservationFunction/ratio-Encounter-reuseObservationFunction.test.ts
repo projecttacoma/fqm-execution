@@ -179,7 +179,7 @@ describe('ratio Encounter reuse observation function measure', () => {
 
       expect(denomResult).toBeDefined();
       expect(denomResult?.pretty).toEqual(
-        '[Encounter\nID: 73dd8d81-77d8-46e7-984c-a3db88797d43\nPERIOD: 10/08/2022 7:36 AM - 10/09/2022 7:36 AM\nTYPE: [exampleSystem exampleCode],\nEncounter\nID: ae5a5635-f2ed-40d4-a1bd-ec93181ae30a\nPERIOD: 03/11/2022 10:35 PM - 03/14/2022 10:35 PM\nTYPE: [exampleSystem exampleCode],\nEncounter\nID: 4af3c69d-ada0-4a2e-99d2-dd53b7c0e16c\nPERIOD: 03/06/2022 6:32 PM - 03/08/2022 6:32 PM\nTYPE: [exampleSystem exampleCode]]'
+        '[Encounter\nID: 73dd8d81-77d8-46e7-984c-a3db88797d43\nPERIOD: 10/08/2022 7:36:18 AM - 10/09/2022 7:36:18 AM\nTYPE: [exampleSystem exampleCode],\nEncounter\nID: ae5a5635-f2ed-40d4-a1bd-ec93181ae30a\nPERIOD: 03/11/2022 10:35:50 PM - 03/14/2022 10:35:50 PM\nTYPE: [exampleSystem exampleCode],\nEncounter\nID: 4af3c69d-ada0-4a2e-99d2-dd53b7c0e16c\nPERIOD: 03/06/2022 6:32:08 PM - 03/08/2022 6:32:08 PM\nTYPE: [exampleSystem exampleCode]]'
       );
     });
   });
