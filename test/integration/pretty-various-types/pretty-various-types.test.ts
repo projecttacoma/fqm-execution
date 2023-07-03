@@ -4,8 +4,7 @@ import { getJSONFixture, getGroupByIndex } from '../helpers/testHelpers';
 
 const CALCULATION_OPTIONS: CalculationOptions = {
   measurementPeriodStart: '2022-01-01',
-  measurementPeriodEnd: '2022-12-31',
-  enableDebugOutput: true
+  measurementPeriodEnd: '2022-12-31'
 };
 
 const MEASURE: fhir4.Bundle = getJSONFixture('pretty-various-types/pretty-various-types-bundle.json');
