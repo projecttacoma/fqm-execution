@@ -2,11 +2,12 @@ module.exports = {
   preset: 'ts-jest',
   collectCoverageFrom: ['src/**/*.ts'],
   coveragePathIgnorePatterns: [
-    'src/integration-tests',
     'src/cli.ts',
     'src/calculation/Calculator.ts',
+    'src/execution/Execution.ts',
     'src/helpers/DebugHelpers.ts',
-    'src/execution/Execution.ts'
+    'src/integration-tests',
+    'src/scripts'
   ],
   moduleFileExtensions: ['ts', 'js', 'd.ts'],
   transform: {

@@ -45,6 +45,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc -w",
+    "build:systems": "ts-node src/scripts/parseCodeSystems.ts && prettier --write src/code-system/system-map.ts --loglevel silent",
     "build:test-data": "cd test/integration && make",
     "cli": "ts-node src/cli.ts",
     "coverage": "opener coverage/lcov-report/index.html",

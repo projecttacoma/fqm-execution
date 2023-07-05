@@ -1,5 +1,5 @@
 {
-  "exclude": ["build", "node_modules"],
+  "exclude": ["build", "node_modules", "src/code-system/cts-metadata.json"],
   "include": ["src"],
   "compilerOptions": {
     "resolveJsonModule": true,

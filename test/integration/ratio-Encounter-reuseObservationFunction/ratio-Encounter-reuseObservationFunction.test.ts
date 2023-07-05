@@ -10,8 +10,7 @@ import {
 
 const CALCULATION_OPTIONS: CalculationOptions = {
   measurementPeriodStart: '2022-01-01',
-  measurementPeriodEnd: '2022-12-31',
-  enableDebugOutput: true
+  measurementPeriodEnd: '2022-12-31'
 };
 
 const MEASURE_BUNDLE: fhir4.Bundle = getJSONFixture(
@@ -170,6 +169,17 @@ describe('ratio Encounter reuse observation function measure', () => {
       const episodeIdDenom2 = '4af3c69d-ada0-4a2e-99d2-dd53b7c0e16c';
       assertEpisodeObservations(group, episodeIdDenom2, [2], PopulationType.DENOM);
       assertEpisodeObservations(group, episodeIdDenom2, undefined, PopulationType.NUMER);
+    });
+
+    it('shows pretty results for 3 encounter result', async () => {
+      const results = await calculate(MEASURE_BUNDLE, [PATIENT_3ENC_1IN_ALL_2IN_DENOM], CALCULATION_OPTIONS);
+      const group = getGroupByIndex(0, results.results[0]);
+      const denomResult = group.statementResults.find(s => s.statementName === 'denom');
+
+      expect(denomResult).toBeDefined();
+      expect(denomResult?.pretty).toEqual(
+        '[Encounter\nID: 73dd8d81-77d8-46e7-984c-a3db88797d43\nPERIOD: 10/08/2022 7:36:18 AM - 10/09/2022 7:36:18 AM\nTYPE: [exampleSystem exampleCode],\nEncounter\nID: ae5a5635-f2ed-40d4-a1bd-ec93181ae30a\nPERIOD: 03/11/2022 10:35:50 PM - 03/14/2022 10:35:50 PM\nTYPE: [exampleSystem exampleCode],\nEncounter\nID: 4af3c69d-ada0-4a2e-99d2-dd53b7c0e16c\nPERIOD: 03/06/2022 6:32:08 PM - 03/08/2022 6:32:08 PM\nTYPE: [exampleSystem exampleCode]]'
+      );
     });
   });
 });

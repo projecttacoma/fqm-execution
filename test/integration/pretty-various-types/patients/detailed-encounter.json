@@ -1,0 +1,211 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "f6d27b04-4a80-4661-a6ff-ac045c52cbf8",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "dcc365cd-3327-4fe9-b045-467428a201af",
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "code": "something"
+                }
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-dcc365cd-3327-4fe9-b045-467428a201af"
+          }
+        ],
+        "name": [
+          {
+            "family": "Schamberger741",
+            "given": [
+              "Lucas782"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/dcc365cd-3327-4fe9-b045-467428a201af"
+      },
+      "fullUrl": "urn:uuid:dcc365cd-3327-4fe9-b045-467428a201af"
+    },
+    {
+      "fullUrl": "urn:uuid:test-enc",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "test-enc",
+        "status": "final",
+        "period": {
+          "start": "2022-01-01T00:00:00.0Z",
+          "end": "2022-01-03T00:00:00.0Z"
+        },
+        "subject": {
+          "reference": "Patient/123"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "asdf",
+                "system": "https://loinc.org"
+              },
+              {
+                "code": "zxcv",
+                "system": "https://loinc.org"
+              }
+            ]
+          }
+        ],
+        "length": {
+          "value": 1,
+          "unit": "days"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/test-enc"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:test-obs",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "test-obs",
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "15074-8",
+              "display": "Glucose [Moles/volume] in Blood - Ratio"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/123"
+        },
+        "effectiveDateTime": "2022-04-02T09:30:10+01:00",
+        "valueRatio": {
+          "numerator": {
+            "value": 2.7,
+            "unit": "mmol/l"
+          },
+          "denominator": {
+            "value": 6.3,
+            "unit": "mmol/l"
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/test-obs"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "e5ced597-51c1-488e-ba78-8c784a81e212",
+        "measure": "http://example.com/Measure/measure-Pretty",
+        "period": {
+          "start": "2022-01-01T05:00:00.000Z",
+          "end": "2022-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#b48aac5f-5cc5-4e2c-801a-55479e29d557"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "b48aac5f-5cc5-4e2c-801a-55479e29d557",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "dcc365cd-3327-4fe9-b045-467428a201af"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/e5ced597-51c1-488e-ba78-8c784a81e212"
+      },
+      "fullUrl": "urn:uuid:e5ced597-51c1-488e-ba78-8c784a81e212"
+    }
+  ]
+}

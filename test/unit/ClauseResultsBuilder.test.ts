@@ -4,6 +4,7 @@ import { getJSONFixture, getELMFixture } from './helpers/testHelpers';
 import { PopulationResult, StatementResult } from '../../src/types/Calculator';
 import { PopulationType, Relevance, FinalResult, MeasureScoreType } from '../../src/types/Enums';
 import * as cql from '../../src/types/CQLTypes';
+import { Code, Concept } from 'cql-execution';
 
 type MeasureWithGroup = fhir4.Measure & {
   group: fhir4.MeasureGroup[];
@@ -348,6 +349,35 @@ describe('ClauseResultsBuilder', () => {
     test('should properly indent an array in an object', () => {
       const arrayObject = { array: [1, 2, 3] };
       expect(ClauseResultsBuilder.prettyResult(arrayObject)).toEqual('{\n  array: [1,\n         2,\n         3]\n}');
+    });
+
+    test('should create pretty code', () => {
+      const code = new Code('testCode', 'http://snomed.info/sct');
+      expect(ClauseResultsBuilder.prettyResult(code)).toEqual('CODE: SNOMEDCT testCode');
+    });
+
+    test('should create pretty code for unmapped system URL', () => {
+      const code = new Code('testCode', 'www.example.com');
+      expect(ClauseResultsBuilder.prettyResult(code)).toEqual('CODE: www.example.com testCode');
+    });
+
+    test('should create pretty code for undefined system URL', () => {
+      const code = new Code('testCode');
+      expect(ClauseResultsBuilder.prettyResult(code)).toEqual('CODE: UNDEFINED_SYSTEM testCode');
+    });
+
+    test('should create pretty concept', () => {
+      const concept = new Concept([new Code('testCode1'), new Code('testCode2')], 'testConcept');
+      expect(ClauseResultsBuilder.prettyResult(concept)).toEqual(
+        'CONCEPT: testConcept\n  [CODE: UNDEFINED_SYSTEM testCode1,\n   CODE: UNDEFINED_SYSTEM testCode2]'
+      );
+    });
+
+    test('should create pretty concept without display text', () => {
+      const concept = new Concept([new Code('testCode1'), new Code('testCode2')]);
+      expect(ClauseResultsBuilder.prettyResult(concept)).toEqual(
+        'CONCEPT: \n  [CODE: UNDEFINED_SYSTEM testCode1,\n   CODE: UNDEFINED_SYSTEM testCode2]'
+      );
     });
   });
 

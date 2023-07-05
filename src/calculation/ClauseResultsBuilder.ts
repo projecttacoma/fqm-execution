@@ -3,7 +3,7 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ELMDependencyHelper from '../helpers/elm/ELMDependencyHelpers';
 import { ELM, LibraryDependencyInfo } from '../types/ELMTypes';
 import * as cql from '../types/CQLTypes';
-import { Interval, DateTime, Code, Quantity } from 'cql-execution';
+import { Interval, DateTime, Code, Quantity, Concept } from 'cql-execution';
 import moment from 'moment';
 
 import { FinalResult, PopulationType, Relevance } from '../types/Enums';
@@ -17,6 +17,14 @@ import {
   isSupplementalDataUsage
 } from '../types/Calculator';
 import { UnexpectedProperty } from '../types/errors/CustomErrors';
+
+// code system, search parameters, and code paths for pulling pretty information from resources
+import { systemMap } from '../code-system/system-map';
+import { SearchParameters } from '../compartment-definition/SearchParameters';
+import { parsedCodePaths } from '../code-attributes/codePaths';
+const clinicalDateParams = SearchParameters.entry.find(
+  e => e.fullUrl === 'http://hl7.org/fhir/SearchParameter/clinical-date'
+)?.resource;
 
 /**
  * Contains helpers that generate useful data for coverage and highlighting.
@@ -345,12 +353,13 @@ export function buildStatementAndClauseResults(
  * Generates a pretty human readable representation of a result.
  *
  * @param {(Array|object|boolean|???)} result - The result from the calculation engine.
+ * @param {boolean} includeType - true if certain types should be labeled in the pretty output, like 'CODE'
  * @param {number|undefined} indentLevel - For nested objects, the indentLevel indicates how far to indent.
  *                                Note that 1 is the base because Array(1).join ' ' returns ''.
  * @param {number|undefined} keyIndent - Indent count used for key indentation.
  * @returns {String} a pretty version of the given result
  */
-export function prettyResult(result: any | null, indentLevel?: number, keyIndent?: number): string {
+export function prettyResult(result: any | null, includeType = true, indentLevel?: number, keyIndent?: number): string {
   let prettyResultReturn;
   if (indentLevel == null) {
     indentLevel = 1;
@@ -361,100 +370,215 @@ export function prettyResult(result: any | null, indentLevel?: number, keyIndent
   const keyIndentation = Array(keyIndent).join(' ');
   const currentIndentation = Array(indentLevel).join(' ');
   if (result instanceof DateTime) {
-    return moment.utc(result.toString()).format('MM/DD/YYYY h:mm A');
+    return moment.utc(result.toString()).format('MM/DD/YYYY h:mm:ss A');
   } else if (result instanceof Interval) {
-    return `INTERVAL: ${prettyResult(result.low)} - ${prettyResult(result.high)}`;
+    const typeStr = includeType ? 'INTERVAL: ' : '';
+    return `${typeStr}${prettyResult(result.low)} - ${prettyResult(result.high)}`;
   } else if (result instanceof Code) {
-    // TODO: Sort out a better way to have a friendly system display for FHIR codes
-    return `CODE: ${result.system} ${result.code}`;
+    return prettyCode(result.code, result.system, result.display, includeType);
+  } else if (result instanceof Concept) {
+    return prettyConcept(result.display, result.codes, includeType, indentLevel, keyIndent);
   } else if (result instanceof Quantity) {
     let quantityResult = `QUANTITY: ${result.value}`;
     if (result.unit) {
       quantityResult += ` ${result.unit}`;
     }
     return quantityResult;
-  } else if (result && typeof result._type === 'string' && result._type.includes('QDM::')) {
-    // If there isn't a description, use the type name as a fallback.  This mirrors the frontend where we do
-    // result.constructor.name.
-    const description = result.description ? `${result.description}\n` : `${result._type.replace('QDM::', '')}\n`;
-    let startDateTime = null;
-    let endDateTime = null;
-    let startTimeString = '';
-    let endTimeString = '';
-    // Start time of data element is start of relevant period, if data element does not have relevant period, use authorDatetime
-    if (result.relevantPeriod) {
-      if (result.relevantPeriod.low) {
-        startDateTime = result.relevantPeriod.low;
-      }
-      if (result.relevantPeriod.high) {
-        endDateTime = result.relevantPeriod.high;
-      }
-    } else if (result.prevalencePeriod) {
-      if (result.prevalencePeriod.low) {
-        startDateTime = result.prevalencePeriod.low;
-      }
-      if (result.prevalencePeriod.high) {
-        endDateTime = result.prevalencePeriod.high;
-      }
-    } else if (result.authorDatetime) {
-      // TODO: start result string will need to be updated to AUTHORED once bonnie frontend
-      // updates its pretty printer to do so.
-      startDateTime = result.authorDatetime;
-    }
-
-    if (startDateTime) {
-      startTimeString = `START: ${moment.utc(startDateTime.toString()).format('MM/DD/YYYY h:mm A')}\n`;
-    }
-    // If endTime is the infinity dateTime, clear it out because we do not want to export it
-    if (endDateTime && endDateTime.year !== 9999) {
-      endTimeString = `STOP: ${moment.utc(endDateTime.toString()).format('MM/DD/YYYY h:mm A')}\n`;
-    }
-    const system = result.dataElementCodes[0].system;
-    // TODO: Sort out a better way to have a friendly system display for FHIR codes
-    const codeDisplay =
-      result.dataElementCodes && result.dataElementCodes[0] ? `CODE: ${system} ${result.dataElementCodes[0].code}` : '';
-    // Add indentation
-    const returnString = `${description}${startTimeString}${endTimeString}${codeDisplay}`;
-    return returnString.replace(/\n/g, `\n${currentIndentation}${keyIndentation}`);
-  } else if (result instanceof String || typeof result === 'string') {
+  } else if (typeof result === 'string') {
     return `"${result}"`;
-  } else if (result instanceof Array) {
-    prettyResultReturn = result.map((value: any) => prettyResult(value, indentLevel, keyIndent));
+  } else if (Array.isArray(result)) {
+    prettyResultReturn = result.map((value: any) => prettyResult(value, includeType, indentLevel, keyIndent));
     return `[${prettyResultReturn.join(`,\n${currentIndentation}${keyIndentation}`)}]`;
-  } else if (result instanceof Object) {
+  } else if (result != null && typeof result === 'object') {
     // if the object has it's own custom toString method, use that instead
     if (typeof result.toString === 'function' && result.toString !== Object.prototype.toString) {
       return result.toString();
     }
-    prettyResultReturn = '{\n';
-    const baseIndentation = Array(3).join(' ');
-    // TODO: Update the this function to better handle FHIR objects instead of QDM objects.
-    const sortedKeys = Object.keys(result)
-      .sort()
-      .filter(key => key !== '_type' && key !== 'qdmVersion');
-    for (const key of sortedKeys) {
-      // add 2 spaces per indent
-      const value = result[key];
-      const nextIndentLevel = indentLevel + 2;
-      // key length + ': '
-      keyIndent = key.length + 3;
-      prettyResultReturn = prettyResultReturn.concat(
-        `${baseIndentation}${currentIndentation}${key}: ${prettyResult(value, nextIndentLevel, keyIndent)}`
-      );
-      // append commas if it isn't the last key
-      if (key === sortedKeys[sortedKeys.length - 1]) {
-        prettyResultReturn += '\n';
-      } else {
-        prettyResultReturn += ',\n';
+
+    if (typeof result.getTypeInfo === 'function') {
+      // FHIRObject approach
+      return prettyFHIRObject(result, includeType, indentLevel, keyIndent);
+    } else {
+      // Tuple approach
+      prettyResultReturn = '{\n';
+      const baseIndentation = Array(3).join(' ');
+      const sortedKeys = Object.keys(result).sort();
+      for (const key of sortedKeys) {
+        // add 2 spaces per indent
+        const value = result[key];
+        const nextIndentLevel = indentLevel + 2;
+        // key length + ': '
+        keyIndent = key.length + 3;
+        prettyResultReturn = prettyResultReturn.concat(
+          `${baseIndentation}${currentIndentation}${key}: ${prettyResult(value, false, nextIndentLevel, keyIndent)}`
+        );
+        // append commas if it isn't the last key
+        if (key === sortedKeys[sortedKeys.length - 1]) {
+          prettyResultReturn += '\n';
+        } else {
+          prettyResultReturn += ',\n';
+        }
       }
+      prettyResultReturn += `${currentIndentation}}`;
+      return prettyResultReturn;
     }
-    prettyResultReturn += `${currentIndentation}}`;
-    return prettyResultReturn;
   }
   if (result) {
     return JSON.stringify(result, null, 2);
   }
   return 'null';
+}
+
+/**
+ * Uses the pieces of a code object to show code, system, and display in a pretty way
+ * for whichever properties are available.
+ */
+export function prettyCode(
+  code: string,
+  system: string | undefined,
+  display: string | undefined,
+  includeType: boolean
+) {
+  const typeStr = includeType ? 'CODE: ' : '';
+  const displayStr = display ? `, ${display}` : '';
+  let systemStr = 'UNDEFINED_SYSTEM';
+  if (system) {
+    if (system in systemMap) {
+      systemStr = systemMap[system];
+    } else {
+      systemStr = system;
+    }
+  }
+  return `${typeStr}${systemStr} ${code}${displayStr}`;
+}
+
+/**
+ * Uses the pieces of a codeable concept object to show concept display text (if available)
+ * and the contained codings that belong to the concept in a pretty way
+ */
+export function prettyConcept(
+  conceptTxt: string | undefined,
+  conceptCodings: any[] | undefined,
+  includeType: boolean,
+  indentLevel?: number,
+  keyIndent?: number
+) {
+  let prettyConcept = '';
+  let keyDiff = 0;
+  if (includeType) {
+    prettyConcept = 'CONCEPT: ';
+    keyDiff = 2; //offset between concept key and code key including bracket
+  }
+
+  let conceptTxtNL = '';
+  if (conceptTxt || includeType) {
+    // include new line (+ indentation) if there's something to help dilineate the coding list
+    const keyIndentation = Array((keyIndent ?? 0) + keyDiff).join(' ');
+    conceptTxtNL = `\n${keyIndentation}`;
+  }
+
+  if (conceptTxt) {
+    prettyConcept = prettyConcept.concat(`${conceptTxt}`);
+  }
+  if (conceptCodings) {
+    prettyConcept = prettyConcept.concat(
+      `${conceptTxtNL}${prettyResult(
+        conceptCodings,
+        includeType,
+        indentLevel,
+        (keyIndent ?? 0) + (includeType ? keyDiff + 1 : keyDiff) // +1 for bracket
+      )}`
+    );
+  }
+  return prettyConcept;
+}
+
+/**
+ * Function to help prettyResult handle FHIRObject(s) specifically, handling similar types, but
+ * in a FHIRObject structure rather than a CQL object structure. Uses similar inputs put expects
+ * a FHIRObject result to be passed in.
+ */
+export function prettyFHIRObject(
+  result: FHIRObject,
+  includeType = true,
+  indentLevel?: number,
+  keyIndent?: number
+): string {
+  const resourceType = result.getTypeInfo()._name;
+  const keyIndentation = Array(keyIndent).join(' ');
+  const typeStr = includeType ? `${resourceType.toUpperCase()}: ` : '';
+  if (resourceType === 'Period') {
+    return `${typeStr}${prettyResult(result.get('start'))} - ${prettyResult(result.get('end'))}`;
+  } else if (resourceType === 'dateTime') {
+    return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY h:mm:ss A')}`;
+  } else if (resourceType === 'date') {
+    return `${moment.utc(result.get('value').toString()).format('MM/DD/YYYY')}`;
+  } else if (resourceType === 'Coding') {
+    return prettyCode(
+      result.get('code')?.value,
+      result.get('system')?.value,
+      result.get('display')?.value,
+      includeType
+    );
+  } else if (resourceType === 'CodeableConcept') {
+    return prettyConcept(result.get('text')?.value, result.get('coding'), includeType, indentLevel, keyIndent);
+  } else if (resourceType === 'Duration') {
+    return `${typeStr}${result.get('value')?.value} ${result.get('unit')?.value}`;
+  } else if (resourceType === 'Ratio') {
+    const numer = result.get('numerator')?.value?.value;
+    const numerUnit = result.get('numerator')?.unit?.value;
+    const denom = result.get('denominator')?.value?.value;
+    const denomUnit = result.get('denominator')?.unit?.value;
+    return `${typeStr}(${numer}${numerUnit ? ` ${numerUnit}` : ''})/(${denom}${denomUnit ? ` ${denomUnit}` : ''})`;
+  }
+
+  if (resourceType in parsedCodePaths) {
+    // Handle resources
+    let prettyResultReturn = '';
+    const currentIndentation = Array(indentLevel).join(' ');
+    prettyResultReturn = prettyResultReturn.concat(`${resourceType}\n`);
+    prettyResultReturn = prettyResultReturn.concat(`${currentIndentation}${keyIndentation}ID: ${result.getId()}\n`);
+    if (clinicalDateParams?.base.includes(resourceType)) {
+      const expressionMatch = clinicalDateParams.expression.split('|').find(e => e.trim().startsWith(resourceType));
+      const expression = expressionMatch?.split('.')[1].trim() || '';
+      prettyResultReturn = prettyResultReturn.concat(
+        `${currentIndentation}${keyIndentation}${expression.toUpperCase()}: ${prettyResult(
+          result.getDateOrInterval(expression),
+          false
+        )}\n`
+      );
+    }
+    const codePath = parsedCodePaths[resourceType].primaryCodePath;
+    prettyResultReturn = prettyResultReturn.concat(
+      `${currentIndentation}${keyIndentation}${codePath.toUpperCase()}: ${prettyResult(
+        result.getCode(codePath),
+        false,
+        indentLevel,
+        (keyIndent ?? 0) + codePath.length + 2 // key length + 2 for colon, space
+      )}`
+    );
+    return prettyResultReturn;
+  }
+
+  // Handle values
+  if (result.getTypeInfo().findElement('value', true)) {
+    const value = result.get('value');
+
+    if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
+      // Try simple value
+      return `${typeStr}${value}`;
+    } else if (
+      typeof value?.value === 'string' ||
+      typeof value?.value === 'boolean' ||
+      typeof value?.value === 'number'
+    ) {
+      // Try nested value
+      return `${typeStr}${value?.value}`;
+    }
+  }
+
+  // Unknown
+  return `(atypical type) ${typeStr}\n${JSON.stringify(result, null, 2)}`;
 }
 
 /**

@@ -139,6 +139,25 @@ The calculation results returned above will have the following structure:
 ]
 ```
 
+### Statement Results
+
+Statement results are a part of the calculation's `detailedResults` data. Statement results can be used to inspect the individual results of each CQL statement found in the measure CQL. Statement results will have the following structure:
+
+```
+{
+  "libraryName": <name of library statement is found in>,
+  "statementName": <name of CQL statement>,
+  "localId": <id for internal calculation reference>,
+  "final": <'NA', 'UNHIT', 'TRUE', or 'FALSE'>,
+  "relevance": <whether the statement impacted the calculation>,
+  "raw": <raw result of the statement calculation>,
+  "isFunction": <whether the statement is a function>,
+  "pretty": <human readable version of the raw result>
+}
+```
+
+The statement result `.pretty` attribute can be used to show results data in a more user-friendly way for any of the calculated statements.
+
 ## Interpreting Calculation Results
 
 ### Boolean Measures

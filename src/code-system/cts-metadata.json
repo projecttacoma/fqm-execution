@@ -1,0 +1,810 @@
+{
+  "resourceType": "CapabilityStatement",
+  "id": "0e54b8d0-9a27-44d8-910e-45c79c816fc5",
+  "extension": [ {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ActCode"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ActMood"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ActMood"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ActPriority"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ActPriority"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ActReason"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ActReason"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ActRelationshipType"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ActRelationshipType"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ActStatus"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ActStatus"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-AddressUse"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "AddressUse"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-AdministrativeGender"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "AdministrativeGender"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v2-0001"
+    }, {
+      "url": "version",
+      "valueString": "HL7V2.5"
+    }, {
+      "url": "name",
+      "valueString": "AdministrativeSex"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/cdcnhsn.html"
+    }, {
+      "url": "version",
+      "valueString": "2023-04"
+    }, {
+      "url": "name",
+      "valueString": "CDCNHSN"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "urn:oid:2.16.840.1.113883.6.238"
+    }, {
+      "url": "version",
+      "valueString": "1.2"
+    }, {
+      "url": "name",
+      "valueString": "CDCREC"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://www.ada.org/cdt"
+    }, {
+      "url": "version",
+      "valueString": "2023"
+    }, {
+      "url": "name",
+      "valueString": "CDT"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://www.ama-assn.org/go/cpt"
+    }, {
+      "url": "version",
+      "valueString": "2023"
+    }, {
+      "url": "name",
+      "valueString": "CPT"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://hl7.org/fhir/sid/cvx"
+    }, {
+      "url": "version",
+      "valueString": "2023-03-14"
+    }, {
+      "url": "name",
+      "valueString": "CVX"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "Confidentiality"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v2-0112"
+    }, {
+      "url": "version",
+      "valueString": "HL7V2.5"
+    }, {
+      "url": "name",
+      "valueString": "DischargeDisposition"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-EntityNamePartQualifier"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "EntityNamePartQualifier"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-EntityNameUse"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "EntityNameUse"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://www.nlm.nih.gov/research/umls/hcpcs"
+    }, {
+      "url": "version",
+      "valueString": "2023"
+    }, {
+      "url": "name",
+      "valueString": "HCPCS"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "https://www.cdc.gov/nhsn/cdaportal/terminology/codesystem/hsloc.html"
+    }, {
+      "url": "version",
+      "valueString": "2022"
+    }, {
+      "url": "name",
+      "valueString": "HSLOC"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://hl7.org/fhir/sid/icd-10-cm"
+    }, {
+      "url": "version",
+      "valueString": "2023"
+    }, {
+      "url": "name",
+      "valueString": "ICD10CM"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://www.cms.gov/Medicare/Coding/ICD10"
+    }, {
+      "url": "version",
+      "valueString": "2023"
+    }, {
+      "url": "name",
+      "valueString": "ICD10PCS"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://hl7.org/fhir/sid/icd-9-cm"
+    }, {
+      "url": "version",
+      "valueString": "2013"
+    }, {
+      "url": "name",
+      "valueString": "ICD9CM"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://loinc.org"
+    }, {
+      "url": "version",
+      "valueString": "2.74"
+    }, {
+      "url": "name",
+      "valueString": "LOINC"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityMode"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "LanguageAbilityMode"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-LanguageAbilityProficiency"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "LanguageAbilityProficiency"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-LivingArrangement"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "LivingArrangement"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://www.nlm.nih.gov/research/umls/MED-RT"
+    }, {
+      "url": "version",
+      "valueString": "2022-09"
+    }, {
+      "url": "name",
+      "valueString": "MED-RT"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "MaritalStatus"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl"
+    }, {
+      "url": "version",
+      "valueString": "2023-03"
+    }, {
+      "url": "name",
+      "valueString": "NCI"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://hl7.org/fhir/ndfrt"
+    }, {
+      "url": "version",
+      "valueString": "2018-03"
+    }, {
+      "url": "name",
+      "valueString": "NDFRT"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://nucc.org/provider-taxonomy"
+    }, {
+      "url": "version",
+      "valueString": "22.1"
+    }, {
+      "url": "name",
+      "valueString": "HealthCareProviderTaxonomy"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "https://www.cms.gov/Medicare/Medicare-Fee-for-Service-Payment/HospitalAcqCond/Coding"
+    }, {
+      "url": "version",
+      "valueString": "2021"
+    }, {
+      "url": "name",
+      "valueString": "PresentOnAdmission"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "NullFlavor"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ObservationInterpretation"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ObservationValue"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ObservationValue"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ParticipationFunction"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ParticipationFunction"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ParticipationMode"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ParticipationMode"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ParticipationType"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://www.nlm.nih.gov/research/umls/rxnorm"
+    }, {
+      "url": "version",
+      "valueString": "2023-05"
+    }, {
+      "url": "name",
+      "valueString": "RXNORM"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "ReligiousAffiliation"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-RoleClass"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "RoleClass"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-RoleCode"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "RoleCode"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-RoleStatus"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "RoleStatus"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://snomed.info/sct"
+    }, {
+      "url": "version",
+      "valueString": "2023-03"
+    }, {
+      "url": "name",
+      "valueString": "SNOMEDCT"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "https://nahdo.org/sopt"
+    }, {
+      "url": "version",
+      "valueString": "9.2"
+    }, {
+      "url": "name",
+      "valueString": "SOP"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://unitsofmeasure.org"
+    }, {
+      "url": "version",
+      "valueString": "1.5"
+    }, {
+      "url": "name",
+      "valueString": "UCUM"
+    }, {
+      "url": "content",
+      "valueCode": "fragment"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://www.nlm.nih.gov/research/umls"
+    }, {
+      "url": "version",
+      "valueString": "2022AB"
+    }, {
+      "url": "name",
+      "valueString": "UMLS"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://fdasis.nlm.nih.gov"
+    }, {
+      "url": "version",
+      "valueString": "2022-05"
+    }, {
+      "url": "name",
+      "valueString": "UNII"
+    } ]
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/capabilitystatement-supported-system",
+    "extension": [ {
+      "url": "system",
+      "valueUri": "http://terminology.hl7.org/CodeSystem/v3-MediaType"
+    }, {
+      "url": "version",
+      "valueString": "2023-02"
+    }, {
+      "url": "name",
+      "valueString": "MediaType"
+    } ]
+  } ],
+  "url": "https://cts.nlm.nih.gov/fhir/metadata",
+  "name": "RestServer",
+  "status": "active",
+  "experimental": false,
+  "date": "2023-06-14T11:30:04.315-04:00",
+  "publisher": "VSAC",
+  "contact": [ {
+    "telecom": [ {
+      "system": "email",
+      "value": "pishing.chiang@nih.gov"
+    } ]
+  } ],
+  "kind": "instance",
+  "software": {
+    "name": "vsac-fhir",
+    "version": "2.23.1",
+    "releaseDate": "2023-06-07T19:56:02-04:00"
+  },
+  "implementation": {
+    "description": "VSAC FHIR Terminology Services",
+    "url": "https://cts.nlm.nih.gov/fhir"
+  },
+  "fhirVersion": "4.0.1",
+  "format": [ "application/fhir+xml", "xml", "application/fhir+json", "json", "application/x-turtle", "ttl", "html/json", "html/xml", "html/turtle" ],
+  "rest": [ {
+    "mode": "server",
+    "security": {
+      "service": [ {
+        "coding": [ {
+          "system": "http://hl7.org/fhir/restful-security-service",
+          "code": "Basic"
+        } ]
+      } ],
+      "description": "Use HTTP Basic Authentication with VSAC/UMLS account information to access VSAC-FHIR"
+    },
+    "resource": [ {
+      "type": "CodeSystem",
+      "profile": "http://hl7.org/fhir/StructureDefinition/CodeSystem",
+      "supportedProfile": [ "http://hl7.org/fhir/StructureDefinition/shareablecodesystem" ],
+      "interaction": [ {
+        "code": "search-type"
+      }, {
+        "code": "vread"
+      }, {
+        "code": "read"
+      } ],
+      "searchInclude": [ "*" ],
+      "searchParam": [ {
+        "name": "_id",
+        "type": "string",
+        "documentation": "The ID of the resource"
+      }, {
+        "name": "_lastUpdated",
+        "type": "date"
+      }, {
+        "name": "content-mode",
+        "type": "string",
+        "documentation": "not-present | example | fragment | complete | supplement"
+      }, {
+        "name": "date",
+        "type": "date",
+        "documentation": "The code system publication date"
+      }, {
+        "name": "description",
+        "type": "string",
+        "documentation": "The description of the code system"
+      }, {
+        "name": "identifier",
+        "type": "string",
+        "documentation": "External identifier for the code system"
+      }, {
+        "name": "name",
+        "type": "string",
+        "documentation": "Computationally friendly name of the code system"
+      }, {
+        "name": "status",
+        "type": "string",
+        "documentation": "The current status of the code system"
+      }, {
+        "name": "system",
+        "type": "string",
+        "documentation": "The system for any codes defined by this code system (same as 'url')"
+      }, {
+        "name": "title",
+        "type": "string",
+        "documentation": "The human-friendly name of the code system"
+      }, {
+        "name": "url",
+        "type": "string",
+        "documentation": "The uri that identifies the code system"
+      }, {
+        "name": "version",
+        "type": "string",
+        "documentation": "The business version of the code system"
+      } ],
+      "operation": [ {
+        "name": "validate-code",
+        "definition": "https://cts.nlm.nih.gov/fhir/OperationDefinition/CodeSystemValueSet-it-validate-code"
+      }, {
+        "name": "subsumes",
+        "definition": "https://cts.nlm.nih.gov/fhir/OperationDefinition/CodeSystem-it-subsumes"
+      }, {
+        "name": "lookup",
+        "definition": "https://cts.nlm.nih.gov/fhir/OperationDefinition/CodeSystem-t-lookup"
+      } ]
+    }, {
+      "type": "OperationDefinition",
+      "profile": "http://hl7.org/fhir/StructureDefinition/OperationDefinition",
+      "interaction": [ {
+        "code": "read"
+      }, {
+        "code": "vread"
+      } ],
+      "searchInclude": [ "*" ]
+    }, {
+      "type": "TerminologyCapabilities",
+      "profile": "http://hl7.org/fhir/StructureDefinition/TerminologyCapabilities",
+      "interaction": [ {
+        "code": "vread"
+      }, {
+        "code": "read"
+      } ],
+      "searchInclude": [ "*" ]
+    }, {
+      "type": "ValueSet",
+      "profile": "http://hl7.org/fhir/StructureDefinition/ValueSet",
+      "supportedProfile": [ "http://hl7.org/fhir/StructureDefinition/shareablevalueset" ],
+      "interaction": [ {
+        "code": "search-type"
+      }, {
+        "code": "vread"
+      }, {
+        "code": "read"
+      } ],
+      "searchInclude": [ "*" ],
+      "searchParam": [ {
+        "name": "_id",
+        "type": "string",
+        "documentation": "The ID of the resource"
+      }, {
+        "name": "_lastUpdated",
+        "type": "date"
+      }, {
+        "name": "code",
+        "type": "string",
+        "documentation": "This special parameter searches for codes in the value set. See additional notes on the ValueSet resource"
+      }, {
+        "name": "description",
+        "type": "string",
+        "documentation": "The description of the value set"
+      }, {
+        "name": "expansion",
+        "type": "string",
+        "documentation": "Identifies the value set expansion (business identifier)"
+      }, {
+        "name": "identifier",
+        "type": "string",
+        "documentation": "External identifier for the value set"
+      }, {
+        "name": "name",
+        "type": "string",
+        "documentation": "Computationally friendly name of the value set"
+      }, {
+        "name": "publisher",
+        "type": "string",
+        "documentation": "Name of the publisher of the value set"
+      }, {
+        "name": "reference",
+        "type": "string",
+        "documentation": "A code system included or excluded in the value set or an imported value set"
+      }, {
+        "name": "status",
+        "type": "token",
+        "documentation": "The current status of the value set"
+      }, {
+        "name": "title",
+        "type": "string",
+        "documentation": "The human-friendly name of the value set"
+      }, {
+        "name": "url",
+        "type": "string",
+        "documentation": "The uri that identifies the value set"
+      }, {
+        "name": "usage",
+        "type": "composite"
+      }, {
+        "name": "version",
+        "type": "string",
+        "documentation": "The business version of the value set"
+      } ],
+      "operation": [ {
+        "name": "validate-code",
+        "definition": "https://cts.nlm.nih.gov/fhir/OperationDefinition/CodeSystemValueSet-it-validate-code"
+      }, {
+        "name": "expand",
+        "definition": "https://cts.nlm.nih.gov/fhir/OperationDefinition/ValueSet-it-expand"
+      } ]
+    } ],
+    "interaction": [ {
+      "code": "transaction"
+    } ]
+  } ]
+}
