@@ -5,7 +5,8 @@ import {
   cqlLogicClauseTrueStyle,
   cqlLogicClauseFalseStyle,
   cqlLogicClauseCoveredStyle,
-  calculateClauseCoverage
+  calculateClauseCoverage,
+  sortStatements
 } from '../../src/calculation/HTMLBuilder';
 import {
   StatementResult,
@@ -28,6 +29,7 @@ describe('HTMLBuilder', () => {
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
   const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;
+  const cvMeasure = getJSONFixture('measure/cv-measure.json') as fhir4.Measure;
   const singlePopMeasure = <fhir4.Measure>{
     resourceType: 'Measure',
     status: 'unknown',
@@ -302,5 +304,90 @@ describe('HTMLBuilder', () => {
     const res = generateHTML(singlePopMeasure, [popRetrieveFuncElm], prfStatementResults, prfClauseResults, 'test');
     expect(res.indexOf('ipp')).toBeLessThan(res.indexOf('SimpleVSRetrieve'));
     expect(res.indexOf('SimpleVSRetrieve')).toBeLessThan(res.indexOf('A Function'));
+  });
+
+  test('sortStatements orders population statements in specified order, then other, then function for a proportion boolean measure', () => {
+    statementResults = [
+      {
+        libraryName: 'Test',
+        statementName: 'A Function',
+        localId: 'test-id-1',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE,
+        isFunction: true
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'SimpleVSRetrieve',
+        localId: 'test-id-2',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'Numerator',
+        localId: 'test-id-3',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'Initial Population',
+        localId: 'test-id-4',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'Denominator Exclusion',
+        localId: 'test-id-5',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE
+      }
+    ];
+    sortStatements(simpleMeasure, 'test', statementResults);
+    expect(statementResults[0].statementName === 'Initial Population');
+    expect(statementResults[1].statementName === 'Denominator Exclusion');
+    expect(statementResults[2].statementName === 'Numerator');
+    expect(statementResults[3].statementName === 'SimpleVSRetrieve');
+    expect(statementResults[4].statementName === 'A Function');
+  });
+
+  test('sortStatements orders population statements in specified order, then other, then function for a continuous-variable boolean measure', () => {
+    statementResults = [
+      {
+        libraryName: 'Test',
+        statementName: 'Measure Population Exclusions',
+        localId: 'test-id-1',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'Initial Population',
+        localId: 'test-id-2',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'MeasureObservation',
+        localId: 'test-id-3',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE,
+        isFunction: true
+      },
+      {
+        libraryName: 'Test',
+        statementName: 'Measure Population',
+        final: FinalResult.FALSE,
+        relevance: Relevance.TRUE
+      }
+    ];
+    sortStatements(cvMeasure, 'test', statementResults);
+    expect(statementResults[0].statementName === 'Initial Population');
+    expect(statementResults[1].statementName === 'Measure Population');
+    expect(statementResults[2].statementName === 'Measure Population Exclusions');
+    expect(statementResults[3].statementName === 'MeasureObservation');
   });
 });

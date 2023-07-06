@@ -92,22 +92,48 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
  */
 export function sortStatements(measure: fhir4.Measure, groupId: string, statements: StatementResult[]) {
   const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
-  const populationSet = new Set(group?.population?.map(p => p.criteria.expression));
+  const populationOrder = [
+    'initial-population',
+    'denominator',
+    'denominator-exclusion',
+    'denominator-exception',
+    'numerator',
+    'numerator-exclusion',
+    'measure-population',
+    'measure-population-exclusion',
+    'measure-observation'
+  ];
+
+  const populationIdentifiers: Record<string, string> = {};
+  group?.population?.forEach(p => {
+    if (p.code?.coding?.[0].code !== undefined) {
+      populationIdentifiers[p.criteria.expression as string] = p.code.coding[0].code as string;
+    }
+  });
+
+  function populationCompare(a: StatementResult, b: StatementResult) {
+    return (
+      populationOrder.indexOf(populationIdentifiers[a.statementName]) -
+      populationOrder.indexOf(populationIdentifiers[b.statementName])
+    );
+  }
+
   function alphaCompare(a: StatementResult, b: StatementResult) {
     return a.statementName <= b.statementName ? -1 : 1;
   }
+
   statements.sort((a, b) => {
+    // if population statement, leave order or send to beginning
+    if (Object.keys(populationIdentifiers).includes(a.statementName)) {
+      return Object.keys(populationIdentifiers).includes(b.statementName) ? populationCompare(a, b) : -1;
+    }
+    if (Object.keys(populationIdentifiers).includes(b.statementName)) return 1;
+
     // if function, alphabetize or send to end
     if (a.isFunction) {
       return b.isFunction ? alphaCompare(a, b) : 1;
     }
     if (b.isFunction) return -1;
-
-    // if population statement, leave order or send to beginning
-    if (populationSet.has(a.statementName)) {
-      return populationSet.has(b.statementName) ? 0 : -1;
-    }
-    if (populationSet.has(b.statementName)) return 1;
 
     // if no function or population statement, alphabetize
     return alphaCompare(a, b);
