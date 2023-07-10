@@ -187,7 +187,8 @@ export function generateHTML(
 export function generateClauseCoverageHTML(
   measure: fhir4.Measure,
   elmLibraries: ELM[],
-  executionResults: ExecutionResult<DetailedPopulationGroupResult>[]
+  executionResults: ExecutionResult<DetailedPopulationGroupResult>[],
+  excludeSDEsInCoverage = false
 ): Record<string, string> {
   const groupResultLookup: Record<string, DetailedPopulationGroupResult[]> = {};
   const htmlGroupLookup: Record<string, string> = {};
@@ -221,10 +222,15 @@ export function generateClauseCoverageHTML(
     // From all the relevant ones, filter out any duplicate statements
     // uniqWith appears to pick the first element it encounters that matches the uniqueness condition
     // when iterating, which is fine because the relevance not being N/A is the only thing that matters now
-    const uniqueRelevantStatements = uniqWith(
+    let uniqueRelevantStatements = uniqWith(
       relevantStatements,
       (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
     );
+
+    // If we should exclude SDE clauses remove them here
+    if (excludeSDEsInCoverage) {
+      uniqueRelevantStatements = uniqueRelevantStatements.filter(s => !s.isSDEStatement);
+    }
 
     sortStatements(measure, groupId, uniqueRelevantStatements);
 
