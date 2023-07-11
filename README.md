@@ -878,7 +878,7 @@ By default, the CQL statements in the generated HTML output are sorted into popu
 8. measure-population-exclusion
 9. measure-observation (alphabetically sorted if multiple)
 
-The order of these populations is determined by most inclusive to least inclusive populations as shown in the following diagram:
+The order of these populations is determined by most inclusive to least inclusive populations as shown in the following diagram found [here](http://hl7.org/fhir/us/cqfmeasures/STU1/measure-conformance.html#conformance-requirement-11):
 
 ![Screenshot of Population Venn Diagram](./static/population-diagram.png)
 
