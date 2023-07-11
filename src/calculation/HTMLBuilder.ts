@@ -92,17 +92,7 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
  */
 export function sortStatements(measure: fhir4.Measure, groupId: string, statements: StatementResult[]) {
   const group = measure.group?.find(g => g.id === groupId) || measure.group?.[0];
-  const populationOrder = [
-    PopulationType.IPP,
-    PopulationType.DENOM,
-    PopulationType.DENEX,
-    PopulationType.DENEXCEP,
-    PopulationType.NUMER,
-    PopulationType.NUMEX,
-    PopulationType.MSRPOPL,
-    PopulationType.MSRPOPLEX,
-    PopulationType.OBSERV
-  ];
+  const populationOrder = Object.values(PopulationType);
 
   // this is a lookup of cql expression identifier -> population type
   const populationIdentifiers: Record<string, PopulationType> = {};
