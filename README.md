@@ -865,7 +865,24 @@ The following example of a proportion boolean measure shows how the logic highli
 ![Screenshot of Highlighting HTML Measure Logic](./static/logic-highlighting-example-2.png)
 
 ### CQL Statement Ordering in HTML
-By default, the CQL statements in the generated HTML output are sorted into population statements, non-functions, and functions, respectively. Non-population statements appear in alphabetical order. To disable this behavior, use the `disableHTMLOrdering` calculation option.
+
+By default, the CQL statements in the generated HTML output are sorted into population statements, non-functions, and functions, respectively. Non-population statements appear in alphabetical order. Population statements are sorted in the following order:
+
+1. initial-population
+2. denominator
+3. denominator-exclusion
+4. denominator-exception
+5. numerator
+6. numerator-exclusion
+7. measure-population
+8. measure-population-exclusion
+9. measure-observation (alphabetically sorted if multiple)
+
+The order of these populations is determined by most inclusive to least inclusive populations as shown in the following diagram found [here](http://hl7.org/fhir/us/cqfmeasures/STU1/measure-conformance.html#conformance-requirement-11):
+
+![Screenshot of Population Venn Diagram](./static/population-diagram.png)
+
+To disable this behavior, use the `disableHTMLOrdering` calculation option.
 
 ## Group Clause Coverage Highlighting
 
