@@ -243,19 +243,11 @@ export function generateClauseCoverageHTML(
     const flattenedStatementResults = detailedResults.flatMap(s => s.statementResults);
     const flattenedClauseResults = detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
 
-    // Grab every statement with any relevance other than N/A
-    // There may be multiple entries for a given statement across the results,
-    // but we know that non of them can be irrelevant
-    const relevantStatements = uniqWith(
-      flattenedStatementResults,
-      (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId && s1.relevance === s2.relevance
-    ).filter(s => s.relevance !== Relevance.NA);
-
     // From all the relevant ones, filter out any duplicate statements
     // uniqWith appears to pick the first element it encounters that matches the uniqueness condition
     // when iterating, which is fine because the relevance not being N/A is the only thing that matters now
     const uniqueRelevantStatements = uniqWith(
-      relevantStatements,
+      flattenedStatementResults.filter(s => s.relevance !== Relevance.NA),
       (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
     );
 
@@ -317,9 +309,11 @@ export function generateClauseCoverageHTML(
  * @returns percentage out of 100, represented as a string
  */
 export function calculateClauseCoverage(relevantStatements: StatementResult[], clauseResults: ClauseResult[]): string {
-  // find all relevant clauses using localId and libraryName from relevant statements
+  // find all relevant clauses using statementName and libraryName from relevant statements
   const allRelevantClauses = clauseResults.filter(c =>
-    relevantStatements.some(s => s.localId === c.localId && s.libraryName === c.libraryName && !s.isFunction)
+    relevantStatements.some(
+      s => s.statementName === c.statementName && s.libraryName === c.libraryName && !s.isFunction
+    )
   );
   // get all unique clauses to use as denominator in percentage calculation
   const allUniqueClauses = uniqWith(
