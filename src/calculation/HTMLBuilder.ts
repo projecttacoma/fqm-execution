@@ -243,7 +243,7 @@ export function generateClauseCoverageHTML(
     const flattenedStatementResults = detailedResults.flatMap(s => s.statementResults);
     const flattenedClauseResults = detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
 
-    // From all the relevant ones, filter out any duplicate statements
+    // Filter out any statement results where the statement relevance it not NA and filter out duplicates from that
     // uniqWith appears to pick the first element it encounters that matches the uniqueness condition
     // when iterating, which is fine because the relevance not being N/A is the only thing that matters now
     const uniqueRelevantStatements = uniqWith(
