@@ -240,16 +240,13 @@ export function generateClauseCoverageHTML(
   // go through the lookup object of each of the groups with their total
   // detailedResults and calculate the clause coverage html for each group
   Object.entries(groupResultLookup).forEach(([groupId, detailedResults]) => {
-    const flattenedStatementResults = detailedResults.flatMap(s => s.statementResults);
+    // Grab the statement results from just the first patient since just only need the names
+    // of the statements and whether or not their relevance is NA
+    const flattenedStatementResults = detailedResults[0].statementResults;
     const flattenedClauseResults = detailedResults.flatMap(c => (c.clauseResults ? c.clauseResults : []));
 
-    // Filter out any statement results where the statement relevance is not NA and filter out duplicates from that
-    // uniqWith appears to pick the first element it encounters that matches the uniqueness condition
-    // when iterating, which is fine because the relevance not being N/A is the only thing that matters now
-    const uniqueRelevantStatements = uniqWith(
-      flattenedStatementResults.filter(s => s.relevance !== Relevance.NA),
-      (s1, s2) => s1.libraryName === s2.libraryName && s1.localId === s2.localId
-    );
+    // Filter out any statement results where the statement relevance is NA
+    const uniqueRelevantStatements = flattenedStatementResults.filter(s => s.relevance !== Relevance.NA);
 
     if (!disableHTMLOrdering) {
       sortStatements(measure, groupId, uniqueRelevantStatements);
