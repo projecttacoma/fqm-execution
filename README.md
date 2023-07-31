@@ -152,7 +152,8 @@ Statement results are a part of the calculation's `detailedResults` data. Statem
   "relevance": <whether the statement impacted the calculation>,
   "raw": <raw result of the statement calculation>,
   "isFunction": <whether the statement is a function>,
-  "pretty": <human readable version of the raw result>
+  "pretty": <human readable version of the raw result>,
+  "statementLevelHTML": <Generated HTML markup for the CQL statement>
 }
 ```
 
@@ -447,6 +448,7 @@ Add missing ValueSet resources to a measure bundle.
 
 The options that we support for calculation are as follows:
 
+- `[buildStatementLevelHTML]`<[boolean](#calculation-options)>: Builds and returns HTML at the statement level (default: `true`)
 - `[calculateClauseCoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause coverage highlighting (default: `true`)
 - `[calculateHTML]`<[boolean](#calculation-options)>: Include HTML structure for highlighting (default: `true`)
 - `[calculateSDEs]`<[boolean](#calculation-options)>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)

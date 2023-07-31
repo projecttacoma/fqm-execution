@@ -46,6 +46,8 @@ export interface CalculationOptions {
   rootLibRef?: string;
   /** Disables custom ordering of CQL statements in the HTML structure for highlighting */
   disableHTMLOrdering?: boolean;
+  /** Builds and returns HTML at the statement level */
+  buildStatementLevelHTML?: boolean;
 }
 
 /**
@@ -209,6 +211,8 @@ export interface StatementResult {
   pretty?: string;
   /** TRUE if the statement is a function */
   isFunction?: boolean;
+  /** Generated HTML markup for the CQL statement */
+  statementLevelHTML?: boolean;
 }
 
 /**
