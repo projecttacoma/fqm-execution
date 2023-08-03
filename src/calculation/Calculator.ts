@@ -211,7 +211,7 @@ export async function calculate<T extends CalculationOptions>(
             detailedGroupResult.statementResults,
             detailedGroupResult.clauseResults,
             detailedGroupResult.groupId,
-            options.disableHTMLOrdering
+            options
           );
           detailedGroupResult.html = html;
           if (debugObject && options.enableDebugOutput) {

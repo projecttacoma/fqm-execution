@@ -1,6 +1,6 @@
 import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
-import { ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
+import { CalculationOptions, ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
 import { FinalResult, PopulationType, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
@@ -147,7 +147,7 @@ export function sortStatements(measure: fhir4.Measure, groupId: string, statemen
  * @param statementResults StatementResult array from calculation
  * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
- * @param disableHTMLOrdering disables CQL statement sorting
+ * @param options Calculation Options
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
@@ -156,14 +156,14 @@ export function generateHTML(
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
   groupId: string,
-  disableHTMLOrdering?: boolean
+  options?: CalculationOptions
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance !== Relevance.NA);
-  if (!disableHTMLOrdering) {
+  if (!options?.disableHTMLOrdering) {
     sortStatements(measure, groupId, relevantStatements);
   }
 
-  let result = `<div><h2>Population Group: ${groupId}</h2>`;
+  let overallHTML = `<div><h2>Population Group: ${groupId}</h2>`;
 
   relevantStatements.forEach(s => {
     const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
@@ -177,19 +177,21 @@ export function generateHTML(
     }
 
     if (matchingExpression.annotation) {
-      const res = main({
+      const statementHTML = main({
         libraryName: s.libraryName,
         statementName: s.statementName,
         clauseResults: clauseResults,
         ...matchingExpression.annotation[0].s
       });
-      result += res;
-      s.statementLevelHTML = res;
+      overallHTML += statementHTML;
+      if (options?.buildStatementLevelHTML) {
+        s.statementLevelHTML = statementHTML;
+      }
     }
   });
 
-  result += '</div>';
-  return result;
+  overallHTML += '</div>';
+  return overallHTML;
 }
 
 /**
