@@ -212,7 +212,7 @@ export interface StatementResult {
   /** TRUE if the statement is a function */
   isFunction?: boolean;
   /** Generated HTML markup for the CQL statement */
-  statementLevelHTML?: boolean;
+  statementLevelHTML?: string;
 }
 
 /**

@@ -35,8 +35,6 @@ export const cqlLogicUncoveredClauseStyle = {
   'border-bottom-style': 'solid'
 };
 
-type StatementAnnotation = { libraryName: string; annotation: Annotation[]; statementName: string };
-
 /**
  * Convert JS object to CSS Style string
  *
@@ -165,8 +163,8 @@ export function generateHTML(
     sortStatements(measure, groupId, relevantStatements);
   }
 
-  // assemble array of statement annotations to be templated to HTML
-  const statementAnnotations: StatementAnnotation[] = [];
+  let result = `<div><h2>Population Group: ${groupId}</h2>`;
+
   relevantStatements.forEach(s => {
     const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
     if (!matchingLibrary) {
@@ -179,25 +177,15 @@ export function generateHTML(
     }
 
     if (matchingExpression.annotation) {
-      statementAnnotations.push({
+      const res = main({
         libraryName: s.libraryName,
         statementName: s.statementName,
-        annotation: matchingExpression.annotation
+        clauseResults: clauseResults,
+        ...matchingExpression.annotation[0].s
       });
+      result += res;
+      s.statementLevelHTML = res;
     }
-  });
-
-  let result = `<div><h2>Population Group: ${groupId}</h2>`;
-
-  // generate HTML clauses using hbs template for each annotation
-  statementAnnotations.forEach(a => {
-    const res = main({
-      libraryName: a.libraryName,
-      statementName: a.statementName,
-      clauseResults: clauseResults,
-      ...a.annotation[0].s
-    });
-    result += res;
   });
 
   result += '</div>';
