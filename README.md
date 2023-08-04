@@ -886,6 +886,41 @@ The order of these populations is determined by most inclusive to least inclusiv
 
 To disable this behavior, use the `disableHTMLOrdering` calculation option.
 
+### Statement-level HTML
+Optionally, `fqm-execution` can generate the stylized HTML markup for each individual statement. To access the statement-level HTML, specify the `buildStatementLevelHTML` in the `CalculationOptions` prior to measure calculation. From the `detailedResults` returned for a given patient, the `statementLevelHTML` will be available as an element on each `statementResult` whose relevance is *not* N/A.
+
+```typescript
+[
+  {
+    "patientId": "test-patient",
+    "detailedResults": [
+      {
+        "groupId": "test-group",
+        "statementResults": [
+          // no HTML returned since relevance is NA
+          {
+            "libraryName": "MATGlobalCommonFunctionsFHIR4",
+            "statementName": "Patient",
+            "final": "NA",
+            "relevance": "NA",
+            "isFunction": false,
+            "pretty": "NA"
+          },
+          {
+            "libraryName": "CancerScreening",
+            "statementName": "SDE Sex",
+            "final": "TRUE",
+            "relevance": "TRUE",
+            "isFunction": false,
+            "statementLevelHTML": "<pre style=\"tab-size: 2; border-bottom-width: 4px; line-height: 1.4\"\n  data-library-name=\"CancerScreening\" data-statement-name=\"SDE Sex\">\n...\n</pre>"
+          },
+        ]
+      }
+    ]
+  }
+]
+```
+
 ## Group Clause Coverage Highlighting
 
 `fqm-execution` can generate highlighted HTML that indicates which individual pieces of the measure logic CQL were processed at all during calculation and held "truthy" values. This is often referred to as "Clause Coverage". "Covered" clauses will
