@@ -165,6 +165,17 @@ describe('HTMLBuilder', () => {
     expect(res.includes(falseStyleString)).toBeTruthy();
   });
 
+  test('statement-level HTML is added to statement results when calculation option is specified', () => {
+    const res = generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test', {
+      buildStatementLevelHTML: true
+    });
+
+    expect(statementResults[0].statementLevelHTML).toBeDefined();
+    if (statementResults[0].statementLevelHTML) {
+      expect(res.includes(statementResults[0].statementLevelHTML)).toBeTruthy();
+    }
+  });
+
   test('simple HTML with generation with clause coverage styling', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');

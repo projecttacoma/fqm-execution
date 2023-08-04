@@ -1,6 +1,12 @@
 import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
-import { CalculationOptions, ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
+import {
+  CalculationOptions,
+  ClauseResult,
+  DetailedPopulationGroupResult,
+  ExecutionResult,
+  StatementResult
+} from '../types/Calculator';
 import { FinalResult, PopulationType, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
