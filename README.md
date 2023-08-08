@@ -157,7 +157,7 @@ Statement results are a part of the calculation's `detailedResults` data. Statem
 }
 ```
 
-The statement result `.pretty` attribute can be used to show results data in a more user-friendly way for any of the calculated statements.
+The statement result `.pretty` attribute can be used to show results data in a more user-friendly way for any of the calculated statements. The statement result `.statementLevelHTML` attribute can be used to build the HTML markup alongside the "pretty" formatted statements without having to do so on the entire HTML output.
 
 ## Interpreting Calculation Results
 
@@ -912,6 +912,7 @@ Optionally, `fqm-execution` can generate the stylized HTML markup for each indiv
             "final": "TRUE",
             "relevance": "TRUE",
             "isFunction": false,
+            "pretty": "CODE: http://hl7.org/fhir/v3/AdministrativeGender F, Female",
             "statementLevelHTML": "<pre style=\"tab-size: 2; border-bottom-width: 4px; line-height: 1.4\"\n  data-library-name=\"CancerScreening\" data-statement-name=\"SDE Sex\">\n...\n</pre>"
           },
         ]
