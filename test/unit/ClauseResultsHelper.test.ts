@@ -31,6 +31,31 @@ describe('ClauseResultsHelpers', () => {
       expect(localIds[12]).toEqual({ localId: '12' });
     });
 
+    test('finds localIds for case statement items and properly finds sourceLocalId for them', () => {
+      // ELM from test/unit/elm/queries/CaseStatement.cql
+      const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, 'Case');
+
+      expect(localIds[11]).toEqual({ localId: '11', sourceLocalId: '9' });
+      expect(localIds[17]).toEqual({ localId: '17', sourceLocalId: '15' });
+    });
+
+    test('finds localIds for null literals and properly sets isFalsyLiteral to true', () => {
+      // ELM from test/unit/elm/queries/CaseStatement.cql
+      const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, 'Case');
+
+      expect(localIds[18]).toEqual({ localId: '18', isFalsyLiteral: true });
+    });
+
+    test('finds localIds for false literals and properly sets isFalsyLiteral to true', () => {
+      // ELM from test/unit/elm/queries/CaseStatement.cql
+      const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, 'Case');
+
+      expect(localIds[16]).toEqual({ localId: '16', isFalsyLiteral: true });
+    });
+
     test('finds localIds for library FunctionRefs while finding localIds in statements', () => {
       // Loads Anticoagulation Therapy for Atrial Fibrillation/Flutter measure.
       // This measure has the MAT global functions library included and the measure uses the
