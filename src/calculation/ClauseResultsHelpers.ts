@@ -137,7 +137,7 @@ export function findAllLocalIdsInStatement(
         );
       }
       // handle the `when` pieces of Case expression aka CaseItems. They have a `when` key that should be mapped to get a result from the expression that defines them
-    } else if (k === 'when') {
+    } else if (k === 'when' && statement.localId && v.localId) {
       localIds[statement.localId] = { localId: statement.localId, sourceLocalId: v.localId };
       findAllLocalIdsInStatement(v, libraryName, annotation, localIds, aliasMap, emptyResultClauses, statement);
       // If 'First' and 'Last' expressions, the result of source of the clause should be set to the expression
@@ -195,7 +195,7 @@ export function findAllLocalIdsInStatement(
         alId = (parseInt(statement.localId, 10) - 1).toString();
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[alias] });
       }
-    } else if (k === 'type' && v === 'Null') {
+    } else if (k === 'type' && v === 'Null' && statement.localId) {
       // If this is a "Null" expression mark that it `isFalsyLiteral` so we can interpret final results differently.
       localIds[statement.localId] = { localId: statement.localId, isFalsyLiteral: true };
     } else if (k === 'localId') {
