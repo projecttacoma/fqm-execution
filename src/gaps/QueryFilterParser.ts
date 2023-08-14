@@ -33,7 +33,8 @@ import {
   ELMComparator,
   ELMLess,
   ELMLessOrEqual,
-  ELMRatio
+  ELMRatio,
+  ELMAliasRef
 } from '../types/ELMTypes';
 import {
   AndFilter,
@@ -349,6 +350,46 @@ export function findPropertyUsage(expression: any, unknownLocalId?: string): Unk
     }
   } else if (expression.operand) {
     return findPropertyUsage(expression.operand, unknownLocalId);
+  } else if (expression.type === 'Interval') {
+    const propInfo = findPropertyUsage(expression.low, unknownLocalId);
+    if (propInfo) {
+      return propInfo;
+    }
+    return findPropertyUsage(expression.high, unknownLocalId);
+  }
+  return null;
+}
+
+/**
+ * Recursively search an ELM expression for usage of a query source alias.
+ *
+ * @param expression Expression to search for alias use in.
+ * @param unknownLocalId The localId of the parent expression that should be identified as the clause we are unable to parse.
+ * @returns An `UnknownFilter` describing the attribute that was accessed or null if none was found.
+ */
+export function findAliasUsage(expression: any, unknownLocalId?: string): UnknownFilter | null {
+  if (expression.type === 'AliasRef') {
+    const aliasRef = expression as ELMAliasRef;
+    return {
+      type: 'unknown',
+      alias: aliasRef.name,
+      localId: unknownLocalId
+    };
+  } else if (Array.isArray(expression.operand)) {
+    for (let i = 0; i < expression.operand.length; i++) {
+      const propInfo = findAliasUsage(expression.operand[i], unknownLocalId);
+      if (propInfo) {
+        return propInfo;
+      }
+    }
+  } else if (expression.operand) {
+    return findAliasUsage(expression.operand, unknownLocalId);
+  } else if (expression.type === 'Interval') {
+    const propInfo = findAliasUsage(expression.low, unknownLocalId);
+    if (propInfo) {
+      return propInfo;
+    }
+    return findAliasUsage(expression.high, unknownLocalId);
   }
   return null;
 }
@@ -863,11 +904,12 @@ export async function executeIntervalELM(
 ): Promise<ParsedFilterInterval | GracefulError> {
   // make sure the interval created based on property usage from the query source
   const propRefInInterval = findPropertyUsage(intervalExpr, undefined);
+  const aliasRefInInterval = findAliasUsage(intervalExpr, undefined);
   const withError: GracefulError = {
     message: 'An unknown error occurred while calculating CQL intervals based on measurement period'
   };
-  if (propRefInInterval) {
-    withError.message = 'cannot handle intervals constructed on query data right now';
+  if (propRefInInterval || aliasRefInInterval) {
+    withError.message = 'Cannot handle intervals constructed on query data right now';
     return withError;
   }
 

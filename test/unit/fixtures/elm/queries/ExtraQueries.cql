@@ -1,4 +1,7 @@
-/* Extra queries that may have ELM chunks used for QueryFilterParsing tests. */
+/* Extra queries that may have ELM chunks used for QueryFilterParsing tests. *//* Extra queries that may have ELM chunks used for QueryFilterParsing tests. *//* Extra queries that may have ELM chunks used for QueryFilterParsing tests. *//* Extra queries that may have ELM chunks used for QueryFilterParsing tests. */
+
+
+
 library ExtraQueries version '0.0.1'
 
 using FHIR version '4.0.1'
@@ -14,25 +17,21 @@ valueset "test-vs": 'http://example.com/test-vs'
 
 code "test-code": 'test' from "EXAMPLE"
 code "test-code-2": 'test-2' from "EXAMPLE-2"
-
 code "Active": 'active' from "ConditionClinicalStatusCodes"
 code "Recurrence": 'recurrence' from "ConditionClinicalStatusCodes"
 code "Relapse": 'relapse' from "ConditionClinicalStatusCodes"
 
 concept "test-concept": { "test-code", "test-code-2" } display 'test-concept'
-
 concept "Condition Active": { "Active", "Recurrence", "Relapse" } display 'Active'
 
-parameter "Measurement Period" Interval<DateTime>
-  default Interval[@2019-01-01T00:00:00.0, @2020-01-01T00:00:00.0)
-
+parameter "Measurement Period" Interval<DateTime>default Interval[@2019-01-01T00:00:00.0, @2020-01-01T00:00:00.0 )
 parameter "Index Date" Interval<DateTime>
 
 context Patient
 
 define "Function Result is not null":
   [Condition: "test-vs"] C
-    where Global."Normalize Interval"(C.abatement) is not null
+    where Global."Normalize Interval" ( C.abatement ) is not null
 
 define "Random Interval Param end is not null":
   [Condition: "test-vs"] C
@@ -47,7 +46,7 @@ define "FunctionRef In Same library":
 
 define "FunctionRef With More Complexity in parameter":
   [Condition: "test-vs"] C
-    where Global."Normalize Interval"("Passthrough"(C).abatement) during "Measurement Period"
+    where Global."Normalize Interval" ( "Passthrough"(C).abatement ) during "Measurement Period"
 
 define "Equivalent with Parameter":
   [Condition: "test-vs"] C
@@ -55,23 +54,33 @@ define "Equivalent with Parameter":
 
 define "Encounter Starts 2 Years Or Less Before MP":
   [Encounter: "test-vs"] Enc
-    where Global."Normalize Interval"(Enc.period) starts 2 years or less before end of "Measurement Period"
+    where Global."Normalize Interval" ( Enc.period ) starts 2 years or less before end of "Measurement Period"
 
 define "Encounter In MP":
   [Encounter: "test-vs"] Enc
-    where Global."Normalize Interval"(Enc.period) in "Measurement Period"
+    where Global."Normalize Interval" ( Enc.period ) in "Measurement Period"
 
 define "Function call in Interval":
   [Encounter: "test-vs"] Enc
-    where "Interval From Period"(Enc.period) in Interval[@2019-01-01T00:00:00.0, @2020-01-01T00:00:00.0)
+    where "Interval From Period"(Enc.period) in Interval[@2019-01-01T00:00:00.0, @2020-01-01T00:00:00.0 )
 
 define "GreaterThanOrEqual Birthdate at start of Observation":
-	[Observation: "test-vs"] HPVTest
-    where Global."CalendarAgeInYearsAt"(FHIRHelpers.ToDate(Patient.birthDate), start of Global."Normalize Interval"(HPVTest.effective))>= 30
+  [Observation: "test-vs"] HPVTest
+    where Global."CalendarAgeInYearsAt" ( FHIRHelpers.ToDate ( Patient.birthDate ), start of Global."Normalize Interval" ( HPVTest.effective ) ) >= 30
 
 define "GreaterThanOrEqual Observation Value":
   [Observation: "test-vs"] Test
     where Test.value >= 2 'mg'
+
+define "Observation Issued During First 10 min of Encounter":
+  [Observation] Obs
+    with [Encounter: "test-vs"] Enc
+      such that Obs.issued during Interval[Enc.startTime ( ), Enc.startTime ( ) + 10 'min']
+
+define "Observation Issued Between Start of MP and Encounter":
+  [Observation] Obs
+    with [Encounter: "test-vs"] Enc
+      such that Obs.issued during Interval[start of "Measurement Period", start of Enc.period]
 
 define function "A Function"(period Interval<DateTime>):
   start of period
@@ -80,4 +89,7 @@ define function "Passthrough"(cond Condition):
   cond
 
 define function "Interval From Period"(period FHIR.Period):
-  Global."Normalize Interval"(period)
+  Global."Normalize Interval" ( period )
+
+define fluent function "startTime"(e FHIR.Encounter):
+  start of e.period

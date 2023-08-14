@@ -191,6 +191,8 @@ export type AnyELMExpression =
   | ELMEnd
   | ELMStart
   | ELMToDateTime
+  | ELMAdd
+  | ELMSubtract
   | ELMExpressionRef
   | ELMFunctionRef
   | ELMParameterRef
@@ -352,6 +354,14 @@ export interface ELMToDateTime extends ELMUnaryExpression {
   type: 'ToDateTime';
 }
 
+export interface ELMAdd extends ELMBinaryExpression {
+  type: 'Add';
+}
+
+export interface ELMSubtract extends ELMBinaryExpression {
+  type: 'Subtract';
+}
+
 interface ELMIExpressionRef extends ELMExpression {
   name: string;
   libraryName?: string;
@@ -380,7 +390,7 @@ export interface ELMProperty extends ELMExpression {
 
 export interface ELMAliasRef extends ELMExpression {
   type: 'AliasRef';
-  name: 'string';
+  name: string;
 }
 
 export interface ELMConceptRef extends ELMExpression {
