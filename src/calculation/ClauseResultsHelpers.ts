@@ -196,10 +196,10 @@ export function findAllLocalIdsInStatement(
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[alias] });
       }
     } else if (k === 'type' && v === 'Null' && statement.localId) {
-      // If this is a "Null" expression mark that it `isFalsyLiteral` so we can interpret final results differently.
+      // If this is a "Null" expression, mark that it `isFalsyLiteral` so we can interpret final results differently.
       localIds[statement.localId] = { localId: statement.localId, isFalsyLiteral: true };
     } else if (k === 'type' && v === 'Literal' && statement.localId && statement.value === 'false') {
-      // If this is a "Literal" expression whose value is false mark that it `isFalsyLiteral` so we can interpret final results differently
+      // If this is a "Literal" expression whose value is false, mark that it `isFalsyLiteral` so we can interpret final results differently
       localIds[statement.localId] = { localId: statement.localId, isFalsyLiteral: true };
     } else if (k === 'localId') {
       // else if the key is localId, push the value
