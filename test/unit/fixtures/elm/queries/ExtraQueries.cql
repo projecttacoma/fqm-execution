@@ -1,7 +1,4 @@
-/* Extra queries that may have ELM chunks used for QueryFilterParsing tests. *//* Extra queries that may have ELM chunks used for QueryFilterParsing tests. *//* Extra queries that may have ELM chunks used for QueryFilterParsing tests. *//* Extra queries that may have ELM chunks used for QueryFilterParsing tests. */
-
-
-
+/* Extra queries that may have ELM chunks used for QueryFilterParsing tests. */
 library ExtraQueries version '0.0.1'
 
 using FHIR version '4.0.1'
