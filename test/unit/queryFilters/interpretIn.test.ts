@@ -1,7 +1,7 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import { DateTime, Interval } from 'cql-execution';
 import * as QueryFilter from '../../../src/gaps/QueryFilterParser';
-import { ELMIn, ELMIncludedIn } from '../../../src/types/ELMTypes';
+import { ELMIn } from '../../../src/types/ELMTypes';
 import { DuringFilter } from '../../../src/types/QueryFilterTypes';
 
 // to use as a library parameter for tests
