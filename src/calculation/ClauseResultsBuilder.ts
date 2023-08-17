@@ -611,7 +611,7 @@ export function setFinalResults(params: {
     finalResult = FinalResult.UNHIT;
   } else if (
     params.clause.isFalsyLiteral &&
-    Object.hasOwn(params.rawClauseResults[params.libraryName], params.clause.localId)
+    params.rawClauseResults[params.libraryName].hasOwnProperty(params.clause.localId)
   ) {
     // If this clause is a Null or Literal False we need to look for the existence of a result for the localId in the
     // rawClauseResults instead. If the key for the localId exists then it was executed and we will want to treat the
