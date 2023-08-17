@@ -330,6 +330,137 @@ const IN_MP: ELMIn = {
   ]
 };
 
+/** From ExtraQueries.cql "Observation Issued During First 10 min of Encounter" */
+const OBSERVATION_ISSUED_DURING_ENCOUNTER: ELMIn = {
+  localId: '172',
+  locator: '78:17-78:91',
+  type: 'In',
+  operand: [
+    {
+      name: 'ToDateTime',
+      libraryName: 'FHIRHelpers',
+      type: 'FunctionRef',
+      operand: [
+        {
+          localId: '159',
+          locator: '78:17-78:26',
+          path: 'issued',
+          scope: 'Obs',
+          type: 'Property'
+        }
+      ]
+    },
+    {
+      localId: '171',
+      locator: '78:35-78:91',
+      lowClosed: true,
+      highClosed: true,
+      type: 'Interval',
+      low: {
+        localId: '166',
+        locator: '78:44-78:60',
+        name: 'startTime',
+        type: 'FunctionRef',
+        operand: [
+          {
+            localId: '160',
+            locator: '78:44-78:46',
+            name: 'Enc',
+            type: 'AliasRef'
+          }
+        ]
+      },
+      high: {
+        localId: '170',
+        locator: '78:63-78:90',
+        type: 'Add',
+        operand: [
+          {
+            localId: '168',
+            locator: '78:63-78:79',
+            name: 'startTime',
+            type: 'FunctionRef',
+            operand: [
+              {
+                localId: '167',
+                locator: '78:63-78:65',
+                name: 'Enc',
+                type: 'AliasRef'
+              }
+            ]
+          },
+          {
+            localId: '169',
+            locator: '78:83-78:90',
+            value: 10,
+            unit: 'min',
+            type: 'Quantity'
+          }
+        ]
+      }
+    }
+  ]
+};
+
+const OBSERVATION_ISSUED_BETWEEN_MP_AND_ENCOUNTER: ELMIn = {
+  localId: '188',
+  locator: '83:17-83:94',
+  type: 'In',
+  operand: [
+    {
+      name: 'ToDateTime',
+      libraryName: 'FHIRHelpers',
+      type: 'FunctionRef',
+      operand: [
+        {
+          localId: '181',
+          locator: '83:17-83:26',
+          path: 'issued',
+          scope: 'Obs',
+          type: 'Property'
+        }
+      ]
+    },
+    {
+      localId: '187',
+      locator: '83:35-83:94',
+      lowClosed: true,
+      highClosed: true,
+      type: 'Interval',
+      low: {
+        localId: '183',
+        locator: '83:44-83:72',
+        type: 'Start',
+        operand: {
+          localId: '182',
+          locator: '83:53-83:72',
+          name: 'Measurement Period',
+          type: 'ParameterRef'
+        }
+      },
+      high: {
+        localId: '186',
+        locator: '83:75-83:93',
+        type: 'Start',
+        operand: {
+          name: 'ToInterval',
+          libraryName: 'FHIRHelpers',
+          type: 'FunctionRef',
+          operand: [
+            {
+              localId: '185',
+              locator: '83:84-83:93',
+              path: 'period',
+              scope: 'Enc',
+              type: 'Property'
+            }
+          ]
+        }
+      }
+    }
+  ]
+};
+
 describe('interpretIn', () => {
   test('valid parameter interval ref', async () => {
     // Note: Global.Latest generates type:In instead of type:IncludedIn
@@ -382,5 +513,21 @@ describe('interpretIn', () => {
     expect(filter.type).toEqual('unknown');
     expect(filter.alias).toEqual('Enc');
     expect(filter.attribute).toEqual('period');
+  });
+
+  test('does not support creating interval based on alias usage in a function ref for low', async () => {
+    const filter = await QueryFilter.interpretIn(OBSERVATION_ISSUED_DURING_ENCOUNTER, complexQueryELM, EXEC_PARAMS);
+    expect(filter.type).toEqual('unknown');
+    expect(filter.alias).toEqual('Obs');
+  });
+
+  test('does not support creating interval based on property usage for high', async () => {
+    const filter = await QueryFilter.interpretIn(
+      OBSERVATION_ISSUED_BETWEEN_MP_AND_ENCOUNTER,
+      complexQueryELM,
+      EXEC_PARAMS
+    );
+    expect(filter.type).toEqual('unknown');
+    expect(filter.alias).toEqual('Obs');
   });
 });

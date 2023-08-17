@@ -148,9 +148,8 @@ async function populatePatientBundles() {
     }
 
     if (program.patientsDirectory) {
-      patientBundles = fs
-        .readdirSync(program.patientsDirectory)
-        .map(p => parseBundle(path.join(program.patientsDirectory, p)));
+      const patientBundlePaths = findPatientBundlePathsInDirectory(program.patientsDirectory);
+      patientBundles = patientBundlePaths.map(p => parseBundle(path.join(program.patientsDirectory, p)));
     } else {
       patientBundles = program.patientBundles.map((bundlePath: string) => parseBundle(path.resolve(bundlePath)));
     }
@@ -165,6 +164,24 @@ async function populatePatientBundles() {
     }
   }
   return patientBundles;
+}
+
+function findPatientBundlePathsInDirectory(patientDir: string): string[] {
+  const paths: string[] = [];
+  // iterate over the given directory
+  fs.readdirSync(patientDir, { withFileTypes: true }).forEach(ent => {
+    // if this item is a directory, look for .json files under it
+    if (ent.isDirectory()) {
+      fs.readdirSync(path.join(patientDir, ent.name), { withFileTypes: true }).forEach(subEnt => {
+        if (!subEnt.isDirectory() && subEnt.name.endsWith('.json')) {
+          paths.push(path.join(ent.name, subEnt.name));
+        }
+      });
+    } else if (ent.name.endsWith('.json')) {
+      paths.push(ent.name);
+    }
+  });
+  return paths;
 }
 
 const measureBundle = parseBundle(path.resolve(program.measureBundle));
