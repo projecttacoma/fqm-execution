@@ -917,7 +917,7 @@ const { results, groupClauseCoverageHTML } = await Calculator.calculate(measureB
 
 Since clause coverage calculation and highlighting are based on whether individual pieces of the measure logic CQL were processed at all during calculation and held "truthy" values, `Null` and false `Literal`s that are processed during calculation would prevent 100% clause coverage and highlighting. In order to handle this special case, these clauses that will never hold "truthy" values will be highlighted and counted as covered if they were simply processed during calculation.
 
-For example, the define statement of "SDE Sex" is a case statement where the `else` is `null`. If the set of patients includes a patient where either `Patient.gender` does not exist or `Patient.gender` does not equal `'male'` or `'female'`, `else null` is highlighted and counted in the clause coverage percentage.
+For example, the define statement of "SDE Sex" is a case statement where the `else` is `null`. The `null` is an example of a clause that will never hold a "truthy" value. If the set of patients includes a patient where either `Patient.gender` does not exist or `Patient.gender` does not equal `'male'` or `'female'`, `else null` is highlighted and counted in the clause coverage percentage.
 
 ![Screenshot of Highlighted Clause Coverage HTML for SDE Sex](./static/sde-sex-highlighting-example.png)
 

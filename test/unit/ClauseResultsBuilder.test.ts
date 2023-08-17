@@ -895,7 +895,7 @@ describe('ClauseResultsBuilder', () => {
 
     test('should set FinalResult to TRUE if the clause isFalsyLiteral and there exists a result for the localId and libraryName in rawClauseResults', () => {
       const statementRelevance: Relevance = Relevance.TRUE;
-      const clause = { localId: '1', isFalsyLiteral: true };
+      const clause = { localId: '3', isFalsyLiteral: true };
       const rawResult = false;
       const libraryName = 'ExampleLibrary';
       const finalResult = ClauseResultsBuilder.setFinalResults({
@@ -907,6 +907,22 @@ describe('ClauseResultsBuilder', () => {
       });
 
       expect(finalResult).toEqual(FinalResult.TRUE);
+    });
+
+    test('should set FinalResult to FALSE if the clause isFalsyLiteral and there DOES NOT exist a result for the localId and libraryName in rawClauseResults', () => {
+      const statementRelevance: Relevance = Relevance.TRUE;
+      const clause = { localId: '6', isFalsyLiteral: true };
+      const rawResult = undefined;
+      const libraryName = 'ExampleLibrary';
+      const finalResult = ClauseResultsBuilder.setFinalResults({
+        rawClauseResults,
+        statementRelevance,
+        libraryName,
+        clause,
+        rawResult
+      });
+
+      expect(finalResult).toEqual(FinalResult.FALSE);
     });
   });
 });
