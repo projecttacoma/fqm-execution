@@ -819,4 +819,94 @@ describe('ClauseResultsBuilder', () => {
       );
     });
   });
+
+  describe('setFinalResults', () => {
+    const rawClauseResults = {
+      ExampleLibrary: {
+        '1': true,
+        '3': false
+      },
+      ExampleLibrary2: null
+    };
+
+    test('should set the FinalResult to NA if the clause isUnsupported', () => {
+      const statementRelevance: Relevance = Relevance.NA;
+      const clause = { localId: '1', isUnsupported: true };
+      const rawResult = false;
+      const libraryName = 'ExampleLibrary';
+      const finalResult = ClauseResultsBuilder.setFinalResults({
+        rawClauseResults,
+        statementRelevance,
+        libraryName,
+        clause,
+        rawResult
+      });
+
+      expect(finalResult).toEqual(FinalResult.NA);
+    });
+
+    test('should set FinalResult to NA if the statementRelevance is NA', () => {
+      const statementRelevance: Relevance = Relevance.NA;
+      const clause = { localId: '1' };
+      const rawResult = false;
+      const libraryName = 'ExampleLibrary';
+      const finalResult = ClauseResultsBuilder.setFinalResults({
+        rawClauseResults,
+        statementRelevance,
+        libraryName,
+        clause,
+        rawResult
+      });
+
+      expect(finalResult).toEqual(FinalResult.NA);
+    });
+
+    test('should set FinalResult to UNHIT if the statementRelevance is FALSE', () => {
+      const statementRelevance: Relevance = Relevance.FALSE;
+      const clause = { localId: '1' };
+      const rawResult = false;
+      const libraryName = 'ExampleLibrary';
+      const finalResult = ClauseResultsBuilder.setFinalResults({
+        rawClauseResults,
+        statementRelevance,
+        libraryName,
+        clause,
+        rawResult
+      });
+
+      expect(finalResult).toEqual(FinalResult.UNHIT);
+    });
+
+    test('should set FinalResult to UNHIT if rawClauseResult[libraryName] is null', () => {
+      const statementRelevance: Relevance = Relevance.TRUE;
+      const clause = { localId: '1' };
+      const rawResult = false;
+      const libraryName = 'ExampleLibrary2';
+      const finalResult = ClauseResultsBuilder.setFinalResults({
+        rawClauseResults,
+        statementRelevance,
+        libraryName,
+        clause,
+        rawResult
+      });
+
+      expect(finalResult).toEqual(FinalResult.UNHIT);
+    });
+
+    test('should set FinalResult to TRUE if the clause isFalsyLiteral and there exists a result for the localId and libraryName in rawClauseResults', () => {
+      const statementRelevance: Relevance = Relevance.TRUE;
+      const clause = { localId: '1', isFalsyLiteral: true };
+      const rawResult = false;
+      const libraryName = 'ExampleLibrary';
+      const finalResult = ClauseResultsBuilder.setFinalResults({
+        rawClauseResults,
+        statementRelevance,
+        libraryName,
+        clause,
+        rawResult
+      });
+
+      expect(finalResult).toEqual(FinalResult.TRUE);
+    });
+  });
 });
