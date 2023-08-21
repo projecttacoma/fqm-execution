@@ -821,12 +821,11 @@ describe('ClauseResultsBuilder', () => {
   });
 
   describe('setFinalResults', () => {
-    const rawClauseResults = {
+    const rawClauseResults: cql.LocalIdResults = {
       ExampleLibrary: {
         '1': true,
         '3': false
-      },
-      ExampleLibrary2: null
+      }
     };
 
     test('should set the FinalResult to NA if the clause isUnsupported', () => {
@@ -877,7 +876,7 @@ describe('ClauseResultsBuilder', () => {
       expect(finalResult).toEqual(FinalResult.UNHIT);
     });
 
-    test('should set FinalResult to UNHIT if rawClauseResult[libraryName] is null', () => {
+    test('should set FinalResult to UNHIT if rawClauseResult[libraryName] is undefined', () => {
       const statementRelevance: Relevance = Relevance.TRUE;
       const clause = { localId: '1' };
       const rawResult = false;
