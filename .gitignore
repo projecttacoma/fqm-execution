@@ -3,8 +3,8 @@ build/
 debug/
 .vscode
 **/.DS_Store
-test/fixtures/elm/queries/output/*
-test/fixtures/elm/queries/.start-translator
+test/unit/fixtures/elm/queries/output/*
+test/unit/fixtures/elm/queries/.start-translator
 coverage
 cache
 test/integration/.start-translator

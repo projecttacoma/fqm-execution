@@ -609,6 +609,15 @@ export function setFinalResults(params: {
     finalResult = FinalResult.NA;
   } else if (params.statementRelevance == Relevance.FALSE || params.rawClauseResults[params.libraryName] == null) {
     finalResult = FinalResult.UNHIT;
+  } else if (
+    params.clause.isFalsyLiteral &&
+    params.rawClauseResults[params.libraryName].hasOwnProperty(params.clause.localId)
+  ) {
+    // If this clause is a Null or Literal False we need to look for the existence of a result for the localId in the
+    // rawClauseResults instead. If the key for the localId exists then it was executed and we will want to treat the
+    // `final` result as `TRUE` instead of `FALSE`. If the key is totally absent then it was not executed therefore
+    // `final` result should stay `FALSE`.
+    finalResult = FinalResult.TRUE;
   } else if (doesResultPass(params.rawResult)) {
     finalResult = FinalResult.TRUE;
   }

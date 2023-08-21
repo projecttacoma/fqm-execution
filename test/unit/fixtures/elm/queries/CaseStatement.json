@@ -1,0 +1,493 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorVersion": "2.10.0",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "20",
+          "s": [
+            {
+              "value": [
+                "",
+                "library Test"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "Test"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "1",
+          "locator": "3:1-3:26",
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "1",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "using "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIR"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "2",
+          "locator": "5:1-5:35",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "2",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "include "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIRHelpers"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "contexts": {
+      "def": [
+        {
+          "locator": "7:1-7:15",
+          "name": "Patient"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "locator": "7:1-7:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "locator": "7:1-7:15",
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "5",
+          "locator": "9:1-10:24",
+          "name": "First Observation",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "5",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"First Observation\"",
+                      ":\n    "
+                    ]
+                  },
+                  {
+                    "r": "4",
+                    "s": [
+                      {
+                        "value": [
+                          "First",
+                          "("
+                        ]
+                      },
+                      {
+                        "r": "3",
+                        "s": [
+                          {
+                            "value": [
+                              "[",
+                              "Observation",
+                              "]"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          ")"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "4",
+            "locator": "10:5-10:24",
+            "type": "First",
+            "source": {
+              "localId": "3",
+              "locator": "10:11-10:23",
+              "dataType": "{http://hl7.org/fhir}Observation",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "20",
+          "locator": "12:1-17:7",
+          "name": "Case",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "20",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Case\"",
+                      ":\n    "
+                    ]
+                  },
+                  {
+                    "r": "19",
+                    "s": [
+                      {
+                        "value": [
+                          "case \n        "
+                        ]
+                      },
+                      {
+                        "r": "11",
+                        "s": [
+                          {
+                            "value": [
+                              "when "
+                            ]
+                          },
+                          {
+                            "r": "9",
+                            "s": [
+                              {
+                                "r": "7",
+                                "s": [
+                                  {
+                                    "r": "6",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"First Observation\""
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "7",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "value"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "8",
+                                "value": [
+                                  " ",
+                                  ">",
+                                  " ",
+                                  "10"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "r": "10",
+                            "value": [
+                              " then ",
+                              "true"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n        "
+                        ]
+                      },
+                      {
+                        "r": "17",
+                        "s": [
+                          {
+                            "value": [
+                              "when "
+                            ]
+                          },
+                          {
+                            "r": "15",
+                            "s": [
+                              {
+                                "r": "13",
+                                "s": [
+                                  {
+                                    "r": "12",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"First Observation\""
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "13",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "value"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "14",
+                                "value": [
+                                  " ",
+                                  "<",
+                                  " ",
+                                  "10"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "r": "16",
+                            "value": [
+                              " then ",
+                              "false"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "r": "18",
+                        "value": [
+                          "\n        else ",
+                          "null",
+                          "\n    end"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "19",
+            "locator": "13:5-17:7",
+            "type": "Case",
+            "caseItem": [
+              {
+                "localId": "11",
+                "locator": "14:9-14:53",
+                "when": {
+                  "localId": "9",
+                  "locator": "14:14-14:43",
+                  "type": "Greater",
+                  "operand": [
+                    {
+                      "name": "ToInteger",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "asType": "{http://hl7.org/fhir}integer",
+                          "type": "As",
+                          "operand": {
+                            "localId": "7",
+                            "locator": "14:14-14:38",
+                            "path": "value",
+                            "type": "Property",
+                            "source": {
+                              "localId": "6",
+                              "locator": "14:14-14:32",
+                              "name": "First Observation",
+                              "type": "ExpressionRef"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "8",
+                      "locator": "14:42-14:43",
+                      "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                      "value": "10",
+                      "type": "Literal"
+                    }
+                  ]
+                },
+                "then": {
+                  "localId": "10",
+                  "locator": "14:50-14:53",
+                  "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
+                  "value": "true",
+                  "type": "Literal"
+                }
+              },
+              {
+                "localId": "17",
+                "locator": "15:9-15:54",
+                "when": {
+                  "localId": "15",
+                  "locator": "15:14-15:43",
+                  "type": "Less",
+                  "operand": [
+                    {
+                      "name": "ToInteger",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "operand": [
+                        {
+                          "asType": "{http://hl7.org/fhir}integer",
+                          "type": "As",
+                          "operand": {
+                            "localId": "13",
+                            "locator": "15:14-15:38",
+                            "path": "value",
+                            "type": "Property",
+                            "source": {
+                              "localId": "12",
+                              "locator": "15:14-15:32",
+                              "name": "First Observation",
+                              "type": "ExpressionRef"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "14",
+                      "locator": "15:42-15:43",
+                      "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                      "value": "10",
+                      "type": "Literal"
+                    }
+                  ]
+                },
+                "then": {
+                  "localId": "16",
+                  "locator": "15:50-15:54",
+                  "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
+                  "value": "false",
+                  "type": "Literal"
+                }
+              }
+            ],
+            "else": {
+              "asType": "{urn:hl7-org:elm-types:r1}Boolean",
+              "type": "As",
+              "operand": {
+                "localId": "18",
+                "locator": "16:14-16:17",
+                "type": "Null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
