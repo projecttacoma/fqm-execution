@@ -71,7 +71,7 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
   options.disableHTMLOrdering = options.disableHTMLOrdering ?? false;
-  options.buildStatementLevelHTML = options.buildStatementLevelHTML ?? true;
+  options.buildStatementLevelHTML = options.buildStatementLevelHTML ?? false;
 
   const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
 
