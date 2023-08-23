@@ -195,6 +195,18 @@ export function findAllLocalIdsInStatement(
         alId = (parseInt(statement.localId, 10) - 1).toString();
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[alias] });
       }
+    } else if (
+      k === 'type' &&
+      v === 'Query' &&
+      Array.isArray(statement.source) &&
+      statement.source[0].localId == null &&
+      statement.source[0].expression.scope != null
+    ) {
+      // Handle aliases that are nested within an expression object in an object on a `source` array of a Query expression
+      // This case is similar to the one above, but we need to drill into `.source[0].expression.scope` instead
+      const alias = statement.source[0].expression.scope;
+      alId = (parseInt(statement.localId, 10) - 1).toString();
+      emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[alias] });
     } else if (k === 'type' && v === 'Null' && statement.localId) {
       // If this is a "Null" expression, mark that it `isFalsyLiteral` so we can interpret final results differently.
       localIds[statement.localId] = { localId: statement.localId, isFalsyLiteral: true };

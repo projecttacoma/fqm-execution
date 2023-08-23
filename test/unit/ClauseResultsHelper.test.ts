@@ -118,6 +118,17 @@ describe('ClauseResultsHelpers', () => {
       // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
       expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
     });
+
+    test('should get the localIds for the query statement including the localId that is not in the ELM but is in the ELM annotation', () => {
+      const libraryElm: ELM = getJSONFixture('elm/queries/QICoreQuery.json');
+      const statementName = 'Query';
+
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // '7' is in the annotations but not in the ELM. We use '8' as the localId from the actual expression and subtract one from it
+      expect(localIds[7]).not.toBeUndefined();
+      expect(localIds['7']).toEqual({ localId: '7', sourceLocalId: '5' });
+    });
   });
 
   describe('findLocalIdForLibraryRef for functionRefs', () => {
