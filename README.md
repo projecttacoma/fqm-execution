@@ -152,11 +152,12 @@ Statement results are a part of the calculation's `detailedResults` data. Statem
   "relevance": <whether the statement impacted the calculation>,
   "raw": <raw result of the statement calculation>,
   "isFunction": <whether the statement is a function>,
-  "pretty": <human readable version of the raw result>
+  "pretty": <human readable version of the raw result>,
+  "statementLevelHTML": <Generated HTML markup for the CQL statement>
 }
 ```
 
-The statement result `.pretty` attribute can be used to show results data in a more user-friendly way for any of the calculated statements.
+The statement result `.pretty` attribute can be used to show results data in a more user-friendly way for any of the calculated statements. The statement result `.statementLevelHTML` attribute can be used to build the HTML markup alongside the "pretty" formatted statements without having to do so on the entire HTML output.
 
 ## Interpreting Calculation Results
 
@@ -447,6 +448,7 @@ Add missing ValueSet resources to a measure bundle.
 
 The options that we support for calculation are as follows:
 
+- `[buildStatementLevelHTML]`<[boolean](#calculation-options)>: Builds and returns HTML at the statement level (default: `false`)
 - `[calculateClauseCoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause coverage highlighting (default: `true`)
 - `[calculateHTML]`<[boolean](#calculation-options)>: Include HTML structure for highlighting (default: `true`)
 - `[calculateSDEs]`<[boolean](#calculation-options)>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
@@ -883,6 +885,42 @@ The order of these populations is determined by most inclusive to least inclusiv
 ![Screenshot of Population Venn Diagram](./static/population-diagram.png)
 
 To disable this behavior, use the `disableHTMLOrdering` calculation option.
+
+### Statement-level HTML
+Optionally, `fqm-execution` can generate the stylized HTML markup for each individual statement. To access the statement-level HTML, specify the `buildStatementLevelHTML` in the `CalculationOptions` prior to measure calculation. From the `detailedResults` returned for a given patient, the `statementLevelHTML` will be available as an element on each `statementResult` whose relevance is *not* N/A.
+
+```typescript
+[
+  {
+    "patientId": "test-patient",
+    "detailedResults": [
+      {
+        "groupId": "test-group",
+        "statementResults": [
+          // no HTML returned since relevance is NA
+          {
+            "libraryName": "MATGlobalCommonFunctionsFHIR4",
+            "statementName": "Patient",
+            "final": "NA",
+            "relevance": "NA",
+            "isFunction": false,
+            "pretty": "NA"
+          },
+          {
+            "libraryName": "CancerScreening",
+            "statementName": "SDE Sex",
+            "final": "TRUE",
+            "relevance": "TRUE",
+            "isFunction": false,
+            "pretty": "CODE: http://hl7.org/fhir/v3/AdministrativeGender F, Female",
+            "statementLevelHTML": "<pre style=\"tab-size: 2; border-bottom-width: 4px; line-height: 1.4\"\n  data-library-name=\"CancerScreening\" data-statement-name=\"SDE Sex\">\n...\n</pre>"
+          },
+        ]
+      }
+    ]
+  }
+]
+```
 
 ## Group Clause Coverage Highlighting
 

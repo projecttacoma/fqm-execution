@@ -165,6 +165,45 @@ describe('HTMLBuilder', () => {
     expect(res.includes(falseStyleString)).toBeTruthy();
   });
 
+  test('statement-level HTML is added to statement results when calculation option is specified', () => {
+    const res = generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test', {
+      buildStatementLevelHTML: true
+    });
+
+    expect(statementResults[0].statementLevelHTML).toBeDefined();
+    if (statementResults[0].statementLevelHTML) {
+      expect(res.includes(statementResults[0].statementLevelHTML)).toBeTruthy();
+    }
+  });
+
+  test('statement-level HTML is not added to statement results when statement relevance is NA', () => {
+    const statementResultsNA = [
+      {
+        statementName: 'statementName',
+        libraryName: 'libraryName',
+        final: FinalResult.NA,
+        relevance: Relevance.NA,
+        localId: 'localId'
+      }
+    ];
+
+    const clauseResultsNA = [
+      {
+        statementName: 'statementName',
+        libraryName: 'libraryName',
+        localId: 'localId',
+        final: FinalResult.NA,
+        raw: true
+      }
+    ];
+
+    generateHTML(simpleMeasure, [elm], statementResultsNA, clauseResultsNA, 'test', {
+      buildStatementLevelHTML: true
+    });
+
+    expect(statementResults[0].statementLevelHTML).toBeUndefined();
+  });
+
   test('simple HTML with generation with clause coverage styling', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleCoverageAnnotation.html').replace(/\s/g, '');

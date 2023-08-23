@@ -1,6 +1,12 @@
 import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
-import { ClauseResult, DetailedPopulationGroupResult, ExecutionResult, StatementResult } from '../types/Calculator';
+import {
+  CalculationOptions,
+  ClauseResult,
+  DetailedPopulationGroupResult,
+  ExecutionResult,
+  StatementResult
+} from '../types/Calculator';
 import { FinalResult, PopulationType, Relevance } from '../types/Enums';
 import mainTemplate from '../templates/main';
 import clauseTemplate from '../templates/clause';
@@ -34,8 +40,6 @@ export const cqlLogicUncoveredClauseStyle = {
   'border-bottom-color': 'white',
   'border-bottom-style': 'solid'
 };
-
-type StatementAnnotation = { libraryName: string; annotation: Annotation[]; statementName: string };
 
 /**
  * Convert JS object to CSS Style string
@@ -149,7 +153,7 @@ export function sortStatements(measure: fhir4.Measure, groupId: string, statemen
  * @param statementResults StatementResult array from calculation
  * @param clauseResults ClauseResult array from calculation
  * @param groupId ID of population group
- * @param disableHTMLOrdering disables CQL statement sorting
+ * @param options Calculation Options
  * @returns string of HTML representing the clauses for this group
  */
 export function generateHTML(
@@ -158,15 +162,15 @@ export function generateHTML(
   statementResults: StatementResult[],
   clauseResults: ClauseResult[],
   groupId: string,
-  disableHTMLOrdering?: boolean
+  options?: CalculationOptions
 ): string {
   const relevantStatements = statementResults.filter(s => s.relevance !== Relevance.NA);
-  if (!disableHTMLOrdering) {
+  if (!options?.disableHTMLOrdering) {
     sortStatements(measure, groupId, relevantStatements);
   }
 
-  // assemble array of statement annotations to be templated to HTML
-  const statementAnnotations: StatementAnnotation[] = [];
+  let overallHTML = `<div><h2>Population Group: ${groupId}</h2>`;
+
   relevantStatements.forEach(s => {
     const matchingLibrary = elmLibraries.find(e => e.library.identifier.id === s.libraryName);
     if (!matchingLibrary) {
@@ -179,29 +183,21 @@ export function generateHTML(
     }
 
     if (matchingExpression.annotation) {
-      statementAnnotations.push({
+      const statementHTML = main({
         libraryName: s.libraryName,
         statementName: s.statementName,
-        annotation: matchingExpression.annotation
+        clauseResults: clauseResults,
+        ...matchingExpression.annotation[0].s
       });
+      overallHTML += statementHTML;
+      if (options?.buildStatementLevelHTML) {
+        s.statementLevelHTML = statementHTML;
+      }
     }
   });
 
-  let result = `<div><h2>Population Group: ${groupId}</h2>`;
-
-  // generate HTML clauses using hbs template for each annotation
-  statementAnnotations.forEach(a => {
-    const res = main({
-      libraryName: a.libraryName,
-      statementName: a.statementName,
-      clauseResults: clauseResults,
-      ...a.annotation[0].s
-    });
-    result += res;
-  });
-
-  result += '</div>';
-  return result;
+  overallHTML += '</div>';
+  return overallHTML;
 }
 
 /**
