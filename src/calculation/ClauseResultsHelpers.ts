@@ -199,6 +199,7 @@ export function findAllLocalIdsInStatement(
       k === 'type' &&
       v === 'Query' &&
       Array.isArray(statement.source) &&
+      statement.source.length === 1 &&
       statement.source[0].localId == null &&
       statement.source[0].expression.scope != null
     ) {
