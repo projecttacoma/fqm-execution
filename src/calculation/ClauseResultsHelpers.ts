@@ -202,7 +202,7 @@ export function findAllLocalIdsInStatement(
       statement.source[0].localId == null &&
       statement.source[0].expression.scope != null
     ) {
-      // Handle aliases that are nested within an expression object in an object on a `source` array of a Query expression
+      // Handle aliases that are nested within an expression object in the one object on a `source` array of a Query expression
       // This case is similar to the one above, but we need to drill into `.source[0].expression.scope` instead
       const alias = statement.source[0].expression.scope;
       alId = (parseInt(statement.localId, 10) - 1).toString();
