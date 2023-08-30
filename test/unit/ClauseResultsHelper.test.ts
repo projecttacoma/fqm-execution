@@ -14,7 +14,7 @@ describe('ClauseResultsHelpers', () => {
       // For the fixture loaded for this test it is known that the localId for the literal is 10 and
       // the localId for the comparison expression itself is 11 so the sourceLocalId for the literal
       // should be 11
-      expect(localIds[10]).not.toBeUndefined();
+      expect(localIds[10]).toBeDefined();
       expect(localIds[10]).toEqual({ localId: '10', sourceLocalId: '11' });
     });
 
@@ -27,7 +27,7 @@ describe('ClauseResultsHelpers', () => {
 
       // For the fixture loaded for this test it is known that the ELM Binary Expression does not have a literal
       // so the localId for the right side of the comparison should just be 12 and not have a sourceLocalId
-      expect(localIds[12]).not.toBeUndefined();
+      expect(localIds[12]).toBeDefined();
       expect(localIds[12]).toEqual({ localId: '12' });
     });
 
@@ -67,7 +67,7 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 49 and the functionRef itself is 55.
-      expect(localIds[49]).not.toBeUndefined();
+      expect(localIds[49]).toBeDefined();
       expect(localIds[49]).toEqual({ localId: '49', sourceLocalId: '55' });
     });
 
@@ -81,7 +81,7 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 109 and the functionRef itself is 110.
-      expect(localIds[109]).not.toBeUndefined();
+      expect(localIds[109]).toBeDefined();
       expect(localIds[109]).toEqual({ localId: '109', sourceLocalId: '110' });
     });
 
@@ -95,7 +95,7 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 109 and the functionRef itself is 110.
-      expect(localIds[42]).not.toBeUndefined();
+      expect(localIds[42]).toBeDefined();
       expect(localIds[42]).toEqual({ localId: '42' });
     });
 
@@ -117,6 +117,17 @@ describe('ClauseResultsHelpers', () => {
 
       // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
       expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
+    });
+
+    test('should get the localIds for the query statement including the localId that is not in the ELM but is in the ELM annotation', () => {
+      const libraryElm: ELM = getJSONFixture('elm/queries/QICoreQuery.json');
+      const statementName = 'Query';
+
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // '7' is in the annotations but not in the ELM. We use '8' as the localId from the actual expression and subtract one from it
+      expect(localIds[7]).toBeDefined();
+      expect(localIds['7']).toEqual({ localId: '7', sourceLocalId: '5' });
     });
   });
 
