@@ -1,4 +1,4 @@
-import { ELMProperty } from '../types/ELMTypes';
+import { ELMProperty, ELMUnaryExpression } from '../types/ELMTypes';
 import { ELMFunctionRef } from '../types/ELMTypes';
 import { ELM, ELMBinaryExpression, ELMStatement } from '../types/ELMTypes';
 
@@ -168,6 +168,16 @@ export function findAllLocalIdsInStatement(
                 lib: libraryName,
                 aliasLocalId: alId,
                 expressionLocalId: aliasMap[propExpr.scope]
+              });
+            }
+          } else if (o.type === 'SingletonFrom') {
+            const propExpr = o as ELMStatement;
+            if (propExpr.operand.source[0].expression.source.name) {
+              alId = (parseInt(statement.localId, 10) - 1).toString();
+              emptyResultClauses.push({
+                lib: libraryName,
+                aliasLocalId: alId,
+                expressionLocalId: aliasMap[propExpr.operand.source[0].expression.source.name]
               });
             }
           }
