@@ -34,7 +34,8 @@ import {
   ELMLess,
   ELMLessOrEqual,
   ELMRatio,
-  ELMAliasRef
+  ELMAliasRef,
+  ListTypeSpecifier
 } from '../types/ELMTypes';
 import {
   AndFilter,
@@ -233,12 +234,14 @@ function parseSources(query: ELMQuery): SourceInfo[] {
       };
       sources.push(sourceInfo);
     } else {
-      const sourceInfo: SourceInfo = {
-        sourceLocalId: source.localId,
-        alias: source.alias,
-        resourceType: parseElementType(source.expression)
-      };
-      sources.push(sourceInfo);
+      if (source.expression.resultTypeSpecifier) {
+        const sourceInfo: SourceInfo = {
+          sourceLocalId: source.localId,
+          alias: source.alias,
+          resourceType: parseElementType(source.expression)
+        };
+        sources.push(sourceInfo);
+      }
     }
   });
   query.relationship.forEach(relationship => {
@@ -271,8 +274,11 @@ function parseDataType(retrieve: ELMRetrieve): string {
  * @param expression The expression to pull out resource type from.
  * @returns FHIR ResourceType name.
  */
-function parseElementType(expression: any): string {
-  return expression.resultTypeSpecifier.elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+function parseElementType(expression: ELMExpression): string {
+  return (expression.resultTypeSpecifier as ListTypeSpecifier).elementType.name.replace(
+    /^(\{http:\/\/hl7.org\/fhir\})?/,
+    ''
+  );
 }
 
 /**
