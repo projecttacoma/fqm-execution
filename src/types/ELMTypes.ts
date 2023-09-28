@@ -1,3 +1,5 @@
+import { AnyTypeSpecifier } from 'cql-execution';
+
 /** Top level of an ELM JSON. */
 export interface ELM {
   /** ELM Library definition. */
@@ -64,7 +66,7 @@ export interface ELMInclude {
   locator?: string;
   /** Local identifier that will be used to reference this library in the logic. */
   localIdentifier: string;
-  /** The id of the refereced library. */
+  /** The id of the referenced library. */
   path: string;
   /** The version of the referenced library. */
   version: string;
@@ -168,7 +170,7 @@ export interface ELMExpression {
   /** Locator in the original CQL file. Only exists if compiled with this info. */
   locator?: string;
   /** Type specifier for the result of the expression. */
-  resultTypeSpecifier?: TypeSpecifier;
+  resultTypeSpecifier?: AnyTypeSpecifier;
 }
 
 export type AnyELMExpression =
@@ -477,24 +479,3 @@ export interface AnnotationStatement {
 }
 
 export type ELMComparator = ELMGreaterOrEqual | ELMLessOrEqual | ELMGreater | ELMLess;
-
-/**
- * Abstract base type for all type specifiers.
- */
-export interface TypeSpecifier {
-  /** Type of type specifier. */
-  type: string;
-}
-
-/**
- * Defines a list type by specifying the type of elements the list may contain.
- */
-export interface ListTypeSpecifier extends TypeSpecifier {
-  type: 'ListTypeSpecifier';
-  elementType: {
-    /** Name of data types included in element type. */
-    name: string;
-    /** Type of type specifier. */
-    type: string;
-  };
-}

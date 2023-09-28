@@ -1,4 +1,4 @@
-import { Interval, Expression, PatientContext, Library, DateTime } from 'cql-execution';
+import { Interval, Expression, PatientContext, Library, DateTime, NamedTypeSpecifier, ListTypeSpecifier } from 'cql-execution';
 import { CQLPatient } from '../types/CQLPatient';
 import {
   ELM,
@@ -34,8 +34,7 @@ import {
   ELMLess,
   ELMLessOrEqual,
   ELMRatio,
-  ELMAliasRef,
-  ListTypeSpecifier
+  ELMAliasRef
 } from '../types/ELMTypes';
 import {
   AndFilter,
@@ -274,10 +273,8 @@ function parseDataType(retrieve: ELMRetrieve): string {
  * @returns FHIR ResourceType name.
  */
 function parseElementType(expression: ELMExpression): string {
-  return (expression.resultTypeSpecifier as ListTypeSpecifier).elementType.name.replace(
-    /^(\{http:\/\/hl7.org\/fhir\})?/,
-    ''
-  );
+  const elementType = (expression.resultTypeSpecifier as ListTypeSpecifier).elementType as NamedTypeSpecifier;
+  return elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 }
 
 /**
