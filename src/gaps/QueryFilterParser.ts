@@ -233,17 +233,16 @@ function parseSources(query: ELMQuery): SourceInfo[] {
         resourceType: parseDataType(source.expression as ELMRetrieve)
       };
       sources.push(sourceInfo);
-    } else {
-      if (source.expression.resultTypeSpecifier) {
-        const sourceInfo: SourceInfo = {
-          sourceLocalId: source.localId,
-          alias: source.alias,
-          resourceType: parseElementType(source.expression)
-        };
-        sources.push(sourceInfo);
-      }
+    } else if (source.expression.resultTypeSpecifier) {
+      const sourceInfo: SourceInfo = {
+        sourceLocalId: source.localId,
+        alias: source.alias,
+        resourceType: parseElementType(source.expression)
+      };
+      sources.push(sourceInfo);
     }
   });
+  // parse relationship clauses
   query.relationship.forEach(relationship => {
     if (relationship.expression.type == 'Retrieve') {
       const sourceInfo: SourceInfo = {
