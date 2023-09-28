@@ -42,7 +42,8 @@ import {
   ELMLess,
   ELMLessOrEqual,
   ELMRatio,
-  ELMAliasRef
+  ELMAliasRef,
+  ListTypeSpecifier
 } from '../types/ELMTypes';
 import {
   AndFilter,

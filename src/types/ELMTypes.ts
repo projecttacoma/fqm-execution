@@ -479,3 +479,24 @@ export interface AnnotationStatement {
 }
 
 export type ELMComparator = ELMGreaterOrEqual | ELMLessOrEqual | ELMGreater | ELMLess;
+
+/**
+ * Abstract base type for all type specifiers.
+ */
+export interface TypeSpecifier {
+  /** Type of type specifier. */
+  type: string;
+}
+
+/**
+ * Defines a list type by specifying the type of elements the list may contain.
+ */
+export interface ListTypeSpecifier extends TypeSpecifier {
+  type: 'ListTypeSpecifier';
+  elementType: {
+    /** Name of data types included in element type. */
+    name: string;
+    /** Type of type specifier. */
+    type: string;
+  };
+}
