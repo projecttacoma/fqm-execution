@@ -232,6 +232,24 @@ function parseSources(query: ELMQuery): SourceInfo[] {
         resourceType: parseDataType(source.expression as ELMRetrieve)
       };
       sources.push(sourceInfo);
+    } else {
+      const sourceInfo: SourceInfo = {
+        sourceLocalId: source.localId,
+        alias: source.alias,
+        resourceType: parseElementType(source.expression)
+      };
+      sources.push(sourceInfo);
+    }
+  });
+  query.relationship.forEach(relationship => {
+    if (relationship.expression.type == 'Retrieve') {
+      const sourceInfo: SourceInfo = {
+        sourceLocalId: relationship.localId,
+        retrieveLocalId: relationship.expression.localId,
+        alias: relationship.alias,
+        resourceType: parseDataType(relationship.expression as ELMRetrieve)
+      };
+      sources.push(sourceInfo);
     }
   });
   return sources;
@@ -245,6 +263,16 @@ function parseSources(query: ELMQuery): SourceInfo[] {
  */
 function parseDataType(retrieve: ELMRetrieve): string {
   return retrieve.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+}
+
+/**
+ * Pulls out the resource type of a result type
+ *
+ * @param expression The expression to pull out resource type from.
+ * @returns FHIR ResourceType name.
+ */
+function parseElementType(expression: any): string {
+  return expression.resultTypeSpecifier.elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 }
 
 /**
