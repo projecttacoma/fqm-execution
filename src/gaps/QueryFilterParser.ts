@@ -1,4 +1,12 @@
-import { Interval, Expression, PatientContext, Library, DateTime, NamedTypeSpecifier, ListTypeSpecifier } from 'cql-execution';
+import {
+  Interval,
+  Expression,
+  PatientContext,
+  Library,
+  DateTime,
+  NamedTypeSpecifier,
+  ListTypeSpecifier
+} from 'cql-execution';
 import { CQLPatient } from '../types/CQLPatient';
 import {
   ELM,
