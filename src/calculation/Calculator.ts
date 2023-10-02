@@ -86,7 +86,7 @@ export async function calculate<T extends CalculationOptions>(
 
   const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [];
   let overallClauseCoverageHTML: string | undefined;
-  let groupClauseCoverageHTML: Record<string, string> | undefined;
+  let groupClauseCoverageHTML: Record<string, { coverage: string; uncoverage: string }> | undefined;
 
   let newValueSetCache: fhir4.ValueSet[] | undefined = [...valueSetCache];
   const allELM: ELM[] = [];
@@ -259,16 +259,20 @@ export async function calculate<T extends CalculationOptions>(
       );
       overallClauseCoverageHTML = '';
       Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
-        overallClauseCoverageHTML += result;
+        overallClauseCoverageHTML += result.coverage;
         if (debugObject && options.enableDebugOutput) {
           const debugHTML = {
             name: `clause-coverage-${groupId}.html`,
-            html: result
+            html: result.coverage
+          };
+          const debugUncoverageHTML = {
+            name: `clause-uncoverage-${groupId}.html`,
+            html: result.uncoverage
           };
           if (Array.isArray(debugObject.html)) {
-            debugObject.html.push(debugHTML);
+            debugObject.html.push(debugHTML, debugUncoverageHTML);
           } else {
-            debugObject.html = [debugHTML];
+            debugObject.html = [debugHTML, debugUncoverageHTML];
           }
         }
       });

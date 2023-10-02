@@ -217,9 +217,9 @@ export function generateClauseCoverageHTML(
   elmLibraries: ELM[],
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[],
   disableHTMLOrdering?: boolean
-): Record<string, string> {
+): Record<string, { coverage: string; uncoverage: string }> {
   const groupResultLookup: Record<string, DetailedPopulationGroupResult[]> = {};
-  const htmlGroupLookup: Record<string, string> = {};
+  const htmlGroupLookup: Record<string, { coverage: string; uncoverage: string }> = {};
 
   // get the detailed result for each group within each patient and add it
   // to the key in groupResults that matches the groupId
@@ -270,10 +270,18 @@ export function generateClauseCoverageHTML(
       }
     });
 
-    let htmlString = `<div><h2> ${groupId} Clause Coverage: ${calculateClauseCoverage(
-      uniqueRelevantStatements,
-      flattenedClauseResults
-    )}%</h2>`;
+    const clauseCoverage = calculateClauseCoverage(uniqueRelevantStatements, flattenedClauseResults);
+
+    let coverageHtmlString = `<div><h2> ${groupId} Clause Coverage: ${clauseCoverage.percentage}%</h2>`;
+    let uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} clauses</h2>`;
+
+    if (clauseCoverage.uncoveredClauses.length > 0 && clauseCoverage.uncoveredClauses.length <= 20) {
+      uncoverageHtmlString += `<pre><code>\n${JSON.stringify(
+        clauseCoverage.uncoveredClauses,
+        undefined,
+        2
+      )}</code></pre>`;
+    }
 
     // generate HTML clauses using hbs template for each annotation
     statementAnnotations.forEach(a => {
@@ -284,11 +292,19 @@ export function generateClauseCoverageHTML(
         ...a.annotation[0].s,
         highlightCoverage: true
       });
-      htmlString += res;
+      coverageHtmlString += res;
+      uncoverageHtmlString += main({
+        libraryName: a.libraryName,
+        statementName: a.statementName,
+        clauseResults: clauseCoverage.uncoveredClauses,
+        ...a.annotation[0].s,
+        highlightCoverage: false
+      });
     });
-    htmlString += '</div>';
+    coverageHtmlString += '</div>';
+    uncoverageHtmlString += '</div>';
 
-    htmlGroupLookup[groupId] = htmlString;
+    htmlGroupLookup[groupId] = { coverage: coverageHtmlString, uncoverage: uncoverageHtmlString };
   });
 
   return htmlGroupLookup;
@@ -301,7 +317,11 @@ export function generateClauseCoverageHTML(
  * @param clauseResults ClauseResult array from calculation
  * @returns percentage out of 100, represented as a string
  */
-export function calculateClauseCoverage(relevantStatements: StatementResult[], clauseResults: ClauseResult[]): string {
+export function calculateClauseCoverage(
+  relevantStatements: StatementResult[],
+  clauseResults: ClauseResult[]
+): { percentage: string; uncoveredClauses: ClauseResult[] } {
+  const covTimer = new Date();
   // find all relevant clauses using statementName and libraryName from relevant statements
   const allRelevantClauses = clauseResults.filter(c =>
     relevantStatements.some(
@@ -317,5 +337,21 @@ export function calculateClauseCoverage(relevantStatements: StatementResult[], c
     allRelevantClauses.filter(clause => clause.final === FinalResult.TRUE),
     (c1, c2) => c1.libraryName === c2.libraryName && c1.localId === c2.localId
   );
-  return ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3);
+
+  const unCovTimer = new Date();
+  const uncoveredClauses = allUniqueClauses.filter(c => {
+    if (coveredClauses.find(coveredC => c.libraryName === coveredC.libraryName && c.localId === coveredC.localId)) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+  console.debug(`Uncoverage took ${new Date().getTime() - unCovTimer.getTime()} ms`);
+  console.debug(`Coverage took ${new Date().getTime() - covTimer.getTime()} ms`);
+  console.debug(`Found ${uncoveredClauses.length} uncovered clauses.`, uncoveredClauses);
+
+  return {
+    percentage: ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3),
+    uncoveredClauses
+  };
 }

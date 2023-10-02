@@ -221,8 +221,8 @@ describe('HTMLBuilder', () => {
     ];
     const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
 
-    expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
-    expect(res.test.includes(coverageStyleString)).toBeTruthy();
+    expect(res.test.coverage.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.test.coverage.includes(coverageStyleString)).toBeTruthy();
   });
 
   test('simple HTML for two groups with generation with clause coverage styling', () => {
@@ -248,10 +248,10 @@ describe('HTMLBuilder', () => {
     ];
     const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
 
-    expect(res.test.replace(/\s/g, '')).toEqual(expectedHTML);
-    expect(res.test2.replace(/\s/g, '')).toEqual(expectedHTML2);
-    expect(res.test.includes(coverageStyleString)).toBeTruthy();
-    expect(res.test2.includes(coverageStyleString)).toBeTruthy();
+    expect(res.test.coverage.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.test2.coverage.replace(/\s/g, '')).toEqual(expectedHTML2);
+    expect(res.test.coverage.includes(coverageStyleString)).toBeTruthy();
+    expect(res.test2.coverage.includes(coverageStyleString)).toBeTruthy();
   });
 
   test('ordered HTML with generation with clause coverage styling', () => {
@@ -269,8 +269,8 @@ describe('HTMLBuilder', () => {
     ];
     const res = generateClauseCoverageHTML(singlePopMeasure, [popRetrieveFuncElm], executionResults);
 
-    expect(res.test.indexOf('ipp')).toBeLessThan(res.test.indexOf('SimpleVSRetrieve'));
-    expect(res.test.indexOf('SimpleVSRetrieve')).toBeLessThan(res.test.indexOf('A Function'));
+    expect(res.test.coverage.indexOf('ipp')).toBeLessThan(res.test.coverage.indexOf('SimpleVSRetrieve'));
+    expect(res.test.coverage.indexOf('SimpleVSRetrieve')).toBeLessThan(res.test.coverage.indexOf('A Function'));
   });
 
   test('no library found should error', () => {
@@ -336,7 +336,8 @@ describe('HTMLBuilder', () => {
       }
     ];
     const results = calculateClauseCoverage(statementResults, clauseResults);
-    expect(results).toEqual('100');
+    expect(results.percentage).toEqual('100');
+    expect(results.uncoveredClauses).toEqual([]);
   });
 
   test('html generation orders population first, then other, then function', () => {
