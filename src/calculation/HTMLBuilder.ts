@@ -271,6 +271,7 @@ export function generateClauseCoverageHTML(
     });
 
     const clauseCoverage = calculateClauseCoverage(uniqueRelevantStatements, flattenedClauseResults);
+    const uniqueCoverageClauses = clauseCoverage.coveredClauses.concat(clauseCoverage.uncoveredClauses);
 
     let coverageHtmlString = `<div><h2> ${groupId} Clause Coverage: ${clauseCoverage.percentage}%</h2>`;
     let uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} clauses</h2>`;
@@ -283,12 +284,13 @@ export function generateClauseCoverageHTML(
       )}</code></pre>`;
     }
 
+    const covTimer = new Date();
     // generate HTML clauses using hbs template for each annotation
     statementAnnotations.forEach(a => {
       const res = main({
         libraryName: a.libraryName,
         statementName: a.statementName,
-        clauseResults: flattenedClauseResults,
+        clauseResults: uniqueCoverageClauses,
         ...a.annotation[0].s,
         highlightCoverage: true
       });
@@ -303,6 +305,8 @@ export function generateClauseCoverageHTML(
     });
     coverageHtmlString += '</div>';
     uncoverageHtmlString += '</div>';
+
+    console.debug(`Coverage and Uncoverage HTML took ${new Date().getTime() - covTimer.getTime()} ms`);
 
     htmlGroupLookup[groupId] = { coverage: coverageHtmlString, uncoverage: uncoverageHtmlString };
   });
@@ -320,7 +324,7 @@ export function generateClauseCoverageHTML(
 export function calculateClauseCoverage(
   relevantStatements: StatementResult[],
   clauseResults: ClauseResult[]
-): { percentage: string; uncoveredClauses: ClauseResult[] } {
+): { percentage: string; coveredClauses: ClauseResult[]; uncoveredClauses: ClauseResult[] } {
   const covTimer = new Date();
   // find all relevant clauses using statementName and libraryName from relevant statements
   const allRelevantClauses = clauseResults.filter(c =>
@@ -352,6 +356,7 @@ export function calculateClauseCoverage(
 
   return {
     percentage: ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3),
+    coveredClauses,
     uncoveredClauses
   };
 }
