@@ -84,7 +84,7 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
   if (clauseResult) {
     if (clauseResult.some(c => c.final === FinalResult.TRUE)) {
       return objToCSS(cqlLogicClauseCoveredStyle);
-    } else if (clauseResult.every(c => c.final === FinalResult.FALSE)) {
+    } else if (clauseResult.every(c => c.final === FinalResult.FALSE || c.final === FinalResult.UNHIT)) {
       return objToCSS(cqlLogicUncoveredClauseStyle);
     }
   }
