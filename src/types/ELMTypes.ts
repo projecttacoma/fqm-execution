@@ -169,7 +169,7 @@ export interface ELMExpression {
   localId?: string;
   /** Locator in the original CQL file. Only exists if compiled with this info. */
   locator?: string;
-  /** Type specifier for the result of the expression. */
+  /** Type specifier for the result of the expression. This field may or may not be included in translator output. */
   resultTypeSpecifier?: AnyTypeSpecifier;
 }
 

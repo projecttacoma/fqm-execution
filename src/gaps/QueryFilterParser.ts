@@ -156,6 +156,8 @@ export async function parseQueryInfo(
           );
 
           // use sources from inner query
+          // TODO: should copy over everything from inner query info, but for anything after 1st elem - replace first one, and copy over rest
+          // query.sources at index 0 = inner query info sources at index 0 (then copy over the rest using splice to copy everything except first and push on)
           queryInfo.sources = innerQueryInfo.sources;
 
           // replace the filters for this query to match the inner source
@@ -249,9 +251,10 @@ function parseSources(query: ELMQuery): SourceInfo[] {
       sources.push(sourceInfo);
     }
   });
-  // parse relationship clauses
   query.relationship.forEach(relationship => {
-    if (relationship.expression.type == 'Retrieve') {
+    // TODO: add conditional for parsing on the resultTypeSpecifier and consolidate logic between
+    // relationship and source
+    if (relationship.expression.type === 'Retrieve') {
       const sourceInfo: SourceInfo = {
         sourceLocalId: relationship.localId,
         retrieveLocalId: relationship.expression.localId,
@@ -275,14 +278,33 @@ function parseDataType(retrieve: ELMRetrieve): string {
 }
 
 /**
- * Pulls out the resource type of a result type
+ * Pulls out the resource type of a result type. Used when a source expression type is *not* a
+ * Retrieve but the source expression contains a type specified for the result of the expression that
+ * we can use to parse the resource type of the query source.
  *
- * @param expression The expression to pull out resource type from.
+ * @param expression The ELM expression to pull out resource type from.
  * @returns FHIR ResourceType name.
  */
 function parseElementType(expression: ELMExpression): string {
-  const elementType = (expression.resultTypeSpecifier as ListTypeSpecifier).elementType as NamedTypeSpecifier;
-  return elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+  const resultTypeSpecifier = expression.resultTypeSpecifier;
+  // check if the type is ListTypeSpecifier
+  if (resultTypeSpecifier?.type === 'ListTypeSpecifier') {
+    const listTypeSpecifier = resultTypeSpecifier as ListTypeSpecifier;
+    // check if the elementType is of type NamedTypeSpecifier
+    if (listTypeSpecifier.elementType.type === 'NamedTypeSpecifier') {
+      const elementType = listTypeSpecifier.elementType as NamedTypeSpecifier;
+      return elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+    } else {
+      // TODO: just don't create the source info if the resource type can't be found, remove this error
+      throw new Error('ListTypeSpecifier elementType must be of type NamedTypeSpecifier.');
+    }
+  } else {
+    // TODO: don't throw an error, mark as a warning instead
+    // if something is being defined as alias either from source or relationship but cant figure out the data type,
+    // want to mark it some way
+    // short-circuit out instead
+    throw new Error('Expression resultTypeSpecifier must be of type ListTypeSpecifier.');
+  }
 }
 
 /**
