@@ -253,7 +253,6 @@ function parseSources(query: ELMQuery): SourceInfo[] {
       sources.push(sourceInfo);
     }
   });
-
   return sources;
 }
 
