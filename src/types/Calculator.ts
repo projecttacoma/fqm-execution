@@ -291,6 +291,8 @@ export interface DataTypeQuery {
   path?: string;
   /** Info about query and how it is filtered. */
   queryInfo?: QueryInfo;
+  /** templateId for the profile */
+  templateId?: string;
 }
 
 export interface GapsDataTypeQuery extends DataTypeQuery {

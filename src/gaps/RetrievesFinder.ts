@@ -94,6 +94,8 @@ export function findRetrieves(
     // If present, strip off HL7 prefix to data type
     const dataType = exprRet.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
 
+    const templateId = exprRet.templateId;
+
     let queryLibraryName = elm.library.identifier.id;
 
     // We need to detect if this query/retrieve is used as the source of another query directly. This is an indication
@@ -144,7 +146,8 @@ export function findRetrieves(
           retrieveLibraryName: elm.library.identifier.id,
           queryLibraryName,
           expressionStack: [...expressionStack],
-          path: exprRet.codeProperty
+          path: exprRet.codeProperty,
+          templateId
         });
       }
     } else if (
@@ -173,7 +176,8 @@ export function findRetrieves(
           retrieveLibraryName: elm.library.identifier.id,
           queryLibraryName,
           expressionStack: [...expressionStack],
-          path: exprRet.codeProperty
+          path: exprRet.codeProperty,
+          templateId
         });
       }
     }

@@ -105,6 +105,7 @@ export async function getDataRequirements(
     allRetrieves.map(retrieve => {
       const dr = generateDataRequirement(retrieve);
       GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
+      addProfileToDataRequirement(retrieve, dr);
       addFhirQueryPatternToDataRequirements(dr);
       return dr;
     }),
@@ -122,6 +123,15 @@ export async function getDataRequirements(
     },
     withErrors
   };
+}
+
+/**
+ * Adds the meta.profile to the data requirement profile attribute
+ */
+export function addProfileToDataRequirement(retrieve: DataTypeQuery, dataRequirement: fhir4.DataRequirement) {
+  if (retrieve.templateId) {
+    dataRequirement.profile = [retrieve.templateId];
+  }
 }
 
 /**

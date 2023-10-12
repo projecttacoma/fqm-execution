@@ -418,28 +418,28 @@ describe('DataRequirementHelpers', () => {
     test('dataType is invalid', () => {
       expect(DataRequirementHelpers.codeLookup('invalid', 'invalid')).toBeNull();
     });
-    test('retireves correct system url for dataType: MedicationRequest and attribute: status', () => {
+    test('retrieves correct system url for dataType: MedicationRequest and attribute: status', () => {
       expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'status')).toEqual(
         'http://hl7.org/fhir/CodeSystem/medicationrequest-status'
       );
     });
-    test('retireves correct system url for dataType: MedicationRequest and attribute: intent', () => {
+    test('retrieves correct system url for dataType: MedicationRequest and attribute: intent', () => {
       expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'intent')).toEqual(
         'http://hl7.org/fhir/CodeSystem/medicationrequest-intent'
       );
     });
-    test('retireves correct system url for dataType: MedicationRequest and attribute: priority', () => {
+    test('retrieves correct system url for dataType: MedicationRequest and attribute: priority', () => {
       expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'priority')).toEqual(
         'http://hl7.org/fhir/request-priority'
       );
     });
-    test('retireves correct system url for dataType: MedicationRequest and invalid attribute', () => {
+    test('retrieves correct system url for dataType: MedicationRequest and invalid attribute', () => {
       expect(DataRequirementHelpers.codeLookup('MedicationRequest', 'nonsense')).toBeNull();
     });
-    test('retireves correct system url for dataType: Encounter and attribute: status', () => {
+    test('retrieves correct system url for dataType: Encounter and attribute: status', () => {
       expect(DataRequirementHelpers.codeLookup('Encounter', 'status')).toEqual('http://hl7.org/fhir/encounter-status');
     });
-    test('retireves correct system url for dataType: Encounter and invalid attribute', () => {
+    test('retrieves correct system url for dataType: Encounter and invalid attribute', () => {
       expect(DataRequirementHelpers.codeLookup('Encounter', 'nonsense')).toBeNull();
     });
 
