@@ -614,39 +614,42 @@ export function addFiltersToDataRequirement(
   withErrors: GracefulError[]
 ) {
   if (q.queryInfo) {
-    // TODO: compare q.dataType to the resource type in queryInfo.source
+    const relevantSource = q.queryInfo.sources.find(source => source.resourceType === q.dataType);
     // if a source cannot be found that matches, exit the function
-    const detailedFilters = flattenFilters(q.queryInfo.filter);
+    if (relevantSource) {
+      const detailedFilters = flattenFilters(q.queryInfo.filter);
 
-    detailedFilters.forEach(df => {
-      // TODO: check the alias before doing an explicit casting of the filters
-      if (df.type === 'equals' || df.type === 'in') {
-        const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter, q.dataType);
-
-        if (cf !== null) {
-          dataRequirement.codeFilter?.push(cf);
-        }
-      } else if (df.type === 'during') {
+      detailedFilters.forEach(df => {
         // DuringFilter, etc. inherit from attribute filter (and have alias on them)
-        const dateFilter = generateDetailedDateFilter(df as DuringFilter);
-        if (dataRequirement.dateFilter) {
-          dataRequirement.dateFilter.push(dateFilter);
-        } else {
-          dataRequirement.dateFilter = [dateFilter];
-        }
-      } else {
-        const valueFilter = generateDetailedValueFilter(df);
-        if (didEncounterDetailedValueFilterErrors(valueFilter)) {
-          withErrors.push(valueFilter);
-        } else if (valueFilter) {
-          if (dataRequirement.extension) {
-            dataRequirement.extension.push(valueFilter);
+        if (relevantSource.alias === (df as AttributeFilter).alias) {
+          if (df.type === 'equals' || df.type === 'in') {
+            const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter, q.dataType);
+
+            if (cf !== null) {
+              dataRequirement.codeFilter?.push(cf);
+            }
+          } else if (df.type === 'during') {
+            const dateFilter = generateDetailedDateFilter(df as DuringFilter);
+            if (dataRequirement.dateFilter) {
+              dataRequirement.dateFilter.push(dateFilter);
+            } else {
+              dataRequirement.dateFilter = [dateFilter];
+            }
           } else {
-            dataRequirement.extension = [valueFilter];
+            const valueFilter = generateDetailedValueFilter(df);
+            if (didEncounterDetailedValueFilterErrors(valueFilter)) {
+              withErrors.push(valueFilter);
+            } else if (valueFilter) {
+              if (dataRequirement.extension) {
+                dataRequirement.extension.push(valueFilter);
+              } else {
+                dataRequirement.extension = [valueFilter];
+              }
+            }
           }
         }
-      }
-    });
+      });
+    }
   }
 }
 

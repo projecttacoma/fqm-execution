@@ -155,10 +155,8 @@ export async function parseQueryInfo(
             patient
           );
 
-          // use sources from inner query
-          // TODO: should copy over everything from inner query info, but for anything after 1st elem - replace first one, and copy over rest
-          // query.sources at index 0 = inner query info sources at index 0 (then copy over the rest using splice to copy everything except first and push on)
-          queryInfo.sources = innerQueryInfo.sources;
+          // use first source from inner query (only replaces the first source)
+          queryInfo.sources = [...innerQueryInfo.sources.slice(0, 1), ...queryInfo.sources.slice(1)];
 
           // replace the filters for this query to match the inner source
           replaceAliasesInFilters(queryInfo.filter, query.source[0].alias, innerQuery.source[0].alias);
@@ -226,14 +224,16 @@ function replaceAliasesInFilters(filter: AnyFilter, match: string, replace: stri
 }
 
 /**
- * Parse information about the sources in a given query.
+ * Parse information about the sources in a given query. Treat relationships as sources.
  *
- * @param query The Query expression to parse.
+ * @param query The Query to parse. The query source can consist of aliased query sources or relationship clauses.
  * @returns Information about each source. This is usually an array of one.
  */
 function parseSources(query: ELMQuery): SourceInfo[] {
   const sources: SourceInfo[] = [];
-  query.source.forEach(source => {
+  const querySources = [...query.source, ...query.relationship];
+
+  querySources.forEach(source => {
     if (source.expression.type == 'Retrieve') {
       const sourceInfo: SourceInfo = {
         sourceLocalId: source.localId,
@@ -242,6 +242,7 @@ function parseSources(query: ELMQuery): SourceInfo[] {
         resourceType: parseDataType(source.expression as ELMRetrieve)
       };
       sources.push(sourceInfo);
+      // use the resultTypeSpecifier as a fallback if the expression is not a Retrieve
     } else if (source.expression.resultTypeSpecifier) {
       const sourceInfo: SourceInfo = {
         sourceLocalId: source.localId,
@@ -251,19 +252,7 @@ function parseSources(query: ELMQuery): SourceInfo[] {
       sources.push(sourceInfo);
     }
   });
-  query.relationship.forEach(relationship => {
-    // TODO: add conditional for parsing on the resultTypeSpecifier and consolidate logic between
-    // relationship and source
-    if (relationship.expression.type === 'Retrieve') {
-      const sourceInfo: SourceInfo = {
-        sourceLocalId: relationship.localId,
-        retrieveLocalId: relationship.expression.localId,
-        alias: relationship.alias,
-        resourceType: parseDataType(relationship.expression as ELMRetrieve)
-      };
-      sources.push(sourceInfo);
-    }
-  });
+
   return sources;
 }
 
@@ -287,24 +276,15 @@ function parseDataType(retrieve: ELMRetrieve): string {
  */
 function parseElementType(expression: ELMExpression): string {
   const resultTypeSpecifier = expression.resultTypeSpecifier;
-  // check if the type is ListTypeSpecifier
-  if (resultTypeSpecifier?.type === 'ListTypeSpecifier') {
-    const listTypeSpecifier = resultTypeSpecifier as ListTypeSpecifier;
-    // check if the elementType is of type NamedTypeSpecifier
-    if (listTypeSpecifier.elementType.type === 'NamedTypeSpecifier') {
-      const elementType = listTypeSpecifier.elementType as NamedTypeSpecifier;
-      return elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
-    } else {
-      // TODO: just don't create the source info if the resource type can't be found, remove this error
-      throw new Error('ListTypeSpecifier elementType must be of type NamedTypeSpecifier.');
-    }
-  } else {
-    // TODO: don't throw an error, mark as a warning instead
-    // if something is being defined as alias either from source or relationship but cant figure out the data type,
-    // want to mark it some way
-    // short-circuit out instead
-    throw new Error('Expression resultTypeSpecifier must be of type ListTypeSpecifier.');
+  if (
+    resultTypeSpecifier?.type === 'ListTypeSpecifier' &&
+    (resultTypeSpecifier as ListTypeSpecifier).elementType.type === 'NamedTypeSpecifier'
+  ) {
+    const elementType = (resultTypeSpecifier as ListTypeSpecifier).elementType as NamedTypeSpecifier;
+    return elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
   }
+  console.warn(`Resource type cannot be found for ELM Expression with localId ${expression.localId}`);
+  return '';
 }
 
 /**
@@ -773,7 +753,7 @@ export function interpretIncludedIn(
   parameters: any
 ): DuringFilter | UnknownFilter {
   let propRef: ELMProperty | GracefulError | null = null;
-  let withError: GracefulError = { message: 'An unknown error occured' };
+  let withError: GracefulError = { message: 'An unknown error occurred' };
   if (includedIn.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
   } else if (includedIn.operand[0].type == 'Property') {
@@ -839,7 +819,7 @@ export async function interpretIn(
   parameters: any
 ): Promise<InFilter | DuringFilter | UnknownFilter> {
   let propRef: ELMProperty | GracefulError | null = null;
-  let withError: GracefulError = { message: 'An unknown error occured' };
+  let withError: GracefulError = { message: 'An unknown error occurred' };
   if (inExpr.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {
