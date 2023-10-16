@@ -227,8 +227,12 @@ function replaceAliasesInFilters(filter: AnyFilter, match: string, replace: stri
  * Parse information about the sources in a given query. Treat relationships as sources.
  *
  * @param query The Query to parse. The query source can consist of aliased query sources or relationship clauses.
+<<<<<<< HEAD
  * @returns Information about each source. This is usually an array of one, except for when we are working with
  * multi-source queries or relationships.
+=======
+ * @returns Information about each source. This is usually an array of one.
+>>>>>>> 7556acc (update inner query reassignment, addFiltersToDataRequirements, etc.)
  */
 function parseSources(query: ELMQuery): SourceInfo[] {
   const sources: SourceInfo[] = [];
@@ -253,6 +257,7 @@ function parseSources(query: ELMQuery): SourceInfo[] {
       sources.push(sourceInfo);
     }
   });
+
   return sources;
 }
 
