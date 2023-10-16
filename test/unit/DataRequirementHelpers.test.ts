@@ -75,41 +75,6 @@ describe('DataRequirementHelpers', () => {
     });
   });
 
-  describe('Profiles', () => {
-    test('should add profile to the data requirement', () => {
-      const dtq: DataTypeQuery = {
-        dataType: 'fhir_type',
-        path: 'a.path',
-        valueSet: 'http://example.com/valueset',
-        templateId: 'http://hl7.org/fhir/StructureDefinition/fhir_type'
-      };
-
-      const dataReq: fhir4.DataRequirement = {
-        type: dtq.dataType,
-        codeFilter: [
-          {
-            path: dtq.path,
-            valueSet: dtq.valueSet
-          }
-        ]
-      };
-
-      const expectedDataReq: fhir4.DataRequirement = {
-        type: dtq.dataType,
-        codeFilter: [
-          {
-            path: dtq.path,
-            valueSet: dtq.valueSet
-          }
-        ],
-        profile: ['http://hl7.org/fhir/StructureDefinition/fhir_type']
-      };
-
-      DataRequirementHelpers.addProfileToDataRequirement(dtq, dataReq);
-      expect(dataReq).toEqual(expectedDataReq);
-    });
-  });
-
   describe('Code Filters', () => {
     test('should return null for non equals or codeFilter', () => {
       const fakeFilter: any = {
@@ -395,6 +360,21 @@ describe('DataRequirementHelpers', () => {
   });
 
   describe('generateDataRequirement', () => {
+    test('can create DataRequirement with profile', () => {
+      const dtq: DataTypeQuery = {
+        dataType: 'fhir_type',
+        path: 'a.path',
+        templateId: 'http://hl7.org/fhir/StructureDefinition/fhir_type'
+      };
+
+      const expectedDataReq: fhir4.DataRequirement = {
+        type: dtq.dataType,
+        profile: ['http://hl7.org/fhir/StructureDefinition/fhir_type']
+      };
+
+      expect(DataRequirementHelpers.generateDataRequirement(dtq)).toEqual(expectedDataReq);
+    });
+
     test('can create DataRequirement with valueSet filter', () => {
       const dtq: DataTypeQuery = {
         dataType: 'fhir_type',

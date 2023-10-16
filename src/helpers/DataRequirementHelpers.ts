@@ -105,7 +105,6 @@ export async function getDataRequirements(
     allRetrieves.map(retrieve => {
       const dr = generateDataRequirement(retrieve);
       GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
-      addProfileToDataRequirement(retrieve, dr);
       addFhirQueryPatternToDataRequirements(dr);
       return dr;
     }),
@@ -123,15 +122,6 @@ export async function getDataRequirements(
     },
     withErrors
   };
-}
-
-/**
- * Adds the meta.profile to the data requirement profile attribute
- */
-export function addProfileToDataRequirement(retrieve: DataTypeQuery, dataRequirement: fhir4.DataRequirement) {
-  if (retrieve.templateId) {
-    dataRequirement.profile = [retrieve.templateId];
-  }
 }
 
 /**
@@ -340,31 +330,32 @@ function createQueryFromCodeFilter(codeFilterArray: fhir4.DataRequirementCodeFil
  * @returns fhir4.DataRequirement with as much attribute data as we can add
  */
 export function generateDataRequirement(retrieve: DataTypeQuery): fhir4.DataRequirement {
-  if (retrieve.valueSet) {
-    return {
-      type: retrieve.dataType,
-      codeFilter: [
-        {
-          path: retrieve.path,
-          valueSet: retrieve.valueSet
-        }
-      ]
-    };
-  } else if (retrieve.code) {
-    return {
-      type: retrieve.dataType,
-      codeFilter: [
-        {
-          path: retrieve.path,
-          code: [retrieve.code as fhir4.Coding]
-        }
-      ]
-    };
-  } else {
-    return {
-      type: retrieve.dataType
-    };
+  const dataRequirement: fhir4.DataRequirement = {
+    type: retrieve.dataType
+  };
+
+  // if the retrieve has a templateId, add it to the profile attribute on the data requirement
+  if (retrieve.templateId) {
+    dataRequirement.profile = [retrieve.templateId];
   }
+
+  if (retrieve.valueSet) {
+    dataRequirement.codeFilter = [
+      {
+        path: retrieve.path,
+        valueSet: retrieve.valueSet
+      }
+    ];
+  } else if (retrieve.code) {
+    dataRequirement.codeFilter = [
+      {
+        path: retrieve.path,
+        code: [retrieve.code as fhir4.Coding]
+      }
+    ];
+  }
+
+  return dataRequirement;
 }
 
 /**
