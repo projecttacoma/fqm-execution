@@ -40,6 +40,15 @@ describe('ValueSetHelper', () => {
       expect(vs.length).toEqual(1);
       expect(vs[0]).toEqual('http://example.com/ValueSet');
     });
+
+    test('Finds all valuesets that are missing in the Library relatedArtifact missingVS measure bundle from url field', () => {
+      const measureBundle: fhir4.Bundle = getJSONFixture(
+        'bundle/missing-vs/measure-missing-library-relatedArtifact-vs-url-field.json'
+      );
+      const vs = getMissingDependentValuesets(measureBundle);
+      expect(vs.length).toEqual(1);
+      expect(vs[0]).toEqual('http://example.com/ValueSet');
+    });
   });
 
   describe('valueSetsForCodeService', () => {

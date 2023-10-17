@@ -23,7 +23,7 @@
         "relatedArtifact": [
           {
             "type": "depends-on",
-            "url": "http://example.com/ValueSet"
+            "resource": "http://example.com/ValueSet"
           }
         ]
       }
