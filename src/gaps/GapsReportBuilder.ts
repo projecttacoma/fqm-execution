@@ -626,7 +626,11 @@ export function addFiltersToDataRequirement(
             const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter, q.dataType);
 
             if (cf !== null) {
-              dataRequirement.codeFilter?.push(cf);
+              if (dataRequirement.codeFilter) {
+                dataRequirement.codeFilter.push(cf);
+              } else {
+                dataRequirement.codeFilter = [cf];
+              }
             }
           } else if (df.type === 'during') {
             const dateFilter = generateDetailedDateFilter(df as DuringFilter);
