@@ -1,4 +1,12 @@
-import { Interval, Expression, PatientContext, Library, DateTime } from 'cql-execution';
+import {
+  Interval,
+  Expression,
+  PatientContext,
+  Library,
+  DateTime,
+  NamedTypeSpecifier,
+  ListTypeSpecifier
+} from 'cql-execution';
 import { CQLPatient } from '../types/CQLPatient';
 import {
   ELM,
@@ -147,8 +155,8 @@ export async function parseQueryInfo(
             patient
           );
 
-          // use sources from inner query
-          queryInfo.sources = innerQueryInfo.sources;
+          // use first source from inner query (only replaces the first source)
+          queryInfo.sources = [...innerQueryInfo.sources.slice(0, 1), ...queryInfo.sources.slice(1)];
 
           // replace the filters for this query to match the inner source
           replaceAliasesInFilters(queryInfo.filter, query.source[0].alias, innerQuery.source[0].alias);
@@ -216,14 +224,17 @@ function replaceAliasesInFilters(filter: AnyFilter, match: string, replace: stri
 }
 
 /**
- * Parse information about the sources in a given query.
+ * Parse information about the sources in a given query. Treat relationships as sources.
  *
- * @param query The Query expression to parse.
- * @returns Information about each source. This is usually an array of one.
+ * @param query The Query to parse. The query source can consist of aliased query sources or relationship clauses.
+ * @returns Information about each source. This is usually an array of one, except for when we are working with
+ * multi-source queries or relationships.
  */
 function parseSources(query: ELMQuery): SourceInfo[] {
   const sources: SourceInfo[] = [];
-  query.source.forEach(source => {
+  const querySources = [...query.source, ...query.relationship];
+
+  querySources.forEach(source => {
     if (source.expression.type == 'Retrieve') {
       const sourceInfo: SourceInfo = {
         sourceLocalId: source.localId,
@@ -232,8 +243,17 @@ function parseSources(query: ELMQuery): SourceInfo[] {
         resourceType: parseDataType(source.expression as ELMRetrieve)
       };
       sources.push(sourceInfo);
+      // use the resultTypeSpecifier as a fallback if the expression is not a Retrieve
+    } else if (source.expression.resultTypeSpecifier) {
+      const sourceInfo: SourceInfo = {
+        sourceLocalId: source.localId,
+        alias: source.alias,
+        resourceType: parseElementType(source.expression)
+      };
+      sources.push(sourceInfo);
     }
   });
+
   return sources;
 }
 
@@ -245,6 +265,27 @@ function parseSources(query: ELMQuery): SourceInfo[] {
  */
 function parseDataType(retrieve: ELMRetrieve): string {
   return retrieve.dataType.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+}
+
+/**
+ * Pulls out the resource type of a result type. Used when a source expression type is *not* a
+ * Retrieve but the source expression contains a type specified for the result of the expression that
+ * we can use to parse the resource type of the query source.
+ *
+ * @param expression The ELM expression to pull out resource type from.
+ * @returns FHIR ResourceType name.
+ */
+function parseElementType(expression: ELMExpression): string {
+  const resultTypeSpecifier = expression.resultTypeSpecifier;
+  if (
+    resultTypeSpecifier?.type === 'ListTypeSpecifier' &&
+    (resultTypeSpecifier as ListTypeSpecifier).elementType.type === 'NamedTypeSpecifier'
+  ) {
+    const elementType = (resultTypeSpecifier as ListTypeSpecifier).elementType as NamedTypeSpecifier;
+    return elementType.name.replace(/^(\{http:\/\/hl7.org\/fhir\})?/, '');
+  }
+  console.warn(`Resource type cannot be found for ELM Expression with localId ${expression.localId}`);
+  return '';
 }
 
 /**
@@ -713,7 +754,7 @@ export function interpretIncludedIn(
   parameters: any
 ): DuringFilter | UnknownFilter {
   let propRef: ELMProperty | GracefulError | null = null;
-  let withError: GracefulError = { message: 'An unknown error occured' };
+  let withError: GracefulError = { message: 'An unknown error occurred' };
   if (includedIn.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(includedIn.operand[0] as ELMFunctionRef, library);
   } else if (includedIn.operand[0].type == 'Property') {
@@ -779,7 +820,7 @@ export async function interpretIn(
   parameters: any
 ): Promise<InFilter | DuringFilter | UnknownFilter> {
   let propRef: ELMProperty | GracefulError | null = null;
-  let withError: GracefulError = { message: 'An unknown error occured' };
+  let withError: GracefulError = { message: 'An unknown error occurred' };
   if (inExpr.operand[0].type == 'FunctionRef') {
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {

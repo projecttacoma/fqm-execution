@@ -1,3 +1,5 @@
+import { AnyTypeSpecifier } from 'cql-execution';
+
 /** Top level of an ELM JSON. */
 export interface ELM {
   /** ELM Library definition. */
@@ -64,7 +66,7 @@ export interface ELMInclude {
   locator?: string;
   /** Local identifier that will be used to reference this library in the logic. */
   localIdentifier: string;
-  /** The id of the refereced library. */
+  /** The id of the referenced library. */
   path: string;
   /** The version of the referenced library. */
   version: string;
@@ -167,6 +169,8 @@ export interface ELMExpression {
   localId?: string;
   /** Locator in the original CQL file. Only exists if compiled with this info. */
   locator?: string;
+  /** Type specifier for the result of the expression. This field may or may not be included in translator output. */
+  resultTypeSpecifier?: AnyTypeSpecifier;
 }
 
 export type AnyELMExpression =
