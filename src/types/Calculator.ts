@@ -291,6 +291,8 @@ export interface DataTypeQuery {
   path?: string;
   /** Info about query and how it is filtered. */
   queryInfo?: QueryInfo;
+  /** specifies an optional template/profile for the objects that the retrieve returns to conform to */
+  templateId?: string;
 }
 
 export interface GapsDataTypeQuery extends DataTypeQuery {

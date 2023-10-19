@@ -17,6 +17,7 @@ const EXPECTED_VS_RETRIEVE_RESULTS: { results: DataTypeQuery[]; withErrors: Grac
       retrieveLocalId: '14',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleQueries',
+      templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
@@ -39,6 +40,7 @@ const EXPECTED_VS_QUERY_RESULTS: { results: DataTypeQuery[]; withErrors: Gracefu
       retrieveLocalId: '18',
       queryLocalId: '24',
       retrieveLibraryName: 'SimpleQueries',
+      templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
@@ -69,6 +71,7 @@ const EXPECTED_CODE_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulErr
       retrieveLocalId: '16',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleQueries',
+      templateId: 'http://hl7.org/fhir/StructureDefinition/Procedure',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
@@ -91,6 +94,7 @@ const EXPECTED_EXPRESSIONREF_RESULTS: { results: DataTypeQuery[]; withErrors: Gr
       retrieveLocalId: '14',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleQueries',
+      templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
@@ -118,6 +122,7 @@ const EXPECTED_DEPENDENCY_RESULTS: { results: DataTypeQuery[]; withErrors: Grace
       retrieveLocalId: '4',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleDep',
+      templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleDep',
       expressionStack: [
         {
@@ -145,6 +150,7 @@ const EXPECTED_QUERY_REFERENCING_QUERY_RESULTS: { results: DataTypeQuery[]; with
       retrieveLocalId: '33',
       queryLocalId: '46',
       retrieveLibraryName: 'SimpleQueries',
+      templateId: 'http://hl7.org/fhir/StructureDefinition/Procedure',
       queryLibraryName: 'SimpleQueries',
       path: 'code',
       expressionStack: [
@@ -195,6 +201,7 @@ const EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS: {
       retrieveLocalId: '6',
       queryLocalId: '65',
       retrieveLibraryName: 'SimpleDep',
+      templateId: 'http://hl7.org/fhir/StructureDefinition/Procedure',
       queryLibraryName: 'SimpleQueries',
       path: 'code',
       expressionStack: [
