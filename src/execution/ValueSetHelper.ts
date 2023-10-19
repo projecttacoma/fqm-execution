@@ -145,13 +145,14 @@ export function getMissingDependentValuesets(
     if (libraryResource.relatedArtifact) {
       libraryVsUrls.push(
         ...libraryResource.relatedArtifact.reduce((accumulator: string[], ra) => {
-          // look in invalid `url` field. may be needed for older measures
-          if (ra.type === 'depends-on' && ra.url && ra.url.includes('ValueSet')) {
-            accumulator.push(ra.url);
-          }
-          // look in `resource` field
-          if (ra.type === 'depends-on' && ra.resource && ra.resource.includes('ValueSet')) {
-            accumulator.push(ra.resource);
+          if (ra.type === 'depends-on') {
+            // look in invalid `url` field. may be needed for older measures
+            if (ra.url && ra.url.includes('ValueSet')) {
+              accumulator.push(ra.url);
+              // look in `resource` field
+            } else if (ra.resource && ra.resource.includes('ValueSet')) {
+              accumulator.push(ra.resource);
+            }
           }
           return accumulator;
         }, [])
