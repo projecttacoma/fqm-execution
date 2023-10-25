@@ -284,7 +284,7 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
   }
 
   // Create an extension for each way that exists for referencing the patient
-  (<any>PatientParameters)[dataRequirement.type].forEach((patientContext: string) => {
+  (<any>PatientParameters)[dataRequirement.type]?.forEach((patientContext: string) => {
     const fhirPathExtension: Extension = {
       url: FHIR_QUERY_PATTERN_URL,
       valueString: queryString.concat(`${patientContext}=Patient/{{context.patientId}}`)
