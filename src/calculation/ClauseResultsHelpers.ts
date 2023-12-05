@@ -214,6 +214,20 @@ export function findAllLocalIdsInStatement(
     } else if (k === 'type' && v === 'Literal' && statement.localId && statement.value === 'false') {
       // If this is a "Literal" expression whose value is false, mark that it `isFalsyLiteral` so we can interpret final results differently
       localIds[statement.localId] = { localId: statement.localId, isFalsyLiteral: true };
+    } else if (k === 'type' && v === 'Not') {
+      // If this is a "Not" expression, we will want to check if it's operand type is 'Equivalent' or 'Equal'
+      // If so, we will want to treat this as a 'Not Equivalent' or 'Not Equal' expression which we can do so
+      // by mapping the 'Equal' or 'Equivalent' clause localId to that of the 'Not' clause
+      if (statement.operand) {
+        if (statement.operand.type === 'Equivalent' || statement.operand.type === 'Equal') {
+          emptyResultClauses.push({
+            lib: libraryName,
+            aliasLocalId: statement.operand.localId,
+            expressionLocalId: statement.localId
+          });
+        }
+      }
+      localIds[statement.localId] = { localId: v };
     } else if (k === 'localId') {
       // else if the key is localId, push the value
       localIds[v] = { localId: v };
