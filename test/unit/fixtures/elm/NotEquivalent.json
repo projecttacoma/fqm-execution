@@ -1,0 +1,611 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorVersion": "2.11.0",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "libraryId": "MATGlobalCommonFunctions",
+        "libraryVersion": "5.0.000",
+        "startLine": 277,
+        "startChar": 19,
+        "endLine": 277,
+        "endChar": 53,
+        "message": "Could not resolve membership operator for terminology target of the retrieve.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "26",
+          "s": [
+            {
+              "value": ["", "library Test"]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "Test"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "1",
+          "locator": "3:1-3:26",
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "1",
+                "s": [
+                  {
+                    "value": ["", "using "]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": ["FHIR"]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" version ", "'4.0.1'"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "2",
+          "locator": "5:1-5:35",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "2",
+                "s": [
+                  {
+                    "value": ["", "include "]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": ["FHIRHelpers"]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" version ", "'4.0.1'"]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "localId": "3",
+          "locator": "6:1-6:64",
+          "localIdentifier": "Global",
+          "path": "MATGlobalCommonFunctions",
+          "version": "5.0.000",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "3",
+                "s": [
+                  {
+                    "value": ["", "include "]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": ["MATGlobalCommonFunctions"]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" version ", "'5.0.000'", " called ", "Global"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "codeSystems": {
+      "def": [
+        {
+          "localId": "4",
+          "locator": "8:1-8:42",
+          "name": "EXAMPLE",
+          "id": "http://example.com",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "4",
+                "s": [
+                  {
+                    "value": ["", "codesystem ", "\"EXAMPLE\"", ": ", "'http://example.com'"]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "localId": "5",
+          "locator": "9:1-9:46",
+          "name": "EXAMPLE-2",
+          "id": "http://example.com/2",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "5",
+                "s": [
+                  {
+                    "value": ["", "codesystem ", "\"EXAMPLE-2\"", ": ", "'http://example.com/2'"]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "localId": "6",
+          "locator": "10:1-10:101",
+          "name": "ConditionClinicalStatusCodes",
+          "id": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "6",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "codesystem ",
+                      "\"ConditionClinicalStatusCodes\"",
+                      ": ",
+                      "'http://terminology.hl7.org/CodeSystem/condition-clinical'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "localId": "7",
+          "locator": "12:1-12:48",
+          "name": "test-vs",
+          "id": "http://example.com/test-vs",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "7",
+                "s": [
+                  {
+                    "value": ["", "valueset ", "\"test-vs\"", ": ", "'http://example.com/test-vs'"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "codes": {
+      "def": [
+        {
+          "localId": "9",
+          "locator": "14:1-14:59",
+          "name": "Active",
+          "id": "active",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "9",
+                "s": [
+                  {
+                    "value": ["", "code ", "\"Active\"", ": ", "'active'", " from "]
+                  },
+                  {
+                    "r": "8",
+                    "s": [
+                      {
+                        "value": ["\"ConditionClinicalStatusCodes\""]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "8",
+            "locator": "14:30-14:59",
+            "name": "ConditionClinicalStatusCodes"
+          }
+        },
+        {
+          "localId": "11",
+          "locator": "15:1-15:67",
+          "name": "Recurrence",
+          "id": "recurrence",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "11",
+                "s": [
+                  {
+                    "value": ["", "code ", "\"Recurrence\"", ": ", "'recurrence'", " from "]
+                  },
+                  {
+                    "r": "10",
+                    "s": [
+                      {
+                        "value": ["\"ConditionClinicalStatusCodes\""]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "10",
+            "locator": "15:38-15:67",
+            "name": "ConditionClinicalStatusCodes"
+          }
+        },
+        {
+          "localId": "13",
+          "locator": "16:1-16:61",
+          "name": "Relapse",
+          "id": "relapse",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "13",
+                "s": [
+                  {
+                    "value": ["", "code ", "\"Relapse\"", ": ", "'relapse'", " from "]
+                  },
+                  {
+                    "r": "12",
+                    "s": [
+                      {
+                        "value": ["\"ConditionClinicalStatusCodes\""]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "12",
+            "locator": "16:32-16:61",
+            "name": "ConditionClinicalStatusCodes"
+          }
+        }
+      ]
+    },
+    "concepts": {
+      "def": [
+        {
+          "localId": "17",
+          "locator": "18:1-18:82",
+          "name": "Condition Active",
+          "display": "Active",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "17",
+                "s": [
+                  {
+                    "value": ["", "concept ", "\"Condition Active\"", ": { "]
+                  },
+                  {
+                    "r": "14",
+                    "s": [
+                      {
+                        "value": ["\"Active\""]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [", "]
+                  },
+                  {
+                    "r": "15",
+                    "s": [
+                      {
+                        "value": ["\"Recurrence\""]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [", "]
+                  },
+                  {
+                    "r": "16",
+                    "s": [
+                      {
+                        "value": ["\"Relapse\""]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" } display ", "'Active'"]
+                  }
+                ]
+              }
+            }
+          ],
+          "code": [
+            {
+              "localId": "14",
+              "locator": "18:31-18:38",
+              "name": "Active"
+            },
+            {
+              "localId": "15",
+              "locator": "18:41-18:52",
+              "name": "Recurrence"
+            },
+            {
+              "localId": "16",
+              "locator": "18:55-18:63",
+              "name": "Relapse"
+            }
+          ]
+        }
+      ]
+    },
+    "contexts": {
+      "def": [
+        {
+          "locator": "20:1-20:15",
+          "name": "Patient"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "locator": "20:1-20:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "locator": "20:1-20:15",
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "26",
+          "locator": "22:1-24:52",
+          "name": "Not Equivalent Clause",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "26",
+                "s": [
+                  {
+                    "value": ["", "define ", "\"Not Equivalent Clause\"", ":\n    "]
+                  },
+                  {
+                    "r": "25",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "19",
+                            "s": [
+                              {
+                                "r": "18",
+                                "s": [
+                                  {
+                                    "r": "18",
+                                    "s": [
+                                      {
+                                        "value": ["[", "Condition", ": "]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": ["\"test-vs\""]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": ["]"]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [" ", "C"]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": ["\n        "]
+                      },
+                      {
+                        "r": "24",
+                        "s": [
+                          {
+                            "value": ["where "]
+                          },
+                          {
+                            "r": "24",
+                            "s": [
+                              {
+                                "r": "21",
+                                "s": [
+                                  {
+                                    "r": "20",
+                                    "s": [
+                                      {
+                                        "value": ["C"]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": ["."]
+                                  },
+                                  {
+                                    "r": "21",
+                                    "s": [
+                                      {
+                                        "value": ["clinicalStatus"]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [" ", "!~", " "]
+                              },
+                              {
+                                "r": "22",
+                                "s": [
+                                  {
+                                    "value": ["\"Condition Active\""]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "25",
+            "locator": "23:5-24:52",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "19",
+                "locator": "23:5-23:28",
+                "alias": "C",
+                "expression": {
+                  "localId": "18",
+                  "locator": "23:5-23:26",
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "locator": "23:17-23:25",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  }
+                }
+              }
+            ],
+            "relationship": [],
+            "where": {
+              "localId": "24",
+              "locator": "24:9-24:52",
+              "type": "Not",
+              "operand": {
+                "localId": "23",
+                "locator": "24:15-24:52",
+                "type": "Equivalent",
+                "operand": [
+                  {
+                    "name": "ToConcept",
+                    "libraryName": "FHIRHelpers",
+                    "type": "FunctionRef",
+                    "operand": [
+                      {
+                        "localId": "21",
+                        "locator": "24:15-24:30",
+                        "path": "clinicalStatus",
+                        "scope": "C",
+                        "type": "Property"
+                      }
+                    ]
+                  },
+                  {
+                    "localId": "22",
+                    "locator": "24:35-24:52",
+                    "name": "Condition Active",
+                    "type": "ConceptRef"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

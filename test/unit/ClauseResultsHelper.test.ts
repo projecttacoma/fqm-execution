@@ -4,6 +4,20 @@ import { getJSONFixture } from './helpers/testHelpers';
 
 describe('ClauseResultsHelpers', () => {
   describe('findAllLocalIdsInStatementByName', () => {
+    test('finds localIds for a Equivalent comparison operator that is wrapped in a Not expression', () => {
+      // ELM from test/unit/fixtures/cql/NotEquivalent.cql
+      const libraryElm: ELM = getJSONFixture('elm/NotEquivalent.json');
+
+      const statementName = 'Not Equivalent Clause';
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // For the fixture loaded for this test it is known that the localId for the Equivalent statement
+      // is 23 and the localId for the Not expression is 24 but we want the Equivalent clause to take
+      // the result of the Not expression
+      expect(localIds[23]).toBeDefined();
+      expect(localIds[23]).toEqual({ localId: '23', sourceLocalId: '24' });
+    });
+
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
       // ELM from test/unit/fixtures/cql/comparisonWithLiteral.cql
       const libraryElm: ELM = getJSONFixture('elm/ComparisonWithLiteral.json');
