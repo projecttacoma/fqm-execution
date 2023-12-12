@@ -230,7 +230,6 @@ export function findAllLocalIdsInStatement(
           });
         }
       }
-      localIds[statement.localId] = { localId: v };
     } else if (k === 'localId') {
       // else if the key is localId, push the value
       localIds[v] = { localId: v };
