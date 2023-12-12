@@ -219,7 +219,10 @@ export function findAllLocalIdsInStatement(
       // If so, we will want to treat this as a 'Not Equivalent' or 'Not Equal' expression which we can do so
       // by mapping the 'Equal' or 'Equivalent' clause localId to that of the 'Not' clause
       if (statement.operand) {
-        if (statement.operand.type === 'Equivalent' || statement.operand.type === 'Equal') {
+        if (
+          statement.operand.type === 'Equivalent' ||
+          (statement.operand.type === 'Equal' && statement.operand.localId)
+        ) {
           emptyResultClauses.push({
             lib: libraryName,
             aliasLocalId: statement.operand.localId,
