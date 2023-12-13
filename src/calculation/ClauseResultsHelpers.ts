@@ -218,11 +218,8 @@ export function findAllLocalIdsInStatement(
       // If this is a "Not" expression, we will want to check if it's operand type is 'Equivalent' or 'Equal'
       // If so, we will want to treat this as a 'Not Equivalent' or 'Not Equal' expression which we can do so
       // by mapping the 'Equal' or 'Equivalent' clause localId to that of the 'Not' clause
-      if (statement.operand) {
-        if (
-          statement.operand.type === 'Equivalent' ||
-          (statement.operand.type === 'Equal' && statement.operand.localId)
-        ) {
+      if (statement.operand && statement.localId && statement.operand.localId) {
+        if (statement.operand.type === 'Equivalent' || statement.operand.type === 'Equal') {
           emptyResultClauses.push({
             lib: libraryName,
             aliasLocalId: statement.operand.localId,
