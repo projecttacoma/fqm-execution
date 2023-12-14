@@ -28,10 +28,10 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the localId for the Equal statement
-      // is 100 and the localId for the Not expression is 5 but we want the Equal clause to take
+      // is 100 and the localId for the Not expression is 23 but we want the Equal clause to take
       // the result of the Not expression
       expect(localIds[100]).toBeDefined();
-      expect(localIds[100]).toEqual({ localId: '100', sourceLocalId: '5' });
+      expect(localIds[100]).toEqual({ localId: '100', sourceLocalId: '23' });
     });
 
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
