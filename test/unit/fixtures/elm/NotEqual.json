@@ -1,0 +1,182 @@
+{
+  "library": {
+    "annotation": [
+      {
+        "translatorVersion": "2.11.0",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "6",
+          "s": [
+            {
+              "value": ["", "library Test"]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "Test"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "1",
+          "locator": "3:1-3:26",
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "1",
+                "s": [
+                  {
+                    "value": ["", "using "]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": ["FHIR"]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" version ", "'4.0.1'"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "2",
+          "locator": "5:1-5:35",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "2",
+                "s": [
+                  {
+                    "value": ["", "include "]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": ["FHIRHelpers"]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [" version ", "'4.0.1'"]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "contexts": {
+      "def": [
+        {
+          "locator": "7:1-7:15",
+          "name": "Patient"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "locator": "7:1-7:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "type": "SingletonFrom",
+            "operand": {
+              "locator": "7:1-7:15",
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
+              "type": "Retrieve"
+            }
+          }
+        },
+        {
+          "localId": "6",
+          "locator": "9:1-10:17",
+          "name": "Not Equal Clause",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "6",
+                "s": [
+                  {
+                    "value": ["", "define ", "\"Not Equal Clause\"", ":\n    "]
+                  },
+                  {
+                    "r": "5",
+                    "s": [
+                      {
+                        "r": "3",
+                        "value": ["true", " ", "!=", " ", "false"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "5",
+            "locator": "10:5-10:17",
+            "type": "Not",
+            "operand": {
+              "locator": "10:5-10:17",
+              "localId": "100",
+              "type": "Equal",
+              "operand": [
+                {
+                  "localId": "3",
+                  "locator": "10:5-10:8",
+                  "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
+                  "value": "true",
+                  "type": "Literal"
+                },
+                {
+                  "localId": "4",
+                  "locator": "10:13-10:17",
+                  "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
+                  "value": "false",
+                  "type": "Literal"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
