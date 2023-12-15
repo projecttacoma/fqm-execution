@@ -4,6 +4,36 @@ import { getJSONFixture } from './helpers/testHelpers';
 
 describe('ClauseResultsHelpers', () => {
   describe('findAllLocalIdsInStatementByName', () => {
+    test('finds localIds for an Equivalent comparison operator that is wrapped in a Not expression', () => {
+      // ELM from test/unit/fixtures/cql/NotEquivalent.cql
+      const libraryElm: ELM = getJSONFixture('elm/NotEquivalent.json');
+
+      const statementName = 'Not Equivalent Clause';
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // For the fixture loaded for this test it is known that the localId for the Equivalent statement
+      // is 23 and the localId for the Not expression is 24 but we want the Equivalent clause to take
+      // the result of the Not expression
+      expect(localIds[23]).toBeDefined();
+      expect(localIds[23]).toEqual({ localId: '23', sourceLocalId: '24' });
+    });
+
+    test('finds localIds for an Equal comparison operator that is wrapped in a Not expression', () => {
+      // ELM from test/unit/fixtures/cql/NotEqual.cql, but modified so that Equal has a localId of "100"
+      // This will soon be the translator functionality, the Equal clause will get a localId (it currently
+      // does not get one)
+      const libraryElm: ELM = getJSONFixture('elm/NotEqual.json');
+
+      const statementName = 'Not Equal Clause';
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // For the fixture loaded for this test it is known that the localId for the Equal statement
+      // is 100 and the localId for the Not expression is 23 but we want the Equal clause to take
+      // the result of the Not expression
+      expect(localIds[100]).toBeDefined();
+      expect(localIds[100]).toEqual({ localId: '100', sourceLocalId: '23' });
+    });
+
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
       // ELM from test/unit/fixtures/cql/comparisonWithLiteral.cql
       const libraryElm: ELM = getJSONFixture('elm/ComparisonWithLiteral.json');
