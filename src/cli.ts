@@ -8,7 +8,7 @@ import {
   calculateMeasureReports,
   calculateGapsInCare,
   calculateRaw,
-  calculateDataRequirements,
+  calculateMeasureDataRequirements,
   calculateQueryInfo,
   calculateLibraryDataRequirements
 } from './calculation/Calculator';
@@ -121,7 +121,7 @@ async function calc(
   } else if (program.outputType === 'gaps') {
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'dataRequirements') {
-    result = calculateDataRequirements(measureBundle, calcOptions);
+    result = calculateMeasureDataRequirements(measureBundle, calcOptions);
   } else if (program.outputType === 'libraryDataRequirements') {
     // in this case, measureBundle should be a library bundle
     result = calculateLibraryDataRequirements(measureBundle, calcOptions);

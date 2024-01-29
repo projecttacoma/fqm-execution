@@ -1,5 +1,5 @@
 import { getELMFixture } from './helpers/testHelpers';
-import { findRetrieves } from '../../src/gaps/RetrievesFinder';
+import { findRetrieves } from '../../src/helpers/elm/RetrievesHelper';
 import { DataTypeQuery } from '../../src/types/Calculator';
 import { GracefulError } from '../../src/types/errors/GracefulError';
 

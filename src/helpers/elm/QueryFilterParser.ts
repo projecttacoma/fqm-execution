@@ -7,7 +7,7 @@ import {
   NamedTypeSpecifier,
   ListTypeSpecifier
 } from 'cql-execution';
-import { CQLPatient } from '../types/CQLPatient';
+import { CQLPatient } from '../../types/CQLPatient';
 import {
   ELM,
   ELMEqual,
@@ -43,7 +43,7 @@ import {
   ELMLessOrEqual,
   ELMRatio,
   ELMAliasRef
-} from '../types/ELMTypes';
+} from '../../types/ELMTypes';
 import {
   AndFilter,
   AnyFilter,
@@ -61,12 +61,13 @@ import {
   ValueFilter,
   ValueFilterComparator,
   IsNullFilter,
-  QueryParserParams
-} from '../types/QueryFilterTypes';
-import { findLibraryReference, findLibraryReferenceId } from '../helpers/elm/ELMDependencyHelpers';
-import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
-import { GracefulError, isOfTypeGracefulError } from '../types/errors/GracefulError';
-import { UnexpectedResource } from '../types/errors/CustomErrors';
+  QueryParserParams,
+  Filter
+} from '../../types/QueryFilterTypes';
+import { findLibraryReference, findLibraryReferenceId } from './ELMDependencyHelpers';
+import { findClauseInLibrary } from './ELMHelpers';
+import { GracefulError, isOfTypeGracefulError } from '../../types/errors/GracefulError';
+import { UnexpectedResource } from '../../types/errors/CustomErrors';
 
 /**
  * Parse information about a query. This pulls out information about all sources in the query and attempts to parse
@@ -1204,3 +1205,219 @@ export function interpretComparator(
   }
   return valueFilter;
 }
+
+/**
+ * Map an EqualsFilter or InFilter into a FHIR DataRequirement codeFilter
+ *
+ * @param filter the filter to translate
+ * @returns codeFilter to be put on the DataRequirement
+ */
+export function generateDetailedCodeFilter(
+  filter: EqualsFilter | InFilter,
+  dataType?: string
+): fhir4.DataRequirementCodeFilter | null {
+  const system: string | null = dataType ? codeLookup(dataType, filter.attribute) : null;
+  if (filter.type === 'equals') {
+    const equalsFilter = filter as EqualsFilter;
+    if (typeof equalsFilter.value === 'string') {
+      return {
+        path: equalsFilter.attribute,
+        code: [
+          {
+            code: equalsFilter.value,
+            ...(system && { system: system })
+          }
+        ]
+      };
+    }
+  } else if (filter.type === 'in') {
+    const inFilter = filter as InFilter;
+
+    if (inFilter.valueList?.every(v => typeof v === 'string')) {
+      return {
+        path: inFilter.attribute,
+        code: inFilter.valueList.map(v => ({
+          code: v as string,
+          ...(system && { system: system })
+        }))
+      };
+    } else if (filter.valueCodingList) {
+      return {
+        path: filter.attribute,
+        code: filter.valueCodingList
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Map a during filter into a FHIR DataRequirement dateFilter
+ *
+ * @param filter the "during" filter to map
+ * @returns dateFilter for the dateFilter list of dataRequirement
+ */
+export function generateDetailedDateFilter(filter: DuringFilter): fhir4.DataRequirementDateFilter {
+  return {
+    path: filter.attribute,
+    valuePeriod: { start: filter.valuePeriod.start, end: filter.valuePeriod.end }
+  };
+}
+
+/**
+ * Map a filter into a FHIR DataRequirement valueFilter extension
+ *
+ * @param filter the filter to map
+ * @returns extension for the valueFilter list of dataRequirement
+ */
+export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | GracefulError {
+  if (filter.type === 'notnull' || filter.type === 'isnull') {
+    const nullFilter = filter as NotNullFilter | IsNullFilter;
+    return {
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
+      extension: [
+        { url: 'path', valueString: nullFilter.attribute },
+        { url: 'comparator', valueCode: 'eq' },
+        { url: 'value', valueString: nullFilter.type === 'notnull' ? 'not null' : 'null' }
+      ]
+    };
+  } else if (filter.type === 'value') {
+    const valueFilter = filter as ValueFilter;
+    const valueExtension = {
+      url: 'value',
+      valueBoolean: valueFilter.valueBoolean,
+      valueInteger: valueFilter.valueInteger,
+      valueString: valueFilter.valueString,
+      valueQuantity: valueFilter.valueQuantity,
+      valueRange: valueFilter.valueRange,
+      valueRatio: valueFilter.valueRatio
+    };
+    return {
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
+      extension: [
+        { url: 'path', valueString: valueFilter.attribute },
+        { url: 'comparator', valueCode: valueFilter.comparator },
+        // Remove undefineds
+        JSON.parse(JSON.stringify(valueExtension))
+      ]
+    };
+  } else if (filter?.withError) {
+    return filter.withError;
+  } else {
+    return { message: `Detailed value filter is not yet supported for filter type ${filter.type}` } as GracefulError;
+  }
+}
+
+/**
+ * Given a fhir dataType as a string and an attribute as a string, returns the url which outlines
+ * the code system used to define the valid inputs for the given attribute for the given dataType
+ * @param dataType
+ * @param attribute
+ * @returns string url for code system
+ */
+export function codeLookup(dataType: string, attribute: string): string | null {
+  const validDataTypes: string[] = ['Observation', 'Procedure', 'Encounter', 'MedicationRequest'];
+
+  if (!validDataTypes.includes(dataType)) {
+    return null;
+  } else if (dataType === 'Observation' && attribute === 'status') {
+    return 'http://hl7.org/fhir/observation-status';
+  } else if (dataType === 'Procedure' && attribute === 'status') {
+    return 'http://hl7.org/fhir/event-status';
+  } else if (dataType === 'Encounter' && attribute === 'status') {
+    return 'http://hl7.org/fhir/encounter-status';
+  } else if (dataType === 'MedicationRequest') {
+    switch (attribute) {
+      case 'status':
+        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-status';
+
+      case 'intent':
+        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-intent';
+
+      case 'priority':
+        return 'http://hl7.org/fhir/request-priority';
+
+      default:
+        return null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Take any nesting of base filters and AND filters and flatten into one list
+ *
+ * @param filter the root filter to flatten
+ * @returns a list of all filters used by this query at one level
+ */
+export function flattenFilters(filter: AnyFilter): AnyFilter[] {
+  if (filter.type !== 'and') {
+    return [filter];
+  } else {
+    const a: AnyFilter[] = [];
+    (filter as AndFilter).children.forEach(c => {
+      a.push(...flattenFilters(c));
+    });
+
+    return a;
+  }
+}
+
+describe('Flatten Filters', () => {
+  test('should pass through standard equals filter', () => {
+    const equalsFilter: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'attr-0',
+      value: 'value-0'
+    };
+
+    const flattenedFilters = flattenFilters(equalsFilter);
+
+    expect(flattenedFilters).toHaveLength(1);
+    expect(flattenedFilters[0]).toEqual(equalsFilter);
+  });
+
+  test('should flatten AND filters', () => {
+    const equalsFilter0: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'attr-0',
+      value: 'value-0'
+    };
+
+    const equalsFilter1: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'attr-1',
+      value: 'value-1'
+    };
+
+    const duringFilter: DuringFilter = {
+      type: 'during',
+      alias: 'R',
+      attribute: 'attr-3',
+      valuePeriod: {
+        start: '2021-01-01',
+        end: '2021-12-01'
+      }
+    };
+
+    const filter: AndFilter = {
+      type: 'and',
+      children: [equalsFilter0, duringFilter, equalsFilter1]
+    };
+
+    const flattenedFilters = flattenFilters(filter);
+
+    expect(flattenedFilters).toHaveLength(3);
+    expect(flattenedFilters).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ ...equalsFilter0 }),
+        expect.objectContaining({ ...equalsFilter1 }),
+        expect.objectContaining({ ...duringFilter })
+      ])
+    );
+  });
+});

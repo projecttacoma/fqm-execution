@@ -9,7 +9,7 @@ import {
   generateGuidanceResponses,
   generateReasonCode,
   hasDetailedReasonCode
-} from '../../src/gaps/GapsReportBuilder';
+} from '../../src/calculation/GapsReportBuilder';
 import {
   DataTypeQuery,
   DetailedPopulationGroupResult,

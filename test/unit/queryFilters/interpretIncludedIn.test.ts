@@ -1,6 +1,6 @@
 import { getELMFixture } from '../helpers/testHelpers';
 import { DateTime, Interval } from 'cql-execution';
-import * as QueryFilter from '../../../src/gaps/QueryFilterParser';
+import * as QueryFilter from '../../../src/helpers/elm/QueryFilterParser';
 import { ELMIncludedIn } from '../../../src/types/ELMTypes';
 import { DuringFilter, UnknownFilter } from '../../../src/types/QueryFilterTypes';
 

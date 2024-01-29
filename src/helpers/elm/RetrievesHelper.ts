@@ -9,12 +9,12 @@ import {
   ELMToList,
   ELMValueSetRef,
   ELMTuple
-} from '../types/ELMTypes';
-import { DataTypeQuery, ExpressionStackEntry } from '../types/Calculator';
-import { findLibraryReference, findValueSetReference } from '../helpers/elm/ELMDependencyHelpers';
-import { findClauseInLibrary } from '../helpers/elm/ELMHelpers';
-import { GracefulError } from '../types/errors/GracefulError';
-import { UnexpectedResource } from '../types/errors/CustomErrors';
+} from '../../types/ELMTypes';
+import { DataTypeQuery, ExpressionStackEntry } from '../../types/Calculator';
+import { findLibraryReference, findValueSetReference } from './ELMDependencyHelpers';
+import { findClauseInLibrary } from './ELMHelpers';
+import { GracefulError } from '../../types/errors/GracefulError';
+import { UnexpectedResource } from '../../types/errors/CustomErrors';
 
 /**
  * List of possible expressions that could be doing extra filtering on the result of a query

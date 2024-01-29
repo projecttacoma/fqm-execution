@@ -1,11 +1,28 @@
 import { getELMFixture } from '../helpers/testHelpers';
-import { parseQueryInfo } from '../../../src/gaps/QueryFilterParser';
+import {
+  parseQueryInfo,
+  generateDetailedCodeFilter,
+  generateDetailedDateFilter,
+  generateDetailedValueFilter,
+  codeLookup
+} from '../../../src/helpers/elm/QueryFilterParser';
 import { FHIRWrapper } from 'cql-exec-fhir';
 import { DateTime, Interval } from 'cql-execution';
 import { CQLPatient } from '../../../src/types/CQLPatient';
-import { QueryInfo, DuringFilter, AndFilter } from '../../../src/types/QueryFilterTypes';
+import {
+  QueryInfo,
+  DuringFilter,
+  AndFilter,
+  EqualsFilter,
+  InFilter,
+  NotNullFilter,
+  IsNullFilter,
+  ValueFilter,
+  UnknownFilter
+} from '../../../src/types/QueryFilterTypes';
 import { removeIntervalFromFilter } from '../helpers/queryFilterTestHelpers';
 import { ELMLast } from '../../../src/types/ELMTypes';
+import { GracefulError } from '../../../src/types/errors/GracefulError';
 
 const simpleQueryELM = getELMFixture('elm/queries/SimpleQueries.json');
 const complexQueryELM = getELMFixture('elm/queries/ComplexQueries.json');
@@ -584,5 +601,326 @@ describe('Parse Query Info', () => {
       PATIENT
     );
     expect(queryInfo).toEqual(EXPECTED_INTERNAL_VALUE_COMPARISON_QUERY);
+  });
+});
+
+describe('Code Filters', () => {
+  test('should return null for non equals or codeFilter', () => {
+    const fakeFilter: any = {
+      type: 'and'
+    };
+
+    expect(generateDetailedCodeFilter(fakeFilter)).toBeNull();
+  });
+
+  test('should return null for equals filter on non-string', () => {
+    const ef: EqualsFilter = {
+      type: 'equals',
+      value: 10,
+      attribute: 'attr-1',
+      alias: 'R'
+    };
+
+    expect(generateDetailedCodeFilter(ef)).toBeNull();
+  });
+  test('equals filter should pull off attribute', () => {
+    const ef: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'attr-1',
+      value: 'value-1'
+    };
+
+    const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
+      path: 'attr-1',
+      code: [
+        {
+          code: 'value-1'
+        }
+      ]
+    };
+
+    expect(generateDetailedCodeFilter(ef)).toEqual(expectedCodeFilter);
+  });
+
+  test('IN filter should pull off all of valueList', () => {
+    const inf: InFilter = {
+      type: 'in',
+      alias: 'R',
+      attribute: 'attr-1',
+      valueList: ['value-1', 'value-2', 'value-3']
+    };
+
+    const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
+      path: 'attr-1',
+      code: [
+        {
+          code: 'value-1'
+        },
+        {
+          code: 'value-2'
+        },
+        {
+          code: 'value-3'
+        }
+      ]
+    };
+
+    expect(generateDetailedCodeFilter(inf)).toEqual(expectedCodeFilter);
+  });
+
+  test('IN filter with non-string list should be ignored', () => {
+    const inf: InFilter = {
+      type: 'in',
+      alias: 'R',
+      attribute: 'attr-1',
+      valueList: [10]
+    };
+
+    expect(generateDetailedCodeFilter(inf)).toBeNull();
+  });
+
+  test('IN filter should pass through valueCodingList', () => {
+    const inf: InFilter = {
+      type: 'in',
+      alias: 'R',
+      attribute: 'attr-1',
+      valueCodingList: [
+        {
+          system: 'system-1',
+          code: 'code-1',
+          display: 'display-code-1'
+        }
+      ]
+    };
+    const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
+      path: 'attr-1',
+      code: [
+        {
+          system: 'system-1',
+          code: 'code-1',
+          display: 'display-code-1'
+        }
+      ]
+    };
+
+    expect(generateDetailedCodeFilter(inf)).toEqual(expectedCodeFilter);
+  });
+
+  test('Equals filter should not add system attribute to output object for inappropriate dataType', () => {
+    const ef: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'status',
+      value: 'value1'
+    };
+
+    const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
+      path: 'status',
+      code: [
+        {
+          code: 'value1'
+        }
+      ]
+    };
+    expect(generateDetailedCodeFilter(ef, 'inappropriateDataType')).toEqual(expectedCodeFilter);
+  });
+
+  test('Equals filter should add system attribute to output object', () => {
+    const ef: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'status',
+      value: 'value1'
+    };
+
+    const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
+      path: 'status',
+      code: [
+        {
+          code: 'value1',
+          system: 'http://hl7.org/fhir/encounter-status'
+        }
+      ]
+    };
+    expect(generateDetailedCodeFilter(ef, 'Encounter')).toEqual(expectedCodeFilter);
+  });
+
+  test('IN filter should add system attribute to output object', () => {
+    const inf: InFilter = {
+      type: 'in',
+      alias: 'R',
+      attribute: 'status',
+      valueList: ['value-1', 'value-2', 'value-3']
+    };
+
+    const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
+      path: 'status',
+      code: [
+        {
+          code: 'value-1',
+          system: 'http://hl7.org/fhir/encounter-status'
+        },
+        {
+          code: 'value-2',
+          system: 'http://hl7.org/fhir/encounter-status'
+        },
+        {
+          code: 'value-3',
+          system: 'http://hl7.org/fhir/encounter-status'
+        }
+      ]
+    };
+    expect(generateDetailedCodeFilter(inf, 'Encounter')).toEqual(expectedCodeFilter);
+  });
+  test('In filter should not add system attribute to output object for inappropriate dataType', () => {
+    const inf: InFilter = {
+      type: 'in',
+      alias: 'R',
+      attribute: 'status',
+      valueList: ['value1']
+    };
+
+    const expectedCodeFilter: fhir4.DataRequirementCodeFilter = {
+      path: 'status',
+      code: [
+        {
+          code: 'value1'
+        }
+      ]
+    };
+    expect(generateDetailedCodeFilter(inf, 'inappropriateDataType')).toEqual(expectedCodeFilter);
+  });
+});
+
+describe('Date Filters', () => {
+  test('should pass through date filter', () => {
+    const df: DuringFilter = {
+      type: 'during',
+      alias: 'R',
+      attribute: 'attr-1',
+      valuePeriod: {
+        start: '2021-01-01',
+        end: '2021-12-31'
+      }
+    };
+
+    const expectedDateFilter: fhir4.DataRequirementDateFilter = {
+      path: 'attr-1',
+      valuePeriod: {
+        start: '2021-01-01',
+        end: '2021-12-31'
+      }
+    };
+
+    expect(generateDetailedDateFilter(df)).toEqual(expectedDateFilter);
+  });
+});
+
+describe('Value Filters', () => {
+  test('not null filter should create value filter', () => {
+    const nnf: NotNullFilter = {
+      type: 'notnull',
+      alias: 'R',
+      attribute: 'attr-1'
+    };
+
+    const expectedDetailFilter: fhir4.Extension = {
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
+      extension: [
+        { url: 'path', valueString: 'attr-1' },
+        { url: 'comparator', valueCode: 'eq' },
+        { url: 'value', valueString: 'not null' }
+      ]
+    };
+
+    expect(generateDetailedValueFilter(nnf)).toEqual(expectedDetailFilter);
+  });
+  test('is null filter should create value filter', () => {
+    const inf: IsNullFilter = {
+      type: 'isnull',
+      alias: 'R',
+      attribute: 'attr-1'
+    };
+
+    const expectedDetailFilter: fhir4.Extension = {
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
+      extension: [
+        { url: 'path', valueString: 'attr-1' },
+        { url: 'comparator', valueCode: 'eq' },
+        { url: 'value', valueString: 'null' }
+      ]
+    };
+
+    expect(generateDetailedValueFilter(inf)).toEqual(expectedDetailFilter);
+  });
+  test('filter of type value should create value filter', () => {
+    const valueFilter: ValueFilter = {
+      type: 'value',
+      attribute: 'attr-1',
+      comparator: 'gt',
+      valueBoolean: true
+    };
+    const expectedDetailFilter: fhir4.Extension = {
+      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
+      extension: [
+        { url: 'path', valueString: 'attr-1' },
+        { url: 'comparator', valueCode: 'gt' },
+        { url: 'value', valueBoolean: true }
+      ]
+    };
+    expect(generateDetailedValueFilter(valueFilter)).toEqual(expectedDetailFilter);
+  });
+
+  test('unknown filter should create a null for filter creation', () => {
+    const uf: UnknownFilter = {
+      type: 'unknown',
+      alias: 'R',
+      attribute: 'attr-1'
+    };
+    const ge: GracefulError = { message: 'Detailed value filter is not yet supported for filter type unknown' };
+
+    expect(generateDetailedValueFilter(uf)).toEqual(ge);
+  });
+});
+
+describe('codeLookup', () => {
+  test('dataType is invalid', () => {
+    expect(codeLookup('invalid', 'invalid')).toBeNull();
+  });
+  test('retrieves correct system url for dataType: MedicationRequest and attribute: status', () => {
+    expect(codeLookup('MedicationRequest', 'status')).toEqual(
+      'http://hl7.org/fhir/CodeSystem/medicationrequest-status'
+    );
+  });
+  test('retrieves correct system url for dataType: MedicationRequest and attribute: intent', () => {
+    expect(codeLookup('MedicationRequest', 'intent')).toEqual(
+      'http://hl7.org/fhir/CodeSystem/medicationrequest-intent'
+    );
+  });
+  test('retrieves correct system url for dataType: MedicationRequest and attribute: priority', () => {
+    expect(codeLookup('MedicationRequest', 'priority')).toEqual('http://hl7.org/fhir/request-priority');
+  });
+  test('retrieves correct system url for dataType: MedicationRequest and invalid attribute', () => {
+    expect(codeLookup('MedicationRequest', 'nonsense')).toBeNull();
+  });
+  test('retrieves correct system url for dataType: Encounter and attribute: status', () => {
+    expect(codeLookup('Encounter', 'status')).toEqual('http://hl7.org/fhir/encounter-status');
+  });
+  test('retrieves correct system url for dataType: Encounter and invalid attribute', () => {
+    expect(codeLookup('Encounter', 'nonsense')).toBeNull();
+  });
+
+  test('retrieves correct system url when dataType is Observation and attribute is status', () => {
+    expect(codeLookup('Observation', 'status')).toEqual('http://hl7.org/fhir/observation-status');
+  });
+  test('retrieves correct system url when dataType is Observation and attribute is invalid', () => {
+    expect(codeLookup('Observation', 'nonsense')).toBeNull();
+  });
+  test('retrieves correct system url when dataType is Procedure and attribute is status', () => {
+    expect(codeLookup('Procedure', 'status')).toEqual('http://hl7.org/fhir/event-status');
+  });
+  test('retrieves correct system url when dataType is Procedure and attribute is invalid', () => {
+    expect(codeLookup('Procedure', 'nonsense')).toBeNull();
   });
 });

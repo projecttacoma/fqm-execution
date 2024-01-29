@@ -1,4 +1,4 @@
-import * as ClauseResultsHelpers from './ClauseResultsHelpers';
+import * as ClauseResultsHelpers from '../helpers/ClauseResultsHelpers';
 import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ELMDependencyHelper from '../helpers/elm/ELMDependencyHelpers';
 import { ELM, LibraryDependencyInfo } from '../types/ELMTypes';

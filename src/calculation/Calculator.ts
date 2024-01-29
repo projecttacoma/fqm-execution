@@ -23,10 +23,10 @@ import * as MeasureBundleHelpers from '../helpers/MeasureBundleHelpers';
 import * as ResultsHelpers from './ClauseResultsBuilder';
 import * as DataRequirementHelpers from '../helpers/DataRequirementHelpers';
 import MeasureReportBuilder from './MeasureReportBuilder';
-import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
+import * as GapsReportBuilder from './GapsReportBuilder';
 import { generateHTML, generateClauseCoverageHTML } from './HTMLBuilder';
-import { parseQueryInfo } from '../gaps/QueryFilterParser';
-import * as RetrievesHelper from '../gaps/RetrievesFinder';
+import { parseQueryInfo } from '../helpers/elm/QueryFilterParser';
+import * as RetrievesHelper from '../helpers/elm/RetrievesHelper';
 import { GracefulError } from '../types/errors/GracefulError';
 import {
   ErrorWithDebugInfo,
@@ -40,7 +40,7 @@ import { pruneDetailedResults } from '../helpers/DetailedResultsHelpers';
 import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
 import _, { omit } from 'lodash';
 import { ELM } from '../types/ELMTypes';
-import { getReportBuilder } from '../helpers/reportBuilderFactory';
+import { getReportBuilder } from '../helpers/ReportBuilderFactory';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -536,7 +536,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         errorLog.push(...retrievesErrors);
 
         // Add detailed info to queries based on clause results
-        const gapsRetrieves = GapsInCareHelpers.processQueriesForGaps(baseRetrieves, dr);
+        const gapsRetrieves = GapsReportBuilder.processQueriesForGaps(baseRetrieves, dr);
 
         const grPromises = gapsRetrieves.map(async retrieve => {
           // If the retrieves have a localId for the query and a known library name, we can get more info
@@ -558,11 +558,11 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         await Promise.all(grPromises);
 
         const { results: detailedGapsRetrieves, withErrors: reasonDetailErrors } =
-          GapsInCareHelpers.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
+          GapsReportBuilder.calculateReasonDetail(gapsRetrieves, improvementNotation, dr);
 
         errorLog.push(...reasonDetailErrors);
 
-        const { detectedIssues, withErrors: detectedIssueErrors } = GapsInCareHelpers.generateDetectedIssueResources(
+        const { detectedIssues, withErrors: detectedIssueErrors } = GapsReportBuilder.generateDetectedIssueResources(
           detailedGapsRetrieves,
           matchingMeasureReport,
           improvementNotation
@@ -570,7 +570,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         errorLog.push(...detectedIssueErrors);
 
         const patient = res.patientObject?._json as fhir4.Patient;
-        const gapsBundle = GapsInCareHelpers.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, patient);
+        const gapsBundle = GapsReportBuilder.generateGapsInCareBundle(detectedIssues, matchingMeasureReport, patient);
         result.push(gapsBundle);
         if (debugOutput && options.enableDebugOutput) {
           debugOutput.gaps = {
@@ -636,7 +636,7 @@ export async function calculateLibraryDataRequirements(
  *
  * @returns FHIR Library of data requirements
  */
-export async function calculateDataRequirements(
+export async function calculateMeasureDataRequirements(
   measureBundle: fhir4.Bundle,
   options: CalculationOptions = {}
 ): Promise<DRCalculationOutput> {
