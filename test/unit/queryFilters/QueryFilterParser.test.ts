@@ -4,7 +4,8 @@ import {
   generateDetailedCodeFilter,
   generateDetailedDateFilter,
   generateDetailedValueFilter,
-  codeLookup
+  codeLookup,
+  flattenFilters
 } from '../../../src/helpers/elm/QueryFilterParser';
 import { FHIRWrapper } from 'cql-exec-fhir';
 import { DateTime, Interval } from 'cql-execution';
@@ -922,5 +923,63 @@ describe('codeLookup', () => {
   });
   test('retrieves correct system url when dataType is Procedure and attribute is invalid', () => {
     expect(codeLookup('Procedure', 'nonsense')).toBeNull();
+  });
+});
+
+describe('Flatten Filters', () => {
+  test('should pass through standard equals filter', () => {
+    const equalsFilter: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'attr-0',
+      value: 'value-0'
+    };
+
+    const flattenedFilters = flattenFilters(equalsFilter);
+
+    expect(flattenedFilters).toHaveLength(1);
+    expect(flattenedFilters[0]).toEqual(equalsFilter);
+  });
+
+  test('should flatten AND filters', () => {
+    const equalsFilter0: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'attr-0',
+      value: 'value-0'
+    };
+
+    const equalsFilter1: EqualsFilter = {
+      type: 'equals',
+      alias: 'R',
+      attribute: 'attr-1',
+      value: 'value-1'
+    };
+
+    const duringFilter: DuringFilter = {
+      type: 'during',
+      alias: 'R',
+      attribute: 'attr-3',
+      valuePeriod: {
+        start: '2021-01-01',
+        end: '2021-12-01'
+      }
+    };
+
+    const filter: AndFilter = {
+      type: 'and',
+      children: [equalsFilter0, duringFilter, equalsFilter1]
+    };
+
+    const flattenedFilters = flattenFilters(filter);
+
+    expect(flattenedFilters).toHaveLength(3);
+    expect(flattenedFilters).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ ...equalsFilter0 }),
+        expect.objectContaining({ ...equalsFilter1 }),
+        expect.objectContaining({ ...duringFilter })
+      ])
+    );
   });
 });
