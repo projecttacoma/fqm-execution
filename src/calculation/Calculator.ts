@@ -636,7 +636,7 @@ export async function calculateLibraryDataRequirements(
  *
  * @returns FHIR Library of data requirements
  */
-export async function calculateMeasureDataRequirements(
+export async function calculateDataRequirements(
   measureBundle: fhir4.Bundle,
   options: CalculationOptions = {}
 ): Promise<DRCalculationOutput> {
