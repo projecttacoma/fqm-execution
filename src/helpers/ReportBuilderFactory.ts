@@ -1,7 +1,7 @@
 import { AbstractMeasureReportBuilder } from '../calculation/AbstractMeasureReportBuilder';
 import { CompositeReportBuilder } from '../calculation/CompositeReportBuilder';
 import MeasureReportBuilder from '../calculation/MeasureReportBuilder';
-import { extractCompositeMeasure, extractMeasureFromBundle } from '../helpers/MeasureBundleHelpers';
+import { extractCompositeMeasure, extractMeasureFromBundle } from './MeasureBundleHelpers';
 import { CalculationOptions, PopulationGroupResult } from '../types/Calculator';
 
 export function getReportBuilder<T extends PopulationGroupResult>(

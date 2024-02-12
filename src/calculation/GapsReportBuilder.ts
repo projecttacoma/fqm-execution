@@ -10,12 +10,6 @@ import {
 } from '../types/Calculator';
 import { FinalResult, ImprovementNotation, CareGapReasonCode, CareGapReasonCodeDisplay } from '../types/Enums';
 import {
-  flattenFilters,
-  generateDetailedCodeFilter,
-  generateDetailedDateFilter,
-  generateDetailedValueFilter
-} from '../helpers/DataRequirementHelpers';
-import {
   EqualsFilter,
   InFilter,
   DuringFilter,
@@ -26,6 +20,12 @@ import {
 } from '../types/QueryFilterTypes';
 import { GracefulError, isOfTypeGracefulError } from '../types/errors/GracefulError';
 import { compareValues } from '../helpers/ValueComparisonHelpers';
+import {
+  flattenFilters,
+  generateDetailedCodeFilter,
+  generateDetailedDateFilter,
+  generateDetailedValueFilter
+} from '../helpers/elm/QueryFilterParser';
 
 /**
  * Iterate through base queries and add clause results for parent query and retrieve
@@ -249,7 +249,7 @@ export function generateGuidanceResponses(
       codeFilter: [{ ...dataTypeCodeFilter }]
     };
 
-    addFiltersToDataRequirement(q, dataRequirement, withErrors);
+    addGapFiltersToDataRequirement(q, dataRequirement, withErrors);
 
     const guidanceResponse: fhir4.GuidanceResponse = {
       resourceType: 'GuidanceResponse',
@@ -608,8 +608,8 @@ function getGapReasonCode(filter: AnyFilter): CareGapReasonCode | GracefulError 
  * @param withErrors Errors object which will eventually be returned to the user if populated
  * @returns void, but populated the dataRequirement filters
  */
-export function addFiltersToDataRequirement(
-  q: GapsDataTypeQuery | DataTypeQuery,
+export function addGapFiltersToDataRequirement(
+  q: GapsDataTypeQuery,
   dataRequirement: fhir4.DataRequirement,
   withErrors: GracefulError[]
 ) {

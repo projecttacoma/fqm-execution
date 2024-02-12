@@ -3,7 +3,7 @@ export { default as MeasureReportBuilder } from './calculation/MeasureReportBuil
 export * as ELMHelpers from './helpers/elm/ELMHelpers';
 export * as ELMDependencyHelpers from './helpers/elm/ELMDependencyHelpers';
 export * as MeasureBundleHelpers from './helpers/MeasureBundleHelpers';
-export * as RetrievesFinder from './gaps/RetrievesFinder';
+export * as RetrievesFinder from './helpers/elm/RetrievesHelper';
 export { ValueSetResolver } from './execution/ValueSetResolver';
 
 /**

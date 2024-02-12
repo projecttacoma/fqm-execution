@@ -1,6 +1,6 @@
 import MeasureReportBuilder from '../../../src/calculation/MeasureReportBuilder';
 import { CompositeReportBuilder } from '../../../src/calculation/CompositeReportBuilder';
-import { getReportBuilder } from '../../../src/helpers/reportBuilderFactory';
+import { getReportBuilder } from '../../../src/helpers/ReportBuilderFactory';
 import { getJSONFixture } from './testHelpers';
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as fhir4.Measure;

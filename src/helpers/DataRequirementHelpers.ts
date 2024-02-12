@@ -1,51 +1,26 @@
 import { Extension } from 'fhir/r4';
 import { CalculationOptions, DataTypeQuery, DRCalculationOutput } from '../types/Calculator';
 import { GracefulError } from '../types/errors/GracefulError';
-import {
-  EqualsFilter,
-  InFilter,
-  DuringFilter,
-  AndFilter,
-  AnyFilter,
-  Filter,
-  NotNullFilter,
-  codeFilterQuery,
-  ValueFilter,
-  IsNullFilter
-} from '../types/QueryFilterTypes';
+import { EqualsFilter, InFilter, DuringFilter, codeFilterQuery, AttributeFilter } from '../types/QueryFilterTypes';
 import { PatientParameters } from '../compartment-definition/PatientParameters';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { ExtractedLibrary } from '../types/CQLTypes';
 import * as Execution from '../execution/Execution';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
-import * as GapsInCareHelpers from '../gaps/GapsReportBuilder';
-import { parseQueryInfo } from '../gaps/QueryFilterParser';
-import * as RetrievesHelper from '../gaps/RetrievesFinder';
+import {
+  flattenFilters,
+  generateDetailedCodeFilter,
+  generateDetailedDateFilter,
+  generateDetailedValueFilter,
+  parseQueryInfo
+} from './elm/QueryFilterParser';
+import * as RetrievesHelper from './elm/RetrievesHelper';
 import { uniqBy } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
-
-/**
- * Take any nesting of base filters and AND filters and flatten into one list
- *
- * @param filter the root filter to flatten
- * @returns a list of all filters used by this query at one level
- */
-export function flattenFilters(filter: AnyFilter): AnyFilter[] {
-  if (filter.type !== 'and') {
-    return [filter];
-  } else {
-    const a: AnyFilter[] = [];
-    (filter as AndFilter).children.forEach(c => {
-      a.push(...flattenFilters(c));
-    });
-
-    return a;
-  }
-}
 
 /**
  * Returns a FHIR library containing data requirements, given a root library
@@ -104,7 +79,7 @@ export async function getDataRequirements(
   results.dataRequirement = uniqBy(
     allRetrieves.map(retrieve => {
       const dr = generateDataRequirement(retrieve);
-      GapsInCareHelpers.addFiltersToDataRequirement(retrieve, dr, withErrors);
+      addFiltersToDataRequirement(retrieve, dr, withErrors);
       addFhirQueryPatternToDataRequirements(dr);
       return dr;
     }),
@@ -122,109 +97,6 @@ export async function getDataRequirements(
     },
     withErrors
   };
-}
-
-/**
- * Map an EqualsFilter or InFilter into a FHIR DataRequirement codeFilter
- *
- * @param filter the filter to translate
- * @returns codeFilter to be put on the DataRequirement
- */
-export function generateDetailedCodeFilter(
-  filter: EqualsFilter | InFilter,
-  dataType?: string
-): fhir4.DataRequirementCodeFilter | null {
-  const system: string | null = dataType ? codeLookup(dataType, filter.attribute) : null;
-  if (filter.type === 'equals') {
-    const equalsFilter = filter as EqualsFilter;
-    if (typeof equalsFilter.value === 'string') {
-      return {
-        path: equalsFilter.attribute,
-        code: [
-          {
-            code: equalsFilter.value,
-            ...(system && { system: system })
-          }
-        ]
-      };
-    }
-  } else if (filter.type === 'in') {
-    const inFilter = filter as InFilter;
-
-    if (inFilter.valueList?.every(v => typeof v === 'string')) {
-      return {
-        path: inFilter.attribute,
-        code: inFilter.valueList.map(v => ({
-          code: v as string,
-          ...(system && { system: system })
-        }))
-      };
-    } else if (filter.valueCodingList) {
-      return {
-        path: filter.attribute,
-        code: filter.valueCodingList
-      };
-    }
-  }
-
-  return null;
-}
-
-/**
- * Map a during filter into a FHIR DataRequirement dateFilter
- *
- * @param filter the "during" filter to map
- * @returns dateFilter for the dateFilter list of dataRequirement
- */
-export function generateDetailedDateFilter(filter: DuringFilter): fhir4.DataRequirementDateFilter {
-  return {
-    path: filter.attribute,
-    valuePeriod: { start: filter.valuePeriod.start, end: filter.valuePeriod.end }
-  };
-}
-
-/**
- * Map a filter into a FHIR DataRequirement valueFilter extension
- *
- * @param filter the filter to map
- * @returns extension for the valueFilter list of dataRequirement
- */
-export function generateDetailedValueFilter(filter: Filter): fhir4.Extension | GracefulError {
-  if (filter.type === 'notnull' || filter.type === 'isnull') {
-    const nullFilter = filter as NotNullFilter | IsNullFilter;
-    return {
-      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
-      extension: [
-        { url: 'path', valueString: nullFilter.attribute },
-        { url: 'comparator', valueCode: 'eq' },
-        { url: 'value', valueString: nullFilter.type === 'notnull' ? 'not null' : 'null' }
-      ]
-    };
-  } else if (filter.type === 'value') {
-    const valueFilter = filter as ValueFilter;
-    const valueExtension = {
-      url: 'value',
-      valueBoolean: valueFilter.valueBoolean,
-      valueInteger: valueFilter.valueInteger,
-      valueString: valueFilter.valueString,
-      valueQuantity: valueFilter.valueQuantity,
-      valueRange: valueFilter.valueRange,
-      valueRatio: valueFilter.valueRatio
-    };
-    return {
-      url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-valueFilter',
-      extension: [
-        { url: 'path', valueString: valueFilter.attribute },
-        { url: 'comparator', valueCode: valueFilter.comparator },
-        // Remove undefineds
-        JSON.parse(JSON.stringify(valueExtension))
-      ]
-    };
-  } else if (filter?.withError) {
-    return filter.withError;
-  } else {
-    return { message: `Detailed value filter is not yet supported for filter type ${filter.type}` } as GracefulError;
-  }
 }
 
 /**
@@ -359,42 +231,6 @@ export function generateDataRequirement(retrieve: DataTypeQuery): fhir4.DataRequ
 }
 
 /**
- * Given a fhir dataType as a string and an attribute as a string, returns the url which outlines
- * the code system used to define the valid inputs for the given attribute for the given dataType
- * @param dataType
- * @param attribute
- * @returns string url for code system
- */
-export function codeLookup(dataType: string, attribute: string): string | null {
-  const validDataTypes: string[] = ['Observation', 'Procedure', 'Encounter', 'MedicationRequest'];
-
-  if (!validDataTypes.includes(dataType)) {
-    return null;
-  } else if (dataType === 'Observation' && attribute === 'status') {
-    return 'http://hl7.org/fhir/observation-status';
-  } else if (dataType === 'Procedure' && attribute === 'status') {
-    return 'http://hl7.org/fhir/event-status';
-  } else if (dataType === 'Encounter' && attribute === 'status') {
-    return 'http://hl7.org/fhir/encounter-status';
-  } else if (dataType === 'MedicationRequest') {
-    switch (attribute) {
-      case 'status':
-        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-status';
-
-      case 'intent':
-        return 'http://hl7.org/fhir/CodeSystem/medicationrequest-intent';
-
-      case 'priority':
-        return 'http://hl7.org/fhir/request-priority';
-
-      default:
-        return null;
-    }
-  }
-  return null;
-}
-
-/**
  * Extracts the measurement period information from either the options or effective period (in that order depending on presence)
  * and populates a parameters object including the extracted info to be passed into the parseQueryInfo function
  */
@@ -510,4 +346,68 @@ export function getFlattenedRelatedArtifacts(
 
   // unique the relatedArtifacts
   return uniqBy(relatedArtifacts, JSON.stringify);
+}
+
+/**
+ *
+ * @param q The query which contains the filters to add to the data requirement
+ * @param dataRequirement Data requirement to add date filters to
+ * @param withErrors Errors object which will eventually be returned to the user if populated
+ * @returns void, but populated the dataRequirement filters
+ */
+export function addFiltersToDataRequirement(
+  q: DataTypeQuery,
+  dataRequirement: fhir4.DataRequirement,
+  withErrors: GracefulError[]
+) {
+  if (q.queryInfo) {
+    const relevantSource = q.queryInfo.sources.find(source => source.resourceType === q.dataType);
+    // if a source cannot be found that matches, exit the function
+    if (relevantSource) {
+      const detailedFilters = flattenFilters(q.queryInfo.filter);
+
+      detailedFilters.forEach(df => {
+        // DuringFilter, etc. inherit from attribute filter (and have alias on them)
+        if (relevantSource.alias === (df as AttributeFilter).alias) {
+          if (df.type === 'equals' || df.type === 'in') {
+            const cf = generateDetailedCodeFilter(df as EqualsFilter | InFilter, q.dataType);
+
+            if (cf !== null) {
+              if (dataRequirement.codeFilter) {
+                dataRequirement.codeFilter.push(cf);
+              } else {
+                dataRequirement.codeFilter = [cf];
+              }
+            }
+          } else if (df.type === 'during') {
+            const dateFilter = generateDetailedDateFilter(df as DuringFilter);
+            if (dataRequirement.dateFilter) {
+              dataRequirement.dateFilter.push(dateFilter);
+            } else {
+              dataRequirement.dateFilter = [dateFilter];
+            }
+          } else {
+            const valueFilter = generateDetailedValueFilter(df);
+            if (didEncounterDetailedValueFilterErrors(valueFilter)) {
+              withErrors.push(valueFilter);
+            } else if (valueFilter) {
+              if (dataRequirement.extension) {
+                dataRequirement.extension.push(valueFilter);
+              } else {
+                dataRequirement.extension = [valueFilter];
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+}
+
+function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulError): tbd is GracefulError {
+  if ((tbd as GracefulError).message) {
+    return true;
+  } else {
+    return false;
+  }
 }

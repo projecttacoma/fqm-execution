@@ -1,4 +1,4 @@
-import * as ClauseResultsHelpers from '../../src/calculation/ClauseResultsHelpers';
+import * as ClauseResultsHelpers from '../../src/helpers/ClauseResultsHelpers';
 import { ELM } from '../../src/types/ELMTypes';
 import { getJSONFixture } from './helpers/testHelpers';
 

@@ -8,7 +8,7 @@ import {
   ELMQuantity,
   ELMRatio
 } from '../../../src/types/ELMTypes';
-import * as QueryFilter from '../../../src/gaps/QueryFilterParser';
+import * as QueryFilter from '../../../src/helpers/elm/QueryFilterParser';
 import { getELMFixture } from '../helpers/testHelpers';
 
 const ValueQueries = getELMFixture('elm/queries/ValueQueries.json');

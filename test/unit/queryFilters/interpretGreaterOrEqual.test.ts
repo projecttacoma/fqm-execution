@@ -1,7 +1,7 @@
 import { FHIRWrapper } from 'cql-exec-fhir';
 import { CQLPatient } from '../../../src/types/CQLPatient';
 import { getELMFixture } from '../helpers/testHelpers';
-import * as QueryFilter from '../../../src/gaps/QueryFilterParser';
+import * as QueryFilter from '../../../src/helpers/elm/QueryFilterParser';
 import { ELMGreaterOrEqual } from '../../../src/types/ELMTypes';
 
 import { DuringFilter, UnknownFilter } from '../../../src/types/QueryFilterTypes';

@@ -1,4 +1,4 @@
-import * as QueryFilter from '../../../src/gaps/QueryFilterParser';
+import * as QueryFilter from '../../../src/helpers/elm/QueryFilterParser';
 import { ELMFunctionRef } from '../../../src/types/ELMTypes';
 import { getELMFixture } from '../helpers/testHelpers';
 

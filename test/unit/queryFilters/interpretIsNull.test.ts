@@ -1,4 +1,4 @@
-import * as QueryFilter from '../../../src/gaps/QueryFilterParser';
+import * as QueryFilter from '../../../src/helpers/elm/QueryFilterParser';
 import { ELMIsNull } from '../../../src/types/ELMTypes';
 
 // Copied from SimpleQueries.json "Last Of ReferencedQueryIsNull"
