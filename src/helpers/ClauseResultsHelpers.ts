@@ -100,8 +100,14 @@ export function findAllLocalIdsInStatement(
       if (statement.expression != null && statement.expression.localId != null) {
         // Keep track of the localId of the expression that the alias references
         aliasMap[v] = statement.expression.localId;
-        // Determine the localId in the elm_annotation for this alias.
-        alId = (parseInt(statement.expression.localId, 10) + 1).toString();
+        // Determine the localId for this alias.
+        if (statement.localId) {
+          alId = statement.localId;
+        } else {
+          // Older translator versions created an elm_annotation localId that was not always in the elm. This was a
+          // single increment up from the expression that defines the alias.
+          alId = (parseInt(statement.expression.localId, 10) + 1).toString();
+        }
         emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: aliasMap[v] });
       }
     } else if (k === 'scope') {
