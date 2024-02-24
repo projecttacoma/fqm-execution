@@ -212,14 +212,15 @@ export function generateHTML(
  * @returns a lookup object where the key is the groupId and the value is the
  * clause coverage HTML
  */
-export function generateClauseCoverageHTML(
+export function generateClauseCoverageHTML<T extends CalculationOptions>(
   measure: fhir4.Measure,
   elmLibraries: ELM[],
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[],
-  disableHTMLOrdering?: boolean
-): Record<string, { coverage: string; uncoverage: string }> {
+  options: T
+): { coverage: Record<string, string>; uncoverage?: Record<string, string> } {
   const groupResultLookup: Record<string, DetailedPopulationGroupResult[]> = {};
-  const htmlGroupLookup: Record<string, { coverage: string; uncoverage: string }> = {};
+  const coverageHtmlGroupLookup: Record<string, string> = {};
+  const uncoverageHtmlGroupLookup: Record<string, string> = {};
 
   // get the detailed result for each group within each patient and add it
   // to the key in groupResults that matches the groupId
@@ -244,7 +245,7 @@ export function generateClauseCoverageHTML(
     // Filter out any statement results where the statement relevance is NA
     const uniqueRelevantStatements = flattenedStatementResults.filter(s => s.relevance !== Relevance.NA);
 
-    if (!disableHTMLOrdering) {
+    if (!options.disableHTMLOrdering) {
       sortStatements(measure, groupId, uniqueRelevantStatements);
     }
 
@@ -273,45 +274,58 @@ export function generateClauseCoverageHTML(
     const clauseCoverage = calculateClauseCoverage(uniqueRelevantStatements, flattenedClauseResults);
     const uniqueCoverageClauses = clauseCoverage.coveredClauses.concat(clauseCoverage.uncoveredClauses);
 
+    // setup initial html for coverage
     let coverageHtmlString = `<div><h2> ${groupId} Clause Coverage: ${clauseCoverage.percentage}%</h2>`;
-    let uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} clauses</h2>`;
 
-    if (clauseCoverage.uncoveredClauses.length > 0 && clauseCoverage.uncoveredClauses.length <= 20) {
-      uncoverageHtmlString += `<pre><code>\n${JSON.stringify(
-        clauseCoverage.uncoveredClauses,
-        undefined,
-        2
-      )}</code></pre>`;
+    // setup initial html for uncoverage
+    let uncoverageHtmlString = '';
+    if (options.calculateClauseUncoverage) {
+      uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} clauses</h2>`;
+      if (clauseCoverage.uncoveredClauses.length > 0 && clauseCoverage.uncoveredClauses.length <= 20) {
+        uncoverageHtmlString += `<pre><code>\n${JSON.stringify(
+          clauseCoverage.uncoveredClauses,
+          undefined,
+          2
+        )}</code></pre>`;
+      }
     }
 
     const covTimer = new Date();
     // generate HTML clauses using hbs template for each annotation
     statementAnnotations.forEach(a => {
-      const res = main({
+      coverageHtmlString += main({
         libraryName: a.libraryName,
         statementName: a.statementName,
         clauseResults: uniqueCoverageClauses,
         ...a.annotation[0].s,
         highlightCoverage: true
       });
-      coverageHtmlString += res;
-      uncoverageHtmlString += main({
-        libraryName: a.libraryName,
-        statementName: a.statementName,
-        clauseResults: clauseCoverage.uncoveredClauses,
-        ...a.annotation[0].s,
-        highlightCoverage: false
-      });
+
+      // calculate for uncoverage
+      if (options.calculateClauseUncoverage) {
+        uncoverageHtmlString += main({
+          libraryName: a.libraryName,
+          statementName: a.statementName,
+          clauseResults: clauseCoverage.uncoveredClauses,
+          ...a.annotation[0].s,
+          highlightCoverage: false
+        });
+      }
     });
     coverageHtmlString += '</div>';
     uncoverageHtmlString += '</div>';
 
     console.debug(`Coverage and Uncoverage HTML took ${new Date().getTime() - covTimer.getTime()} ms`);
 
-    htmlGroupLookup[groupId] = { coverage: coverageHtmlString, uncoverage: uncoverageHtmlString };
+    coverageHtmlGroupLookup[groupId] = coverageHtmlString;
+    uncoverageHtmlGroupLookup[groupId] = uncoverageHtmlString;
   });
 
-  return htmlGroupLookup;
+  if (options.calculateClauseUncoverage) {
+    return { coverage: coverageHtmlGroupLookup, uncoverage: uncoverageHtmlGroupLookup };
+  } else {
+    return { coverage: coverageHtmlGroupLookup };
+  }
 }
 
 /**

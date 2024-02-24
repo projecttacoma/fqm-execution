@@ -219,10 +219,10 @@ describe('HTMLBuilder', () => {
         ]
       }
     ];
-    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
+    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults, {});
 
-    expect(res.test.coverage.replace(/\s/g, '')).toEqual(expectedHTML);
-    expect(res.test.coverage.includes(coverageStyleString)).toBeTruthy();
+    expect(res.coverage.test.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.coverage.test.includes(coverageStyleString)).toBeTruthy();
   });
 
   test('simple HTML for two groups with generation with clause coverage styling', () => {
@@ -246,12 +246,12 @@ describe('HTMLBuilder', () => {
         ]
       }
     ];
-    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults);
+    const res = generateClauseCoverageHTML(simpleMeasure, [elm], executionResults, {});
 
-    expect(res.test.coverage.replace(/\s/g, '')).toEqual(expectedHTML);
-    expect(res.test2.coverage.replace(/\s/g, '')).toEqual(expectedHTML2);
-    expect(res.test.coverage.includes(coverageStyleString)).toBeTruthy();
-    expect(res.test2.coverage.includes(coverageStyleString)).toBeTruthy();
+    expect(res.coverage.test.replace(/\s/g, '')).toEqual(expectedHTML);
+    expect(res.coverage.test2.replace(/\s/g, '')).toEqual(expectedHTML2);
+    expect(res.coverage.test.includes(coverageStyleString)).toBeTruthy();
+    expect(res.coverage.test2.includes(coverageStyleString)).toBeTruthy();
   });
 
   test('ordered HTML with generation with clause coverage styling', () => {
@@ -267,10 +267,10 @@ describe('HTMLBuilder', () => {
         ]
       }
     ];
-    const res = generateClauseCoverageHTML(singlePopMeasure, [popRetrieveFuncElm], executionResults);
+    const res = generateClauseCoverageHTML(singlePopMeasure, [popRetrieveFuncElm], executionResults, {});
 
-    expect(res.test.coverage.indexOf('ipp')).toBeLessThan(res.test.coverage.indexOf('SimpleVSRetrieve'));
-    expect(res.test.coverage.indexOf('SimpleVSRetrieve')).toBeLessThan(res.test.coverage.indexOf('A Function'));
+    expect(res.coverage.test.indexOf('ipp')).toBeLessThan(res.coverage.test.indexOf('SimpleVSRetrieve'));
+    expect(res.coverage.test.indexOf('SimpleVSRetrieve')).toBeLessThan(res.coverage.test.indexOf('A Function'));
   });
 
   test('no library found should error', () => {

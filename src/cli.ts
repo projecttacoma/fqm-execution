@@ -114,6 +114,7 @@ async function calc(
   if (program.outputType === 'raw') {
     result = await calculateRaw(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'detailed') {
+    calcOptions.calculateClauseUncoverage = true;
     result = await calculate(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'reports') {
     calcOptions.reportType = program.reportType || 'individual';

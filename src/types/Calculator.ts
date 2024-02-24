@@ -24,6 +24,8 @@ export interface CalculationOptions {
   calculateHTML?: boolean;
   /** Include HTML structure with clause coverage highlighting */
   calculateClauseCoverage?: boolean;
+  /** Include HTML structure with clause uncoverage highlighting. Highlights what is not covered */
+  calculateClauseUncoverage?: boolean;
   /** Enable debug output including CQL, ELM, results */
   enableDebugOutput?: boolean;
   /** Enables the return of ELM Libraries and name of main library to be used for further processing. ex. gaps in care */
@@ -394,7 +396,8 @@ export interface CalculationOutput<T extends CalculationOptions> extends Calcula
   mainLibraryName?: string;
   parameters?: { [key: string]: any };
   coverageHTML?: string;
-  groupClauseCoverageHTML?: Record<string, { coverage: string; uncoverage: string }>;
+  groupClauseCoverageHTML?: Record<string, string>;
+  groupClauseUncoverageHTML?: Record<string, string>;
 }
 
 /**
