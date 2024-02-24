@@ -74,6 +74,12 @@ export function findAllLocalIdsInStatement(
   emptyResultClauses: any[],
   parentNode: any | null
 ): any {
+  // Stop recursing if this node happens to be any TypeSpecifier. We do not want to collect localIds for these clauses
+  // as they are not executed and will negatively affect clause coverage if captured here. ChoiceTypeSpecifiers do not
+  // identify their type and instead put [] at the `type` attribute which is a deprecated field.
+  if (statement?.type && (Array.isArray(statement.type) || statement.type.endsWith('TypeSpecifier'))) {
+    return localIds;
+  }
   // looking at the key and value of everything on this object or array
   for (const k in statement) {
     let alId;
