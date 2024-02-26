@@ -1,10 +1,10 @@
 import { Extension } from 'fhir/r4';
-import { CalculationOptions, DataTypeQuery, DRCalculationOutput } from '../types/Calculator';
+import { CalculationOptions, DataTypeQuery, DRCalculationOutput, ExpressionStackEntry } from '../types/Calculator';
 import { GracefulError } from '../types/errors/GracefulError';
 import { EqualsFilter, InFilter, DuringFilter, codeFilterQuery, AttributeFilter } from '../types/QueryFilterTypes';
 import { PatientParameters } from '../compartment-definition/PatientParameters';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
-import { ELM, ELMIdentifier } from '../types/ELMTypes';
+import { AnyELMExpression, ELM, ELMIdentifier, ELMProperty, ELMQuery } from '../types/ELMTypes';
 import { ExtractedLibrary } from '../types/CQLTypes';
 import * as Execution from '../execution/Execution';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
@@ -16,7 +16,7 @@ import {
   parseQueryInfo
 } from './elm/QueryFilterParser';
 import * as RetrievesHelper from './elm/RetrievesHelper';
-import { uniqBy } from 'lodash';
+import { uniqBy, isEqual } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
@@ -71,6 +71,13 @@ export async function getDataRequirements(
 
   await Promise.all(allRetrievesPromises);
 
+  // add must supports
+  rootLib.library.statements.def.forEach(statement => {
+    if (statement.expression && statement.name != 'Patient') {
+      addMustSupport(allRetrieves, statement.expression, rootLib, elmJSONs);
+    }
+  });
+
   const results: fhir4.Library = {
     resourceType: 'Library',
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
@@ -81,6 +88,7 @@ export async function getDataRequirements(
       const dr = generateDataRequirement(retrieve);
       addFiltersToDataRequirement(retrieve, dr, withErrors);
       addFhirQueryPatternToDataRequirements(dr);
+      dr.mustSupport = retrieve.mustSupport;
       return dr;
     }),
     JSON.stringify
@@ -411,3 +419,164 @@ function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulEr
     return false;
   }
 }
+
+// addMustSupport: find any fields as part of this statement.expression,
+// then search the allRetrieves for that field's context, and add the field to the correct retrieve's mustSupport
+function addMustSupport(allRetrieves: DataTypeQuery[], expression: AnyELMExpression, rootLib: ELM, allELM: ELM[]) {
+  const propertyExpressions = findPropertyExpressions(expression, [], rootLib.library.identifier.id);
+
+  propertyExpressions.forEach(prop => {
+    // find all matches for this property in allRetrieves
+    const retrieveMatches = findRetrieveMatches(prop, allRetrieves, allELM);
+    // add mustSupport for each match (if not already included)
+    retrieveMatches.forEach(match => {
+      if (match.mustSupport) {
+        if (!match.mustSupport.includes(prop.property.path)) {
+          match.mustSupport.push(prop.property.path);
+        }
+      } else {
+        match.mustSupport = [prop.property.path];
+      }
+    });
+  });
+}
+
+interface PropertyTracker {
+  property: ELMProperty;
+  stack: ExpressionStackEntry[];
+}
+
+/**
+ * recurses across all key/values in an ELM tree structure
+ * finds values with type 'Property' and assumes they are ELMProperty type objects
+ *
+ * @param exp the current expression (top node) of the tree to search for Properties
+ * @param currentStack stack entries that led to this expression (not including this expression)
+ * @param lib name of library context for this expression
+ * @returns array of all properties found in this expression's tree
+ */
+function findPropertyExpressions(exp: object, currentStack: ExpressionStackEntry[], lib: string): PropertyTracker[] {
+  if ('type' in exp && exp.type && exp.type === 'Property') {
+    // base case found property expression
+    const prop = exp as ELMProperty;
+    if (prop.source) {
+      // add this expression to current stack before recursing on .source
+      const thisStackEntry: ExpressionStackEntry = {
+        type: exp.type,
+        localId: 'localId' in exp && exp.localId ? (exp.localId as string) : 'unknown',
+        libraryName: lib
+      };
+      return [
+        { property: prop, stack: currentStack },
+        ...findPropertyExpressions(
+          prop.source,
+          currentStack.concat([thisStackEntry]),
+          checkLibChange(prop.source) ?? lib
+        )
+      ];
+    } else {
+      return [{ property: prop, stack: currentStack }];
+    }
+  } else {
+    // not a property expression, recurse on all array members or all children values
+    return Object.values(exp).flatMap(v => {
+      const thisStackEntry: ExpressionStackEntry = {
+        type: 'type' in exp && exp.type ? (exp.type as string) : 'unknown',
+        localId: 'localId' in exp && exp.localId ? (exp.localId as string) : 'unknown',
+        libraryName: lib
+      };
+      if (Array.isArray(v)) {
+        return v.flatMap(elem =>
+          findPropertyExpressions(elem, currentStack.concat([thisStackEntry]), checkLibChange(elem) ?? lib)
+        );
+      } else if (typeof v === 'object') {
+        return findPropertyExpressions(v, currentStack.concat([thisStackEntry]), checkLibChange(v) ?? lib);
+      } else {
+        return [];
+      }
+    });
+  }
+}
+
+function checkLibChange(value: object): string | null {
+  // for ExpressionRef and FunctionRef we need the new library context
+  if ('libraryName' in value && value.libraryName) {
+    return value.libraryName as string;
+  }
+  return null;
+}
+
+// search retrieves for any that match this property's stack and alias context
+function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQuery[], allELM: ELM[]): DataTypeQuery[] {
+  return retrieves.filter(retrieve => {
+    const stackMatch = prop.stack.findLast(ps => {
+      // find the last property stack entry that matches any entry in the retrieve stack
+      return retrieve.expressionStack?.some(
+        rs => isEqual(ps, rs) //test object equality
+      );
+    });
+
+    if (stackMatch) {
+      // find stackMatch in allELM
+      const library = allELM.find(lib => lib.library.identifier.id === stackMatch.libraryName);
+
+      // statement definition expression should match first of the stack
+      const topExpression = library?.library.statements.def.find(
+        d => d.expression.localId === prop.stack[0].localId
+      )?.expression;
+      if (!topExpression) {
+        throw Error(`Could not find expression ${prop.stack[0].localId} in library with id ${stackMatch.libraryName}`);
+      }
+
+      const localExpression = findExpressionwithLocalId(topExpression, stackMatch.localId);
+      if (localExpression?.type === 'Query') {
+        const query = localExpression as ELMQuery;
+        // confirm alias matches scope
+        const source = query.source.find(s => s.alias === prop.property.scope);
+        if (
+          source &&
+          retrieve.retrieveLocalId &&
+          findExpressionwithLocalId(source.expression, retrieve.retrieveLocalId)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        // TODO: handle other types
+        //  - TODO: what if no source, i.e. 160
+        // TODO: will this always be a query? What else? If not, what's our source for alias matching?
+        // ... could be a last or first
+        return false;
+      }
+    }
+    return false;
+  });
+}
+
+// exp is top expression with tree of children to search
+function findExpressionwithLocalId(exp: object, localId: string): AnyELMExpression | undefined {
+  if ('localId' in exp && exp.localId && exp.localId === localId) {
+    return exp as AnyELMExpression;
+  } else {
+    let found;
+    for (let i = 0; i < Object.values(exp).length; i++) {
+      const v = Object.values(exp)[i];
+      if (Array.isArray(v)) {
+        for (let i = 0; i < v.length; i++) {
+          const elem = v[i];
+          found = findExpressionwithLocalId(elem, localId);
+          if (found) break;
+        }
+      } else if (typeof v === 'object') {
+        found = findExpressionwithLocalId(v, localId);
+      }
+      if (found) break;
+    }
+    return found;
+  }
+}
+
+// Special case TODO: function ref madness
+// Special case TODO 2: expression ref layers (pair and debug cases with Hoss)
+// Special case TODO 3: last of... means that matching up the source will require special handling

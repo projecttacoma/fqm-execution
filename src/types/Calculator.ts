@@ -297,6 +297,8 @@ export interface DataTypeQuery {
   queryInfo?: QueryInfo;
   /** specifies an optional template/profile for the objects that the retrieve returns to conform to */
   templateId?: string;
+  /** array of fields that must be supported in association with this retrieve */
+  mustSupport?: string[];
 }
 
 export interface GapsDataTypeQuery extends DataTypeQuery {
