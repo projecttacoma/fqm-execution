@@ -1,0 +1,517 @@
+{
+  "resourceType": "Library",
+  "type": {
+    "coding": [
+      {
+        "code": "module-definition",
+        "system": "http://terminology.hl7.org/CodeSystem/library-type"
+      }
+    ]
+  },
+  "status": "unknown",
+  "dataRequirement": [
+    {
+      "type": "Coverage",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Coverage"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Coverage?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591&policy-holder=Patient/{{context.patientId}}"
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Coverage?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591&subscriber=Patient/{{context.patientId}}"
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Coverage?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591&beneficiary=Patient/{{context.patientId}}"
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Coverage?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591&payor=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1024"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1024&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1022"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1022&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1025"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1025&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1023"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1023&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1003"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1003&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1080"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1080&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1089"
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1089&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Encounter",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Encounter"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.666.5.307"
+        },
+        {
+          "path": "status",
+          "code": [
+            {
+              "code": "finished",
+              "system": "http://hl7.org/fhir/encounter-status"
+            }
+          ]
+        }
+      ],
+      "dateFilter": [
+        {
+          "path": "period.end",
+          "valuePeriod": {
+            "start": "2022-01-01T00:00:00.000Z",
+            "end": "2022-12-31T00:00:00.000Z"
+          }
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.666.5.307&status=finished&date=ge2022-01-01T00:00:00.000Z&date=le2022-12-31T00:00:00.000Z&patient=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "ServiceRequest",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/ServiceRequest"
+      ],
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1108.15"
+        },
+        {
+          "path": "status",
+          "code": [
+            {
+              "code": "active"
+            },
+            {
+              "code": "completed"
+            }
+          ]
+        },
+        {
+          "path": "intent",
+          "code": [
+            {
+              "code": "order"
+            }
+          ]
+        }
+      ],
+      "dateFilter": [
+        {
+          "path": "authoredOn",
+          "valuePeriod": {
+            "start": "2022-01-01T00:00:00.000Z",
+            "end": "2022-12-31T00:00:00.000Z"
+          }
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/ServiceRequest?code:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1108.15&status=active&intent=order&authored=ge2022-01-01T00:00:00.000Z&authored=le2022-12-31T00:00:00.000Z&subject=Patient/{{context.patientId}}"
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/ServiceRequest?code:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1108.15&status=active&intent=order&authored=ge2022-01-01T00:00:00.000Z&authored=le2022-12-31T00:00:00.000Z&performer=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Procedure",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Procedure"
+      ],
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1108.15"
+        },
+        {
+          "path": "status",
+          "code": [
+            {
+              "code": "completed",
+              "system": "http://hl7.org/fhir/event-status"
+            }
+          ]
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Procedure?code:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1108.15&status=completed&patient=Patient/{{context.patientId}}"
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Procedure?code:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1108.15&status=completed&performer=Patient/{{context.patientId}}"
+        }
+      ]
+    },
+    {
+      "type": "Procedure",
+      "profile": [
+        "http://hl7.org/fhir/StructureDefinition/Procedure"
+      ],
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1002"
+        },
+        {
+          "path": "status",
+          "code": [
+            {
+              "code": "completed",
+              "system": "http://hl7.org/fhir/event-status"
+            }
+          ]
+        }
+      ],
+      "dateFilter": [
+        {
+          "path": "performed",
+          "valuePeriod": {
+            "start": "2022-01-01T00:00:00.000Z",
+            "end": "2022-12-31T00:00:00.000Z"
+          }
+        }
+      ],
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Procedure?code:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1002&status=completed&date=ge2022-01-01T00:00:00.000Z&date=le2022-12-31T00:00:00.000Z&patient=Patient/{{context.patientId}}"
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "/Procedure?code:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1002&status=completed&date=ge2022-01-01T00:00:00.000Z&date=le2022-12-31T00:00:00.000Z&performer=Patient/{{context.patientId}}"
+        }
+      ]
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "display": "Measure PrimaryCariesPreventionasOfferedbyPCPsincludingDentistsFHIR",
+      "resource": "http://ecqi.healthit.gov/ecqms/Measure/PrimaryCariesPreventionasOfferedbyPCPsincludingDentistsFHIR"
+    },
+    {
+      "type": "depends-on",
+      "display": "FHIR model information",
+      "resource": "http://fhir.org/guides/cqf/common/Library/FHIR-ModelInfo|4.0.1"
+    },
+    {
+      "type": "depends-on",
+      "display": "Library FHIRHelpers",
+      "resource": "http://ecqi.healthit.gov/ecqms/Library/FHIRHelpers|4.0.001"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system ConditionClinicalStatusCodes",
+      "resource": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system AllergyIntoleranceClinicalStatusCodes",
+      "resource": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system AllergyIntoleranceVerificationStatusCodes",
+      "resource": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system Diagnosis Role",
+      "resource": "http://terminology.hl7.org/CodeSystem/diagnosis-role"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system LOINC",
+      "resource": "http://loinc.org"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system MedicationRequestCategory",
+      "resource": "http://terminology.hl7.org/CodeSystem/medicationrequest-category"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system ConditionVerificationStatusCodes",
+      "resource": "http://terminology.hl7.org/CodeSystem/condition-ver-status"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system SNOMEDCT",
+      "resource": "http://snomed.info/sct"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system RoleCode",
+      "resource": "http://terminology.hl7.org/CodeSystem/v3-RoleCode"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Emergency Department Visit",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.117.1.7.1.292"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Encounter Inpatient",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.666.5.307"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Observation Services",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1111.143"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Present on Admission or Clinically Undetermined",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1147.197"
+    },
+    {
+      "type": "depends-on",
+      "display": "Library Global",
+      "resource": "http://ecqi.healthit.gov/ecqms/Library/MATGlobalCommonFunctionsFHIR4|6.1.000"
+    },
+    {
+      "type": "depends-on",
+      "display": "Code system SNOMEDCT:2017-09",
+      "resource": "http://snomed.info/sct|http://snomed.info/sct/version/201709"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Hospice care ambulatory",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1108.15"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Ethnicity",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.837"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set ONC Administrative Sex",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Payer",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Race",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.836"
+    },
+    {
+      "type": "depends-on",
+      "display": "Library SDE",
+      "resource": "http://ecqi.healthit.gov/ecqms/Library/SupplementalDataElementsFHIR4|2.0.000"
+    },
+    {
+      "type": "depends-on",
+      "display": "Library Hospice",
+      "resource": "http://ecqi.healthit.gov/ecqms/Library/HospiceFHIR4|2.3.000"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Clinical Oral Evaluation",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1003"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Fluoride Varnish Application for Children",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1002"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Office Visit",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Online Assessments",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1089"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Preventive Care - Established Office Visit, 0 to 17",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1024"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Preventive Care Services - Established Office Visit, 18 and Up",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1025"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Preventive Care Services-Initial Office Visit, 18 and Up",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1023"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Preventive Care- Initial Office Visit, 0 to 17",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1022"
+    },
+    {
+      "type": "depends-on",
+      "display": "Value set Telephone Visits",
+      "resource": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1080"
+    }
+  ]
+}

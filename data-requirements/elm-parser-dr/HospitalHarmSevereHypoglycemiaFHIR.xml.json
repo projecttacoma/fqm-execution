@@ -1,0 +1,142 @@
+{
+  "name": "HospitalHarmSevereHypoglycemiaFHIR.xml",
+  "status": "draft",
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/library-type",
+        "code": "module-definition"
+      }
+    ]
+  },
+  "dataRequirement": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "Coverage?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591"
+        }
+      ],
+      "type": "Coverage",
+      "mustSupport": [
+        "type",
+        "period"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.117.1.7.1.292"
+        }
+      ],
+      "type": "Encounter",
+      "mustSupport": [
+        "type",
+        "period"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.117.1.7.1.292"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.666.5.307&period=ge2019-01-01T00:00:00.000Z&period=le2019-12-31T00:00:00.000Z"
+        }
+      ],
+      "type": "Encounter",
+      "mustSupport": [
+        "type",
+        "status",
+        "period"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.666.5.307"
+        }
+      ],
+      "dateFilter": [
+        {
+          "path": "period",
+          "valuePeriod": {
+            "start": "2019-01-01T00:00:00.000Z",
+            "end": "2019-12-31T00:00:00.000Z"
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "Encounter?type:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1111.143"
+        }
+      ],
+      "type": "Encounter",
+      "mustSupport": [
+        "type",
+        "period"
+      ],
+      "codeFilter": [
+        {
+          "path": "type",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1111.143"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "MedicationAdministration?medication:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1196.393"
+        }
+      ],
+      "type": "MedicationAdministration",
+      "mustSupport": [
+        "medication",
+        "status",
+        "effective"
+      ],
+      "codeFilter": [
+        {
+          "path": "medication",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1196.393"
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern",
+          "valueString": "Observation?code:in=http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1045.134"
+        }
+      ],
+      "type": "Observation",
+      "mustSupport": [
+        "code",
+        "effective",
+        "status",
+        "value"
+      ],
+      "codeFilter": [
+        {
+          "path": "code",
+          "valueSet": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1045.134"
+        }
+      ]
+    }
+  ],
+  "resourceType": "Library"
+}

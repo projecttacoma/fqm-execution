@@ -58,6 +58,7 @@ export async function getDataRequirements(
     if (retrieve.queryLocalId && retrieve.queryLibraryName && parameters['Measurement Period']) {
       const library = elmJSONs.find(lib => lib.library.identifier.id === retrieve.queryLibraryName);
       if (library) {
+        // use something else here, perhaps parseDRInfo
         retrieve.queryInfo = await parseQueryInfo(
           library,
           elmJSONs,
