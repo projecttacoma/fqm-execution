@@ -67,7 +67,6 @@ export function findRetrieves(
   expressionStack: ExpressionStackEntry[] = [],
   withErrors: GracefulError[] = []
 ): { results: DataTypeQuery[]; withErrors: GracefulError[] } {
-  // add mustSupport to DataTypeQuery type
   // Smart defaults for recursive call to avoid passing in a bunch of values that don't usually change
   const defaultRecursiveOpts: RecursiveCallOptions = {
     elm,
