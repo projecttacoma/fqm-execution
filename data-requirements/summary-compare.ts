@@ -59,7 +59,7 @@ async function main() {
     const fqmEDR = fqmEDRLib.dataRequirement as fhir4.DataRequirement[];
     const elmParserDR = elmParserDRLib.dataRequirement as fhir4.DataRequirement[];
 
-    let fqmEData: Record<string, fhir4.DataRequirement[]> = {};
+    const fqmEData: Record<string, fhir4.DataRequirement[]> = {};
     fqmEDR.forEach(dr => {
       if (fqmEData[dr.type]) {
         fqmEData[dr.type].push(dr);
@@ -69,7 +69,7 @@ async function main() {
     });
 
     // Sort the data requirements by type alphabetically
-    let sortedFqmEData: Record<string, fhir4.DataRequirement[]> = {};
+    const sortedFqmEData: Record<string, fhir4.DataRequirement[]> = {};
     Object.keys(fqmEData)
       .sort()
       .forEach(key => {
@@ -77,7 +77,7 @@ async function main() {
       });
 
     // Group data requirements by type in Record<string, DataRequirementType[]>
-    let elmParserData: Record<string, fhir4.DataRequirement[]> = {};
+    const elmParserData: Record<string, fhir4.DataRequirement[]> = {};
     elmParserDR.forEach(dr => {
       if (elmParserData[dr.type]) {
         elmParserData[dr.type].push(dr);
@@ -87,7 +87,7 @@ async function main() {
     });
 
     // Sort the data requirements by type alphabetically
-    let sortedElmParserData: Record<string, fhir4.DataRequirement[]> = {};
+    const sortedElmParserData: Record<string, fhir4.DataRequirement[]> = {};
     Object.keys(elmParserData)
       .sort()
       .forEach(key => {
