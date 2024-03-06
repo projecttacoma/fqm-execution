@@ -4,26 +4,31 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-VERBOSE=false
+MUST_SUPPORT=false
 
 function usage() {
     cat <<USAGE
 
-    Usage: $0 [-v|--verbose]
+    Usage: $0 [-m|--measure <measure-name>] 
 
     Options:
-        -v/--verbose:           Use verbose comparison. Will print out diffs of failing JSON files with spacing (default: false)
+        -m/--measure:   Name of the CMS measure to compare data requirements results (default: all)
 USAGE
     exit 1
 }
 
 while test $# != 0
-do
-    case "$1" in 
-    -v | --verbose) VERBOSE=true;;
+do 
+    case "$1" in
+    -m | --measure) 
+        shift
+        MEASURE=$1
+        ;;
+    *) usage ;;
     esac
     shift
 done
+
 
 echo "Gathering data-requirements output from the fhir_review branch of elm-parser-for-ecqms"
 
@@ -34,7 +39,7 @@ if [ ! -d "elm-parser-for-ecqms" ]; then
     git fetch --all
     cd elm-parser-for-ecqms
     git checkout "fhir_review"
-    ruby parse_elm.rb --bundle qicore
+    ruby parse_elm.rb --bundle fhir
     cd ..
     if [-d "elm-parser-dr"]; then
         rm -rf elm-parser-dr
@@ -51,30 +56,4 @@ echo "Gathering data-requirements output from fqm-execution using the measure bu
 
 npx ts-node fqm-e-dr.ts
 
-for file in "fqm-e-dr"/*; do
-    BASE_PATH="$(basename "$file")"
-    BASE_NAME=${BASE_PATH%"-dr.json"*}
-
-    FQM_E_DR=$file
-    ELM_PARSER_DR="elm-parser-dr/${BASE_NAME}.xml.json"
-
-    if ! test -f "$FQM_E_DR"; then
-        echo -e "${RED}FAIL${NC}: $FQM_E_DR does not exist"
-    fi
-
-    if ! test -f "$ELM_PARSER_DR"; then
-        echo -e "${RED}FAIL${NC}: $ELM_PARSER_DR does not exist"
-    fi
-
-    if cmp --silent $FQM_E_DR $ELM_PARSER_DR; then  
-        echo -e "${GREEN}PASS${NC}: $BASE_NAME"
-    else 
-        echo -e "${RED}FAIL${NC}: $FQM_E_DR and $ELM_PARSER_DR are different"
-
-        if [ $VERBOSE = "true" ]; then
-            diff $FQM_E_DR $ELM_PARSER_DR
-        fi
-    fi
-done
-
-echo "Finished"
+npx ts-node summary-compare.ts $MEASURE 
