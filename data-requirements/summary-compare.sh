@@ -34,14 +34,14 @@ echo "Gathering data-requirements output from the fhir_review branch of elm-pars
 
 # Clone the elm-parser-for-ecqms in the data-requirements directory if it hasn't been, swtich to the fhir_review branch,
 # run parse_elm.rb with --bundle qicore to get data-requirements for measure bundles from the January 2024 Connectathon
-if [ ! -d "elm-parser-for-ecqms" ]; then
+if [ ! -d "data-requirements/elm-parser-for-ecqms" ]; then
     git clone https://github.com/projecttacoma/elm-parser-for-ecqms.git
     git fetch --all
     cd elm-parser-for-ecqms
     git checkout "fhir_review"
     ruby parse_elm.rb --bundle qicore
     cd ..
-    if [-d "elm-parser-dr"]; then
+    if [ -d "elm-parser-dr" ]; then
         rm -rf elm-parser-dr
     fi
     mkdir elm-parser-dr

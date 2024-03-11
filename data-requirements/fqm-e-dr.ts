@@ -23,10 +23,13 @@ async function main() {
   fs.mkdirSync('./fqm-e-dr');
 
   // get all of the file names (short and fullPath) from the jan-2024-connectathon directory
-  const allBundles = fs.readdirSync(JAN_2024_CONNECTATHON_BASE_PATH).map(f => ({
-    shortName: f.split('v')[0],
-    fullPath: path.join(JAN_2024_CONNECTATHON_BASE_PATH, f)
-  }));
+  const allBundles = fs
+    .readdirSync(JAN_2024_CONNECTATHON_BASE_PATH)
+    .filter(f => f !== '.gitkeep')
+    .map(f => ({
+      shortName: f.split('v')[0],
+      fullPath: path.join(JAN_2024_CONNECTATHON_BASE_PATH, f)
+    }));
 
   for (const bundle of allBundles) {
     const measureBundle = JSON.parse(fs.readFileSync(bundle.fullPath, 'utf8')) as fhir4.Bundle;

@@ -36,7 +36,7 @@ if [ ! -d "elm-parser-for-ecqms" ]; then
     git checkout "fhir_review"
     ruby parse_elm.rb --bundle qicore
     cd ..
-    if [-d "elm-parser-dr"]; then
+    if [ -d "elm-parser-dr" ]; then
         rm -rf elm-parser-dr
     fi
     mkdir elm-parser-dr
