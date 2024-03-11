@@ -887,39 +887,41 @@ The order of these populations is determined by most inclusive to least inclusiv
 To disable this behavior, use the `disableHTMLOrdering` calculation option.
 
 ### Statement-level HTML
-Optionally, `fqm-execution` can generate the stylized HTML markup for each individual statement. To access the statement-level HTML, specify the `buildStatementLevelHTML` in the `CalculationOptions` prior to measure calculation. From the `detailedResults` returned for a given patient, the `statementLevelHTML` will be available as an element on each `statementResult` whose relevance is *not* N/A.
+
+Optionally, `fqm-execution` can generate the stylized HTML markup for each individual statement. To access the statement-level HTML, specify the `buildStatementLevelHTML` in the `CalculationOptions` prior to measure calculation. From the `detailedResults` returned for a given patient, the `statementLevelHTML` will be available as an element on each `statementResult` whose relevance is _not_ N/A.
 
 ```typescript
 [
   {
-    "patientId": "test-patient",
-    "detailedResults": [
+    patientId: 'test-patient',
+    detailedResults: [
       {
-        "groupId": "test-group",
-        "statementResults": [
+        groupId: 'test-group',
+        statementResults: [
           // no HTML returned since relevance is NA
           {
-            "libraryName": "MATGlobalCommonFunctionsFHIR4",
-            "statementName": "Patient",
-            "final": "NA",
-            "relevance": "NA",
-            "isFunction": false,
-            "pretty": "NA"
+            libraryName: 'MATGlobalCommonFunctionsFHIR4',
+            statementName: 'Patient',
+            final: 'NA',
+            relevance: 'NA',
+            isFunction: false,
+            pretty: 'NA'
           },
           {
-            "libraryName": "CancerScreening",
-            "statementName": "SDE Sex",
-            "final": "TRUE",
-            "relevance": "TRUE",
-            "isFunction": false,
-            "pretty": "CODE: http://hl7.org/fhir/v3/AdministrativeGender F, Female",
-            "statementLevelHTML": "<pre style=\"tab-size: 2; border-bottom-width: 4px; line-height: 1.4\"\n  data-library-name=\"CancerScreening\" data-statement-name=\"SDE Sex\">\n...\n</pre>"
-          },
+            libraryName: 'CancerScreening',
+            statementName: 'SDE Sex',
+            final: 'TRUE',
+            relevance: 'TRUE',
+            isFunction: false,
+            pretty: 'CODE: http://hl7.org/fhir/v3/AdministrativeGender F, Female',
+            statementLevelHTML:
+              '<pre style="tab-size: 2; border-bottom-width: 4px; line-height: 1.4"\n  data-library-name="CancerScreening" data-statement-name="SDE Sex">\n...\n</pre>'
+          }
         ]
       }
     ]
   }
-]
+];
 ```
 
 ## Group Clause Coverage Highlighting
@@ -1213,6 +1215,27 @@ const evaluateMeasure = async (args, { req }) => {
   return results[0];
 };
 ```
+
+## Special Testing
+
+### Regression Testing
+
+The `./regression` directory is organized for internal calculation testing between branches of `fqm-execution`. The idea is that if changes are made to calculation on a local branch, running regression will compare the calculation output of measures in the following three repositories (`connectathon`, `ecqm-content-qi-2022`, `ecqm-content-r4-2021`) from the local branch to the calculation output of those measures from the master branch (or another user-specified branch). The `./run-regression.sh` script takes the following options:
+
+```
+-b, --base-branch <branch-name>                   Base branch to compare results with (default: master)
+-v, --verbose <boolean>                           Use verbose regression. Will print out diffs of failing JSON files with spacing (default: false)
+```
+
+To run the regression testing script, in the `./regression` directory run:
+
+```bash
+./run-regression
+```
+
+### Data Requirements Testing
+
+The `./data-requirements` directory is organized for internal data-requirements calculation testing between `fqm-execution` and the `fhir_review` branch of [elm-parser-for-ecqms](https://github.com/projecttacoma/elm-parser-for-ecqms/tree/fhir_review). See the [README](https://github.com/projecttacoma/fqm-execution/data-requirements/README.md) in this directory for more information.
 
 # Contributing
 
