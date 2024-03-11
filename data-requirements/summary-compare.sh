@@ -39,7 +39,7 @@ if [ ! -d "elm-parser-for-ecqms" ]; then
     git fetch --all
     cd elm-parser-for-ecqms
     git checkout "fhir_review"
-    ruby parse_elm.rb --bundle fhir
+    ruby parse_elm.rb --bundle qicore
     cd ..
     if [-d "elm-parser-dr"]; then
         rm -rf elm-parser-dr
