@@ -4,7 +4,7 @@ This directory includes scripts for comparing the data-requirements output of [f
 
 ## Getting Data Requirements from the elm-parser-for-ecqms
 
-The scripts in this directory will get the data requirements output from the elm-parser-for-ecqms fhir_review branch for the January 2024 Connectathon bundles. On the fhir_review branch of elm-parser-for-ecqms, data-requirements are calculated for the measures in [elm-parser-for-ecqms/measures/qicore/measures](https://github.com/projecttacoma/elm-parser-for-ecqms/tree/fhir_review/measures/qicore/measures) by running the command `ruby parse-elm.rb --bundle qicore`. The results are outputted to JSON files per measure to `elm-parser-for-ecqms/data_requirements/library`. This is all done by the script and the results are moved to the `elm-parser-dr` directory.
+The scripts in this directory will get the data requirements output from the elm-parser-for-ecqms fhir_review branch for the January 2024 Connectathon bundles. On the fhir_review branch of elm-parser-for-ecqms, data-requirements are calculated for the measures in [elm-parser-for-ecqms/measures/qicore/measures](https://github.com/projecttacoma/elm-parser-for-ecqms/tree/fhir_review/measures/qicore/measures) by running the command `ruby parse_elm.rb --bundle qicore`. The results are outputted to JSON files per measure to `elm-parser-for-ecqms/data_requirements/library`. This is all done by the script and the results are moved to the `elm-parser-dr` directory.
 
 ## Getting Data Requirements from fqm-execution
 
