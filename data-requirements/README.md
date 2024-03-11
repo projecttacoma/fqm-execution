@@ -18,7 +18,7 @@ Right now there are two ways to compare data-requirements. `compare.sh` takes a 
 
 ## Running the Scripts
 
-Before running any of the scripts, be sure to populate the `jan-2024-connectathon` directory with the corresponding measure bundles.
+Before running any of the scripts, be sure to populate the `jan-2024-connectathon` directory with the corresponding measure bundles. Also confirm that additional dependencies required for these scripts are installed with `npm install`.
 
 To run `compare.sh`:
 
