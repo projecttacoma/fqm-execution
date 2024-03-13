@@ -102,7 +102,14 @@ export function findAllLocalIdsInStatement(
         aliasMap[v] = statement.expression.localId;
         // Determine the localId for this alias.
         if (statement.localId) {
-          alId = statement.localId;
+          // Older translator versions require with statements to use the statement.expression.localId + 1 as the alias Id
+          // even if the statement already has a localId. There is not a clear mapping for alias with statements in the new
+          // translator, so they will go un highlighted but this will not affect coverage calculation
+          if (statement.type === 'With') {
+            alId = (parseInt(statement.expression.localId, 10) + 1).toString();
+          } else {
+            alId = statement.localId;
+          }
         } else {
           // Older translator versions created an elm_annotation localId that was not always in the elm. This was a
           // single increment up from the expression that defines the alias.
