@@ -2,6 +2,7 @@ import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
 import {
   CalculationOptions,
+  ClauseCoverageDetails,
   ClauseResult,
   DetailedPopulationGroupResult,
   ExecutionResult,
@@ -217,10 +218,15 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
   elmLibraries: ELM[],
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[],
   options: T
-): { coverage: Record<string, string>; uncoverage?: Record<string, string> } {
+): {
+  coverage: Record<string, string>;
+  uncoverage?: Record<string, string>;
+  details?: Record<string, ClauseCoverageDetails>;
+} {
   const groupResultLookup: Record<string, DetailedPopulationGroupResult[]> = {};
   const coverageHtmlGroupLookup: Record<string, string> = {};
   const uncoverageHtmlGroupLookup: Record<string, string> = {};
+  const coverageDetailsGroupLookup: Record<string, ClauseCoverageDetails> = {};
 
   // get the detailed result for each group within each patient and add it
   // to the key in groupResults that matches the groupId
@@ -290,7 +296,6 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
       }
     }
 
-    const covTimer = new Date();
     // generate HTML clauses using hbs template for each annotation
     statementAnnotations.forEach(a => {
       coverageHtmlString += main({
@@ -315,17 +320,32 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
     coverageHtmlString += '</div>';
     uncoverageHtmlString += '</div>';
 
-    console.debug(`Coverage and Uncoverage HTML took ${new Date().getTime() - covTimer.getTime()} ms`);
-
     coverageHtmlGroupLookup[groupId] = coverageHtmlString;
-    uncoverageHtmlGroupLookup[groupId] = uncoverageHtmlString;
+    if (options.calculateClauseUncoverage) {
+      uncoverageHtmlGroupLookup[groupId] = uncoverageHtmlString;
+    }
+
+    // If details on coverage are requested, tally them up and add them to the map.
+    if (options.calculateCoverageDetails) {
+      coverageDetailsGroupLookup[groupId] = {
+        totalClauses: clauseCoverage.coveredClauses.length + clauseCoverage.uncoveredClauses.length,
+        coveredClauses: clauseCoverage.coveredClauses.length,
+        uncoveredClauses: clauseCoverage.uncoveredClauses.map(uncoveredClause => {
+          return {
+            localId: uncoveredClause.localId,
+            libraryName: uncoveredClause.libraryName,
+            statementName: uncoveredClause.statementName
+          };
+        })
+      };
+    }
   });
 
-  if (options.calculateClauseUncoverage) {
-    return { coverage: coverageHtmlGroupLookup, uncoverage: uncoverageHtmlGroupLookup };
-  } else {
-    return { coverage: coverageHtmlGroupLookup };
-  }
+  return {
+    coverage: coverageHtmlGroupLookup,
+    ...(options.calculateClauseUncoverage && { uncoverage: uncoverageHtmlGroupLookup }),
+    ...(options.calculateCoverageDetails && { details: coverageDetailsGroupLookup })
+  };
 }
 
 /**
