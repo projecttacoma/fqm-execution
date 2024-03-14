@@ -105,7 +105,7 @@ export function findAllLocalIdsInStatement(
           // Older translator versions require with statements to use the statement.expression.localId + 1 as the alias Id
           // even if the statement already has a localId. There is not a clear mapping for alias with statements in the new
           // translator, so they will go un highlighted but this will not affect coverage calculation
-          if (statement.type === 'With') {
+          if (statement.type === 'With' || statement.type === 'Without') {
             alId = (parseInt(statement.expression.localId, 10) + 1).toString();
           } else {
             alId = statement.localId;
