@@ -115,6 +115,7 @@ async function calc(
     result = await calculateRaw(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'detailed') {
     calcOptions.calculateClauseUncoverage = true;
+    calcOptions.calculateCoverageDetails = true;
     result = await calculate(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'reports') {
     calcOptions.reportType = program.reportType || 'individual';
@@ -241,6 +242,10 @@ populatePatientBundles().then(async patientBundles => {
 
       if (debugOutput?.gaps) {
         dumpObject(debugOutput.gaps, 'gaps.json');
+      }
+
+      if (debugOutput?.coverageDetails) {
+        dumpObject(debugOutput.coverageDetails, 'coverageDetails.json');
       }
 
       // Dump ELM

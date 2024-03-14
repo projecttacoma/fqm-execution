@@ -358,6 +358,7 @@ export interface DebugOutput {
     retrieves?: DataTypeQuery[];
     bundle?: fhir4.Bundle | fhir4.Bundle[];
   };
+  coverageDetails?: Record<string, ClauseCoverageDetails>;
 }
 
 /*

@@ -41,6 +41,7 @@ import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
 import _, { omit } from 'lodash';
 import { ELM } from '../types/ELMTypes';
 import { getReportBuilder } from '../helpers/ReportBuilderFactory';
+import { option } from 'commander';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -271,7 +272,7 @@ export async function calculate<T extends CalculationOptions>(
         }
       });
 
-      // pull out
+      // pull out uncoverage html
       if (options.calculateClauseUncoverage && coverage.uncoverage) {
         groupClauseUncoverageHTML = coverage.uncoverage;
         if (debugObject && options.enableDebugOutput) {
@@ -295,6 +296,11 @@ export async function calculate<T extends CalculationOptions>(
           name: 'overall-clause-coverage.html',
           html: overallClauseCoverageHTML
         });
+      }
+
+      // grab coverage details
+      if (debugObject && options.enableDebugOutput && options.calculateCoverageDetails) {
+        debugObject.coverageDetails = coverage.details;
       }
     }
   }

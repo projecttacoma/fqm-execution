@@ -92,6 +92,18 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
   return '';
 });
 
+// apply highlighting style to uncovered clauses
+Handlebars.registerHelper('highlightUncoverage', (localId, context) => {
+  const libraryName: string = context.data.root.libraryName;
+  const clauseResults: ClauseResult[] = context.data.root.clauseResults;
+
+  const clauseResult = clauseResults.filter(result => result.libraryName === libraryName && result.localId === localId);
+  if (clauseResult.length > 0) {
+    return objToCSS(cqlLogicClauseFalseStyle);
+  }
+  return '';
+});
+
 /**
  * Sort statements into population, then non-functions, then functions
  */
@@ -287,13 +299,6 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
     let uncoverageHtmlString = '';
     if (options.calculateClauseUncoverage) {
       uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} clauses</h2>`;
-      if (clauseCoverage.uncoveredClauses.length > 0 && clauseCoverage.uncoveredClauses.length <= 20) {
-        uncoverageHtmlString += `<pre><code>\n${JSON.stringify(
-          clauseCoverage.uncoveredClauses,
-          undefined,
-          2
-        )}</code></pre>`;
-      }
     }
 
     // generate HTML clauses using hbs template for each annotation
@@ -313,7 +318,7 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
           statementName: a.statementName,
           clauseResults: clauseCoverage.uncoveredClauses,
           ...a.annotation[0].s,
-          highlightCoverage: false
+          highlightUncoverage: true
         });
       }
     });
@@ -359,7 +364,6 @@ export function calculateClauseCoverage(
   relevantStatements: StatementResult[],
   clauseResults: ClauseResult[]
 ): { percentage: string; coveredClauses: ClauseResult[]; uncoveredClauses: ClauseResult[] } {
-  const covTimer = new Date();
   // find all relevant clauses using statementName and libraryName from relevant statements
   const allRelevantClauses = clauseResults.filter(c =>
     relevantStatements.some(
@@ -376,7 +380,6 @@ export function calculateClauseCoverage(
     (c1, c2) => c1.libraryName === c2.libraryName && c1.localId === c2.localId
   );
 
-  const unCovTimer = new Date();
   const uncoveredClauses = allUniqueClauses.filter(c => {
     if (coveredClauses.find(coveredC => c.libraryName === coveredC.libraryName && c.localId === coveredC.localId)) {
       return false;
@@ -384,9 +387,6 @@ export function calculateClauseCoverage(
       return true;
     }
   });
-  console.debug(`Uncoverage took ${new Date().getTime() - unCovTimer.getTime()} ms`);
-  console.debug(`Coverage took ${new Date().getTime() - covTimer.getTime()} ms`);
-  console.debug(`Found ${uncoveredClauses.length} uncovered clauses.`, uncoveredClauses);
 
   return {
     percentage: ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3),
