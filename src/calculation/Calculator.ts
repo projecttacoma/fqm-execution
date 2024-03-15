@@ -41,7 +41,6 @@ import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
 import _, { omit } from 'lodash';
 import { ELM } from '../types/ELMTypes';
 import { getReportBuilder } from '../helpers/ReportBuilderFactory';
-import { option } from 'commander';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
