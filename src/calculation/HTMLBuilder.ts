@@ -333,8 +333,9 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
     // If details on coverage are requested, tally them up and add them to the map.
     if (options.calculateCoverageDetails) {
       coverageDetailsGroupLookup[groupId] = {
-        totalClauses: clauseCoverage.coveredClauses.length + clauseCoverage.uncoveredClauses.length,
-        coveredClauses: clauseCoverage.coveredClauses.length,
+        totalClauseCount: clauseCoverage.coveredClauses.length + clauseCoverage.uncoveredClauses.length,
+        coveredClauseCount: clauseCoverage.coveredClauses.length,
+        uncoveredClauseCount: clauseCoverage.uncoveredClauses.length,
         uncoveredClauses: clauseCoverage.uncoveredClauses.map(uncoveredClause => {
           return {
             localId: uncoveredClause.localId,

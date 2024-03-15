@@ -405,8 +405,9 @@ export interface CalculationOutput<T extends CalculationOptions> extends Calcula
 }
 
 export interface ClauseCoverageDetails {
-  totalClauses: number;
-  coveredClauses: number;
+  totalClauseCount: number;
+  coveredClauseCount: number;
+  uncoveredClauseCount: number;
   uncoveredClauses: {
     libraryName: string;
     statementName: string;
