@@ -382,11 +382,7 @@ export function calculateClauseCoverage(
   );
 
   const uncoveredClauses = allUniqueClauses.filter(c => {
-    if (coveredClauses.find(coveredC => c.libraryName === coveredC.libraryName && c.localId === coveredC.localId)) {
-      return false;
-    } else {
-      return true;
-    }
+    return !coveredClauses.find(coveredC => c.libraryName === coveredC.libraryName && c.localId === coveredC.localId);
   });
 
   return {
