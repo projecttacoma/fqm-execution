@@ -4,7 +4,15 @@ import { GracefulError } from '../types/errors/GracefulError';
 import { EqualsFilter, InFilter, DuringFilter, codeFilterQuery, AttributeFilter } from '../types/QueryFilterTypes';
 import { PatientParameters } from '../compartment-definition/PatientParameters';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
-import { AnyELMExpression, ELM, ELMIdentifier, ELMProperty, ELMQuery } from '../types/ELMTypes';
+import {
+  AnyELMExpression,
+  ELM,
+  ELMAliasedQuerySource,
+  ELMIdentifier,
+  ELMLast,
+  ELMProperty,
+  ELMQuery
+} from '../types/ELMTypes';
 import { ExtractedLibrary } from '../types/CQLTypes';
 import * as Execution from '../execution/Execution';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
@@ -20,6 +28,8 @@ import { uniqBy, isEqual } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
+import { findLibraryReference } from './elm/ELMDependencyHelpers';
+import { findClauseInExpression, findClauseInLibrary, findNamedClausesInExpression } from './elm/ELMHelpers';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -423,7 +433,7 @@ function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulEr
 // addMustSupport: find any fields as part of this statement.expression,
 // then search the allRetrieves for that field's context, and add the field to the correct retrieve's mustSupport
 function addMustSupport(allRetrieves: DataTypeQuery[], expression: AnyELMExpression, rootLib: ELM, allELM: ELM[]) {
-  const propertyExpressions = findPropertyExpressions(expression, [], rootLib.library.identifier.id);
+  const propertyExpressions = findPropertyExpressions(expression, [], rootLib, allELM);
 
   propertyExpressions.forEach(prop => {
     // find all matches for this property in allRetrieves
@@ -441,7 +451,7 @@ function addMustSupport(allRetrieves: DataTypeQuery[], expression: AnyELMExpress
   });
 }
 
-interface PropertyTracker {
+export interface PropertyTracker {
   property: ELMProperty;
   stack: ExpressionStackEntry[];
 }
@@ -452,62 +462,110 @@ interface PropertyTracker {
  *
  * @param exp the current expression (top node) of the tree to search for Properties
  * @param currentStack stack entries that led to this expression (not including this expression)
- * @param lib name of library context for this expression
+ * @param lib library context for this expression
+ * @param allLib all elm libraries
  * @returns array of all properties found in this expression's tree
  */
-function findPropertyExpressions(exp: object, currentStack: ExpressionStackEntry[], lib: string): PropertyTracker[] {
+export function findPropertyExpressions(
+  exp: object,
+  currentStack: ExpressionStackEntry[],
+  lib: ELM,
+  allLib: ELM[]
+): PropertyTracker[] {
+  if (typeof exp !== 'object') {
+    return [];
+  }
+  // ... only do this for objects TODO next
+  const thisStackEntry: ExpressionStackEntry = {
+    type: 'type' in exp && exp.type ? (exp.type as string) : 'unknown',
+    localId: 'localId' in exp && exp.localId ? (exp.localId as string) : 'unknown',
+    libraryName: lib.library.identifier.id
+  };
+
   if ('type' in exp && exp.type && exp.type === 'Property') {
     // base case found property expression
     const prop = exp as ELMProperty;
     if (prop.source) {
       // add this expression to current stack before recursing on .source
-      const thisStackEntry: ExpressionStackEntry = {
-        type: exp.type,
-        localId: 'localId' in exp && exp.localId ? (exp.localId as string) : 'unknown',
-        libraryName: lib
-      };
       return [
         { property: prop, stack: currentStack },
-        ...findPropertyExpressions(
-          prop.source,
-          currentStack.concat([thisStackEntry]),
-          checkLibChange(prop.source) ?? lib
-        )
+        ...findPropertyExpressions(prop.source, currentStack.concat([thisStackEntry]), lib, allLib)
       ];
     } else {
       return [{ property: prop, stack: currentStack }];
     }
-  } else {
-    // not a property expression, recurse on all array members or all children values
-    return Object.values(exp).flatMap(v => {
-      const thisStackEntry: ExpressionStackEntry = {
-        type: 'type' in exp && exp.type ? (exp.type as string) : 'unknown',
-        localId: 'localId' in exp && exp.localId ? (exp.localId as string) : 'unknown',
-        libraryName: lib
-      };
-      if (Array.isArray(v)) {
-        return v.flatMap(elem =>
-          findPropertyExpressions(elem, currentStack.concat([thisStackEntry]), checkLibChange(elem) ?? lib)
-        );
-      } else if (typeof v === 'object') {
-        return findPropertyExpressions(v, currentStack.concat([thisStackEntry]), checkLibChange(v) ?? lib);
-      } else {
-        return [];
+  } else if (
+    'type' in exp &&
+    exp.type &&
+    (exp.type === 'FunctionRef' || exp.type === 'ExpressionRef') &&
+    'libraryName' in exp &&
+    exp.libraryName &&
+    'name' in exp &&
+    exp.name
+  ) {
+    // handle references that go to different libraries
+
+    // TODO: do we have to worry about ParameterRef as well?
+    // TODO: if there isn't a library name, are we good to not poke around for a new expression to explode?
+
+    // TODO: do we need to search the entire operand tree, or is the top level okay?
+    if ('operand' in exp && exp.operand) {
+      const properties = findPropertyExpressions(exp.operand, currentStack.concat([thisStackEntry]), lib, allLib);
+      if (properties.length > 0) {
+        // if we find the property(s) in the operand, we can short-circuit the search without going to a different library
+        return properties;
       }
-    });
+    }
+
+    const newLib = findLibraryReference(lib, allLib, exp.libraryName as string);
+    if (!newLib) {
+      throw new UnexpectedResource(`Cannot Find Referenced Library: ${exp.libraryName}`);
+    }
+    const newExp = findNameinLib(exp.name as string, newLib);
+    if (!newExp) {
+      // If we can't uniquely identify the reference, warn and explode immediate expression in current library context
+      console.warn(
+        `Issue with searching for properties within ${exp.name} in library ${lib.library.identifier.id}. Could not identify reference because it is overloaded or doesn't exist.`
+      );
+      return findPropertyExpressions(exp, currentStack.concat([thisStackEntry]), lib, allLib);
+    }
+    return findPropertyExpressions(newExp, currentStack.concat([thisStackEntry]), newLib, allLib);
+  } else if (Array.isArray(exp)) {
+    return exp.flatMap(elem => findPropertyExpressions(elem, currentStack, lib, allLib));
+  } else {
+    // non property object, recurse all children values
+    return findPropertyExpressions(Object.values(exp), currentStack.concat([thisStackEntry]), lib, allLib);
   }
 }
 
-function checkLibChange(value: object): string | null {
-  // for ExpressionRef and FunctionRef we need the new library context
-  if ('libraryName' in value && value.libraryName) {
-    return value.libraryName as string;
+// find the expression in this library that matches the passed name
+// if there are issues uniquely identifying one, return null
+export function findNameinLib(name: string, lib: ELM): AnyELMExpression | null {
+  // search statements first and return expression
+  const namedStatement = lib.library.statements.def.filter(statement => statement.name === name);
+  if (namedStatement.length > 0) {
+    if (namedStatement.length === 1) {
+      return namedStatement[0].expression;
+    } else {
+      // if multiple come up, then it's overloaded (we can't handle)
+      return null;
+    }
   }
-  return null;
+
+  // search expressions in statements
+  const foundNames = lib.library.statements.def.flatMap(statement =>
+    findNamedClausesInExpression(statement.expression, name)
+  );
+  if (foundNames.length !== 1) {
+    // if multiple come up, then it's overloaded (we can't handle). If 0 come up, it's ill-formed.
+    return null;
+  }
+  // TODO: fix statement return (don't want to search annotations)
+  return foundNames[0];
 }
 
 // search retrieves for any that match this property's stack and alias context
-function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQuery[], allELM: ELM[]): DataTypeQuery[] {
+export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQuery[], allELM: ELM[]): DataTypeQuery[] {
   return retrieves.filter(retrieve => {
     const stackMatch = prop.stack.findLast(ps => {
       // find the last property stack entry that matches any entry in the retrieve stack
@@ -519,25 +577,19 @@ function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQuery[], 
     if (stackMatch) {
       // find stackMatch in allELM
       const library = allELM.find(lib => lib.library.identifier.id === stackMatch.libraryName);
-
-      // statement definition expression should match first of the stack
-      const topExpression = library?.library.statements.def.find(
-        d => d.expression.localId === prop.stack[0].localId
-      )?.expression;
-      if (!topExpression) {
-        throw Error(`Could not find expression ${prop.stack[0].localId} in library with id ${stackMatch.libraryName}`);
+      if (!library) {
+        throw new Error(`Could not find library with id ${stackMatch.libraryName}`);
       }
-
-      const localExpression = findExpressionwithLocalId(topExpression, stackMatch.localId);
-      if (localExpression?.type === 'Query') {
+      const localExpression = findClauseInLibrary(library, stackMatch.localId);
+      if (!localExpression) {
+        throw new Error(`Could not find expression ${stackMatch.localId} in library with id ${stackMatch.libraryName}`);
+      }
+      // TODO: handle property source? Or I think if property has source, it's always irrelevant
+      if (localExpression?.type === 'Query' && prop.property.scope) {
         const query = localExpression as ELMQuery;
         // confirm alias matches scope
-        const source = query.source.find(s => s.alias === prop.property.scope);
-        if (
-          source &&
-          retrieve.retrieveLocalId &&
-          findExpressionwithLocalId(source.expression, retrieve.retrieveLocalId)
-        ) {
+        const source = findSourcewithScope(query, prop.property.scope);
+        if (source && retrieve.retrieveLocalId && findClauseInExpression(source.expression, retrieve.retrieveLocalId)) {
           return true;
         } else {
           return false;
@@ -554,29 +606,39 @@ function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQuery[], 
   });
 }
 
-// exp is top expression with tree of children to search
-function findExpressionwithLocalId(exp: object, localId: string): AnyELMExpression | undefined {
-  if ('localId' in exp && exp.localId && exp.localId === localId) {
-    return exp as AnyELMExpression;
-  } else {
-    let found;
-    for (let i = 0; i < Object.values(exp).length; i++) {
-      const v = Object.values(exp)[i];
-      if (Array.isArray(v)) {
-        for (let i = 0; i < v.length; i++) {
-          const elem = v[i];
-          found = findExpressionwithLocalId(elem, localId);
-          if (found) break;
-        }
-      } else if (typeof v === 'object') {
-        found = findExpressionwithLocalId(v, localId);
-      }
-      if (found) break;
-    }
-    return found;
+// TODO: this is incomplete, needs more cases! and less strict type assumptions
+export function findSourcewithScope(
+  exp: ELMQuery | ELMLast | ELMProperty,
+  scope: string
+): ELMAliasedQuerySource | undefined {
+  let source;
+  if (exp.type === 'Query') {
+    source = exp.source?.find(s => s.alias === scope);
+  } else if (exp.type === 'Last') {
+    const lastQuery = exp.source as ELMQuery; //TODO: is this okay? -> no
+    source = lastQuery.source?.find(s => s.alias === scope);
+  } else if (exp.type === 'Property') {
+    // TODO: handle this case??
   }
+  if (!source) {
+    // also check any let expression sources
+    if ('let' in exp && exp.let) {
+      for (let i = 0; !source && i < exp.let.length; i++) {
+        const letClause = exp.let[i];
+        if ('source' in letClause.expression && letClause.expression.source) {
+          source = findSourcewithScope(letClause.expression, scope);
+        }
+      }
+    }
+  }
+  // check across non-query types?
+
+  return source;
 }
 
 // Special case TODO: function ref madness
 // Special case TODO 2: expression ref layers (pair and debug cases with Hoss)
 // Special case TODO 3: last of... means that matching up the source will require special handling
+
+// ... start making unit tests (cql to elm test data)
+// think about what else needs to be tested (i.e. which create function to identify which retrieve is providing the results for an expression ref)
