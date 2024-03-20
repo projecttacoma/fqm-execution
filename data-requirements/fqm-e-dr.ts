@@ -25,7 +25,7 @@ async function main() {
   // get all of the file names (short and fullPath) from the jan-2024-connectathon directory
   const allBundles = fs
     .readdirSync(JAN_2024_CONNECTATHON_BASE_PATH)
-    .filter(f => f !== '.gitkeep')
+    .filter(f => !f.startsWith('.'))
     .map(f => ({
       shortName: f.split('v')[0],
       fullPath: path.join(JAN_2024_CONNECTATHON_BASE_PATH, f)
