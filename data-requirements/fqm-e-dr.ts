@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs, { readdirSync } from 'fs';
 import path from 'path';
 import { Calculator } from '../src';
 
@@ -16,11 +16,15 @@ const JAN_2024_CONNECTATHON_BASE_PATH = path.join(__dirname, './jan-2024-connect
 async function main() {
   // if the fqm-e-dr directory already exists, remove it and its contents
   if (fs.existsSync('./fqm-e-dr')) {
-    fs.rmSync('./fqm-e-dr', { recursive: true });
+    readdirSync('./fqm-e-dr').forEach(file => {
+      if (file.endsWith('.json')) {
+        fs.rmSync(`./fqm-e-dr/${file}`);
+      }
+    });
+  } else {
+    // create new fqm-e-dr directory within the data-requirements directory
+    fs.mkdirSync('./fqm-e-dr');
   }
-
-  // create new fqm-e-dr directory within the data-requirements directory
-  fs.mkdirSync('./fqm-e-dr');
 
   // get all of the file names (short and fullPath) from the jan-2024-connectathon directory
   const allBundles = fs

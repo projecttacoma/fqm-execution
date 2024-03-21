@@ -42,7 +42,7 @@ if [ ! -d "elm-parser-for-ecqms" ]; then
     ruby parse_elm.rb --bundle qicore
     cd ..
     if [ -d "elm-parser-dr" ]; then
-        rm -rf elm-parser-dr
+        rm -rf elm-parser-dr/*.json
     fi
     mkdir elm-parser-dr
     SOURCE_DIR="elm-parser-for-ecqms/data_requirements/library"
