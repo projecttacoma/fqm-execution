@@ -95,12 +95,23 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
 // apply highlighting style to uncovered clauses
 Handlebars.registerHelper('highlightUncoverage', (localId, context) => {
   const libraryName: string = context.data.root.libraryName;
-  const clauseResults: ClauseResult[] = context.data.root.clauseResults;
 
-  const clauseResult = clauseResults.filter(result => result.libraryName === libraryName && result.localId === localId);
-  if (clauseResult.length > 0) {
+  if (
+    (context.data.root.uncoveredClauses as ClauseResult[]).some(
+      result => result.libraryName === libraryName && result.localId === localId
+    )
+  ) {
+    // Mark with red styling if clause is found in uncoverage list
     return objToCSS(cqlLogicClauseFalseStyle);
+  } else if (
+    (context.data.root.coveredClauses as ClauseResult[]).some(
+      result => result.libraryName === libraryName && result.localId === localId
+    )
+  ) {
+    // Mark with white (clear out styling) if the clause is in coverage list
+    return objToCSS(cqlLogicUncoveredClauseStyle);
   }
+  // If this clause has no results then it should not be styled
   return '';
 });
 
@@ -316,7 +327,8 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
         uncoverageHtmlString += main({
           libraryName: a.libraryName,
           statementName: a.statementName,
-          clauseResults: clauseCoverage.uncoveredClauses,
+          uncoveredClauses: clauseCoverage.uncoveredClauses,
+          coveredClauses: clauseCoverage.coveredClauses,
           ...a.annotation[0].s,
           highlightUncoverage: true
         });
