@@ -498,17 +498,12 @@ export function findPropertyExpressions(
     'type' in exp &&
     exp.type &&
     (exp.type === 'FunctionRef' || exp.type === 'ExpressionRef') &&
-    'libraryName' in exp &&
-    exp.libraryName &&
     'name' in exp &&
     exp.name
   ) {
     // handle references that go to different libraries
 
     // TODO: do we have to worry about ParameterRef as well?
-    // TODO: if there isn't a library name, are we good to not poke around for a new expression to explode?
-
-    // TODO: do we need to search the entire operand tree, or is the top level okay?
     if ('operand' in exp && exp.operand) {
       const properties = findPropertyExpressions(exp.operand, currentStack.concat([thisStackEntry]), lib, allLib);
       if (properties.length > 0) {
@@ -516,10 +511,15 @@ export function findPropertyExpressions(
         return properties;
       }
     }
-
-    const newLib = findLibraryReference(lib, allLib, exp.libraryName as string);
-    if (!newLib) {
-      throw new UnexpectedResource(`Cannot Find Referenced Library: ${exp.libraryName}`);
+    let newLib;
+    // find new lib if libraryName exists, otherwise use current lib
+    if ('libraryName' in exp && exp.libraryName) {
+      newLib = findLibraryReference(lib, allLib, exp.libraryName as string);
+      if (!newLib) {
+        throw new UnexpectedResource(`Cannot Find Referenced Library: ${exp.libraryName}`);
+      }
+    } else {
+      newLib = lib;
     }
     const newExp = findNameinLib(exp.name as string, newLib);
     if (!newExp) {
@@ -527,7 +527,7 @@ export function findPropertyExpressions(
       console.warn(
         `Issue with searching for properties within ${exp.name} in library ${lib.library.identifier.id}. Could not identify reference because it is overloaded or doesn't exist.`
       );
-      return findPropertyExpressions(exp, currentStack.concat([thisStackEntry]), lib, allLib);
+      return findPropertyExpressions(Object.values(exp), currentStack.concat([thisStackEntry]), lib, allLib);
     }
     return findPropertyExpressions(newExp, currentStack.concat([thisStackEntry]), newLib, allLib);
   } else if (Array.isArray(exp)) {
