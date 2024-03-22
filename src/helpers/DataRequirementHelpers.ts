@@ -11,7 +11,8 @@ import {
   ELMIdentifier,
   ELMLast,
   ELMProperty,
-  ELMQuery
+  ELMQuery,
+  ELMStatement
 } from '../types/ELMTypes';
 import { ExtractedLibrary } from '../types/CQLTypes';
 import * as Execution from '../execution/Execution';
@@ -84,7 +85,7 @@ export async function getDataRequirements(
   // add must supports
   rootLib.library.statements.def.forEach(statement => {
     if (statement.expression && statement.name != 'Patient') {
-      addMustSupport(allRetrieves, statement.expression, rootLib, elmJSONs);
+      addMustSupport(allRetrieves, statement, rootLib, elmJSONs);
     }
   });
 
@@ -432,8 +433,8 @@ function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulEr
 
 // addMustSupport: find any fields as part of this statement.expression,
 // then search the allRetrieves for that field's context, and add the field to the correct retrieve's mustSupport
-function addMustSupport(allRetrieves: DataTypeQuery[], expression: AnyELMExpression, rootLib: ELM, allELM: ELM[]) {
-  const propertyExpressions = findPropertyExpressions(expression, [], rootLib, allELM);
+function addMustSupport(allRetrieves: DataTypeQuery[], statement: ELMStatement, rootLib: ELM, allELM: ELM[]) {
+  const propertyExpressions = findPropertyExpressions(statement, [], rootLib, allELM);
 
   propertyExpressions.forEach(prop => {
     // find all matches for this property in allRetrieves
@@ -540,12 +541,12 @@ export function findPropertyExpressions(
 
 // find the expression in this library that matches the passed name
 // if there are issues uniquely identifying one, return null
-export function findNameinLib(name: string, lib: ELM): AnyELMExpression | null {
+export function findNameinLib(name: string, lib: ELM): AnyELMExpression | ELMStatement | null {
   // search statements first and return expression
   const namedStatement = lib.library.statements.def.filter(statement => statement.name === name);
   if (namedStatement.length > 0) {
     if (namedStatement.length === 1) {
-      return namedStatement[0].expression;
+      return namedStatement[0];
     } else {
       // if multiple come up, then it's overloaded (we can't handle)
       return null;
@@ -566,6 +567,16 @@ export function findNameinLib(name: string, lib: ELM): AnyELMExpression | null {
 
 // search retrieves for any that match this property's stack and alias context
 export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQuery[], allELM: ELM[]): DataTypeQuery[] {
+  // basic checks that the property is matchable
+  if (prop.property.source) {
+    // source must have operandref and name (TODO: check this is true)
+    if (prop.property.source.type !== 'OperandRef' || !('name' in prop.property.source) || !prop.property.source.name)
+      return [];
+  } else {
+    // must have either source or scope
+    if (!prop.property.scope) return [];
+  }
+
   return retrieves.filter(retrieve => {
     const stackMatch = prop.stack.findLast(ps => {
       // find the last property stack entry that matches any entry in the retrieve stack
@@ -584,15 +595,40 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
       if (!localExpression) {
         throw new Error(`Could not find expression ${stackMatch.localId} in library with id ${stackMatch.libraryName}`);
       }
-      // TODO: handle property source? Or I think if property has source, it's always irrelevant
-      if (localExpression?.type === 'Query' && prop.property.scope) {
+      if (localExpression?.type === 'Query') {
         const query = localExpression as ELMQuery;
-        // confirm alias matches scope
-        const source = findSourcewithScope(query, prop.property.scope);
-        if (source && retrieve.retrieveLocalId && findClauseInExpression(source.expression, retrieve.retrieveLocalId)) {
+        if (prop.property.scope) {
+          // confirm alias matches scope
+          const source = findSourcewithScope(query, prop.property.scope);
+          return (
+            source && retrieve.retrieveLocalId && findClauseInExpression(source.expression, retrieve.retrieveLocalId)
+          );
+        } else if (prop.property.source && 'name' in prop.property.source && prop.property.source.name) {
+          // assume property.source
+
+          // traverse from end of the stack to check all function definitions use retrieve resource as operand
+          for (let i = prop.stack.length - 1; prop.stack[i].localId !== localExpression.localId; i--) {
+            // console.log(scores[i]);
+            if (prop.stack[i].type === 'FunctionDef') {
+              const lib = allELM.find(e => e.library.identifier.id === prop.stack[i].libraryName);
+              const functionStatement = lib?.library.statements.def.find(s => s.localId === prop.stack[i].localId);
+              if (!functionStatement) {
+                throw Error(
+                  `Unable to find function definition statement with localId ${prop.stack[i].localId} in library ${prop.stack[i].libraryName}`
+                );
+              }
+              if (!checkFunctionDefMatch(functionStatement, prop.property.source.name)) {
+                return false;
+              }
+            }
+          }
+
           return true;
         } else {
-          return false;
+          // should never hit this case based on earlier checks
+          throw Error(
+            'Property scope or source name has already been checked, but is still not found. Something is wrong with the logic.'
+          );
         }
       } else {
         // TODO: handle other types
@@ -604,6 +640,15 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
     }
     return false;
   });
+}
+
+// return true if function def operand matches the passed source name
+export function checkFunctionDefMatch(statement: ELMStatement, name: string) {
+  if (Array.isArray(statement.operand)) {
+    return statement.operand.find(o => 'name' in o && o.name && o.name === name);
+  } else {
+    return 'name' in statement.operand && statement.operand.name && statement.operand.name === name;
+  }
 }
 
 // TODO: this is incomplete, needs more cases! and less strict type assumptions
