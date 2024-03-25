@@ -603,32 +603,9 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
           return (
             source && retrieve.retrieveLocalId && findClauseInExpression(source.expression, retrieve.retrieveLocalId)
           );
-        } else if (prop.property.source && 'name' in prop.property.source && prop.property.source.name) {
-          // assume property.source
-
-          // traverse from end of the stack to check all function definitions use retrieve resource as operand
-          for (let i = prop.stack.length - 1; prop.stack[i].localId !== localExpression.localId; i--) {
-            // console.log(scores[i]);
-            if (prop.stack[i].type === 'FunctionDef') {
-              const lib = allELM.find(e => e.library.identifier.id === prop.stack[i].libraryName);
-              const functionStatement = lib?.library.statements.def.find(s => s.localId === prop.stack[i].localId);
-              if (!functionStatement) {
-                throw Error(
-                  `Unable to find function definition statement with localId ${prop.stack[i].localId} in library ${prop.stack[i].libraryName}`
-                );
-              }
-              if (!checkFunctionDefMatch(functionStatement, prop.property.source.name)) {
-                return false;
-              }
-            }
-          }
-
-          return true;
         } else {
-          // should never hit this case based on earlier checks
-          throw Error(
-            'Property scope or source name has already been checked, but is still not found. Something is wrong with the logic.'
-          );
+          // assume property.source (checked above)
+          return checkStackFunctionDefs(prop, stackMatch.localId, allELM);
         }
       } else {
         // TODO: handle other types
@@ -640,6 +617,30 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
     }
     return false;
   });
+}
+
+// traverse from end of the stack to check all function definitions use retrieve resource as operand
+export function checkStackFunctionDefs(prop: PropertyTracker, matchId: string, allELM: ELM[]) {
+  if (prop.property.source && 'name' in prop.property.source && prop.property.source.name) {
+    for (let i = prop.stack.length - 1; prop.stack[i].localId !== matchId; i--) {
+      // console.log(scores[i]);
+      if (prop.stack[i].type === 'FunctionDef') {
+        const lib = allELM.find(e => e.library.identifier.id === prop.stack[i].libraryName);
+        const functionStatement = lib?.library.statements.def.find(s => s.localId === prop.stack[i].localId);
+        if (!functionStatement) {
+          throw Error(
+            `Unable to find function definition statement with localId ${prop.stack[i].localId} in library ${prop.stack[i].libraryName}`
+          );
+        }
+        if (!checkFunctionDefMatch(functionStatement, prop.property.source.name)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  // stack can only be searched if we have a source with a name
+  return false;
 }
 
 // return true if function def operand matches the passed source name
