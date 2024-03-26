@@ -450,6 +450,7 @@ The options that we support for calculation are as follows:
 
 - `[buildStatementLevelHTML]`<[boolean](#calculation-options)>: Builds and returns HTML at the statement level (default: `false`)
 - `[calculateClauseCoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause coverage highlighting (default: `true`)
+- `[calculateClauseUncoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause coverage highlighting (default: `true`)
 - `[calculateHTML]`<[boolean](#calculation-options)>: Include HTML structure for highlighting (default: `true`)
 - `[calculateSDEs]`<[boolean](#calculation-options)>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
 - `[clearElmJsonsCache]`<[boolean](#calculation-options)>: If `true`, clears ELM JSON cache before running calculation (default: `false`)
@@ -946,6 +947,30 @@ const { results, groupClauseCoverageHTML } = await Calculator.calculate(measureB
 /*      ^?
         {
           'population-group-1': '<div><h2> population-group-1 Clause Coverage: X%</h2> ...'
+          ...
+        }
+
+
+*/
+```
+
+### Uncoverage Highlighting
+
+`fqm-execution` can also generate highlighted HTML that indicate which pieces of the measure logic which did NOT have a "truthy" value during calculation. This is the complement to coverage. Clauses that are not covered will be highlighted red.
+
+HTML strings are returned for each group defined in the `Measure` resource as a lookup object `groupClauseUncoverageHTML` similarly to Group Clause Coverage.
+
+```typescript
+import { Calculator } from 'fqm-execution';
+
+const { results, groupClauseUncoverageHTML } = await Calculator.calculate(measureBundle, patientBundles, {
+  calculateClauseUncoverage: true /* false by default */
+});
+
+// groupClauseUncoverageHTML
+/*      ^?
+        {
+          'population-group-1': '<div><h2> population-group-1 Clause Uncoverage: X clauses</h2> ...'
           ...
         }
 
