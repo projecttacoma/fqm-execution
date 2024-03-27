@@ -14,7 +14,8 @@ import {
   OneOrManyBundles,
   OneOrMultiPatient,
   PopulationGroupResult,
-  DetailedPopulationGroupResult
+  DetailedPopulationGroupResult,
+  ClauseCoverageDetails
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -71,6 +72,7 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
   options.calculateClauseUncoverage = options.calculateClauseUncoverage ?? false;
+  options.calculateCoverageDetails = options.calculateCoverageDetails ?? false;
   options.disableHTMLOrdering = options.disableHTMLOrdering ?? false;
   options.buildStatementLevelHTML = options.buildStatementLevelHTML ?? false;
 
@@ -89,6 +91,7 @@ export async function calculate<T extends CalculationOptions>(
   let overallClauseCoverageHTML: string | undefined;
   let groupClauseCoverageHTML: Record<string, string> | undefined;
   let groupClauseUncoverageHTML: Record<string, string> | undefined;
+  let groupClauseCoverageDetails: Record<string, ClauseCoverageDetails> | undefined;
 
   let newValueSetCache: fhir4.ValueSet[] | undefined = [...valueSetCache];
   const allELM: ELM[] = [];
@@ -298,8 +301,11 @@ export async function calculate<T extends CalculationOptions>(
       }
 
       // grab coverage details
-      if (debugObject && options.enableDebugOutput && options.calculateCoverageDetails) {
-        debugObject.coverageDetails = coverage.details;
+      if (options.calculateCoverageDetails && coverage.details) {
+        groupClauseCoverageDetails = coverage.details;
+        if (debugObject && options.enableDebugOutput) {
+          debugObject.coverageDetails = groupClauseCoverageDetails;
+        }
       }
     }
   }
@@ -337,7 +343,8 @@ export async function calculate<T extends CalculationOptions>(
       }),
     ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
     ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML }),
-    ...(groupClauseUncoverageHTML && { groupClauseUncoverageHTML: groupClauseUncoverageHTML })
+    ...(groupClauseUncoverageHTML && { groupClauseUncoverageHTML: groupClauseUncoverageHTML }),
+    ...(groupClauseCoverageDetails && { groupClauseCoverageDetails: groupClauseCoverageDetails })
   };
 }
 
