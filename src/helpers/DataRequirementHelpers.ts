@@ -1,10 +1,19 @@
 import { Extension } from 'fhir/r4';
-import { CalculationOptions, DataTypeQuery, DRCalculationOutput } from '../types/Calculator';
+import { CalculationOptions, DataTypeQuery, DRCalculationOutput, ExpressionStackEntry } from '../types/Calculator';
 import { GracefulError } from '../types/errors/GracefulError';
 import { EqualsFilter, InFilter, DuringFilter, codeFilterQuery, AttributeFilter } from '../types/QueryFilterTypes';
 import { PatientParameters } from '../compartment-definition/PatientParameters';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
-import { ELM, ELMIdentifier } from '../types/ELMTypes';
+import {
+  AnyELMExpression,
+  ELM,
+  ELMAliasedQuerySource,
+  ELMIdentifier,
+  ELMLast,
+  ELMProperty,
+  ELMQuery,
+  ELMStatement
+} from '../types/ELMTypes';
 import { ExtractedLibrary } from '../types/CQLTypes';
 import * as Execution from '../execution/Execution';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
@@ -16,10 +25,12 @@ import {
   parseQueryInfo
 } from './elm/QueryFilterParser';
 import * as RetrievesHelper from './elm/RetrievesHelper';
-import { uniqBy } from 'lodash';
+import { uniqBy, isEqual } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
+import { findLibraryReference } from './elm/ELMDependencyHelpers';
+import { findClauseInExpression, findClauseInLibrary, findNamedClausesInExpression } from './elm/ELMHelpers';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -71,6 +82,23 @@ export async function getDataRequirements(
 
   await Promise.all(allRetrievesPromises);
 
+  // add main code path as a mustSupport
+  allRetrieves.forEach(retrieve => {
+    if (retrieve.path) {
+      if (retrieve.mustSupport) {
+        retrieve.mustSupport?.push(retrieve.path);
+      } else {
+        retrieve.mustSupport = [retrieve.path];
+      }
+    }
+  });
+  // add property must supports
+  rootLib.library.statements.def.forEach(statement => {
+    if (statement.expression && statement.name != 'Patient') {
+      addMustSupport(allRetrieves, statement, rootLib, elmJSONs);
+    }
+  });
+
   const results: fhir4.Library = {
     resourceType: 'Library',
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
@@ -81,6 +109,7 @@ export async function getDataRequirements(
       const dr = generateDataRequirement(retrieve);
       addFiltersToDataRequirement(retrieve, dr, withErrors);
       addFhirQueryPatternToDataRequirements(dr);
+      dr.mustSupport = retrieve.mustSupport;
       return dr;
     }),
     JSON.stringify
@@ -411,3 +440,274 @@ function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulEr
     return false;
   }
 }
+
+// addMustSupport: find any fields as part of this statement.expression,
+// then search the allRetrieves for that field's context, and add the field to the correct retrieve's mustSupport
+function addMustSupport(allRetrieves: DataTypeQuery[], statement: ELMStatement, rootLib: ELM, allELM: ELM[]) {
+  const propertyExpressions = findPropertyExpressions(statement, [], rootLib, allELM);
+
+  propertyExpressions.forEach(prop => {
+    // find all matches for this property in allRetrieves
+    const retrieveMatches = findRetrieveMatches(prop, allRetrieves, allELM);
+    // add mustSupport for each match (if not already included)
+    retrieveMatches.forEach(match => {
+      if (match.mustSupport) {
+        if (!match.mustSupport.includes(prop.property.path)) {
+          match.mustSupport.push(prop.property.path);
+        }
+      } else {
+        match.mustSupport = [prop.property.path];
+      }
+    });
+  });
+}
+
+export interface PropertyTracker {
+  property: ELMProperty;
+  stack: ExpressionStackEntry[];
+}
+
+/**
+ * recurses across all key/values in an ELM tree structure
+ * finds values with type 'Property' and assumes they are ELMProperty type objects
+ *
+ * @param exp the current expression (top node) of the tree to search for Properties
+ * @param currentStack stack entries that led to this expression (not including this expression)
+ * @param lib library context for this expression
+ * @param allLib all elm libraries
+ * @returns array of all properties found in this expression's tree
+ */
+export function findPropertyExpressions(
+  exp: object,
+  currentStack: ExpressionStackEntry[],
+  lib: ELM,
+  allLib: ELM[]
+): PropertyTracker[] {
+  if (typeof exp !== 'object') {
+    return [];
+  }
+  // ... only do this for objects TODO next
+  const thisStackEntry: ExpressionStackEntry = {
+    type: 'type' in exp && exp.type ? (exp.type as string) : 'unknown',
+    localId: 'localId' in exp && exp.localId ? (exp.localId as string) : 'unknown',
+    libraryName: lib.library.identifier.id
+  };
+
+  if ('type' in exp && exp.type && exp.type === 'Property') {
+    // base case found property expression
+    const prop = exp as ELMProperty;
+    if (prop.source) {
+      // add this expression to current stack before recursing on .source
+      return [
+        { property: prop, stack: currentStack },
+        ...findPropertyExpressions(prop.source, currentStack.concat([thisStackEntry]), lib, allLib)
+      ];
+    } else {
+      return [{ property: prop, stack: currentStack }];
+    }
+  } else if (
+    'type' in exp &&
+    exp.type &&
+    (exp.type === 'FunctionRef' || exp.type === 'ExpressionRef') &&
+    'name' in exp &&
+    exp.name
+  ) {
+    // handle references that go to different libraries
+
+    // TODO: do we have to worry about ParameterRef as well?
+    if ('operand' in exp && exp.operand) {
+      const properties = findPropertyExpressions(exp.operand, currentStack.concat([thisStackEntry]), lib, allLib);
+      if (properties.length > 0) {
+        // if we find the property(s) in the operand, we can short-circuit the search without going to a different library
+        return properties;
+      }
+    }
+    let newLib;
+    // find new lib if libraryName exists, otherwise use current lib
+    if ('libraryName' in exp && exp.libraryName) {
+      newLib = findLibraryReference(lib, allLib, exp.libraryName as string);
+      if (!newLib) {
+        throw new UnexpectedResource(`Cannot Find Referenced Library: ${exp.libraryName}`);
+      }
+    } else {
+      newLib = lib;
+    }
+    const newExp = findNameinLib(exp.name as string, newLib);
+    if (!newExp) {
+      // If we can't uniquely identify the reference, warn and explode immediate expression in current library context
+      console.warn(
+        `Issue with searching for properties within ${exp.name} in library ${lib.library.identifier.id}. Could not identify reference because it is overloaded or doesn't exist.`
+      );
+      return findPropertyExpressions(Object.values(exp), currentStack.concat([thisStackEntry]), lib, allLib);
+    }
+    return findPropertyExpressions(newExp, currentStack.concat([thisStackEntry]), newLib, allLib);
+  } else if (Array.isArray(exp)) {
+    return exp.flatMap(elem => findPropertyExpressions(elem, currentStack, lib, allLib));
+  } else {
+    // non property object, recurse all children values
+    return findPropertyExpressions(Object.values(exp), currentStack.concat([thisStackEntry]), lib, allLib);
+  }
+}
+
+// find the expression in this library that matches the passed name
+// if there are issues uniquely identifying one, return null
+export function findNameinLib(name: string, lib: ELM): AnyELMExpression | ELMStatement | null {
+  // search statements first and return expression
+  const namedStatement = lib.library.statements.def.filter(statement => statement.name === name);
+  if (namedStatement.length > 0) {
+    if (namedStatement.length === 1) {
+      return namedStatement[0];
+    } else {
+      // if multiple come up, then it's overloaded (we can't handle)
+      return null;
+    }
+  }
+
+  // search expressions in statements
+  const foundNames = lib.library.statements.def.flatMap(statement =>
+    findNamedClausesInExpression(statement.expression, name)
+  );
+  if (foundNames.length !== 1) {
+    // if multiple come up, then it's overloaded (we can't handle). If 0 come up, it's ill-formed.
+    return null;
+  }
+  // TODO: fix statement return (don't want to search annotations)
+  return foundNames[0];
+}
+
+// search retrieves for any that match this property's stack and alias context
+export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQuery[], allELM: ELM[]): DataTypeQuery[] {
+  // basic checks that the property is matchable
+  if (prop.property.source) {
+    // source must have operandref and name (TODO: check this is true)
+    if (prop.property.source.type !== 'OperandRef' || !('name' in prop.property.source) || !prop.property.source.name)
+      return [];
+  } else {
+    // must have either source or scope
+    if (!prop.property.scope) return [];
+  }
+
+  return retrieves.filter(retrieve => {
+    const stackMatch = prop.stack.findLast(ps => {
+      // find the last property stack entry that matches any entry in the retrieve stack
+      return retrieve.expressionStack?.some(
+        rs => isEqual(ps, rs) //test object equality
+      );
+    });
+    // TODO: any other things that fall into this category Or/And/Exists
+    if (stackMatch?.type === 'Or' || stackMatch?.type === 'And' || stackMatch?.type === 'Exists') {
+      return false;
+    }
+
+    if (stackMatch) {
+      const matchIdx = prop.stack.findIndex(s => s.localId === stackMatch.localId);
+      if (prop.property.scope) {
+        // travel the stack looking for nearest queries (limited by stackMatch)
+        const scopedQuery = findStackScopedQuery(prop.stack.slice(matchIdx), prop.property.scope, allELM);
+
+        if (!scopedQuery) return false;
+        const { query, position, source } = scopedQuery;
+        // if the query is our stackMatch, stop here, otherwise continue with query source
+        if (position === 0) {
+          // confirm alias matches scope
+          return (
+            source && retrieve.retrieveLocalId && findClauseInExpression(source.expression, retrieve.retrieveLocalId)
+          );
+        }
+        if ('name' in source.expression && source.expression.name) {
+          return checkStackFunctionDefs(
+            prop.stack.slice(matchIdx, matchIdx + position),
+            source.expression.name,
+            allELM
+          );
+        }
+        return false;
+      } else {
+        // assume property.source (checked above)
+        if (prop.property.source && 'name' in prop.property.source && prop.property.source.name) {
+          // slice property stack from stackMatch id to end
+          return checkStackFunctionDefs(prop.stack.slice(matchIdx), prop.property.source.name, allELM);
+        }
+        return false;
+      }
+    }
+  });
+}
+
+// traverse from end of the stack to find the nearest query that has alias labeled with the passed scope
+export function findStackScopedQuery(stack: ExpressionStackEntry[], scope: string, allELM: ELM[]) {
+  for (let i = stack.length - 1; i >= 0; i--) {
+    // ... should stop if it sees an expression ref
+    if (stack[i].type === 'Query') {
+      //  1..* --> source : AliasedQuerySource... alias
+      // ¦
+      // 0..* --> let : LetClause ...identifier queryletref
+      // ¦
+      // 0..* --> relationship : RelationshipClause ...suchThat
+      if (stack[i].localId === 'unknown' || stack[i].libraryName === 'unknown') {
+        // TODO: how do we handle this case (example AI&F query below localId 180 has no localId)
+        continue;
+      }
+      const queryExpression = expressionFromStackEntry(stack[i], allELM);
+      const source = queryExpression.source.find(s => s.alias === scope);
+      if (source) {
+        return { query: queryExpression, position: i, source: source };
+      }
+    }
+  }
+  return null;
+}
+
+// Pull actual expression from stack entry information. Assumes stack entry information exists in libraries (otherwise error)
+export function expressionFromStackEntry(stackEntry: ExpressionStackEntry, allELM: ELM[]) {
+  const lib = allELM.find(e => e.library.identifier.id === stackEntry.libraryName);
+  if (!lib) {
+    throw Error(`Could not find library with identifier ${stackEntry.libraryName}`);
+  }
+  const expression = findClauseInLibrary(lib, stackEntry.localId) as ELMQuery;
+  if (!expression) {
+    throw Error(
+      `Could not find ${stackEntry.type} type expression in ${stackEntry.libraryName} with localId ${stackEntry.localId}`
+    );
+  }
+  return expression;
+}
+
+// traverse from end of the stack to check all function definitions use name in operand
+// TODO: need to traverse from end in order to change approach partway up, or can we traverse from beginning?
+export function checkStackFunctionDefs(stack: ExpressionStackEntry[], name: string, allELM: ELM[]) {
+  // return false if no function defs
+  if (!stack.find(s => s.type === 'FunctionDef')) return false;
+
+  for (let i = stack.length - 1; i >= 0; i--) {
+    if (stack[i].type === 'FunctionDef') {
+      const lib = allELM.find(e => e.library.identifier.id === stack[i].libraryName);
+      const functionStatement = lib?.library.statements.def.find(s => s.localId === stack[i].localId);
+      if (!functionStatement) {
+        throw Error(
+          `Unable to find function definition statement with localId ${stack[i].localId} in library ${stack[i].libraryName}`
+        );
+      }
+      if (!checkFunctionDefMatch(functionStatement, name)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// return true if function def operand matches the passed source name
+export function checkFunctionDefMatch(statement: ELMStatement, name: string) {
+  if (Array.isArray(statement.operand)) {
+    return statement.operand.find(o => 'name' in o && o.name && o.name === name);
+  } else {
+    return 'name' in statement.operand && statement.operand.name && statement.operand.name === name;
+  }
+}
+
+// Special case TODO: function ref madness
+// Special case TODO 2: expression ref layers (pair and debug cases with Hoss)
+// Special case TODO 3: last of... means that matching up the source will require special handling
+
+// ... start making unit tests (cql to elm test data)
+// think about what else needs to be tested (i.e. which create function to identify which retrieve is providing the results for an expression ref)

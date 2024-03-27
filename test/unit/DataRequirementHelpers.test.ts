@@ -4,6 +4,7 @@ import { CalculationOptions, DataTypeQuery } from '../../src/types/Calculator';
 import { DataRequirement } from 'fhir/r4';
 import { DateTime, Interval } from 'cql-execution';
 import moment from 'moment';
+import { ELM, ELMAliasedQuerySource, ELMQuery } from '../../src';
 
 describe('DataRequirementHelpers', () => {
   describe('generateDataRequirement', () => {
@@ -306,6 +307,241 @@ describe('DataRequirementHelpers', () => {
       expect(DataRequirementHelpers.createIntervalFromEndpoints(undefined, end)).toEqual(
         new Interval(startCql, endCql)
       );
+    });
+  });
+  describe('findPropertyExpressions', () => {
+    test('find properties in array', () => {
+      const expression = {
+        type: 'anyType',
+        localId: '0',
+        anyField: [
+          {
+            localId: '1',
+            type: 'Property'
+          },
+          {
+            localId: '2',
+            type: 'Other'
+          },
+          {
+            localId: '3',
+            type: 'Property'
+          }
+        ]
+      };
+      const elm: ELM = {
+        library: {
+          identifier: {
+            id: 'libraryId',
+            version: 'libraryVersion'
+          },
+          schemaIdentifier: {
+            id: 'schemaId',
+            version: 'schemaVersion'
+          },
+          usings: {},
+          statements: {
+            def: [
+              {
+                name: 'testStatement',
+                context: 'Patient',
+                expression: expression
+              }
+            ]
+          }
+        }
+      };
+      const propertyExpressions = DataRequirementHelpers.findPropertyExpressions(expression, [], elm, [elm]);
+      const expectedPropertyExpressions = [
+        {
+          property: {
+            localId: '1',
+            type: 'Property'
+          },
+          stack: [
+            {
+              type: 'anyType',
+              localId: '0',
+              libraryName: 'libraryId'
+            }
+          ]
+        },
+        {
+          property: {
+            localId: '3',
+            type: 'Property'
+          },
+          stack: [
+            {
+              type: 'anyType',
+              localId: '0',
+              libraryName: 'libraryId'
+            }
+          ]
+        }
+      ];
+
+      expect(propertyExpressions).toEqual(expectedPropertyExpressions);
+    });
+
+    test('find properties in object', () => {
+      const expression = {
+        type: 'anyType',
+        localId: '0',
+        anyField1: {
+          localId: '1',
+          type: 'Property'
+        },
+        anyField2: {
+          localId: '2',
+          type: 'Other'
+        },
+        anyField3: {
+          localId: '3',
+          type: 'Property'
+        }
+      };
+      const elm: ELM = {
+        library: {
+          identifier: {
+            id: 'libraryId',
+            version: 'libraryVersion'
+          },
+          schemaIdentifier: {
+            id: 'schemaId',
+            version: 'schemaVersion'
+          },
+          usings: {},
+          statements: {
+            def: [
+              {
+                name: 'testStatement',
+                context: 'Patient',
+                expression: expression
+              }
+            ]
+          }
+        }
+      };
+      const propertyExpressions = DataRequirementHelpers.findPropertyExpressions(expression, [], elm, [elm]);
+      const expectedPropertyExpressions = [
+        {
+          property: {
+            localId: '1',
+            type: 'Property'
+          },
+          stack: [
+            {
+              type: 'anyType',
+              localId: '0',
+              libraryName: 'libraryId'
+            }
+          ]
+        },
+        {
+          property: {
+            localId: '3',
+            type: 'Property'
+          },
+          stack: [
+            {
+              type: 'anyType',
+              localId: '0',
+              libraryName: 'libraryId'
+            }
+          ]
+        }
+      ];
+
+      expect(propertyExpressions).toEqual(expectedPropertyExpressions);
+    });
+  });
+
+  describe('findRetrieveMatches', () => {
+    test('simple retrieve match', () => {
+      const stack = [
+        {
+          type: 'Query',
+          localId: '0',
+          libraryName: 'libraryId'
+        }
+      ];
+      const retrieve: DataTypeQuery = {
+        dataType: 'fhir_type',
+        path: 'status',
+        templateId: 'http://hl7.org/fhir/StructureDefinition/fhir_type',
+        expressionStack: stack,
+        retrieveLocalId: '1'
+      };
+      const property: DataRequirementHelpers.PropertyTracker = {
+        property: {
+          localId: '2',
+          type: 'Property',
+          path: 'status',
+          scope: 'TestScope'
+        },
+        stack: stack
+      };
+      const expression: ELMQuery = {
+        type: 'Query',
+        localId: '0',
+        source: [
+          {
+            alias: 'TestScope',
+            expression: {
+              type: 'Retrieve',
+              localId: '1'
+            }
+          }
+        ],
+        relationship: [],
+        where: property.property
+      };
+      const elm: ELM = {
+        library: {
+          identifier: {
+            id: 'libraryId',
+            version: 'libraryVersion'
+          },
+          schemaIdentifier: {
+            id: 'schemaId',
+            version: 'schemaVersion'
+          },
+          usings: {},
+          statements: {
+            def: [
+              {
+                name: 'testStatement',
+                context: 'Patient',
+                expression: expression
+              }
+            ]
+          }
+        }
+      };
+      const expectedRetrieveMatches = [retrieve];
+      const retrieveMatches = DataRequirementHelpers.findRetrieveMatches(property, [retrieve], [elm]);
+      expect(retrieveMatches).toEqual(expectedRetrieveMatches);
+    });
+  });
+
+  describe('findSourceWithScope', () => {
+    test('simple source', () => {
+      const source: ELMAliasedQuerySource = {
+        expression: {
+          type: 'AnyType',
+          localId: '1'
+        },
+        alias: 'testScope'
+      };
+      const expression: ELMQuery = {
+        type: 'Query',
+        localId: '0',
+        relationship: [],
+        source: [source]
+      };
+
+      expect(DataRequirementHelpers.findSourcewithScope(expression, 'testScope')).toEqual(source);
     });
   });
 });
