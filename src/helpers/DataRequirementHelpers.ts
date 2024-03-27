@@ -82,7 +82,17 @@ export async function getDataRequirements(
 
   await Promise.all(allRetrievesPromises);
 
-  // add must supports
+  // add main code path as a mustSupport
+  allRetrieves.forEach(retrieve => {
+    if (retrieve.path) {
+      if (retrieve.mustSupport) {
+        retrieve.mustSupport?.push(retrieve.path);
+      } else {
+        retrieve.mustSupport = [retrieve.path];
+      }
+    }
+  });
+  // add property must supports
   rootLib.library.statements.def.forEach(statement => {
     if (statement.expression && statement.name != 'Patient') {
       addMustSupport(allRetrieves, statement, rootLib, elmJSONs);
@@ -584,63 +594,106 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
         rs => isEqual(ps, rs) //test object equality
       );
     });
+    // TODO: any other things that fall into this category Or/And/Exists
+    if (stackMatch?.type === 'Or' || stackMatch?.type === 'And' || stackMatch?.type === 'Exists') {
+      return false;
+    }
 
     if (stackMatch) {
-      // find stackMatch in allELM
-      const library = allELM.find(lib => lib.library.identifier.id === stackMatch.libraryName);
-      if (!library) {
-        throw new Error(`Could not find library with id ${stackMatch.libraryName}`);
-      }
-      const localExpression = findClauseInLibrary(library, stackMatch.localId);
-      if (!localExpression) {
-        throw new Error(`Could not find expression ${stackMatch.localId} in library with id ${stackMatch.libraryName}`);
-      }
-      if (localExpression?.type === 'Query') {
-        const query = localExpression as ELMQuery;
-        if (prop.property.scope) {
+      const matchIdx = prop.stack.findIndex(s => s.localId === stackMatch.localId);
+      if (prop.property.scope) {
+        // travel the stack looking for nearest queries (limited by stackMatch)
+        const scopedQuery = findStackScopedQuery(prop.stack.slice(matchIdx), prop.property.scope, allELM);
+
+        if (!scopedQuery) return false;
+        const { query, position, source } = scopedQuery;
+        // if the query is our stackMatch, stop here, otherwise continue with query source
+        if (position === 0) {
           // confirm alias matches scope
-          const source = findSourcewithScope(query, prop.property.scope);
           return (
             source && retrieve.retrieveLocalId && findClauseInExpression(source.expression, retrieve.retrieveLocalId)
           );
-        } else {
-          // assume property.source (checked above)
-          return checkStackFunctionDefs(prop, stackMatch.localId, allELM);
         }
+        if ('name' in source.expression && source.expression.name) {
+          return checkStackFunctionDefs(
+            prop.stack.slice(matchIdx, matchIdx + position),
+            source.expression.name,
+            allELM
+          );
+        }
+        return false;
       } else {
-        // TODO: handle other types
-        //  - TODO: what if no source, i.e. 160
-        // TODO: will this always be a query? What else? If not, what's our source for alias matching?
-        // ... could be a last or first
+        // assume property.source (checked above)
+        if (prop.property.source && 'name' in prop.property.source && prop.property.source.name) {
+          // slice property stack from stackMatch id to end
+          return checkStackFunctionDefs(prop.stack.slice(matchIdx), prop.property.source.name, allELM);
+        }
         return false;
       }
     }
-    return false;
   });
 }
 
-// traverse from end of the stack to check all function definitions use retrieve resource as operand
-export function checkStackFunctionDefs(prop: PropertyTracker, matchId: string, allELM: ELM[]) {
-  if (prop.property.source && 'name' in prop.property.source && prop.property.source.name) {
-    for (let i = prop.stack.length - 1; prop.stack[i].localId !== matchId; i--) {
-      // console.log(scores[i]);
-      if (prop.stack[i].type === 'FunctionDef') {
-        const lib = allELM.find(e => e.library.identifier.id === prop.stack[i].libraryName);
-        const functionStatement = lib?.library.statements.def.find(s => s.localId === prop.stack[i].localId);
-        if (!functionStatement) {
-          throw Error(
-            `Unable to find function definition statement with localId ${prop.stack[i].localId} in library ${prop.stack[i].libraryName}`
-          );
-        }
-        if (!checkFunctionDefMatch(functionStatement, prop.property.source.name)) {
-          return false;
-        }
+// traverse from end of the stack to find the nearest query that has alias labeled with the passed scope
+export function findStackScopedQuery(stack: ExpressionStackEntry[], scope: string, allELM: ELM[]) {
+  for (let i = stack.length - 1; i >= 0; i--) {
+    // ... should stop if it sees an expression ref
+    if (stack[i].type === 'Query') {
+      //  1..* --> source : AliasedQuerySource... alias
+      // ¦
+      // 0..* --> let : LetClause ...identifier queryletref
+      // ¦
+      // 0..* --> relationship : RelationshipClause ...suchThat
+      if (stack[i].localId === 'unknown' || stack[i].libraryName === 'unknown') {
+        // TODO: how do we handle this case (example AI&F query below localId 180 has no localId)
+        continue;
+      }
+      const queryExpression = expressionFromStackEntry(stack[i], allELM);
+      const source = queryExpression.source.find(s => s.alias === scope);
+      if (source) {
+        return { query: queryExpression, position: i, source: source };
       }
     }
-    return true;
   }
-  // stack can only be searched if we have a source with a name
-  return false;
+  return null;
+}
+
+// Pull actual expression from stack entry information. Assumes stack entry information exists in libraries (otherwise error)
+export function expressionFromStackEntry(stackEntry: ExpressionStackEntry, allELM: ELM[]) {
+  const lib = allELM.find(e => e.library.identifier.id === stackEntry.libraryName);
+  if (!lib) {
+    throw Error(`Could not find library with identifier ${stackEntry.libraryName}`);
+  }
+  const expression = findClauseInLibrary(lib, stackEntry.localId) as ELMQuery;
+  if (!expression) {
+    throw Error(
+      `Could not find ${stackEntry.type} type expression in ${stackEntry.libraryName} with localId ${stackEntry.localId}`
+    );
+  }
+  return expression;
+}
+
+// traverse from end of the stack to check all function definitions use name in operand
+// TODO: need to traverse from end in order to change approach partway up, or can we traverse from beginning?
+export function checkStackFunctionDefs(stack: ExpressionStackEntry[], name: string, allELM: ELM[]) {
+  // return false if no function defs
+  if (!stack.find(s => s.type === 'FunctionDef')) return false;
+
+  for (let i = stack.length - 1; i >= 0; i--) {
+    if (stack[i].type === 'FunctionDef') {
+      const lib = allELM.find(e => e.library.identifier.id === stack[i].libraryName);
+      const functionStatement = lib?.library.statements.def.find(s => s.localId === stack[i].localId);
+      if (!functionStatement) {
+        throw Error(
+          `Unable to find function definition statement with localId ${stack[i].localId} in library ${stack[i].libraryName}`
+        );
+      }
+      if (!checkFunctionDefMatch(functionStatement, name)) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 // return true if function def operand matches the passed source name
@@ -650,36 +703,6 @@ export function checkFunctionDefMatch(statement: ELMStatement, name: string) {
   } else {
     return 'name' in statement.operand && statement.operand.name && statement.operand.name === name;
   }
-}
-
-// TODO: this is incomplete, needs more cases! and less strict type assumptions
-export function findSourcewithScope(
-  exp: ELMQuery | ELMLast | ELMProperty,
-  scope: string
-): ELMAliasedQuerySource | undefined {
-  let source;
-  if (exp.type === 'Query') {
-    source = exp.source?.find(s => s.alias === scope);
-  } else if (exp.type === 'Last') {
-    const lastQuery = exp.source as ELMQuery; //TODO: is this okay? -> no
-    source = lastQuery.source?.find(s => s.alias === scope);
-  } else if (exp.type === 'Property') {
-    // TODO: handle this case??
-  }
-  if (!source) {
-    // also check any let expression sources
-    if ('let' in exp && exp.let) {
-      for (let i = 0; !source && i < exp.let.length; i++) {
-        const letClause = exp.let[i];
-        if ('source' in letClause.expression && letClause.expression.source) {
-          source = findSourcewithScope(letClause.expression, scope);
-        }
-      }
-    }
-  }
-  // check across non-query types?
-
-  return source;
 }
 
 // Special case TODO: function ref madness
