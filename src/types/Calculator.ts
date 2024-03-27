@@ -404,6 +404,9 @@ export interface CalculationOutput<T extends CalculationOptions> extends Calcula
   groupClauseCoverageDetails?: Record<string, ClauseCoverageDetails>;
 }
 
+/**
+ * Details on clause coverage for group calculation.
+ */
 export interface ClauseCoverageDetails {
   totalClauseCount: number;
   coveredClauseCount: number;

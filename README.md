@@ -450,7 +450,8 @@ The options that we support for calculation are as follows:
 
 - `[buildStatementLevelHTML]`<[boolean](#calculation-options)>: Builds and returns HTML at the statement level (default: `false`)
 - `[calculateClauseCoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause coverage highlighting (default: `true`)
-- `[calculateClauseUncoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause coverage highlighting (default: `true`)
+- `[calculateClauseUncoverage]`<[boolean](#calculation-options)>: Include HTML structure with clause uncoverage highlighting (default: `false`)
+- `[calculateCoverageDetails]`<[boolean](#calculation-options)>: Include details on logic clause coverage. (default: `false`)
 - `[calculateHTML]`<[boolean](#calculation-options)>: Include HTML structure for highlighting (default: `true`)
 - `[calculateSDEs]`<[boolean](#calculation-options)>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
 - `[clearElmJsonsCache]`<[boolean](#calculation-options)>: If `true`, clears ELM JSON cache before running calculation (default: `false`)
@@ -975,6 +976,40 @@ const { results, groupClauseUncoverageHTML } = await Calculator.calculate(measur
         }
 
 
+*/
+```
+
+### Coverage Details
+
+Details on clause coverage can also be returned. This includes a count of how many clauses there are, how many are covered and uncovered, and information about which clauses are uncovered.
+
+This information is returned for each group defined in the `Measure` resource as a lookup object `groupClauseCoverageDetails` similarly to Group Clause Coverage.
+
+```typescript
+import { Calculator } from 'fqm-execution';
+
+const { results, groupClauseCoverageDetails } = await Calculator.calculate(measureBundle, patientBundles, {
+  calculateCoverageDetails: true /* false by default */
+});
+
+// groupClauseCoverageDetails
+/*      ^?
+        {
+          "population-group-1": {
+            "totalClauseCount": 333,
+            "coveredClauseCount": 330,
+            "uncoveredClauseCount": 3,
+            "uncoveredClauses": [
+              {
+                "localId": "97",
+                "libraryName": "MAT6725TestingMeasureCoverage",
+                "statementName": "Has Medical or Patient Reason for Not Ordering ACEI or ARB or ARNI"
+              },
+              ...
+            ]
+          }
+          ...
+        }
 */
 ```
 
