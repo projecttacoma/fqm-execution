@@ -971,7 +971,7 @@ const { results, groupClauseUncoverageHTML } = await Calculator.calculate(measur
 // groupClauseUncoverageHTML
 /*      ^?
         {
-          'population-group-1': '<div><h2> population-group-1 Clause Uncoverage: X clauses</h2> ...'
+          'population-group-1': '<div><h2> population-group-1 Clause Uncoverage: X of Y clauses</h2> ...'
           ...
         }
 

@@ -309,7 +309,9 @@ export function generateClauseCoverageHTML<T extends CalculationOptions>(
     // setup initial html for uncoverage
     let uncoverageHtmlString = '';
     if (options.calculateClauseUncoverage) {
-      uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} clauses</h2>`;
+      uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} of ${
+        clauseCoverage.coveredClauses.length + clauseCoverage.uncoveredClauses.length
+      } clauses</h2>`;
     }
 
     // generate HTML clauses using hbs template for each annotation
