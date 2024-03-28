@@ -935,7 +935,7 @@ The highlighted HTML also provides an approximate percentage for what percentage
 
 ![Screenshot of Highlighted Clause Coverage HTML](./static/coverage-highlighting-example.png)
 
-HTML strings are returned for each group defined in the `Measure` resource as a lookup object `groupClauseCoverageHTML` which maps `group ID -> HTML string`
+HTML strings are returned for each group defined in the `Measure` resource in the lookup object, `groupClauseCoverageHTML`, which maps `group ID -> HTML string`
 
 ```typescript
 import { Calculator } from 'fqm-execution';
@@ -957,9 +957,9 @@ const { results, groupClauseCoverageHTML } = await Calculator.calculate(measureB
 
 ### Uncoverage Highlighting
 
-`fqm-execution` can also generate highlighted HTML that indicate which pieces of the measure logic which did NOT have a "truthy" value during calculation. This is the complement to coverage. Clauses that are not covered will be highlighted red.
+`fqm-execution` can also generate highlighted HTML that indicate which pieces of the measure logic did NOT have a "truthy" value during calculation. This is the complement to coverage. Clauses that are not covered will be highlighted red.
 
-HTML strings are returned for each group defined in the `Measure` resource as a lookup object `groupClauseUncoverageHTML` similarly to Group Clause Coverage.
+HTML strings are returned for each group defined in the `Measure` resource in the lookup object,`groupClauseUncoverageHTML`, which is structured similarly to Group Clause Coverage.
 
 ```typescript
 import { Calculator } from 'fqm-execution';
@@ -983,7 +983,7 @@ const { results, groupClauseUncoverageHTML } = await Calculator.calculate(measur
 
 Details on clause coverage can also be returned. This includes a count of how many clauses there are, how many are covered and uncovered, and information about which clauses are uncovered.
 
-This information is returned for each group defined in the `Measure` resource as a lookup object `groupClauseCoverageDetails` similarly to Group Clause Coverage.
+This information is returned for each group defined in the `Measure` resource in the lookup object,`groupClauseCoverageDetails`, which maps `group ID -> coverageDetails`. See example below for structure of this object.
 
 ```typescript
 import { Calculator } from 'fqm-execution';
