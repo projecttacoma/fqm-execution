@@ -14,7 +14,8 @@ import {
   OneOrManyBundles,
   OneOrMultiPatient,
   PopulationGroupResult,
-  DetailedPopulationGroupResult
+  DetailedPopulationGroupResult,
+  ClauseCoverageDetails
 } from '../types/Calculator';
 import { PopulationType, MeasureScoreType, ImprovementNotation } from '../types/Enums';
 import * as Execution from '../execution/Execution';
@@ -70,6 +71,8 @@ export async function calculate<T extends CalculationOptions>(
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
+  options.calculateClauseUncoverage = options.calculateClauseUncoverage ?? false;
+  options.calculateCoverageDetails = options.calculateCoverageDetails ?? false;
   options.disableHTMLOrdering = options.disableHTMLOrdering ?? false;
   options.buildStatementLevelHTML = options.buildStatementLevelHTML ?? false;
 
@@ -87,6 +90,8 @@ export async function calculate<T extends CalculationOptions>(
   const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [];
   let overallClauseCoverageHTML: string | undefined;
   let groupClauseCoverageHTML: Record<string, string> | undefined;
+  let groupClauseUncoverageHTML: Record<string, string> | undefined;
+  let groupClauseCoverageDetails: Record<string, ClauseCoverageDetails> | undefined;
 
   let newValueSetCache: fhir4.ValueSet[] | undefined = [...valueSetCache];
   const allELM: ELM[] = [];
@@ -251,12 +256,8 @@ export async function calculate<T extends CalculationOptions>(
     patientSource = resolvePatientSource(patientBundles, options);
 
     if (!isCompositeExecution && options.calculateClauseCoverage) {
-      groupClauseCoverageHTML = generateClauseCoverageHTML(
-        measure,
-        executedELM,
-        executionResults,
-        options.disableHTMLOrdering
-      );
+      const coverage = generateClauseCoverageHTML(measure, executedELM, executionResults, options);
+      groupClauseCoverageHTML = coverage.coverage;
       overallClauseCoverageHTML = '';
       Object.entries(groupClauseCoverageHTML).forEach(([groupId, result]) => {
         overallClauseCoverageHTML += result;
@@ -272,12 +273,39 @@ export async function calculate<T extends CalculationOptions>(
           }
         }
       });
+
+      // pull out uncoverage html
+      if (options.calculateClauseUncoverage && coverage.uncoverage) {
+        groupClauseUncoverageHTML = coverage.uncoverage;
+        if (debugObject && options.enableDebugOutput) {
+          Object.entries(groupClauseUncoverageHTML).forEach(([groupId, result]) => {
+            const debugUncoverageHTML = {
+              name: `clause-uncoverage-${groupId}.html`,
+              html: result
+            };
+            if (Array.isArray(debugObject.html)) {
+              debugObject.html.push(debugUncoverageHTML);
+            } else {
+              debugObject.html = [debugUncoverageHTML];
+            }
+          });
+        }
+      }
+
       // don't necessarily need this file, but adding it for backwards compatibility
       if (debugObject && options.enableDebugOutput) {
         debugObject.html?.push({
           name: 'overall-clause-coverage.html',
           html: overallClauseCoverageHTML
         });
+      }
+
+      // grab coverage details
+      if (options.calculateCoverageDetails && coverage.details) {
+        groupClauseCoverageDetails = coverage.details;
+        if (debugObject && options.enableDebugOutput) {
+          debugObject.coverageDetails = groupClauseCoverageDetails;
+        }
       }
     }
   }
@@ -314,7 +342,9 @@ export async function calculate<T extends CalculationOptions>(
         )
       }),
     ...(overallClauseCoverageHTML && { coverageHTML: overallClauseCoverageHTML }),
-    ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML })
+    ...(groupClauseCoverageHTML && { groupClauseCoverageHTML: groupClauseCoverageHTML }),
+    ...(groupClauseUncoverageHTML && { groupClauseUncoverageHTML: groupClauseUncoverageHTML }),
+    ...(groupClauseCoverageDetails && { groupClauseCoverageDetails: groupClauseCoverageDetails })
   };
 }
 

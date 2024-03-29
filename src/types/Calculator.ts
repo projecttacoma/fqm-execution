@@ -24,6 +24,10 @@ export interface CalculationOptions {
   calculateHTML?: boolean;
   /** Include HTML structure with clause coverage highlighting */
   calculateClauseCoverage?: boolean;
+  /** Include HTML structure with clause uncoverage highlighting. Highlights what is not covered */
+  calculateClauseUncoverage?: boolean;
+  /** Include details about the clause coverage. Total clause count, total covered count, info on uncovered clauses. */
+  calculateCoverageDetails?: boolean;
   /** Enable debug output including CQL, ELM, results */
   enableDebugOutput?: boolean;
   /** Enables the return of ELM Libraries and name of main library to be used for further processing. ex. gaps in care */
@@ -354,6 +358,7 @@ export interface DebugOutput {
     retrieves?: DataTypeQuery[];
     bundle?: fhir4.Bundle | fhir4.Bundle[];
   };
+  coverageDetails?: Record<string, ClauseCoverageDetails>;
 }
 
 /*
@@ -395,6 +400,22 @@ export interface CalculationOutput<T extends CalculationOptions> extends Calcula
   parameters?: { [key: string]: any };
   coverageHTML?: string;
   groupClauseCoverageHTML?: Record<string, string>;
+  groupClauseUncoverageHTML?: Record<string, string>;
+  groupClauseCoverageDetails?: Record<string, ClauseCoverageDetails>;
+}
+
+/**
+ * Details on clause coverage for group calculation.
+ */
+export interface ClauseCoverageDetails {
+  totalClauseCount: number;
+  coveredClauseCount: number;
+  uncoveredClauseCount: number;
+  uncoveredClauses: {
+    libraryName: string;
+    statementName: string;
+    localId: string;
+  }[];
 }
 
 /**

@@ -2,6 +2,7 @@ import { Annotation, ELM } from '../types/ELMTypes';
 import Handlebars from 'handlebars';
 import {
   CalculationOptions,
+  ClauseCoverageDetails,
   ClauseResult,
   DetailedPopulationGroupResult,
   ExecutionResult,
@@ -88,6 +89,29 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
       return objToCSS(cqlLogicUncoveredClauseStyle);
     }
   }
+  return '';
+});
+
+// apply highlighting style to uncovered clauses
+Handlebars.registerHelper('highlightUncoverage', (localId, context) => {
+  const libraryName: string = context.data.root.libraryName;
+
+  if (
+    (context.data.root.uncoveredClauses as ClauseResult[]).some(
+      result => result.libraryName === libraryName && result.localId === localId
+    )
+  ) {
+    // Mark with red styling if clause is found in uncoverage list
+    return objToCSS(cqlLogicClauseFalseStyle);
+  } else if (
+    (context.data.root.coveredClauses as ClauseResult[]).some(
+      result => result.libraryName === libraryName && result.localId === localId
+    )
+  ) {
+    // Mark with white (clear out styling) if the clause is in coverage list
+    return objToCSS(cqlLogicUncoveredClauseStyle);
+  }
+  // If this clause has no results then it should not be styled
   return '';
 });
 
@@ -212,14 +236,20 @@ export function generateHTML(
  * @returns a lookup object where the key is the groupId and the value is the
  * clause coverage HTML
  */
-export function generateClauseCoverageHTML(
+export function generateClauseCoverageHTML<T extends CalculationOptions>(
   measure: fhir4.Measure,
   elmLibraries: ELM[],
   executionResults: ExecutionResult<DetailedPopulationGroupResult>[],
-  disableHTMLOrdering?: boolean
-): Record<string, string> {
+  options: T
+): {
+  coverage: Record<string, string>;
+  uncoverage?: Record<string, string>;
+  details?: Record<string, ClauseCoverageDetails>;
+} {
   const groupResultLookup: Record<string, DetailedPopulationGroupResult[]> = {};
-  const htmlGroupLookup: Record<string, string> = {};
+  const coverageHtmlGroupLookup: Record<string, string> = {};
+  const uncoverageHtmlGroupLookup: Record<string, string> = {};
+  const coverageDetailsGroupLookup: Record<string, ClauseCoverageDetails> = {};
 
   // get the detailed result for each group within each patient and add it
   // to the key in groupResults that matches the groupId
@@ -244,7 +274,7 @@ export function generateClauseCoverageHTML(
     // Filter out any statement results where the statement relevance is NA
     const uniqueRelevantStatements = flattenedStatementResults.filter(s => s.relevance !== Relevance.NA);
 
-    if (!disableHTMLOrdering) {
+    if (!options.disableHTMLOrdering) {
       sortStatements(measure, groupId, uniqueRelevantStatements);
     }
 
@@ -270,28 +300,72 @@ export function generateClauseCoverageHTML(
       }
     });
 
-    let htmlString = `<div><h2> ${groupId} Clause Coverage: ${calculateClauseCoverage(
-      uniqueRelevantStatements,
-      flattenedClauseResults
-    )}%</h2>`;
+    const clauseCoverage = calculateClauseCoverage(uniqueRelevantStatements, flattenedClauseResults);
+    const uniqueCoverageClauses = clauseCoverage.coveredClauses.concat(clauseCoverage.uncoveredClauses);
+
+    // setup initial html for coverage
+    let coverageHtmlString = `<div><h2> ${groupId} Clause Coverage: ${clauseCoverage.percentage}%</h2>`;
+
+    // setup initial html for uncoverage
+    let uncoverageHtmlString = '';
+    if (options.calculateClauseUncoverage) {
+      uncoverageHtmlString = `<div><h2> ${groupId} Clause Uncoverage: ${clauseCoverage.uncoveredClauses.length} of ${
+        clauseCoverage.coveredClauses.length + clauseCoverage.uncoveredClauses.length
+      } clauses</h2>`;
+    }
 
     // generate HTML clauses using hbs template for each annotation
     statementAnnotations.forEach(a => {
-      const res = main({
+      coverageHtmlString += main({
         libraryName: a.libraryName,
         statementName: a.statementName,
-        clauseResults: flattenedClauseResults,
+        clauseResults: uniqueCoverageClauses,
         ...a.annotation[0].s,
         highlightCoverage: true
       });
-      htmlString += res;
-    });
-    htmlString += '</div>';
 
-    htmlGroupLookup[groupId] = htmlString;
+      // calculate for uncoverage
+      if (options.calculateClauseUncoverage) {
+        uncoverageHtmlString += main({
+          libraryName: a.libraryName,
+          statementName: a.statementName,
+          uncoveredClauses: clauseCoverage.uncoveredClauses,
+          coveredClauses: clauseCoverage.coveredClauses,
+          ...a.annotation[0].s,
+          highlightUncoverage: true
+        });
+      }
+    });
+    coverageHtmlString += '</div>';
+    uncoverageHtmlString += '</div>';
+
+    coverageHtmlGroupLookup[groupId] = coverageHtmlString;
+    if (options.calculateClauseUncoverage) {
+      uncoverageHtmlGroupLookup[groupId] = uncoverageHtmlString;
+    }
+
+    // If details on coverage are requested, tally them up and add them to the map.
+    if (options.calculateCoverageDetails) {
+      coverageDetailsGroupLookup[groupId] = {
+        totalClauseCount: clauseCoverage.coveredClauses.length + clauseCoverage.uncoveredClauses.length,
+        coveredClauseCount: clauseCoverage.coveredClauses.length,
+        uncoveredClauseCount: clauseCoverage.uncoveredClauses.length,
+        uncoveredClauses: clauseCoverage.uncoveredClauses.map(uncoveredClause => {
+          return {
+            localId: uncoveredClause.localId,
+            libraryName: uncoveredClause.libraryName,
+            statementName: uncoveredClause.statementName
+          };
+        })
+      };
+    }
   });
 
-  return htmlGroupLookup;
+  return {
+    coverage: coverageHtmlGroupLookup,
+    ...(options.calculateClauseUncoverage && { uncoverage: uncoverageHtmlGroupLookup }),
+    ...(options.calculateCoverageDetails && { details: coverageDetailsGroupLookup })
+  };
 }
 
 /**
@@ -301,7 +375,10 @@ export function generateClauseCoverageHTML(
  * @param clauseResults ClauseResult array from calculation
  * @returns percentage out of 100, represented as a string
  */
-export function calculateClauseCoverage(relevantStatements: StatementResult[], clauseResults: ClauseResult[]): string {
+export function calculateClauseCoverage(
+  relevantStatements: StatementResult[],
+  clauseResults: ClauseResult[]
+): { percentage: string; coveredClauses: ClauseResult[]; uncoveredClauses: ClauseResult[] } {
   // find all relevant clauses using statementName and libraryName from relevant statements
   const allRelevantClauses = clauseResults.filter(c =>
     relevantStatements.some(
@@ -317,5 +394,14 @@ export function calculateClauseCoverage(relevantStatements: StatementResult[], c
     allRelevantClauses.filter(clause => clause.final === FinalResult.TRUE),
     (c1, c2) => c1.libraryName === c2.libraryName && c1.localId === c2.localId
   );
-  return ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3);
+
+  const uncoveredClauses = allUniqueClauses.filter(c => {
+    return !coveredClauses.find(coveredC => c.libraryName === coveredC.libraryName && c.localId === coveredC.localId);
+  });
+
+  return {
+    percentage: ((coveredClauses.length / allUniqueClauses.length) * 100).toPrecision(3),
+    coveredClauses,
+    uncoveredClauses
+  };
 }
