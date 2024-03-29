@@ -933,6 +933,8 @@ have a blue background and dashed underline in the highlighted HTML, indicating 
 
 The highlighted HTML also provides an approximate percentage for what percentage of the measure logic is covered by the patients that were passed in to execution.
 
+This option, `calculateClauseCoverage`, defaults to enabled. When running the CLI in `--debug` mode this option will be enabled and output to the debug directory.
+
 ![Screenshot of Highlighted Clause Coverage HTML](./static/coverage-highlighting-example.png)
 
 HTML strings are returned for each group defined in the `Measure` resource in the lookup object, `groupClauseCoverageHTML`, which maps `group ID -> HTML string`
@@ -959,6 +961,8 @@ const { results, groupClauseCoverageHTML } = await Calculator.calculate(measureB
 
 `fqm-execution` can also generate highlighted HTML that indicate which pieces of the measure logic did NOT have a "truthy" value during calculation. This is the complement to coverage. Clauses that are not covered will be highlighted red.
 
+This option, `calculateClauseUncoverage`, defaults to disabled. When running the CLI in `--debug` mode this option will be enabled and output to the debug directory.
+
 HTML strings are returned for each group defined in the `Measure` resource in the lookup object,`groupClauseUncoverageHTML`, which is structured similarly to Group Clause Coverage.
 
 ```typescript
@@ -982,6 +986,8 @@ const { results, groupClauseUncoverageHTML } = await Calculator.calculate(measur
 ### Coverage Details
 
 Details on clause coverage can also be returned. This includes a count of how many clauses there are, how many are covered and uncovered, and information about which clauses are uncovered.
+
+This option, `calculateCoverageDetails`, defaults to disabled. When running the CLI in `--debug` mode this option will be enabled and output to the debug directory.
 
 This information is returned for each group defined in the `Measure` resource in the lookup object,`groupClauseCoverageDetails`, which maps `group ID -> coverageDetails`. See example below for structure of this object.
 
