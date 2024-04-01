@@ -18,28 +18,32 @@ export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
   color: '#20744c',
   'border-bottom-color': '#20744c',
-  'border-bottom-style': 'solid'
+  'border-bottom-style': 'solid',
+  'border-bottom-width': '0.35em'
 };
 
 export const cqlLogicClauseFalseStyle = {
   'background-color': '#edd8d0',
   color: '#a63b12',
   'border-bottom-color': '#a63b12',
-  'border-bottom-style': 'double'
+  'border-bottom-style': 'double',
+  'border-bottom-width': '0.35em'
 };
 
 export const cqlLogicClauseCoveredStyle = {
   'background-color': '#daeaf5',
   color: '#004e82',
   'border-bottom-color': '#006cb4',
-  'border-bottom-style': 'dashed'
+  'border-bottom-style': 'dashed',
+  'border-bottom-width': '0.35em'
 };
 
 export const cqlLogicUncoveredClauseStyle = {
   'background-color': 'white',
   color: 'black',
   'border-bottom-color': 'white',
-  'border-bottom-style': 'solid'
+  'border-bottom-style': 'solid',
+  'border-bottom-width': '0.35em'
 };
 
 /**
