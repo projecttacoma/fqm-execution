@@ -40,6 +40,11 @@ export const cqlLogicUncoveredClauseStyle = {
   color: 'black'
 };
 
+export const cqlLogicUncoveredUncoveredClauseStyle = {
+  'background-color': '#edd8d0',
+  color: '#a63b12'
+};
+
 /**
  * Convert JS object to CSS Style string
  *
@@ -100,7 +105,7 @@ Handlebars.registerHelper('highlightUncoverage', (localId, context) => {
     )
   ) {
     // Mark with red styling if clause is found in uncoverage list
-    return objToCSS(cqlLogicClauseFalseStyle);
+    return objToCSS(cqlLogicUncoveredUncoveredClauseStyle);
   } else if (
     (context.data.root.coveredClauses as ClauseResult[]).some(
       result => result.libraryName === libraryName && result.localId === localId
@@ -209,7 +214,8 @@ export function generateHTML(
         libraryName: s.libraryName,
         statementName: s.statementName,
         clauseResults: clauseResults,
-        ...matchingExpression.annotation[0].s
+        ...matchingExpression.annotation[0].s,
+        highlightLogic: true
       });
       overallHTML += statementHTML;
       if (options?.buildStatementLevelHTML) {
