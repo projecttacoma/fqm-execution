@@ -32,18 +32,12 @@ export const cqlLogicClauseFalseStyle = {
 
 export const cqlLogicClauseCoveredStyle = {
   'background-color': '#daeaf5',
-  color: '#004e82',
-  'border-bottom-color': '#006cb4',
-  'border-bottom-style': 'dashed',
-  'border-bottom-width': '0.35em'
+  color: '#004e82'
 };
 
 export const cqlLogicUncoveredClauseStyle = {
   'background-color': 'white',
-  color: 'black',
-  'border-bottom-color': 'white',
-  'border-bottom-style': 'solid',
-  'border-bottom-width': '0.35em'
+  color: 'black'
 };
 
 /**
