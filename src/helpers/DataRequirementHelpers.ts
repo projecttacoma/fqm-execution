@@ -600,7 +600,9 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
     }
 
     if (stackMatch) {
-      const matchIdx = prop.stack.findIndex(s => s.localId === stackMatch.localId);
+      const matchIdx = prop.stack.findIndex(
+        s => s.localId === stackMatch.localId && s.libraryName === stackMatch.libraryName
+      );
       if (prop.property.scope) {
         // travel the stack looking for nearest queries (limited by stackMatch)
         const scopedQuery = findStackScopedQuery(prop.stack.slice(matchIdx), prop.property.scope, allELM);
@@ -639,11 +641,6 @@ export function findStackScopedQuery(stack: ExpressionStackEntry[], scope: strin
   for (let i = stack.length - 1; i >= 0; i--) {
     // ... should stop if it sees an expression ref
     if (stack[i].type === 'Query') {
-      //  1..* --> source : AliasedQuerySource... alias
-      // ¦
-      // 0..* --> let : LetClause ...identifier queryletref
-      // ¦
-      // 0..* --> relationship : RelationshipClause ...suchThat
       if (stack[i].localId === 'unknown' || stack[i].libraryName === 'unknown') {
         // TODO: how do we handle this case (example AI&F query below localId 180 has no localId)
         continue;
@@ -652,6 +649,14 @@ export function findStackScopedQuery(stack: ExpressionStackEntry[], scope: strin
       const source = queryExpression.source.find(s => s.alias === scope);
       if (source) {
         return { query: queryExpression, position: i, source: source };
+      }
+      const letClause = queryExpression.let?.find(lc => lc.identifier === scope);
+      if (letClause) {
+        return { query: queryExpression, position: i, source: letClause };
+      }
+      const relationshipClause = queryExpression.relationship?.find(r => r.alias === scope);
+      if (relationshipClause) {
+        return { query: queryExpression, position: i, source: relationshipClause };
       }
     }
   }
