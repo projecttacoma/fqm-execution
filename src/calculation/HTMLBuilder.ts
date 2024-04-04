@@ -40,7 +40,7 @@ export const cqlLogicUncoveredClauseStyle = {
   color: 'black'
 };
 
-export const cqlLogicUncoveredUncoveredClauseStyle = {
+export const cqlLogicUncoveredUncoverageClauseStyle = {
   'background-color': '#edd8d0',
   color: '#a63b12'
 };
@@ -105,7 +105,7 @@ Handlebars.registerHelper('highlightUncoverage', (localId, context) => {
     )
   ) {
     // Mark with red styling if clause is found in uncoverage list
-    return objToCSS(cqlLogicUncoveredUncoveredClauseStyle);
+    return objToCSS(cqlLogicUncoveredUncoverageClauseStyle);
   } else if (
     (context.data.root.coveredClauses as ClauseResult[]).some(
       result => result.libraryName === libraryName && result.localId === localId
