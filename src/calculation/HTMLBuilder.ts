@@ -18,28 +18,31 @@ export const cqlLogicClauseTrueStyle = {
   'background-color': '#ccebe0',
   color: '#20744c',
   'border-bottom-color': '#20744c',
-  'border-bottom-style': 'solid'
+  'border-bottom-style': 'solid',
+  'border-bottom-width': '0.35em'
 };
 
 export const cqlLogicClauseFalseStyle = {
   'background-color': '#edd8d0',
   color: '#a63b12',
   'border-bottom-color': '#a63b12',
-  'border-bottom-style': 'double'
+  'border-bottom-style': 'double',
+  'border-bottom-width': '0.35em'
 };
 
 export const cqlLogicClauseCoveredStyle = {
   'background-color': '#daeaf5',
-  color: '#004e82',
-  'border-bottom-color': '#006cb4',
-  'border-bottom-style': 'dashed'
+  color: '#004e82'
 };
 
 export const cqlLogicUncoveredClauseStyle = {
   'background-color': 'white',
-  color: 'black',
-  'border-bottom-color': 'white',
-  'border-bottom-style': 'solid'
+  color: 'black'
+};
+
+export const cqlLogicUncoveredUncoverageClauseStyle = {
+  'background-color': '#edd8d0',
+  color: '#a63b12'
 };
 
 /**
@@ -102,7 +105,7 @@ Handlebars.registerHelper('highlightUncoverage', (localId, context) => {
     )
   ) {
     // Mark with red styling if clause is found in uncoverage list
-    return objToCSS(cqlLogicClauseFalseStyle);
+    return objToCSS(cqlLogicUncoveredUncoverageClauseStyle);
   } else if (
     (context.data.root.coveredClauses as ClauseResult[]).some(
       result => result.libraryName === libraryName && result.localId === localId
@@ -211,7 +214,8 @@ export function generateHTML(
         libraryName: s.libraryName,
         statementName: s.statementName,
         clauseResults: clauseResults,
-        ...matchingExpression.annotation[0].s
+        ...matchingExpression.annotation[0].s,
+        highlightLogic: true
       });
       overallHTML += statementHTML;
       if (options?.buildStatementLevelHTML) {
