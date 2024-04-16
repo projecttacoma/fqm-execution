@@ -515,11 +515,16 @@ export function findPropertyExpressions(
     // handle references that go to different libraries
 
     // TODO: do we have to worry about ParameterRef as well?
+    let operandProperties: PropertyTracker[] = [];
     if ('operand' in exp && exp.operand) {
-      const properties = findPropertyExpressions(exp.operand, currentStack.concat([thisStackEntry]), lib, allLib);
-      if (properties.length > 0) {
-        // if we find the property(s) in the operand, we can short-circuit the search without going to a different library
-        return properties;
+      operandProperties = findPropertyExpressions(exp.operand, currentStack.concat([thisStackEntry]), lib, allLib);
+      if (operandProperties.length > 0) {
+        const idProperty = operandProperties.find(p => p.property.path === 'id');
+        if (!idProperty) {
+          // if we find the property(s) in the operand, we can short-circuit the search without going to a different library
+          // unless it's an "id" property, in which case it may just be a reference finding operation
+          return operandProperties;
+        }
       }
     }
     let newLib;
@@ -540,7 +545,9 @@ export function findPropertyExpressions(
       );
       return findPropertyExpressions(Object.values(exp), currentStack.concat([thisStackEntry]), lib, allLib);
     }
-    return findPropertyExpressions(newExp, currentStack.concat([thisStackEntry]), newLib, allLib);
+    return operandProperties.concat(
+      findPropertyExpressions(newExp, currentStack.concat([thisStackEntry]), newLib, allLib)
+    );
   } else if (Array.isArray(exp)) {
     return exp.flatMap(elem => findPropertyExpressions(elem, currentStack, lib, allLib));
   } else {
