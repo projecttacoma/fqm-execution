@@ -611,9 +611,11 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
         const { query, position, source } = scopedQuery;
         // if the query is our stackMatch, stop here, otherwise continue with query source
         if (position === 0) {
-          // confirm alias matches scope
+          // confirm alias matches scope (i.e. the retrieve is somewhere within the source expression tree)
           return (
-            source && retrieve.retrieveLocalId && findClauseInExpression(source.expression, retrieve.retrieveLocalId)
+            source &&
+            source.expression.localId &&
+            retrieve.expressionStack?.find(st => st.localId === source.expression.localId)
           );
         }
         if ('name' in source.expression && source.expression.name) {
