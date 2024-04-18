@@ -104,6 +104,14 @@ export async function getDataRequirements(
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
     status: 'unknown'
   };
+  // TODO: combine must supports if there are data requirements from the same retrieve that have different mustSupports
+  // combine based on resourcetype/primary code path
+  // allRetrieves[0].templateId
+  // allRetrieves[0].dataType
+  // allRetrieves[0].path
+  // allRetrieves[0].code or allRetrieves[0].valueSet
+  // ^if these 4 things are the same, then it is the same data requirement and we can combine mustSupports
+
   results.dataRequirement = uniqBy(
     allRetrieves.map(retrieve => {
       const dr = generateDataRequirement(retrieve);
@@ -601,12 +609,11 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
         rs => isEqual(ps, rs) //test object equality
       );
     });
-    // TODO: any other things that fall into this category Or/And/Exists
-    if (stackMatch?.type === 'Or' || stackMatch?.type === 'And' || stackMatch?.type === 'Exists') {
-      return false;
-    }
 
     if (stackMatch) {
+      if (stackMatch?.type === 'Or' || stackMatch?.type === 'And' || stackMatch?.type === 'Exists') {
+        return false;
+      }
       const matchIdx = prop.stack.findIndex(
         s => s.localId === stackMatch.localId && s.libraryName === stackMatch.libraryName
       );
@@ -622,7 +629,7 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
           return (
             source &&
             source.expression.localId &&
-            retrieve.expressionStack?.find(st => st.localId === source.expression.localId)
+            !!retrieve.expressionStack?.find(st => st.localId === source.expression.localId)
           );
         }
         if ('name' in source.expression && source.expression.name) {
@@ -642,6 +649,7 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
         return false;
       }
     }
+    return false;
   });
 }
 
