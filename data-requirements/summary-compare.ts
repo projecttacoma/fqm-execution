@@ -132,27 +132,45 @@ async function main() {
 
       // get the data requirements from the elm-parser output that do not exist in the fqm-execution output
       // i.e. is there a data requirement in the fqm-execution output of the same type that has a codeFilter entry with
-      // a valueSet that is the same
-      const missingDRs = elmParserDRByKey.filter(dr =>
-        fqmEDRByKey.every(dr2 => dr.codeFilter?.every(cf => dr2.codeFilter?.every(cf2 => cf.valueSet !== cf2.valueSet)))
-      );
+      // a valueSet that is the same OR a code.code that is the same (same direct reference code)
+      const missingDRs = elmParserDRByKey
+        .filter(dr =>
+          fqmEDRByKey.every(dr2 =>
+            dr.codeFilter?.every(cf => dr2.codeFilter?.every(cf2 => cf.valueSet !== cf2.valueSet))
+          )
+        )
+        .filter(dr =>
+          fqmEDRByKey.every(dr2 =>
+            dr.codeFilter?.every(cf =>
+              dr2.codeFilter?.every(cf2 => cf.code?.every(c => cf2.code?.every(c2 => c.code !== c2.code)))
+            )
+          )
+        );
 
       // get the data requirements from the fqm-execution output that do not exist in the elm-parser output
-      const missingELMDRs = fqmEDRByKey.filter(dr =>
-        elmParserDRByKey.every(dr2 =>
-          dr.codeFilter?.every(cf => dr2.codeFilter?.every(cf2 => cf.valueSet !== cf2.valueSet))
+      const missingELMDRs = fqmEDRByKey
+        .filter(dr =>
+          elmParserDRByKey.every(dr2 =>
+            dr.codeFilter?.every(cf => dr2.codeFilter?.every(cf2 => cf.valueSet !== cf2.valueSet))
+          )
         )
-      );
+        .filter(dr =>
+          fqmEDRByKey.every(dr2 =>
+            dr.codeFilter?.every(cf =>
+              dr2.codeFilter?.every(cf2 => cf.code?.every(c => cf2.code?.every(c2 => c.code !== c2.code)))
+            )
+          )
+        );
 
       if (missingDRs.length === 0 && missingELMDRs.length === 0 && elmParserDRByKey.length === fqmEDRByKey.length) {
         console.log(`${FG_GREEN}%s${RESET}: data requirements of type ${key} match`, `PASS (${key})`);
       } else if (missingDRs.length > 0 || missingELMDRs.length > 0) {
         console.log(`${FG_RED}%s${RESET}: `, `FAIL (${key})`);
         if (missingDRs.length > 0) {
-          const missingvValueSets = missingDRs.map(dr => dr.codeFilter?.find(cf => cf.valueSet)?.valueSet);
+          const missingValueSets = missingDRs.map(dr => dr.codeFilter?.find(cf => cf.valueSet)?.valueSet);
           console.log(
             `fqm-execution is missing the data requirement of type ${key} for the following valuesets: ${JSON.stringify(
-              missingvValueSets
+              missingValueSets
             )}`
           );
         }
@@ -178,14 +196,17 @@ async function main() {
       // TO DO: maybe make this a flag
       elmParserDRByKey.forEach(dr => {
         const elmParserMustSupports = dr.mustSupport;
-        const elmParserValueSet = dr.codeFilter?.find(cf => cf.valueSet)?.valueSet;
+        // ignore valueSet codeFilter if it's a "value" type, TODO: get rid of explicit value check and
+        // use primary code path from proposed extension added to dr, once implemented/available
+        const elmParserValueSet = dr.codeFilter?.find(cf => cf.valueSet && cf.path !== 'value')?.valueSet;
+        const elmParserDirectCode = dr.codeFilter?.find(cf => cf.path === 'code')?.code?.[0].code;
 
         if (elmParserValueSet) {
           const fqmEMatchMustSupports = fqmEDRByKey.find(dr =>
             dr.codeFilter?.some(cf => cf.valueSet === elmParserValueSet)
           )?.mustSupport;
 
-          const equalMustSupports = _.isEqual(elmParserMustSupports, fqmEMatchMustSupports);
+          const equalMustSupports = _.isEqual(elmParserMustSupports?.sort(), fqmEMatchMustSupports?.sort());
 
           if (!equalMustSupports) {
             console.log(`${FG_RED}%s${RESET}:`, `MUST SUPPORTS FAIL (${key}-${elmParserValueSet})`);
@@ -195,6 +216,23 @@ async function main() {
             console.log(
               `${FG_GREEN}%s${RESET}: matching mustSupports`,
               `MUST SUPPORTS PASS (${key}-${elmParserValueSet})`
+            );
+          }
+        } else if (elmParserDirectCode) {
+          const fqmEMatchMustSupportsByCode = fqmEDRByKey.find(dr =>
+            dr.codeFilter?.some(cf => cf.code?.some(c => c.code === elmParserDirectCode))
+          )?.mustSupport;
+
+          const equalMustSupportsByCode = _.isEqual(elmParserMustSupports?.sort(), fqmEMatchMustSupportsByCode?.sort());
+
+          if (!equalMustSupportsByCode) {
+            console.log(`${FG_RED}%s${RESET}:`, `MUST SUPPORTS FAIL (${key}-${elmParserDirectCode})`);
+            console.log(`fqm-execution has the following mustSupports: ${fqmEMatchMustSupportsByCode ?? ''}`);
+            console.log(`elm-parser-for-ecqms has the following mustSupports: ${elmParserMustSupports}`);
+          } else {
+            console.log(
+              `${FG_GREEN}%s${RESET}: matching mustSupports`,
+              `MUST SUPPORTS PASS (${key}-${elmParserDirectCode})`
             );
           }
         }

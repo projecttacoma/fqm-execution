@@ -6,10 +6,10 @@ const RESET = '\x1b[0m';
 const FG_YELLOW = '\x1b[33m';
 const FG_GREEN = '\x1b[32m';
 
-const JAN_2024_CONNECTATHON_BASE_PATH = path.join(__dirname, './jan-2024-connectathon');
+const SEPT_2023_CONNECTATHON_BASE_PATH = path.join(__dirname, './sept-2023-connectathon');
 
 /**
- * The purpose of this function is to go through all of the measure bundles in the jan-2024-connectathon
+ * The purpose of this function is to go through all of the measure bundles in the sept-2023-connectathon
  * directory, calculate their data-requirements, and output their data-requirements to a JSON file
  * corresponding to the name of the measure in the fqm-e-dr directory
  */
@@ -26,13 +26,13 @@ async function main() {
     fs.mkdirSync('./fqm-e-dr');
   }
 
-  // get all of the file names (short and fullPath) from the jan-2024-connectathon directory
+  // get all of the file names (short and fullPath) from the sept-2023-connectathon directory
   const allBundles = fs
-    .readdirSync(JAN_2024_CONNECTATHON_BASE_PATH)
+    .readdirSync(SEPT_2023_CONNECTATHON_BASE_PATH)
     .filter(f => !f.startsWith('.'))
     .map(f => ({
-      shortName: f.split('v')[0],
-      fullPath: path.join(JAN_2024_CONNECTATHON_BASE_PATH, f)
+      shortName: f.split('.')[0],
+      fullPath: path.join(SEPT_2023_CONNECTATHON_BASE_PATH, f)
     }));
 
   for (const bundle of allBundles) {
