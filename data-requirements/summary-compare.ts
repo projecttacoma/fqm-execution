@@ -2,9 +2,9 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 
-const primaryCodePaths = require('./primary-code-paths');
 const ELM_PARSER_DR_BASE_PATH = path.join(__dirname, './elm-parser-dr');
 const FQM_E_DR_BASE_PATH = path.join(__dirname, './fqm-e-dr');
+const primaryCodePaths = JSON.parse(fs.readFileSync('./primary-code-paths.json', 'utf8'));
 
 const measure = process.argv[2] ?? 'all';
 
