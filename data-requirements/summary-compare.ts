@@ -2,6 +2,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 
+const primaryCodePaths = require('./primary-code-paths');
 const ELM_PARSER_DR_BASE_PATH = path.join(__dirname, './elm-parser-dr');
 const FQM_E_DR_BASE_PATH = path.join(__dirname, './fqm-e-dr');
 
@@ -196,10 +197,12 @@ async function main() {
       // TO DO: maybe make this a flag
       elmParserDRByKey.forEach(dr => {
         const elmParserMustSupports = dr.mustSupport;
-        // ignore valueSet codeFilter if it's a "value" type, TODO: get rid of explicit value check and
-        // use primary code path from proposed extension added to dr, once implemented/available
-        const elmParserValueSet = dr.codeFilter?.find(cf => cf.valueSet && cf.path !== 'value')?.valueSet;
-        const elmParserDirectCode = dr.codeFilter?.find(cf => cf.path === 'code')?.code?.[0].code;
+        // find the primary code path for the resourceType from primary-code-paths.json (result of parsing
+        // qicore-modelinfo-4.1.1.xml)
+        const primaryCodePath = primaryCodePaths[dr.type];
+
+        const elmParserValueSet = dr.codeFilter?.find(cf => cf.path === primaryCodePath)?.valueSet;
+        const elmParserDirectCode = dr.codeFilter?.find(cf => cf.path === primaryCodePath)?.code?.[0].code;
 
         if (elmParserValueSet) {
           const fqmEMatchMustSupports = fqmEDRByKey.find(dr =>
