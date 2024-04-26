@@ -253,6 +253,7 @@ export interface ELMAliasedQuerySource {
 
 export interface ELMRelationshipClause extends ELMAliasedQuerySource {
   suchThat: AnyELMExpression;
+  type: string;
 }
 
 export interface ELMLetClause {
