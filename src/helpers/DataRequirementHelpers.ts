@@ -8,6 +8,7 @@ import {
   AnyELMExpression,
   ELM,
   ELMAliasedQuerySource,
+  ELMFunctionRef,
   ELMIdentifier,
   ELMLast,
   ELMProperty,
@@ -25,7 +26,7 @@ import {
   parseQueryInfo
 } from './elm/QueryFilterParser';
 import * as RetrievesHelper from './elm/RetrievesHelper';
-import { uniqBy, isEqual } from 'lodash';
+import { uniqBy, isEqual, union } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
@@ -104,16 +105,28 @@ export async function getDataRequirements(
     type: { coding: [{ code: 'module-definition', system: 'http://terminology.hl7.org/CodeSystem/library-type' }] },
     status: 'unknown'
   };
-  // TODO: combine must supports if there are data requirements from the same retrieve that have different mustSupports
-  // combine based on resourcetype/primary code path
-  // allRetrieves[0].templateId
-  // allRetrieves[0].dataType
-  // allRetrieves[0].path
-  // allRetrieves[0].code or allRetrieves[0].valueSet
-  // ^if these 4 things are the same, then it is the same data requirement and we can combine mustSupports
+
+  // Combine must supports if there are data requirements from the same retrieve that have different mustSupports
+  // Combine based on this set defining uniqueness: templateId, dataType, path, and code/valueSet
+  const retrievesHash = allRetrieves.reduce((hash: Record<string, DataTypeQuery>, retrieve) => {
+    const hashKey = `${retrieve.templateId}-${retrieve.dataType}-${retrieve.path}-${
+      retrieve.code?.code || retrieve.valueSet
+    }`;
+    if (hash[hashKey]) {
+      if (hash[hashKey].mustSupport) {
+        // combine
+        hash[hashKey].mustSupport = union(hash[hashKey].mustSupport, retrieve.mustSupport);
+      } else {
+        hash[hashKey].mustSupport = retrieve.mustSupport;
+      }
+    } else {
+      hash[hashKey] = retrieve;
+    }
+    return hash;
+  }, {});
 
   results.dataRequirement = uniqBy(
-    allRetrieves.map(retrieve => {
+    Object.values(retrievesHash).map(retrieve => {
       const dr = generateDataRequirement(retrieve);
       addFiltersToDataRequirement(retrieve, dr, withErrors);
       addFhirQueryPatternToDataRequirements(dr);
@@ -129,7 +142,7 @@ export async function getDataRequirements(
       cql: cqls,
       elm: elmJSONs,
       gaps: {
-        retrieves: allRetrieves
+        retrieves: Object.values(retrievesHash)
       }
     },
     withErrors
@@ -625,7 +638,7 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
         const { query, position, source } = scopedQuery;
         // if the query is our stackMatch, stop here, otherwise continue with query source
         if (position === 0) {
-          // confirm alias matches scope (i.e. the retrieve is somewhere within the source expression tree)
+          // confirm alias matches scope (i.e. the retrieve is somewhere within the source expression tree) // TODO: this is not sufficient, multiple retrieves could be defined within the tree of this source, not just the right one
           return (
             source &&
             source.expression.localId &&
@@ -633,7 +646,8 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
           );
         }
         if ('name' in source.expression && source.expression.name) {
-          return checkStackFunctionDefs(
+          // TODO: do we need any further checks here with the highest reference name?
+          return !!checkStackFunctionDefs(
             prop.stack.slice(matchIdx, matchIdx + position),
             source.expression.name,
             allELM
@@ -644,7 +658,34 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
         // assume property.source (checked above)
         if (prop.property.source && 'name' in prop.property.source && prop.property.source.name) {
           // slice property stack from stackMatch id to end
-          return checkStackFunctionDefs(prop.stack.slice(matchIdx), prop.property.source.name, allELM);
+          const stackSlice = prop.stack.slice(matchIdx);
+          const checkName = checkStackFunctionDefs(stackSlice, prop.property.source.name, allELM);
+          if (checkName) {
+            // get highest FunctionRef in the stack
+            // check that the operand has an AliasRef type expression with a name equal to...
+            // top alias in the retrieve stack (up to stackMatch) -> BipolarDiagnosis vs QualifyingEncounter
+            // const funcRefStackEntry = stackSlice.find(se => se.type === 'FunctionRef');
+            // if (!funcRefStackEntry) return true;
+            // const aliasExp = (expressionFromStackEntry(funcRefStackEntry, allELM) as ELMFunctionRef).operand.find(
+            //   o => o.type === 'AliasRef'
+            // );
+
+            const retMatchIdx = retrieve.expressionStack?.findIndex(
+              s => s.localId === stackMatch.localId && s.libraryName === stackMatch.libraryName
+            );
+            const retSlice = retrieve.expressionStack?.slice(retMatchIdx);
+            const topAlias = retSlice
+              ?.map(se => {
+                const exp = expressionFromStackEntry(stackMatch, allELM);
+                return 'alias' in exp && exp.alias ? exp.alias : undefined;
+              })
+              .find(a => !!a);
+
+            if (topAlias) {
+              return topAlias === checkName;
+            }
+            return true;
+          }
         }
         return false;
       }
@@ -662,7 +703,7 @@ export function findStackScopedQuery(stack: ExpressionStackEntry[], scope: strin
         // TODO: how do we handle this case (example AI&F query below localId 180 has no localId)
         continue;
       }
-      const queryExpression = expressionFromStackEntry(stack[i], allELM);
+      const queryExpression = expressionFromStackEntry(stack[i], allELM) as ELMQuery;
       const source = queryExpression.source.find(s => s.alias === scope);
       if (source) {
         return { query: queryExpression, position: i, source: source };
@@ -686,7 +727,7 @@ export function expressionFromStackEntry(stackEntry: ExpressionStackEntry, allEL
   if (!lib) {
     throw Error(`Could not find library with identifier ${stackEntry.libraryName}`);
   }
-  const expression = findClauseInLibrary(lib, stackEntry.localId) as ELMQuery;
+  const expression = findClauseInLibrary(lib, stackEntry.localId);
   if (!expression) {
     throw Error(
       `Could not find ${stackEntry.type} type expression in ${stackEntry.libraryName} with localId ${stackEntry.localId}`
@@ -696,12 +737,13 @@ export function expressionFromStackEntry(stackEntry: ExpressionStackEntry, allEL
 }
 
 // traverse from end of the stack to check all function definitions use name in operand
-// TODO: need to traverse from end in order to change approach partway up, or can we traverse from beginning?
+//check functiondef to functionref changeover and output last name/alias at the end (switches to an AliasRef instead of operand ref, then can use for comparison at the top level)
 export function checkStackFunctionDefs(stack: ExpressionStackEntry[], name: string, allELM: ELM[]) {
+  let checkName = name;
   // return false if no function defs
   if (!stack.find(s => s.type === 'FunctionDef')) return false;
 
-  for (let i = stack.length - 1; i >= 0; i--) {
+  for (let i = stack.length - 1; i > 0; i--) {
     if (stack[i].type === 'FunctionDef') {
       const lib = allELM.find(e => e.library.identifier.id === stack[i].libraryName);
       const functionStatement = lib?.library.statements.def.find(s => s.localId === stack[i].localId);
@@ -710,12 +752,21 @@ export function checkStackFunctionDefs(stack: ExpressionStackEntry[], name: stri
           `Unable to find function definition statement with localId ${stack[i].localId} in library ${stack[i].libraryName}`
         );
       }
-      if (!checkFunctionDefMatch(functionStatement, name)) {
-        return false;
+      if (!checkFunctionDefMatch(functionStatement, checkName)) {
+        // we've hit an operand missmatch, so it's a deadend that should be ignored
+        return null;
+      }
+      // get new name
+      if (stack[i - 1].type === 'FunctionRef' && stack[i - 1].localId !== 'unknown') {
+        const functionRef = expressionFromStackEntry(stack[i - 1], allELM) as ELMFunctionRef;
+        // find first operand with a name. TODO: do we have any other differentiating factors for finding the right operand?
+        const operand = functionRef.operand.find(o => 'name' in o && o.name);
+        if (operand && 'name' in operand && operand.name) checkName = operand.name;
       }
     }
   }
-  return true;
+  // final checkName can be used for further checks
+  return checkName;
 }
 
 // return true if function def operand matches the passed source name
