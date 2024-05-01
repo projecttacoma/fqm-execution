@@ -4,11 +4,11 @@ This directory includes scripts for comparing the data-requirements output of [f
 
 ## Getting Data Requirements from the elm-parser-for-ecqms
 
-The scripts in this directory will get the data requirements output from the elm-parser-for-ecqms fhir_review branch for the January 2024 Connectathon bundles. On the fhir_review branch of elm-parser-for-ecqms, data-requirements are calculated for the measures in [elm-parser-for-ecqms/measures/qicore/measures](https://github.com/projecttacoma/elm-parser-for-ecqms/tree/fhir_review/measures/qicore/measures) by running the command `ruby parse_elm.rb --bundle qicore`. The results are outputted to JSON files per measure to `elm-parser-for-ecqms/data_requirements/library`. This is all done by the script and the results are moved to the `elm-parser-dr` directory.
+The scripts in this directory will get the data requirements output from the elm-parser-for-ecqms fhir_review branch for the September 2023 Connectathon bundles. On the fhir_review branch of elm-parser-for-ecqms, data-requirements are calculated for the measures in [elm-parser-for-ecqms/measures/qicore/measures](https://github.com/projecttacoma/elm-parser-for-ecqms/tree/fhir_review/measures/qicore/measures) by running the command `ruby parse_elm.rb --bundle qicore`. The results are outputted to JSON files per measure to `elm-parser-for-ecqms/data_requirements/library`. This is all done by the script and the results are moved to the `elm-parser-dr` directory.
 
 ## Getting Data Requirements from fqm-execution
 
-The scripts in this directory will get the data requirements output from fqm-execution for the January 2024 Connectathon bundles. The data requirements are calculated with fqm-execution on every run for ease of testing changes to fqm-execution. Since the January 2024 Connectathon bundles are not in a GitHub repository, they will have to be manually dropped into the `jan-2024-connectathon` directory that is empty. The data requirements JSON output files will be moved to the `fqm-e-dr` directory after calculation.
+The scripts in this directory will get the data requirements output from fqm-execution for the September 2023 Connectathon bundles. The data requirements are calculated with fqm-execution on every run for ease of testing changes to fqm-execution. Since the September 2023 Connectathon bundles are not in a GitHub repository, they will have to be manually dropped into the `sept-2023-connectathon` directory that is empty. The data requirements JSON output files will be moved to the `fqm-e-dr` directory after calculation.
 
 ## Comparing Data Requirements
 
@@ -18,7 +18,7 @@ Right now there are two ways to compare data-requirements. `compare.sh` takes a 
 
 ## Running the Scripts
 
-Before running any of the scripts, be sure to populate the `jan-2024-connectathon` directory with the corresponding measure bundles. Also confirm that additional dependencies required for these scripts are installed with `npm install`.
+Before running any of the scripts, be sure to populate the `sept-2023-connectathon` directory with the corresponding measure bundles. Also confirm that additional dependencies required for these scripts are installed with `npm install`.
 
 To run `compare.sh`:
 

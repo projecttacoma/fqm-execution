@@ -14,5 +14,6 @@ regression/ecqm-content-r4-2021
 regression/ecqm-content-qicore-2022
 data-requirements/fqm-e-dr/*
 data-requirements/jan-2024-connectathon/*
+data-requirements/sept-2023-connectathon/*
 data-requirements/elm-parser-dr/*
 data-requirements/elm-parser-for-ecqms

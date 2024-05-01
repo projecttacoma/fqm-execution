@@ -33,7 +33,7 @@ done
 echo "Gathering data-requirements output from the fhir_review branch of elm-parser-for-ecqms"
 
 # Clone the elm-parser-for-ecqms in the data-requirements directory if it hasn't been, swtich to the fhir_review branch,
-# run parse_elm.rb with --bundle qicore to get data-requirements for measure bundles from the January 2024 Connectathon
+# run parse_elm.rb with --bundle qicore to get data-requirements for measure bundles from the September 2023 Connectathon
 if [ ! -d "elm-parser-for-ecqms" ]; then
     git clone https://github.com/projecttacoma/elm-parser-for-ecqms.git
     git fetch --all
@@ -52,7 +52,7 @@ if [ ! -d "elm-parser-for-ecqms" ]; then
     mv "$SOURCE_DIR"/* "$TARGET_DIR"
 fi
 
-echo "Gathering data-requirements output from fqm-execution using the measure bundles from the January 2024 Connectathon"
+echo "Gathering data-requirements output from fqm-execution using the measure bundles from the September 2023 Connectathon"
 
 npx ts-node fqm-e-dr.ts
 
