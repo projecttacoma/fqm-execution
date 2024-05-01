@@ -7,10 +7,8 @@ import { SearchParameters } from '../compartment-definition/SearchParameters';
 import {
   AnyELMExpression,
   ELM,
-  ELMAliasedQuerySource,
   ELMFunctionRef,
   ELMIdentifier,
-  ELMLast,
   ELMProperty,
   ELMQuery,
   ELMStatement
@@ -31,7 +29,7 @@ import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
 import { findLibraryReference } from './elm/ELMDependencyHelpers';
-import { findClauseInExpression, findClauseInLibrary, findNamedClausesInExpression } from './elm/ELMHelpers';
+import { findClauseInLibrary, findNamedClausesInExpression } from './elm/ELMHelpers';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -467,6 +465,7 @@ function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulEr
 function addMustSupport(allRetrieves: DataTypeQuery[], statement: ELMStatement, rootLib: ELM, allELM: ELM[]) {
   const propertyExpressions = findPropertyExpressions(statement, [], rootLib, allELM);
 
+  // TODO: double check that the property is applicable for the retrieve type before adding is as a mustSupport
   propertyExpressions.forEach(prop => {
     // find all matches for this property in allRetrieves
     const retrieveMatches = findRetrieveMatches(prop, allRetrieves, allELM);
@@ -630,6 +629,9 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
       const matchIdx = prop.stack.findIndex(
         s => s.localId === stackMatch.localId && s.libraryName === stackMatch.libraryName
       );
+      const retMatchIdx = retrieve.expressionStack?.findIndex(
+        s => s.localId === stackMatch.localId && s.libraryName === stackMatch.libraryName
+      );
       if (prop.property.scope) {
         // travel the stack looking for nearest queries (limited by stackMatch)
         const scopedQuery = findStackScopedQuery(prop.stack.slice(matchIdx), prop.property.scope, allELM);
@@ -637,13 +639,10 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
         if (!scopedQuery) return false;
         const { query, position, source } = scopedQuery;
         // if the query is our stackMatch, stop here, otherwise continue with query source
-        if (position === 0) {
-          // confirm alias matches scope (i.e. the retrieve is somewhere within the source expression tree) // TODO: this is not sufficient, multiple retrieves could be defined within the tree of this source, not just the right one
-          return (
-            source &&
-            source.expression.localId &&
-            !!retrieve.expressionStack?.find(st => st.localId === source.expression.localId)
-          );
+        if (position === 0 && 'alias' in source && source.alias && retrieve.expressionStack) {
+          //TODO: combine this and the if below??? or just get rid of position 0?
+          // confirm alias matches scope (i.e. follow the alias down the retrieve stack)
+          return checkRetrieveStackForAlias(retrieve.expressionStack.slice(retMatchIdx), source.alias, allELM);
         }
         if ('name' in source.expression && source.expression.name) {
           // TODO: do we need any further checks here with the highest reference name?
@@ -661,18 +660,6 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
           const stackSlice = prop.stack.slice(matchIdx);
           const checkName = checkStackFunctionDefs(stackSlice, prop.property.source.name, allELM);
           if (checkName) {
-            // get highest FunctionRef in the stack
-            // check that the operand has an AliasRef type expression with a name equal to...
-            // top alias in the retrieve stack (up to stackMatch) -> BipolarDiagnosis vs QualifyingEncounter
-            // const funcRefStackEntry = stackSlice.find(se => se.type === 'FunctionRef');
-            // if (!funcRefStackEntry) return true;
-            // const aliasExp = (expressionFromStackEntry(funcRefStackEntry, allELM) as ELMFunctionRef).operand.find(
-            //   o => o.type === 'AliasRef'
-            // );
-
-            const retMatchIdx = retrieve.expressionStack?.findIndex(
-              s => s.localId === stackMatch.localId && s.libraryName === stackMatch.libraryName
-            );
             const retSlice = retrieve.expressionStack?.slice(retMatchIdx);
             const topAlias = retSlice
               ?.map(se => {
@@ -692,6 +679,27 @@ export function findRetrieveMatches(prop: PropertyTracker, retrieves: DataTypeQu
     }
     return false;
   });
+}
+
+// traverse down a retrieve stack, checking query sources and traversing expression references all the way to the retrieve
+// currently checks first query and whether a with/without invalidates a contained retrieve, TODO: may need further checks down the stack
+export function checkRetrieveStackForAlias(stack: ExpressionStackEntry[], alias: string, allELM: ELM[]) {
+  for (let i = 0; i < stack.length - 1; i++) {
+    if (stack[i].type === 'Query') {
+      const query = expressionFromStackEntry(stack[i], allELM) as ELMQuery;
+      // search source or relationship next stack expression
+      const sourceMatch = query.source.find(s => s.expression.localId === stack[i + 1].localId);
+      const relationshipMatch = query.relationship?.find(r => r.localId === stack[i + 1].localId);
+      const expRefChange =
+        stack[i + 1].type === 'ExpressionRef' && stack.find(se => se.type === 'With' || se.type === 'Without');
+      if (sourceMatch) {
+        return sourceMatch.alias === alias && !expRefChange;
+      } else if (relationshipMatch) {
+        return relationshipMatch.alias === alias && !expRefChange;
+      }
+    }
+  }
+  return true;
 }
 
 // traverse from end of the stack to find the nearest query that has alias labeled with the passed scope
