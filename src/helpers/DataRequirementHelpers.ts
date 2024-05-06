@@ -30,6 +30,7 @@ import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
 import { findLibraryReference } from './elm/ELMDependencyHelpers';
 import { findClauseInLibrary, findNamedClausesInExpression } from './elm/ELMHelpers';
+import { parsedPropertyPaths } from '../code-attributes/propertyPaths';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -465,18 +466,20 @@ function didEncounterDetailedValueFilterErrors(tbd: fhir4.Extension | GracefulEr
 function addMustSupport(allRetrieves: DataTypeQuery[], statement: ELMStatement, rootLib: ELM, allELM: ELM[]) {
   const propertyExpressions = findPropertyExpressions(statement, [], rootLib, allELM);
 
-  // TODO: double check that the property is applicable for the retrieve type before adding is as a mustSupport
   propertyExpressions.forEach(prop => {
     // find all matches for this property in allRetrieves
     const retrieveMatches = findRetrieveMatches(prop, allRetrieves, allELM);
     // add mustSupport for each match (if not already included)
     retrieveMatches.forEach(match => {
-      if (match.mustSupport) {
-        if (!match.mustSupport.includes(prop.property.path)) {
-          match.mustSupport.push(prop.property.path);
+      // double check that the property is applicable for the retrieve type before adding is as a mustSupport
+      if (match.dataType in parsedPropertyPaths && parsedPropertyPaths[match.dataType].includes(prop.property.path)) {
+        if (match.mustSupport) {
+          if (!match.mustSupport.includes(prop.property.path)) {
+            match.mustSupport.push(prop.property.path);
+          }
+        } else {
+          match.mustSupport = [prop.property.path];
         }
-      } else {
-        match.mustSupport = [prop.property.path];
       }
     });
   });
