@@ -233,7 +233,7 @@ function replaceAliasesInFilters(filter: AnyFilter, match: string, replace: stri
  */
 function parseSources(query: ELMQuery): SourceInfo[] {
   const sources: SourceInfo[] = [];
-  const querySources = [...query.source, ...query.relationship];
+  const querySources = [...query.source, ...(query.relationship || [])];
 
   querySources.forEach(source => {
     if (source.expression.type == 'Retrieve') {

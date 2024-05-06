@@ -36,9 +36,28 @@ export function findClauseInExpression(expression: any, localId: string): ELMExp
       }
     }
     return null;
-  } else if (expression.localId == localId) {
+  } else if (expression.localId === localId) {
     return expression as ELMExpression;
   } else {
     return findClauseInExpression(Object.values(expression), localId);
+  }
+}
+
+/**
+ * Recursively search an ELM tree for all expression (clause) with a given name
+ *
+ * @param expression The expression tree to search for the clause in.
+ * @param name The name to look for.
+ * @returns The expression if found or null.
+ */
+export function findNamedClausesInExpression(expression: any, name: string): ELMExpression[] {
+  if (typeof expression === 'string' || typeof expression === 'number' || typeof expression === 'boolean') {
+    return [];
+  } else if (Array.isArray(expression)) {
+    return expression.flatMap(elem => findNamedClausesInExpression(elem, name));
+  } else if (expression.name === name) {
+    return [expression as ELMExpression];
+  } else {
+    return findNamedClausesInExpression(Object.values(expression), name);
   }
 }

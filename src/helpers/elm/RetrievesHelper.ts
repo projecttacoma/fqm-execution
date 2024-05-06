@@ -209,6 +209,13 @@ export function findRetrieves(
     }
 
     query.relationship?.forEach(relationshipClause => {
+      if (relationshipClause.localId) {
+        recursiveOpts.expressionStack.push({
+          libraryName: elm.library.identifier.id,
+          localId: relationshipClause.localId,
+          type: relationshipClause.type
+        });
+      }
       recurse(results, relationshipClause.expression, recursiveOpts);
       recurse(results, relationshipClause.suchThat, recursiveOpts);
     });

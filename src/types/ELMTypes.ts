@@ -234,7 +234,7 @@ export interface ELMQuery extends ELMExpression {
   type: 'Query';
   source: ELMAliasedQuerySource[];
   let?: ELMLetClause[];
-  relationship: ELMRelationshipClause[];
+  relationship?: ELMRelationshipClause[];
   where?: AnyELMExpression;
   return?: ELMReturnClause;
   sort?: any;
@@ -253,6 +253,7 @@ export interface ELMAliasedQuerySource {
 
 export interface ELMRelationshipClause extends ELMAliasedQuerySource {
   suchThat: AnyELMExpression;
+  type: string;
 }
 
 export interface ELMLetClause {
