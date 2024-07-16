@@ -1,0 +1,193 @@
+{
+  "resourceType": "Measure",
+  "id": "example",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis",
+      "valueCode": "boolean"
+    }
+  ],
+  "status": "active",
+  "url": "http://example.com/example",
+  "identifier": [
+    {
+      "system": "http://example.com",
+      "value": "example"
+    }
+  ],
+  "name": "Example Measure",
+  "effectivePeriod": {
+    "start": "2021-01-01",
+    "end": "2021-12-31"
+  },
+  "library": ["Library/example"],
+  "scoring": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/measure-scoring",
+        "code": "proportion"
+      }
+    ]
+  },
+  "improvementNotation": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/measure-improvement-notation",
+        "code": "increase"
+      }
+    ]
+  },
+  "group": [
+    {
+      "id": "group-1",
+      "population": [
+        {
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "initial-population",
+                "display": "Initial Population"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql",
+            "expression": "Initial Population"
+          }
+        },
+        {
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "numerator",
+                "display": "Numerator"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql",
+            "expression": "Numerator"
+          }
+        },
+        {
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "denominator",
+                "display": "Denominator"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql",
+            "expression": "Denominator"
+          }
+        },
+        {
+          "code": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                "code": "denominator-exclusion",
+                "display": "Denominator Exclusion"
+              }
+            ]
+          },
+          "criteria": {
+            "language": "text/cql",
+            "expression": "Denominator Exclusion"
+          }
+        }
+      ],
+      "stratifier": [
+        {
+          "id": "93f5f1c7-8638-40a4-a596-8b5831599209",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                    "code": "initial-population",
+                    "display": "Initial Population"
+                  }
+                ]
+              }
+            }
+          ],
+          "criteria": {
+            "language": "text/cql-identifier",
+            "expression": "Strat1"
+          }
+        },
+        {
+          "id": "5baf37c7-8887-4576-837e-ea20a8938282",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                    "code": "initial-population",
+                    "display": "Initial Population"
+                  }
+                ]
+              }
+            }
+          ],
+          "criteria": {
+            "language": "text/cql-identifier",
+            "expression": "Strat2"
+          }
+        },
+        {
+          "id": "125b3d95-2d00-455f-8a6e-d53614a2a50e",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                    "code": "denominator",
+                    "display": "Denominator"
+                  }
+                ]
+              }
+            }
+          ],
+          "criteria": {
+            "language": "text/cql-identifier",
+            "expression": "Strat1"
+          }
+        },
+        {
+          "id": "c06647b9-e134-4189-858d-80cee23c0f8d",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                    "code": "denominator",
+                    "display": "Denominator"
+                  }
+                ]
+              }
+            }
+          ],
+          "criteria": {
+            "language": "text/cql-identifier",
+            "expression": "Strat2"
+          }
+        }
+      ]
+    }
+  ]
+}
