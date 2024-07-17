@@ -304,30 +304,7 @@ export function createPatientPopulationValues(
     populationGroup.stratifier.forEach(strata => {
       if (strata.criteria?.expression) {
         const value = patientResults[strata.criteria?.expression];
-
-        // option 1: uncomment the following lines until option 2 to consider the stratifier result
-        // AND populationResult when creating the detailedResults.stratifierResults
-
-        // if the cqfm-appliesTo extension is present, then we want to consider the result of that
-        // population in our stratifier result
-        const appliesToExtension = strata.extension?.find(
-          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
-        );
-        let popValue = true;
-        if (appliesToExtension) {
-          const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
-          if (popCode) {
-            popValue = patientResults[popCode];
-          }
-        }
-        const result = isStatementValueTruthy(value && popValue);
-
-        // // option 2: keep things the way they were before; do not consider both the stratifierResult
-        // // and the populationResult when creating the detailedResults.stratifierResults
-        // const result = isStatementValueTruthy(value);
-
-        // TO DO: in the case where strata.code.text doesn't exist but strata.id does,
-        // is this structure too redundant? Should we rethink the StratifierResult type?
+        const result = isStatementValueTruthy(value);
         stratifierResults?.push({
           strataCode: strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`,
           result,

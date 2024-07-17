@@ -277,7 +277,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
           groupResults.stratifierResults?.forEach(stratResults => {
             // only add to results if this patient is in the strata
             if (stratResults.result) {
-              // the strataCode has the potential to be a couple of things, either s,code
+              // the strataCode has the potential to be a couple of things, either s.code[0].text (previous measures)
+              // or s.id (newer measures)
               const strata: MeasureReportGroupStratifier | undefined =
                 group.stratifier?.find(s => s.code && s.code[0]?.text === stratResults.strataCode) ||
                 group.stratifier?.find(s => s.id && s.id === stratResults.strataCode);
