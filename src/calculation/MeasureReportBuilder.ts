@@ -233,10 +233,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
             er.stratifierResults?.forEach(stratResults => {
               // only add to results if this episode is in the strata
               if (stratResults.result) {
-                // THIS IS WHERE THE ERROR IS HAPPENING
-                // measure may not have s.code[0].text, where else can we get this strataCode?
-                // also in the case that s.code.text doesn't exist, the strata code is set to strata-index
-                // in DetailedResultsBuilder.ts so then strata would never be defined and this would error out
+                // the strataCode has the potential to be a couple of things, either s.code[0].text (previous measures)
+                // or s.id (newer measures)
                 const strata: MeasureReportGroupStratifier | undefined =
                   group.stratifier?.find(s => s.code && s.code[0]?.text === stratResults.strataCode) ||
                   group.stratifier?.find(s => s.id && s.id === stratResults.strataCode);
@@ -345,12 +343,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
         if (!pop.count) pop.count = 0;
         pop.count += pr.result ? 1 : 0;
       }
-      // I don't think we need to throw an error here anymore
-      // } else {
-      //   throw new UnexpectedProperty(
-      //     `Population ${pr.populationType} in stratum ${stratum.id} not found in measure report.`
-      //   );
-      // }
     }
   }
 
