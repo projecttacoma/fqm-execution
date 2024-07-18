@@ -284,7 +284,126 @@ const propWithStratExecutionResults: ExecutionResult<DetailedPopulationGroupResu
   }
 ];
 
+const propWithStratExecutionResultsTwoPatients: ExecutionResult<DetailedPopulationGroupResult>[] = [
+  {
+    patientId: patient1Id,
+    detailedResults: [
+      {
+        groupId: 'group-1',
+        statementResults: [],
+        populationResults: [
+          {
+            populationType: PopulationType.NUMER,
+            criteriaExpression: 'Numerator',
+            result: false
+          },
+          {
+            populationType: PopulationType.DENOM,
+            criteriaExpression: 'Denominator',
+            result: true
+          },
+          {
+            populationType: PopulationType.IPP,
+            criteriaExpression: 'Initial Population',
+            result: true
+          },
+          {
+            populationType: PopulationType.DENEX,
+            criteriaExpression: 'Denominator Exclusion',
+            result: false
+          }
+        ],
+        stratifierResults: [
+          {
+            strataCode: '93f5f1c7-8638-40a4-a596-8b5831599209',
+            result: false,
+            strataId: '93f5f1c7-8638-40a4-a596-8b5831599209'
+          },
+          {
+            strataCode: '5baf37c7-8887-4576-837e-ea20a8938282',
+            result: false,
+            strataId: '5baf37c7-8887-4576-837e-ea20a8938282'
+          },
+          {
+            strataCode: '125b3d95-2d00-455f-8a6e-d53614a2a50e',
+            result: false,
+            strataId: '125b3d95-2d00-455f-8a6e-d53614a2a50e'
+          },
+          {
+            strataCode: 'c06647b9-e134-4189-858d-80cee23c0f8d',
+            result: false,
+            strataId: 'c06647b9-e134-4189-858d-80cee23c0f8d'
+          }
+        ],
+        html: 'example-html'
+      }
+    ]
+  },
+  {
+    patientId: patient2Id,
+    detailedResults: [
+      {
+        groupId: 'group-1',
+        statementResults: [],
+        populationResults: [
+          {
+            populationType: PopulationType.NUMER,
+            criteriaExpression: 'Numerator',
+            result: false
+          },
+          {
+            populationType: PopulationType.DENOM,
+            criteriaExpression: 'Denominator',
+            result: true
+          },
+          {
+            populationType: PopulationType.IPP,
+            criteriaExpression: 'Initial Population',
+            result: true
+          },
+          {
+            populationType: PopulationType.DENEX,
+            criteriaExpression: 'Denominator Exclusion',
+            result: false
+          }
+        ],
+        stratifierResults: [
+          {
+            strataCode: '93f5f1c7-8638-40a4-a596-8b5831599209',
+            result: false,
+            strataId: '93f5f1c7-8638-40a4-a596-8b5831599209'
+          },
+          {
+            strataCode: '5baf37c7-8887-4576-837e-ea20a8938282',
+            result: false,
+            strataId: '5baf37c7-8887-4576-837e-ea20a8938282'
+          },
+          {
+            strataCode: '125b3d95-2d00-455f-8a6e-d53614a2a50e',
+            result: false,
+            strataId: '125b3d95-2d00-455f-8a6e-d53614a2a50e'
+          },
+          {
+            strataCode: 'c06647b9-e134-4189-858d-80cee23c0f8d',
+            result: false,
+            strataId: 'c06647b9-e134-4189-858d-80cee23c0f8d'
+          }
+        ],
+        html: 'example-html'
+      }
+    ]
+  }
+];
+
 const calculationOptions: CalculationOptions = {
+  measurementPeriodStart: '2021-01-01',
+  measurementPeriodEnd: '2021-12-31',
+  calculateHTML: true,
+  calculateSDEs: true
+};
+
+const calculationOptionsWithSummary: CalculationOptions = {
+  reportType: 'summary',
   measurementPeriodStart: '2021-01-01',
   measurementPeriodEnd: '2021-12-31',
   calculateHTML: true,
@@ -412,6 +531,44 @@ describe('MeasureReportBuilder Static', () => {
       result!.stratifierResults!.forEach(sr => {
         const stratifierResult = group.stratifier?.find(s => s.id === sr.strataId);
         expect(stratifierResult).toBeDefined();
+        expect(stratifierResult!.stratum?.[0].population?.length).toEqual(1);
+        expect(stratifierResult!.stratum?.[0].measureScore?.value).toEqual(0);
+      });
+    });
+  });
+
+  describe('Measure Report from Proportion Measure with stratifiers and two patient results', () => {
+    let measureReports: fhir4.MeasureReport[];
+    beforeAll(() => {
+      measureReports = MeasureReportBuilder.buildMeasureReports(
+        propWithStratMeasureBundle,
+        propWithStratExecutionResultsTwoPatients,
+        calculationOptionsWithSummary
+      );
+    });
+
+    test('should contain proper stratifierResults', () => {
+      const [mr] = measureReports;
+      expect(mr.group).toBeDefined();
+      expect(mr.group).toHaveLength(1);
+
+      const [group] = mr.group!;
+      const result = propWithStratExecutionResults[0].detailedResults?.[0];
+
+      expect(group.id).toEqual(result!.groupId);
+      expect(group.measureScore).toBeDefined();
+      expect(group.population).toBeDefined();
+
+      result!.populationResults!.forEach(pr => {
+        const populationResult = group.population?.find(p => p.code?.coding?.[0].code === pr.populationType);
+        expect(populationResult).toBeDefined();
+        expect(populationResult!.count).toEqual(pr.result === true ? 1 : 0);
+      });
+
+      result!.stratifierResults!.forEach(sr => {
+        const stratifierResult = group.stratifier?.find(s => s.id === sr.strataId);
+        expect(stratifierResult).toBeDefined();
+        expect(stratifierResult!.stratum?.[0].population?.length).toEqual(1);
         expect(stratifierResult!.stratum?.[0].measureScore?.value).toEqual(0);
       });
     });
