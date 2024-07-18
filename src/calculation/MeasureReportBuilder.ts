@@ -131,8 +131,12 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
         group.stratifier = [];
         measureGroup.stratifier.forEach(s => {
           const reportStratifier = <fhir4.MeasureReportGroupStratifier>{};
-          reportStratifier.code = s.code ? [s.code] : [];
-          reportStratifier.id = s.id ? s.id : '';
+          if (s.code) {
+            reportStratifier.code = [s.code];
+          }
+          if (s.id) {
+            reportStratifier.id = s.id;
+          }
           const strat = <fhir4.MeasureReportGroupStratifierStratum>{};
           // use existing populations, but reduce count as appropriate
           // Deep copy population with matching attributes but different interface
