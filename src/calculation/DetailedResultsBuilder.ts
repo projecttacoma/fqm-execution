@@ -306,7 +306,7 @@ export function createPatientPopulationValues(
         const value = patientResults[strata.criteria?.expression];
         const result = isStatementValueTruthy(value);
         stratifierResults?.push({
-          strataCode: strata.code?.text ?? `strata-${strataIndex++}`,
+          strataCode: strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`,
           result,
           ...(strata.id ? { strataId: strata.id } : {})
         });

@@ -9,6 +9,7 @@ import {
 import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomErrors';
 import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
 import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
+import { MeasureReportGroupStratifier } from 'fhir/r4';
 
 export default class MeasureReportBuilder<T extends PopulationGroupResult> extends AbstractMeasureReportBuilder<T> {
   report: fhir4.MeasureReport;
@@ -130,13 +131,32 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
         group.stratifier = [];
         measureGroup.stratifier.forEach(s => {
           const reportStratifier = <fhir4.MeasureReportGroupStratifier>{};
-          reportStratifier.code = s.code ? [s.code] : [];
+          if (s.code) {
+            reportStratifier.code = [s.code];
+          }
+          if (s.id) {
+            reportStratifier.id = s.id;
+          }
           const strat = <fhir4.MeasureReportGroupStratifierStratum>{};
           // use existing populations, but reduce count as appropriate
           // Deep copy population with matching attributes but different interface
-          strat.population = <fhir4.MeasureReportGroupStratifierStratumPopulation[]>(
-            JSON.parse(JSON.stringify(group.population))
+          // if a stratifier has a cqfm-appliesTo extension, then we only want to
+          // include that population. If none is specified, the stratification applies
+          // to all populations in a group
+          const appliesToExtension = s.extension?.find(
+            e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
           );
+          if (appliesToExtension) {
+            const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
+            const matchingPop = group.population?.find(p => p.code?.coding?.[0].code === popCode);
+            strat.population = <fhir4.MeasureReportGroupStratifierStratumPopulation[]>(
+              JSON.parse(JSON.stringify([matchingPop]))
+            );
+          } else {
+            strat.population = <fhir4.MeasureReportGroupStratifierStratumPopulation[]>(
+              JSON.parse(JSON.stringify(group.population))
+            );
+          }
 
           reportStratifier.stratum = [strat];
           group.stratifier?.push(reportStratifier);
@@ -217,7 +237,11 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
             er.stratifierResults?.forEach(stratResults => {
               // only add to results if this episode is in the strata
               if (stratResults.result) {
-                const strata = group.stratifier?.find(s => s.code && s.code[0].text === stratResults.strataCode);
+                // the strataCode has the potential to be a couple of things, either s.code[0].text (previous measures)
+                // or s.id (newer measures)
+                const strata: MeasureReportGroupStratifier | undefined =
+                  group.stratifier?.find(s => s.code && s.code[0]?.text === stratResults.strataCode) ||
+                  group.stratifier?.find(s => s.id === stratResults.strataCode);
                 const stratum = strata?.stratum?.[0];
                 if (stratum) {
                   er.populationResults?.forEach(pr => {
@@ -255,7 +279,11 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
           groupResults.stratifierResults?.forEach(stratResults => {
             // only add to results if this patient is in the strata
             if (stratResults.result) {
-              const strata = group.stratifier?.find(s => s.code && s.code[0].text === stratResults.strataCode);
+              // the strataCode has the potential to be a couple of things, either s.code[0].text (previous measures)
+              // or s.id (newer measures)
+              const strata: MeasureReportGroupStratifier | undefined =
+                group.stratifier?.find(s => s.code && s.code[0]?.text === stratResults.strataCode) ||
+                group.stratifier?.find(s => s.id === stratResults.strataCode);
               const stratum = strata?.stratum?.[0];
               if (stratum) {
                 groupResults.populationResults?.forEach(pr => {
@@ -318,10 +346,6 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
         // add to pop count creating it if not already created.
         if (!pop.count) pop.count = 0;
         pop.count += pr.result ? 1 : 0;
-      } else {
-        throw new UnexpectedProperty(
-          `Population ${pr.populationType} in stratum ${stratum.id} not found in measure report.`
-        );
       }
     }
   }
