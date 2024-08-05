@@ -304,7 +304,22 @@ export function createPatientPopulationValues(
     populationGroup.stratifier.forEach(strata => {
       if (strata.criteria?.expression) {
         const value = patientResults[strata.criteria?.expression];
-        const result = isStatementValueTruthy(value);
+
+        // if the cqfm-appliesTo extension is present, then we want to consider the result of that
+        // population in our stratifier result
+        const appliesToExtension = strata.extension?.find(
+          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
+        );
+
+        let popValue = true;
+        if (appliesToExtension) {
+          const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
+          if (popCode) {
+            popValue = patientResults[popCode];
+          }
+        }
+        const result = isStatementValueTruthy(value && popValue);
+
         stratifierResults?.push({
           strataCode: strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`,
           result,

@@ -1111,6 +1111,100 @@ describe('DetailedResultsBuilder', () => {
     });
   });
 
+  describe('Patient Population Values', () => {
+    test('should take population result into consideration when appliesTo extension exists', () => {
+      const populationGroup: fhir4.MeasureGroup = {
+        stratifier: [
+          {
+            id: 'example-strata-id',
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo',
+                valueCodeableConcept: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population',
+                      display: 'Initial Population'
+                    }
+                  ]
+                }
+              }
+            ],
+            criteria: {
+              expression: 'strat1',
+              language: 'text/cql'
+            }
+          }
+        ]
+      };
+
+      const patientResults: StatementResults = {
+        'Initial Population': false,
+        Denominator: false,
+        'Denominator Exclusion': false,
+        Numerator: false,
+        'Numerator Exclusion': false,
+        strata1: true
+      };
+
+      const { stratifierResults } = DetailedResultsBuilder.createPatientPopulationValues(
+        populationGroup,
+        patientResults
+      );
+
+      expect(stratifierResults).toBeDefined();
+      expect(stratifierResults).toHaveLength(1);
+      expect(stratifierResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            strataId: 'example-strata-id',
+            result: false
+          })
+        ])
+      );
+    });
+
+    test('does not take any population result into consideration when appliesTo extension does not exist', () => {
+      const populationGroupNoExtension: fhir4.MeasureGroup = {
+        stratifier: [
+          {
+            id: 'example-strata-id-2',
+            criteria: {
+              expression: 'strat2',
+              language: 'text/cql'
+            }
+          }
+        ]
+      };
+
+      const patientResults: StatementResults = {
+        'Initial Population': false,
+        Denominator: false,
+        'Denominator Exclusion': false,
+        Numerator: false,
+        'Numerator Exclusion': false,
+        strat2: true
+      };
+
+      const { stratifierResults } = DetailedResultsBuilder.createPatientPopulationValues(
+        populationGroupNoExtension,
+        patientResults
+      );
+
+      expect(stratifierResults).toBeDefined();
+      expect(stratifierResults).toHaveLength(1);
+      expect(stratifierResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            strataId: 'example-strata-id-2',
+            result: true
+          })
+        ])
+      );
+    });
+  });
+
   describe('ELM JSON Function', () => {
     test('should properly generate episode-based ELM JSON given name and parameter', () => {
       const exampleFunctionName = 'exampleFunction';
