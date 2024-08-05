@@ -318,11 +318,13 @@ export function createPatientPopulationValues(
             popValue = patientResults[popCode];
           }
         }
-        const result = isStatementValueTruthy(value && popValue);
+        const result = isStatementValueTruthy(value);
+        const appliesResult = isStatementValueTruthy(value && popValue);
 
         stratifierResults?.push({
           strataCode: strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`,
           result,
+          appliesResult,
           ...(strata.id ? { strataId: strata.id } : {})
         });
       }

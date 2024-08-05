@@ -1145,7 +1145,7 @@ describe('DetailedResultsBuilder', () => {
         'Denominator Exclusion': false,
         Numerator: false,
         'Numerator Exclusion': false,
-        strata1: true
+        strat1: true
       };
 
       const { stratifierResults } = DetailedResultsBuilder.createPatientPopulationValues(
@@ -1159,7 +1159,8 @@ describe('DetailedResultsBuilder', () => {
         expect.arrayContaining([
           expect.objectContaining({
             strataId: 'example-strata-id',
-            result: false
+            result: true,
+            appliesResult: false
           })
         ])
       );
@@ -1198,7 +1199,8 @@ describe('DetailedResultsBuilder', () => {
         expect.arrayContaining([
           expect.objectContaining({
             strataId: 'example-strata-id-2',
-            result: true
+            result: true,
+            appliesResult: true
           })
         ])
       );
