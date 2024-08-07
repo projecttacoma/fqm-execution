@@ -3,7 +3,7 @@ import * as DetailedResultsBuilder from '../../src/calculation/DetailedResultsBu
 import { getJSONFixture } from './helpers/testHelpers';
 import { MeasureScoreType, PopulationType } from '../../src/types/Enums';
 import { StatementResults } from '../../src/types/CQLTypes';
-import { PopulationResult, EpisodeResults } from '../../src/types/Calculator';
+import { PopulationResult, EpisodeResults, StratifierResult } from '../../src/types/Calculator';
 import { ELMExpressionRef, ELMQuery, ELMTuple, ELMFunctionRef } from '../../src/types/ELMTypes';
 
 type MeasureWithGroup = fhir4.Measure & {
@@ -1111,8 +1111,8 @@ describe('DetailedResultsBuilder', () => {
     });
   });
 
-  describe('Patient Population Values', () => {
-    test('should take population result into consideration when appliesTo extension exists', () => {
+  describe('handleStratificationValues', () => {
+    test('it should take population result into consider when appliesTo extension exists', () => {
       const populationGroup: fhir4.MeasureGroup = {
         stratifier: [
           {
@@ -1139,23 +1139,32 @@ describe('DetailedResultsBuilder', () => {
         ]
       };
 
-      const patientResults: StatementResults = {
-        'Initial Population': false,
-        Denominator: false,
-        'Denominator Exclusion': false,
-        Numerator: false,
-        'Numerator Exclusion': false,
-        strat1: true
-      };
+      const populationResults: PopulationResult[] = [
+        {
+          populationType: PopulationType.IPP,
+          criteriaExpression: 'Initial Population',
+          result: false,
+          populationId: 'exampleId'
+        }
+      ];
 
-      const { stratifierResults } = DetailedResultsBuilder.createPatientPopulationValues(
+      const stratifierResults: StratifierResult[] = [
+        {
+          strataCode: 'example-strata-id',
+          result: true,
+          strataId: 'example-strata-id'
+        }
+      ];
+
+      const newStratifierResults = DetailedResultsBuilder.handleStratificationValues(
         populationGroup,
-        patientResults
+        populationResults,
+        stratifierResults
       );
 
-      expect(stratifierResults).toBeDefined();
-      expect(stratifierResults).toHaveLength(1);
-      expect(stratifierResults).toEqual(
+      expect(newStratifierResults).toBeDefined();
+      expect(newStratifierResults).toHaveLength(1);
+      expect(newStratifierResults).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             strataId: 'example-strata-id',
@@ -1166,39 +1175,48 @@ describe('DetailedResultsBuilder', () => {
       );
     });
 
-    test('does not take any population result into consideration when appliesTo extension does not exist', () => {
-      const populationGroupNoExtension: fhir4.MeasureGroup = {
+    test('it should not take population result into consideration when appliesTo extension does not exist', () => {
+      const populationGroup: fhir4.MeasureGroup = {
         stratifier: [
           {
-            id: 'example-strata-id-2',
+            id: 'example-strata-id',
             criteria: {
-              expression: 'strat2',
+              expression: 'strat1',
               language: 'text/cql'
             }
           }
         ]
       };
 
-      const patientResults: StatementResults = {
-        'Initial Population': false,
-        Denominator: false,
-        'Denominator Exclusion': false,
-        Numerator: false,
-        'Numerator Exclusion': false,
-        strat2: true
-      };
+      const populationResults: PopulationResult[] = [
+        {
+          populationType: PopulationType.IPP,
+          criteriaExpression: 'Initial Population',
+          result: false,
+          populationId: 'exampleId'
+        }
+      ];
 
-      const { stratifierResults } = DetailedResultsBuilder.createPatientPopulationValues(
-        populationGroupNoExtension,
-        patientResults
+      const stratifierResults: StratifierResult[] = [
+        {
+          strataCode: 'example-strata-id',
+          result: true,
+          strataId: 'example-strata-id'
+        }
+      ];
+
+      const newStratifierResults = DetailedResultsBuilder.handleStratificationValues(
+        populationGroup,
+        populationResults,
+        stratifierResults
       );
 
-      expect(stratifierResults).toBeDefined();
-      expect(stratifierResults).toHaveLength(1);
-      expect(stratifierResults).toEqual(
+      expect(newStratifierResults).toBeDefined();
+      expect(newStratifierResults).toHaveLength(1);
+      expect(newStratifierResults).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            strataId: 'example-strata-id-2',
+            strataId: 'example-strata-id',
             result: true,
             appliesResult: true
           })

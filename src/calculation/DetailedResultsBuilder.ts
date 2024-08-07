@@ -33,6 +33,9 @@ export function createPopulationValues(
     populationResults = popAndStratResults.populationResults;
     stratifierResults = popAndStratResults.stratifierResults;
     populationResults = handlePopulationValues(populationResults, populationGroup, measureScoringCode);
+    if (stratifierResults) {
+      stratifierResults = handleStratificationValues(populationGroup, populationResults, stratifierResults);
+    }
   } else {
     // episode of care based measure
     // collect results per episode
@@ -45,6 +48,9 @@ export function createPopulationValues(
       const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
       populationResults = popAndStratResults.populationResults;
       stratifierResults = popAndStratResults.stratifierResults;
+      if (stratifierResults) {
+        stratifierResults = handleStratificationValues(populationGroup, populationResults, stratifierResults);
+      }
     } else {
       populationResults = [];
       stratifierResults = [];
@@ -97,6 +103,9 @@ export function createPopulationValues(
           }
         });
       });
+      if (stratifierResults) {
+        stratifierResults = handleStratificationValues(populationGroup, populationResults, stratifierResults);
+      }
     }
   }
   const detailedResult: DetailedPopulationGroupResult = {
@@ -304,27 +313,11 @@ export function createPatientPopulationValues(
     populationGroup.stratifier.forEach(strata => {
       if (strata.criteria?.expression) {
         const value = patientResults[strata.criteria?.expression];
-
-        // if the cqfm-appliesTo extension is present, then we want to consider the result of that
-        // population in our stratifier result
-        const appliesToExtension = strata.extension?.find(
-          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
-        );
-
-        let popValue = true;
-        if (appliesToExtension) {
-          const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
-          if (popCode) {
-            popValue = patientResults[popCode];
-          }
-        }
         const result = isStatementValueTruthy(value);
-        const appliesResult = isStatementValueTruthy(value && popValue);
 
         stratifierResults?.push({
           strataCode: strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`,
           result,
-          appliesResult,
           ...(strata.id ? { strataId: strata.id } : {})
         });
       }
@@ -335,6 +328,39 @@ export function createPatientPopulationValues(
     populationResults,
     stratifierResults
   };
+}
+
+export function handleStratificationValues(
+  populationGroup: fhir4.MeasureGroup,
+  populationResults: PopulationResult[],
+  stratifierResults: StratifierResult[]
+): StratifierResult[] {
+  if (populationGroup.stratifier) {
+    populationGroup.stratifier.forEach(strata => {
+      if (strata.criteria?.expression) {
+        const strataResult = stratifierResults.find(strataRes => strataRes.strataId === strata.id);
+
+        if (strataResult) {
+          // if the cqfm-appliesTo extension is present, then we want to consider the result of that
+          // population in our stratifier result
+          const appliesToExtension = strata.extension?.find(
+            e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
+          );
+
+          let popValue = true;
+          if (appliesToExtension) {
+            const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
+            if (popCode) {
+              popValue = populationResults.find(pr => pr.populationType === popCode)?.result ?? true;
+            }
+          }
+          console.log(popValue);
+          strataResult.appliesResult = isStatementValueTruthy(popValue && strataResult.result);
+        }
+      }
+    });
+  }
+  return stratifierResults;
 }
 
 function isStatementValueTruthy(value: any): boolean {
