@@ -522,7 +522,45 @@ fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundl
 
 ## Stratification
 
-For Measures with
+The results for each stratifier on a Measure (if they exist) are reported on the DetailedResults array for each group. The StratifierResult object contains two result attributes: `result` and `appliesResult`. `result` is simply the raw result of the stratifier and `appliesResult` is the same unless that stratifier contains a [cqfm-appliesTo extension](https://hl7.org/fhir/us/cqfmeasures/STU4/StructureDefinition-cqfm-appliesTo.html). In the case that a stratifier applies to a specified population, the `appliesResult` is the result of the stratifier result AND the result of the specified population. The following is an example of what the DetailedResults would look like for a Measure whose single stratifier has a result of `true` but appliesTo the numerator population that has a result of `false`.
+
+```typescript
+[
+  {
+    patientId: 'patient-1',
+    detailedResults: [
+      {
+        groupId: 'group-1',
+        populationResults: [
+          {
+            populationType: 'initial-population',
+            criteriaExpression: 'Initial Population',
+            result: false
+          },
+          {
+            populationType: 'denominator',
+            criteriaExpression: 'Denominator',
+            result: false
+          },
+          {
+            populationType: 'numerator',
+            criteriaExpression: 'Numerator',
+            result: false
+          }
+        ],
+        stratifierResults: [
+          {
+            strataCode: 'strata-1',
+            result: true,
+            appliesResult: false,
+            strataId: 'strata-1'
+          }
+        ]
+      }
+    ]
+  }
+];
+```
 
 ## Measures with Observation Functions
 
