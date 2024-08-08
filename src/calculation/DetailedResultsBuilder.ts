@@ -482,6 +482,9 @@ export function createEpisodePopulationValues(
       populationGroup,
       measureScoringCode
     );
+    if (episodeResults.stratifierResults) {
+      handleStratificationValues(populationGroup, episodeResults.populationResults, episodeResults.stratifierResults);
+    }
   });
 
   // TODO: Remove any episode that don't fall in any populations or stratifications after the above code
