@@ -336,26 +336,25 @@ export function handleStratificationValues(
   stratifierResults: StratifierResult[]
 ): StratifierResult[] {
   if (populationGroup.stratifier) {
-    populationGroup.stratifier.forEach(strata => {
-      if (strata.criteria?.expression) {
-        const strataResult = stratifierResults.find(strataRes => strataRes.strataId === strata.id);
+    stratifierResults.forEach(stratRes => {
+      const strata =
+        populationGroup.stratifier?.find(s => s.id === stratRes.strataCode) ||
+        populationGroup.stratifier?.find(s => s.code && s.code.text === stratRes.strataCode);
+      if (strata) {
+        // if the cqfm-appliesTo extension is present, then we want to consider the result of that
+        // population in our stratifier result
+        const appliesToExtension = strata.extension?.find(
+          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
+        );
 
-        if (strataResult) {
-          // if the cqfm-appliesTo extension is present, then we want to consider the result of that
-          // population in our stratifier result
-          const appliesToExtension = strata.extension?.find(
-            e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
-          );
-
-          let popValue = true;
-          if (appliesToExtension) {
-            const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
-            if (popCode) {
-              popValue = populationResults.find(pr => pr.populationType === popCode)?.result ?? true;
-            }
+        let popValue = true;
+        if (appliesToExtension) {
+          const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
+          if (popCode) {
+            popValue = populationResults.find(pr => pr.populationType === popCode)?.result ?? true;
           }
-          strataResult.appliesResult = popValue && strataResult.result;
         }
+        stratRes.appliesResult = popValue && stratRes.result;
       }
     });
   }
