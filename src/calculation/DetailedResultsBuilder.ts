@@ -98,6 +98,7 @@ export function createPopulationValues(
             stratifierResults?.push({
               result: strat.result,
               strataCode: strat.strataCode,
+              appliesResult: strat.result,
               ...(strat.strataId ? { strataId: strat.strataId } : {})
             });
           }
@@ -318,6 +319,7 @@ export function createPatientPopulationValues(
         stratifierResults?.push({
           strataCode: strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`,
           result,
+          appliesResult: result,
           ...(strata.id ? { strataId: strata.id } : {})
         });
       }
@@ -565,7 +567,8 @@ function createOrSetValueOfEpisodes(
               newEpisodeResults.stratifierResults?.push({
                 ...(strataId ? { strataId } : {}),
                 strataCode: newStrataCode,
-                result: newStrataCode === strataCode ? true : false
+                result: newStrataCode === strataCode ? true : false,
+                appliesResult: newStrataCode === strataCode ? true : false
               });
             });
           }

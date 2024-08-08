@@ -236,7 +236,7 @@ export interface StratifierResult {
    * result it appliesTo is true. False if not. Only implemented for
    * patient based measures currently.
    */
-  appliesResult?: boolean;
+  appliesResult: boolean;
   strataId?: string;
 }
 

@@ -265,21 +265,25 @@ const propWithStratExecutionResults: ExecutionResult<DetailedPopulationGroupResu
           {
             strataCode: '93f5f1c7-8638-40a4-a596-8b5831599209',
             result: false,
+            appliesResult: false,
             strataId: '93f5f1c7-8638-40a4-a596-8b5831599209'
           },
           {
             strataCode: '5baf37c7-8887-4576-837e-ea20a8938282',
             result: false,
+            appliesResult: false,
             strataId: '5baf37c7-8887-4576-837e-ea20a8938282'
           },
           {
             strataCode: '125b3d95-2d00-455f-8a6e-d53614a2a50e',
             result: false,
+            appliesResult: false,
             strataId: '125b3d95-2d00-455f-8a6e-d53614a2a50e'
           },
           {
             strataCode: 'c06647b9-e134-4189-858d-80cee23c0f8d',
             result: false,
+            appliesResult: false,
             strataId: 'c06647b9-e134-4189-858d-80cee23c0f8d'
           }
         ],
@@ -417,7 +421,7 @@ describe('MeasureReportBuilder Static', () => {
       result!.stratifierResults!.forEach(sr => {
         const stratifierResult = group.stratifier?.find(s => s.id === sr.strataId);
         expect(stratifierResult).toBeDefined();
-        expect(stratifierResult!.stratum?.[0].population?.length).toEqual(1);
+        expect(stratifierResult!.stratum?.[0].population?.length).toEqual(4);
         expect(stratifierResult!.stratum?.[0].measureScore?.value).toEqual(0);
       });
     });
@@ -441,11 +445,13 @@ describe('MeasureReportBuilder Static', () => {
               {
                 strataCode: '93f5f1c7-8638-40a4-a596-8b5831599209',
                 result: false,
+                appliesResult: false,
                 strataId: '93f5f1c7-8638-40a4-a596-8b5831599209'
               },
               {
                 strataCode: '5baf37c7-8887-4576-837e-ea20a8938282',
                 result: false,
+                appliesResult: false,
                 strataId: '5baf37c7-8887-4576-837e-ea20a8938282'
               }
             ]
@@ -462,11 +468,13 @@ describe('MeasureReportBuilder Static', () => {
               {
                 strataCode: '125b3d95-2d00-455f-8a6e-d53614a2a50e',
                 result: false,
+                appliesResult: false,
                 strataId: '125b3d95-2d00-455f-8a6e-d53614a2a50e'
               },
               {
                 strataCode: 'c06647b9-e134-4189-858d-80cee23c0f8d',
                 result: false,
+                appliesResult: false,
                 strataId: 'c06647b9-e134-4189-858d-80cee23c0f8d'
               }
             ]
@@ -475,10 +483,10 @@ describe('MeasureReportBuilder Static', () => {
       });
     });
 
-    test('should generate a summary MeasureReport whose stratifierResults only contain one population in the stratum', () => {
+    test('should generate a summary MeasureReport whose stratifierResults only contain all populations', () => {
       const { report } = builder;
       expect(report).toBeDefined();
-      expect(report.group?.[0].stratifier?.[0].stratum?.[0].population?.length).toEqual(1);
+      expect(report.group?.[0].stratifier?.[0].stratum?.[0].population?.length).toEqual(4);
     });
   });
 

@@ -140,23 +140,9 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
           const strat = <fhir4.MeasureReportGroupStratifierStratum>{};
           // use existing populations, but reduce count as appropriate
           // Deep copy population with matching attributes but different interface
-          // if a stratifier has a cqfm-appliesTo extension, then we only want to
-          // include that population. If none is specified, the stratification applies
-          // to all populations in a group
-          const appliesToExtension = s.extension?.find(
-            e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
+          strat.population = <fhir4.MeasureReportGroupStratifierStratumPopulation[]>(
+            JSON.parse(JSON.stringify(group.population))
           );
-          if (appliesToExtension) {
-            const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
-            const matchingPop = group.population?.find(p => p.code?.coding?.[0].code === popCode);
-            strat.population = <fhir4.MeasureReportGroupStratifierStratumPopulation[]>(
-              JSON.parse(JSON.stringify([matchingPop]))
-            );
-          } else {
-            strat.population = <fhir4.MeasureReportGroupStratifierStratumPopulation[]>(
-              JSON.parse(JSON.stringify(group.population))
-            );
-          }
 
           reportStratifier.stratum = [strat];
           group.stratifier?.push(reportStratifier);
@@ -278,7 +264,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
         if (group.stratifier) {
           groupResults.stratifierResults?.forEach(stratResults => {
             // only add to results if this patient is in the strata
-            if (stratResults.result) {
+            if (stratResults.appliesResult) {
               // the strataCode has the potential to be a couple of things, either s.code[0].text (previous measures)
               // or s.id (newer measures)
               const strata: MeasureReportGroupStratifier | undefined =

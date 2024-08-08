@@ -1152,6 +1152,7 @@ describe('DetailedResultsBuilder', () => {
         {
           strataCode: 'example-strata-id',
           result: true,
+          appliesResult: true,
           strataId: 'example-strata-id'
         }
       ];
@@ -1201,6 +1202,7 @@ describe('DetailedResultsBuilder', () => {
         {
           strataCode: 'example-strata-id',
           result: true,
+          appliesResult: true,
           strataId: 'example-strata-id'
         }
       ];

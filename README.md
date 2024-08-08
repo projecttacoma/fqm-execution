@@ -520,6 +520,10 @@ fqm-execution reports -m /path/to/measure/bundle.json -p /path/to/patient1/bundl
 
 # Guides and Concepts
 
+## Stratification
+
+For Measures with
+
 ## Measures with Observation Functions
 
 For [Continuous Variable Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#continuous-variable-measure) and [Ratio Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#ratio-measures), some of the measure populations can have an associated "measure observation", which is a CQL function that will return some result based on some information present on the data during calculation. In the case of these measures, `fqm-execution` will include an `observations` property on the `populationResult` object for each measure observation population. This `observations` property
