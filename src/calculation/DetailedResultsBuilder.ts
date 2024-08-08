@@ -354,8 +354,7 @@ export function handleStratificationValues(
               popValue = populationResults.find(pr => pr.populationType === popCode)?.result ?? true;
             }
           }
-          console.log(popValue);
-          strataResult.appliesResult = isStatementValueTruthy(popValue && strataResult.result);
+          strataResult.appliesResult = popValue && strataResult.result;
         }
       }
     });
