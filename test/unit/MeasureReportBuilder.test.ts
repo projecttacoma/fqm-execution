@@ -483,7 +483,7 @@ describe('MeasureReportBuilder Static', () => {
       });
     });
 
-    test('should generate a summary MeasureReport whose stratifierResults only contain all populations', () => {
+    test('should generate a summary MeasureReport whose stratifierResults contain all populations', () => {
       const { report } = builder;
       expect(report).toBeDefined();
       expect(report.group?.[0].stratifier?.[0].stratum?.[0].population?.length).toEqual(4);
