@@ -1335,10 +1335,10 @@ The `./regression` directory is organized for internal calculation testing betwe
 -v, --verbose <boolean>                           Use verbose regression. Will print out diffs of failing JSON files with spacing (default: false)
 ```
 
-To run the regression testing script, in the `./regression` directory run:
+To run the regression testing script, in the `fqm-execution` root directory run:
 
 ```bash
-./run-regression
+./regression/run-regression.sh
 ```
 
 ### Data Requirements Testing
