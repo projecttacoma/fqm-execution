@@ -3,7 +3,7 @@ import * as DetailedResultsBuilder from '../../src/calculation/DetailedResultsBu
 import { getJSONFixture } from './helpers/testHelpers';
 import { MeasureScoreType, PopulationType } from '../../src/types/Enums';
 import { StatementResults } from '../../src/types/CQLTypes';
-import { PopulationResult, EpisodeResults } from '../../src/types/Calculator';
+import { PopulationResult, EpisodeResults, StratifierResult } from '../../src/types/Calculator';
 import { ELMExpressionRef, ELMQuery, ELMTuple, ELMFunctionRef } from '../../src/types/ELMTypes';
 
 type MeasureWithGroup = fhir4.Measure & {
@@ -1108,6 +1108,122 @@ describe('DetailedResultsBuilder', () => {
           DetailedResultsBuilder.handlePopulationValues(populationResults, ratioMeasureGroup, MeasureScoreType.RATIO)
         ).toEqual(expectedHandledResults);
       });
+    });
+  });
+
+  describe('handleStratificationValues', () => {
+    test('it should take population result into consider when appliesTo extension exists', () => {
+      const populationGroup: fhir4.MeasureGroup = {
+        stratifier: [
+          {
+            id: 'example-strata-id',
+            extension: [
+              {
+                url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo',
+                valueCodeableConcept: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population',
+                      display: 'Initial Population'
+                    }
+                  ]
+                }
+              }
+            ],
+            criteria: {
+              expression: 'strat1',
+              language: 'text/cql'
+            }
+          }
+        ]
+      };
+
+      const populationResults: PopulationResult[] = [
+        {
+          populationType: PopulationType.IPP,
+          criteriaExpression: 'Initial Population',
+          result: false,
+          populationId: 'exampleId'
+        }
+      ];
+
+      const stratifierResults: StratifierResult[] = [
+        {
+          strataCode: 'example-strata-id',
+          result: true,
+          appliesResult: true,
+          strataId: 'example-strata-id'
+        }
+      ];
+
+      const newStratifierResults = DetailedResultsBuilder.handleStratificationValues(
+        populationGroup,
+        populationResults,
+        stratifierResults
+      );
+
+      expect(newStratifierResults).toBeDefined();
+      expect(newStratifierResults).toHaveLength(1);
+      expect(newStratifierResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            strataId: 'example-strata-id',
+            result: true,
+            appliesResult: false
+          })
+        ])
+      );
+    });
+
+    test('it should not take population result into consideration when appliesTo extension does not exist', () => {
+      const populationGroup: fhir4.MeasureGroup = {
+        stratifier: [
+          {
+            id: 'example-strata-id',
+            criteria: {
+              expression: 'strat1',
+              language: 'text/cql'
+            }
+          }
+        ]
+      };
+
+      const populationResults: PopulationResult[] = [
+        {
+          populationType: PopulationType.IPP,
+          criteriaExpression: 'Initial Population',
+          result: false,
+          populationId: 'exampleId'
+        }
+      ];
+
+      const stratifierResults: StratifierResult[] = [
+        {
+          strataCode: 'example-strata-id',
+          result: true,
+          appliesResult: true,
+          strataId: 'example-strata-id'
+        }
+      ];
+
+      const newStratifierResults = DetailedResultsBuilder.handleStratificationValues(
+        populationGroup,
+        populationResults,
+        stratifierResults
+      );
+
+      expect(newStratifierResults).toBeDefined();
+      expect(newStratifierResults).toHaveLength(1);
+      expect(newStratifierResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            strataId: 'example-strata-id',
+            result: true,
+            appliesResult: true
+          })
+        ])
+      );
     });
   });
 

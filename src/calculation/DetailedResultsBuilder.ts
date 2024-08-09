@@ -33,6 +33,9 @@ export function createPopulationValues(
     populationResults = popAndStratResults.populationResults;
     stratifierResults = popAndStratResults.stratifierResults;
     populationResults = handlePopulationValues(populationResults, populationGroup, measureScoringCode);
+    if (stratifierResults) {
+      stratifierResults = handleStratificationValues(populationGroup, populationResults, stratifierResults);
+    }
   } else {
     // episode of care based measure
     // collect results per episode
@@ -45,6 +48,9 @@ export function createPopulationValues(
       const popAndStratResults = createPatientPopulationValues(populationGroup, patientResults);
       populationResults = popAndStratResults.populationResults;
       stratifierResults = popAndStratResults.stratifierResults;
+      if (stratifierResults) {
+        stratifierResults = handleStratificationValues(populationGroup, populationResults, stratifierResults);
+      }
     } else {
       populationResults = [];
       stratifierResults = [];
@@ -92,11 +98,15 @@ export function createPopulationValues(
             stratifierResults?.push({
               result: strat.result,
               strataCode: strat.strataCode,
+              appliesResult: strat.result,
               ...(strat.strataId ? { strataId: strat.strataId } : {})
             });
           }
         });
       });
+      if (stratifierResults) {
+        stratifierResults = handleStratificationValues(populationGroup, populationResults, stratifierResults);
+      }
     }
   }
   const detailedResult: DetailedPopulationGroupResult = {
@@ -305,9 +315,11 @@ export function createPatientPopulationValues(
       if (strata.criteria?.expression) {
         const value = patientResults[strata.criteria?.expression];
         const result = isStatementValueTruthy(value);
+
         stratifierResults?.push({
           strataCode: strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`,
           result,
+          appliesResult: result,
           ...(strata.id ? { strataId: strata.id } : {})
         });
       }
@@ -318,6 +330,37 @@ export function createPatientPopulationValues(
     populationResults,
     stratifierResults
   };
+}
+
+export function handleStratificationValues(
+  populationGroup: fhir4.MeasureGroup,
+  populationResults: PopulationResult[],
+  stratifierResults: StratifierResult[]
+): StratifierResult[] {
+  if (populationGroup.stratifier) {
+    stratifierResults.forEach(stratRes => {
+      const strata =
+        populationGroup.stratifier?.find(s => s.id === stratRes.strataCode) ||
+        populationGroup.stratifier?.find(s => s.code && s.code.text === stratRes.strataCode);
+      if (strata) {
+        // if the cqfm-appliesTo extension is present, then we want to consider the result of that
+        // population in our stratifier result
+        const appliesToExtension = strata.extension?.find(
+          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
+        );
+
+        let popValue = true;
+        if (appliesToExtension) {
+          const popCode = appliesToExtension.valueCodeableConcept?.coding?.[0].code;
+          if (popCode) {
+            popValue = populationResults.find(pr => pr.populationType === popCode)?.result ?? true;
+          }
+        }
+        stratRes.appliesResult = popValue && stratRes.result;
+      }
+    });
+  }
+  return stratifierResults;
 }
 
 function isStatementValueTruthy(value: any): boolean {
@@ -441,6 +484,9 @@ export function createEpisodePopulationValues(
       populationGroup,
       measureScoringCode
     );
+    if (episodeResults.stratifierResults) {
+      handleStratificationValues(populationGroup, episodeResults.populationResults, episodeResults.stratifierResults);
+    }
   });
 
   // TODO: Remove any episode that don't fall in any populations or stratifications after the above code
@@ -521,7 +567,8 @@ function createOrSetValueOfEpisodes(
               newEpisodeResults.stratifierResults?.push({
                 ...(strataId ? { strataId } : {}),
                 strataCode: newStrataCode,
-                result: newStrataCode === strataCode ? true : false
+                result: newStrataCode === strataCode ? true : false,
+                appliesResult: newStrataCode === strataCode ? true : false
               });
             });
           }

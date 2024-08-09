@@ -231,6 +231,12 @@ export interface StratifierResult {
    * True if patient or episode is in stratifier. False if not.
    */
   result: boolean;
+  /**
+   * True if patient or episode is in stratifier AND the population
+   * result it appliesTo is true. False if not. Only implemented for
+   * patient based measures currently.
+   */
+  appliesResult: boolean;
   strataId?: string;
 }
 
