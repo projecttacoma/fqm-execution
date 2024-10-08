@@ -227,7 +227,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
                 // or s.id (newer measures)
                 const strata: MeasureReportGroupStratifier | undefined =
                   group.stratifier?.find(s => s.code && s.code[0]?.text === stratResults.strataCode) ||
-                  group.stratifier?.find(s => s.id === stratResults.strataCode);
+                  group.stratifier?.find(s => s.id === stratResults.strataId);
                 const stratum = strata?.stratum?.[0];
                 if (stratum) {
                   er.populationResults?.forEach(pr => {
