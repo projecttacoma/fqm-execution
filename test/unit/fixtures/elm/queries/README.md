@@ -8,7 +8,7 @@
 
 To use the `Makefile` provided in this directory to translate CQL into ELM JSON:
 
-* Navigate to the `test/fixtures/elm/queries` directory in the command line
+* Navigate to the `test/unit/fixtures/elm/queries` directory in the command line
 * Put your CQL in a file (or multiple files) in the `queries` directory, with the `.cql` extension
 * run `make` in this directory. `make` will:
     * Start the translation service in Docker (if not already started)

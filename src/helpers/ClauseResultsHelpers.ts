@@ -3,7 +3,7 @@ import { ELMFunctionRef } from '../types/ELMTypes';
 import { ELM, ELMBinaryExpression, ELMStatement } from '../types/ELMTypes';
 
 /**
- * Finds all localIds in a statement by it's library and statement name.
+ * Finds all localIds in a statement by its library and statement name.
  * @public
  * @param {ELM} libraryElm - The library the statement belongs to.
  * @param {string} statementName - The statement name to search for.
@@ -49,7 +49,37 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
       clause.isUnsupported = true;
     }
   }
-  return localIds;
+
+  // find all localids in the annotation
+  const allAnnotatedIds = findAnnotationLocalIds(statement?.annotation);
+  // filter out local ids that aren't in the annotation
+  const annotatedLocalIds: { [key: string]: any } = {};
+  for (const [key, value] of Object.entries(localIds)) {
+    if (allAnnotatedIds.includes(key)) {
+      annotatedLocalIds[key] = value;
+    }
+  }
+  return annotatedLocalIds;
+}
+
+/**
+ * Recursively finds just localIds that are in an annotation structure by pulling out all "r:"-keyed values
+ * @public
+ * @param {object} annotation - all or a subset of the annotation structure to search
+ * @return {Array} List of local ids in the annotation.
+ */
+function findAnnotationLocalIds(annotation: any): any[] {
+  if (Array.isArray(annotation)) {
+    return annotation.flatMap(ent => findAnnotationLocalIds(ent));
+  } else if (typeof annotation === 'object') {
+    return Object.entries(annotation).flatMap(ent => {
+      // if key is r, return value, else recurse
+      if (ent[0] === 'r') return ent[1];
+      return findAnnotationLocalIds(ent[1]);
+    });
+  }
+  // default empty
+  return [];
 }
 
 /**
