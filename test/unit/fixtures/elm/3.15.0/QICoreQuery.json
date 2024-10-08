@@ -1,0 +1,418 @@
+{
+  "library": {
+    "localId": "0",
+    "annotation": [
+      {
+        "translatorVersion": "3.15.0",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "signatureLevel": "None",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "215",
+          "s": [
+            {
+              "value": [
+                "",
+                "library QICoreQuery"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "QICoreQuery"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localId": "1",
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "206",
+          "locator": "3:1-3:28",
+          "localIdentifier": "QICore",
+          "uri": "http://hl7.org/fhir",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "206",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "using "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "QICore"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version '4.1.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "207",
+          "locator": "5:1-5:35",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "207",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "include "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIRHelpers"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "codeSystems": {
+      "def": [
+        {
+          "localId": "208",
+          "locator": "7:1-7:42",
+          "name": "EXAMPLE",
+          "id": "http://example.com",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "208",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "codesystem ",
+                      "\"EXAMPLE\"",
+                      ": ",
+                      "'http://example.com'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "localId": "209",
+          "locator": "9:1-9:48",
+          "name": "test-vs",
+          "id": "http://example.com/test-vs",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "209",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "valueset ",
+                      "\"test-vs\"",
+                      ": ",
+                      "'http://example.com/test-vs'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": []
+        }
+      ]
+    },
+    "contexts": {
+      "def": [
+        {
+          "localId": "213",
+          "locator": "11:1-11:15",
+          "name": "Patient"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "localId": "211",
+          "locator": "11:1-11:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "localId": "212",
+            "type": "SingletonFrom",
+            "signature": [],
+            "operand": {
+              "localId": "210",
+              "locator": "11:1-11:15",
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient",
+              "type": "Retrieve",
+              "include": [],
+              "codeFilter": [],
+              "dateFilter": [],
+              "otherFilter": []
+            }
+          }
+        },
+        {
+          "localId": "215",
+          "locator": "13:1-14:75",
+          "name": "Query",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "215",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query\"",
+                      ":\n    "
+                    ]
+                  },
+                  {
+                    "r": "227",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "216",
+                            "s": [
+                              {
+                                "r": "217",
+                                "s": [
+                                  {
+                                    "r": "217",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "ValidEncounter"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          " "
+                        ]
+                      },
+                      {
+                        "r": "226",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "226",
+                            "s": [
+                              {
+                                "r": "220",
+                                "s": [
+                                  {
+                                    "r": "218",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "ValidEncounter"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "220",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "reasonCode"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " in "
+                                ]
+                              },
+                              {
+                                "r": "225",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"test-vs\""
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "227",
+            "locator": "14:5-14:75",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "216",
+                "locator": "14:5-14:30",
+                "alias": "ValidEncounter",
+                "expression": {
+                  "localId": "217",
+                  "locator": "14:5-14:15",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter",
+                  "type": "Retrieve",
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "226",
+              "locator": "14:32-14:75",
+              "type": "AnyInValueSet",
+              "signature": [],
+              "codes": {
+                "localId": "220",
+                "locator": "14:38-14:62",
+                "type": "Query",
+                "source": [
+                  {
+                    "localId": "221",
+                    "alias": "$this",
+                    "expression": {
+                      "localId": "219",
+                      "path": "reasonCode",
+                      "scope": "ValidEncounter",
+                      "type": "Property"
+                    }
+                  }
+                ],
+                "let": [],
+                "relationship": [],
+                "return": {
+                  "localId": "224",
+                  "distinct": false,
+                  "expression": {
+                    "localId": "222",
+                    "name": "ToConcept",
+                    "libraryName": "FHIRHelpers",
+                    "type": "FunctionRef",
+                    "signature": [],
+                    "operand": [
+                      {
+                        "localId": "223",
+                        "name": "$this",
+                        "type": "AliasRef"
+                      }
+                    ]
+                  }
+                }
+              },
+              "valueset": {
+                "localId": "225",
+                "locator": "14:67-14:75",
+                "name": "test-vs",
+                "preserve": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
