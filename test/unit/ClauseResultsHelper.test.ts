@@ -34,6 +34,20 @@ describe('ClauseResultsHelpers', () => {
       expect(localIds[100]).not.toBeDefined();
     });
 
+    test('finds localIds for an not null operator', () => {
+      // ELM from test/unit/fixtures/cql/NotNull.cql, translated with 3.15.0 translator
+      const libraryElm: ELM = getJSONFixture('elm/3.15.0/NotNull.json');
+
+      const statementName = 'Not Null Clause';
+      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+
+      // For the fixture loaded for this test it is known that the localId for the IsNull statement
+      // is 237, and the localId for the Not expression is 238. We want 237 to not be included because 238 is
+      // the correct id from the annotation.
+      expect(localIds[238]).toBeDefined();
+      expect(localIds[237]).not.toBeDefined();
+    });
+
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
       // ELM from test/unit/fixtures/cql/comparisonWithLiteral.cql
       const libraryElm: ELM = getJSONFixture('elm/ComparisonWithLiteral.json');
