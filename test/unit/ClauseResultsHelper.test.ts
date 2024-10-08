@@ -12,10 +12,10 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the localId for the Equivalent statement
-      // is 23 and the localId for the Not expression is 24 but we want the Equivalent clause to take
-      // the result of the Not expression
-      expect(localIds[23]).toBeDefined();
-      expect(localIds[23]).toEqual({ localId: '23', sourceLocalId: '24' });
+      // is 23 and the localId for the Not expression is 24. We want 23 to not be included because 24 is
+      // the correct id from the annotation.
+      expect(localIds[23]).not.toBeDefined();
+      expect(localIds[24]).toBeDefined();
     });
 
     test('finds localIds for an Equal comparison operator that is wrapped in a Not expression', () => {
@@ -28,10 +28,10 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the localId for the Equal statement
-      // is 100 and the localId for the Not expression is 23 but we want the Equal clause to take
-      // the result of the Not expression
-      expect(localIds[100]).toBeDefined();
-      expect(localIds[100]).toEqual({ localId: '100', sourceLocalId: '23' });
+      // is 100, and the localId for the Not expression is 23. We want 100 to not be included because 23 is
+      // the correct id from the annotation.
+      expect(localIds[23]).toBeDefined();
+      expect(localIds[100]).not.toBeDefined();
     });
 
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
