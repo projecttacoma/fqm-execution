@@ -462,7 +462,7 @@ export function createEpisodePopulationValues(
   // loop over stratifications and collect episode results for the strata
   let strataIndex = 1;
   populationGroup.stratifier?.forEach(strata => {
-    const strataCode = strata.code?.text ?? `strata-${strataIndex++}`;
+    const strataCode = strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`;
     if (strata.criteria?.expression) {
       const rawEpisodeResults = patientResults[strata.criteria?.expression];
       createOrSetValueOfEpisodes(
@@ -563,7 +563,7 @@ function createOrSetValueOfEpisodes(
             newEpisodeResults.stratifierResults = [];
             let strataIndex = 1;
             populationGroup.stratifier?.forEach(strata => {
-              const newStrataCode = strata.code?.text ?? `strata-${strataIndex++}`;
+              const newStrataCode = strata.code?.text ?? strata.id ?? `strata-${strataIndex++}`;
               newEpisodeResults.stratifierResults?.push({
                 ...(strataId ? { strataId } : {}),
                 strataCode: newStrataCode,

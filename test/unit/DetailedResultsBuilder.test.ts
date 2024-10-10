@@ -1225,6 +1225,80 @@ describe('DetailedResultsBuilder', () => {
         ])
       );
     });
+
+    test('it should add stratificationIds to stratification results of an individual episode for episode-based measure', () => {
+      const episodeMeasureStrat: fhir4.Measure = {
+        resourceType: 'Measure',
+        status: 'unknown',
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis',
+            valueCode: 'Encounter'
+          }
+        ],
+        group: [
+          {
+            population: [
+              {
+                id: 'example-population-id',
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'initial-population'
+                    }
+                  ]
+                },
+                criteria: {
+                  expression: 'ipp',
+                  language: 'text/cql'
+                }
+              }
+            ],
+            stratifier: [
+              {
+                id: 'example-stratifier-id',
+                criteria: {
+                  language: 'text/cql-identifier',
+                  expression: 'Strat1'
+                }
+              }
+            ]
+          }
+        ]
+      };
+
+      const group = (episodeMeasureStrat.group as [fhir4.MeasureGroup])[0];
+
+      const statementResults: StatementResults = {
+        ipp: [
+          {
+            id: {
+              value: 'example-encounter'
+            }
+          }
+        ]
+      };
+
+      const { episodeResults } = DetailedResultsBuilder.createPopulationValues(
+        episodeMeasureStrat,
+        group,
+        statementResults
+      );
+
+      expect(episodeResults).toBeDefined();
+      expect(episodeResults).toHaveLength(1);
+
+      const episodeStratifierResults = (episodeResults as EpisodeResults[])[0].stratifierResults;
+
+      expect(episodeStratifierResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            strataCode: 'example-stratifier-id'
+          })
+        ])
+      );
+    });
   });
 
   describe('ELM JSON Function', () => {
