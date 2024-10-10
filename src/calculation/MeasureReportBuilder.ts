@@ -647,9 +647,9 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     options: CalculationOptions
   ): fhir4.MeasureReport[] {
     const reports: fhir4.MeasureReport[] = [];
+    const measure = extractMeasureFromBundle(measureBundle);
+    const builder = new MeasureReportBuilder(measure, options);
     executionResults.forEach(result => {
-      const measure = extractMeasureFromBundle(measureBundle);
-      const builder = new MeasureReportBuilder(measure, options);
       builder.addPatientResults(result);
       reports.push(builder.getReport());
     });
