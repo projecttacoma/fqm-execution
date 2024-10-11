@@ -68,13 +68,13 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
  * @param {object} annotation - all or a subset of the annotation structure to search
  * @return {Array} List of local ids in the annotation.
  */
-function findAnnotationLocalIds(annotation: any): any[] {
+function findAnnotationLocalIds(annotation: any): string[] {
   if (Array.isArray(annotation)) {
     return annotation.flatMap(ent => findAnnotationLocalIds(ent));
   } else if (typeof annotation === 'object') {
     return Object.entries(annotation).flatMap(ent => {
       // if key is r, return value, else recurse
-      if (ent[0] === 'r') return ent[1];
+      if (ent[0] === 'r') return ent[1] as string;
       return findAnnotationLocalIds(ent[1]);
     });
   }
