@@ -227,7 +227,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
                 // or s.id (newer measures)
                 const strata: MeasureReportGroupStratifier | undefined =
                   group.stratifier?.find(s => s.code && s.code[0]?.text === stratResults.strataCode) ||
-                  group.stratifier?.find(s => s.id === stratResults.strataCode);
+                  group.stratifier?.find(s => s.id === stratResults.strataCode); // strataCode may have an id value if code did not originally exist
                 const stratum = strata?.stratum?.[0];
                 if (stratum) {
                   er.populationResults?.forEach(pr => {
@@ -647,8 +647,8 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     options: CalculationOptions
   ): fhir4.MeasureReport[] {
     const reports: fhir4.MeasureReport[] = [];
+    const measure = extractMeasureFromBundle(measureBundle);
     executionResults.forEach(result => {
-      const measure = extractMeasureFromBundle(measureBundle);
       const builder = new MeasureReportBuilder(measure, options);
       builder.addPatientResults(result);
       reports.push(builder.getReport());
