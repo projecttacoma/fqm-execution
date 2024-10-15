@@ -427,7 +427,7 @@ describe('MeasureReportBuilder Static', () => {
       );
     });
 
-    test('should generate 1 result', () => {
+    test('should generate one measure report', () => {
       expect(measureReports).toBeDefined();
       expect(measureReports).toHaveLength(1);
     });
@@ -510,7 +510,7 @@ describe('MeasureReportBuilder Static', () => {
       );
     });
 
-    test('should generate 1 result', () => {
+    test('should generate one measure report', () => {
       expect(measureReports).toBeDefined();
       expect(measureReports).toHaveLength(1);
     });
@@ -616,7 +616,7 @@ describe('MeasureReportBuilder Static', () => {
       );
     });
 
-    test('should generate 1 result', () => {
+    test('should generate one measure report', () => {
       expect(measureReports).toBeDefined();
       expect(measureReports).toHaveLength(1);
     });
