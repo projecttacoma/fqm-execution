@@ -1,0 +1,4980 @@
+{
+  "library": {
+    "localId": "0",
+    "annotation": [
+      {
+        "translatorVersion": "3.15.0",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "signatureLevel": "None",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "message": "The function FHIRHelpers.ToInterval has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "message": "The function FHIRHelpers.ToInterval has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "message": "The function FHIRHelpers.ToDateTime has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "message": "The function FHIRHelpers.ToInterval has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "message": "The function FHIRHelpers.ToDateTime has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "message": "The function FHIRHelpers.ToInterval has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "520",
+          "s": [
+            {
+              "value": [
+                "/* Extra queries that may have ELM chunks used for QueryFilterParsing tests. */\n",
+                "library ExtraQueries version '0.0.1'"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "ExtraQueries",
+      "version": "0.0.1"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localId": "1",
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "206",
+          "locator": "4:1-4:26",
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "206",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "using "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIR"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version '4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "207",
+          "locator": "6:1-6:35",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "207",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "include "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIRHelpers"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "localId": "208",
+          "locator": "7:1-7:64",
+          "localIdentifier": "Global",
+          "path": "MATGlobalCommonFunctions",
+          "version": "5.0.000",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "208",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "include "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "MATGlobalCommonFunctions"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'5.0.000'",
+                      " called ",
+                      "Global"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "parameters": {
+      "def": [
+        {
+          "localId": "230",
+          "locator": "24:1-24:114",
+          "name": "Measurement Period",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "230",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "parameter ",
+                      "\"Measurement Period\"",
+                      " "
+                    ]
+                  },
+                  {
+                    "r": "248",
+                    "s": [
+                      {
+                        "value": [
+                          "Interval<"
+                        ]
+                      },
+                      {
+                        "r": "249",
+                        "s": [
+                          {
+                            "value": [
+                              "DateTime"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          ">"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      "default "
+                    ]
+                  },
+                  {
+                    "r": "247",
+                    "s": [
+                      {
+                        "r": "231",
+                        "value": [
+                          "Interval[",
+                          "@2019-01-01T00:00:00.0",
+                          ", ",
+                          "@2020-01-01T00:00:00.0",
+                          " )"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "default": {
+            "localId": "247",
+            "locator": "24:58-24:114",
+            "lowClosed": true,
+            "highClosed": false,
+            "type": "Interval",
+            "low": {
+              "localId": "231",
+              "locator": "24:67-24:88",
+              "type": "DateTime",
+              "signature": [],
+              "year": {
+                "localId": "232",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "2019",
+                "type": "Literal"
+              },
+              "month": {
+                "localId": "233",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "day": {
+                "localId": "234",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "hour": {
+                "localId": "235",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "minute": {
+                "localId": "236",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "second": {
+                "localId": "237",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "millisecond": {
+                "localId": "238",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              }
+            },
+            "high": {
+              "localId": "239",
+              "locator": "24:91-24:112",
+              "type": "DateTime",
+              "signature": [],
+              "year": {
+                "localId": "240",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "2020",
+                "type": "Literal"
+              },
+              "month": {
+                "localId": "241",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "day": {
+                "localId": "242",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "1",
+                "type": "Literal"
+              },
+              "hour": {
+                "localId": "243",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "minute": {
+                "localId": "244",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "second": {
+                "localId": "245",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              },
+              "millisecond": {
+                "localId": "246",
+                "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                "value": "0",
+                "type": "Literal"
+              }
+            }
+          },
+          "parameterTypeSpecifier": {
+            "localId": "248",
+            "locator": "24:32-24:49",
+            "type": "IntervalTypeSpecifier",
+            "pointType": {
+              "localId": "249",
+              "locator": "24:41-24:48",
+              "name": "{urn:hl7-org:elm-types:r1}DateTime",
+              "type": "NamedTypeSpecifier"
+            }
+          }
+        },
+        {
+          "localId": "250",
+          "locator": "25:1-25:41",
+          "name": "Index Date",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "250",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "parameter ",
+                      "\"Index Date\"",
+                      " "
+                    ]
+                  },
+                  {
+                    "r": "251",
+                    "s": [
+                      {
+                        "value": [
+                          "Interval<"
+                        ]
+                      },
+                      {
+                        "r": "252",
+                        "s": [
+                          {
+                            "value": [
+                              "DateTime"
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          ">"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "parameterTypeSpecifier": {
+            "localId": "251",
+            "locator": "25:24-25:41",
+            "type": "IntervalTypeSpecifier",
+            "pointType": {
+              "localId": "252",
+              "locator": "25:33-25:40",
+              "name": "{urn:hl7-org:elm-types:r1}DateTime",
+              "type": "NamedTypeSpecifier"
+            }
+          }
+        }
+      ]
+    },
+    "codeSystems": {
+      "def": [
+        {
+          "localId": "209",
+          "locator": "9:1-9:42",
+          "name": "EXAMPLE",
+          "id": "http://example.com",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "209",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "codesystem ",
+                      "\"EXAMPLE\"",
+                      ": ",
+                      "'http://example.com'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "localId": "210",
+          "locator": "10:1-10:46",
+          "name": "EXAMPLE-2",
+          "id": "http://example.com/2",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "210",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "codesystem ",
+                      "\"EXAMPLE-2\"",
+                      ": ",
+                      "'http://example.com/2'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "localId": "211",
+          "locator": "11:1-11:101",
+          "name": "ConditionClinicalStatusCodes",
+          "id": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "211",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "codesystem ",
+                      "\"ConditionClinicalStatusCodes\"",
+                      ": ",
+                      "'http://terminology.hl7.org/CodeSystem/condition-clinical'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "localId": "212",
+          "locator": "13:1-13:48",
+          "name": "test-vs",
+          "id": "http://example.com/test-vs",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "212",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "valueset ",
+                      "\"test-vs\"",
+                      ": ",
+                      "'http://example.com/test-vs'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": []
+        }
+      ]
+    },
+    "codes": {
+      "def": [
+        {
+          "localId": "213",
+          "locator": "15:1-15:39",
+          "name": "test-code",
+          "id": "test",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "213",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "code ",
+                      "\"test-code\"",
+                      ": ",
+                      "'test'",
+                      " from "
+                    ]
+                  },
+                  {
+                    "r": "214",
+                    "s": [
+                      {
+                        "value": [
+                          "\"EXAMPLE\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "214",
+            "locator": "15:31-15:39",
+            "name": "EXAMPLE"
+          }
+        },
+        {
+          "localId": "215",
+          "locator": "16:1-16:45",
+          "name": "test-code-2",
+          "id": "test-2",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "215",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "code ",
+                      "\"test-code-2\"",
+                      ": ",
+                      "'test-2'",
+                      " from "
+                    ]
+                  },
+                  {
+                    "r": "216",
+                    "s": [
+                      {
+                        "value": [
+                          "\"EXAMPLE-2\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "216",
+            "locator": "16:35-16:45",
+            "name": "EXAMPLE-2"
+          }
+        },
+        {
+          "localId": "217",
+          "locator": "17:1-17:59",
+          "name": "Active",
+          "id": "active",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "217",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "code ",
+                      "\"Active\"",
+                      ": ",
+                      "'active'",
+                      " from "
+                    ]
+                  },
+                  {
+                    "r": "218",
+                    "s": [
+                      {
+                        "value": [
+                          "\"ConditionClinicalStatusCodes\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "218",
+            "locator": "17:30-17:59",
+            "name": "ConditionClinicalStatusCodes"
+          }
+        },
+        {
+          "localId": "219",
+          "locator": "18:1-18:67",
+          "name": "Recurrence",
+          "id": "recurrence",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "219",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "code ",
+                      "\"Recurrence\"",
+                      ": ",
+                      "'recurrence'",
+                      " from "
+                    ]
+                  },
+                  {
+                    "r": "220",
+                    "s": [
+                      {
+                        "value": [
+                          "\"ConditionClinicalStatusCodes\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "220",
+            "locator": "18:38-18:67",
+            "name": "ConditionClinicalStatusCodes"
+          }
+        },
+        {
+          "localId": "221",
+          "locator": "19:1-19:61",
+          "name": "Relapse",
+          "id": "relapse",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "221",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "code ",
+                      "\"Relapse\"",
+                      ": ",
+                      "'relapse'",
+                      " from "
+                    ]
+                  },
+                  {
+                    "r": "222",
+                    "s": [
+                      {
+                        "value": [
+                          "\"ConditionClinicalStatusCodes\""
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": {
+            "localId": "222",
+            "locator": "19:32-19:61",
+            "name": "ConditionClinicalStatusCodes"
+          }
+        }
+      ]
+    },
+    "concepts": {
+      "def": [
+        {
+          "localId": "223",
+          "locator": "21:1-21:77",
+          "name": "test-concept",
+          "display": "test-concept",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "223",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "concept ",
+                      "\"test-concept\"",
+                      ": { "
+                    ]
+                  },
+                  {
+                    "r": "224",
+                    "s": [
+                      {
+                        "value": [
+                          "\"test-code\""
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      ", "
+                    ]
+                  },
+                  {
+                    "r": "225",
+                    "s": [
+                      {
+                        "value": [
+                          "\"test-code-2\""
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " } display ",
+                      "'test-concept'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "code": [
+            {
+              "localId": "224",
+              "locator": "21:27-21:37",
+              "name": "test-code"
+            },
+            {
+              "localId": "225",
+              "locator": "21:40-21:52",
+              "name": "test-code-2"
+            }
+          ]
+        },
+        {
+          "localId": "226",
+          "locator": "22:1-22:82",
+          "name": "Condition Active",
+          "display": "Active",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "226",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "concept ",
+                      "\"Condition Active\"",
+                      ": { "
+                    ]
+                  },
+                  {
+                    "r": "227",
+                    "s": [
+                      {
+                        "value": [
+                          "\"Active\""
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      ", "
+                    ]
+                  },
+                  {
+                    "r": "228",
+                    "s": [
+                      {
+                        "value": [
+                          "\"Recurrence\""
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      ", "
+                    ]
+                  },
+                  {
+                    "r": "229",
+                    "s": [
+                      {
+                        "value": [
+                          "\"Relapse\""
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " } display ",
+                      "'Active'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "code": [
+            {
+              "localId": "227",
+              "locator": "22:31-22:38",
+              "name": "Active"
+            },
+            {
+              "localId": "228",
+              "locator": "22:41-22:52",
+              "name": "Recurrence"
+            },
+            {
+              "localId": "229",
+              "locator": "22:55-22:63",
+              "name": "Relapse"
+            }
+          ]
+        }
+      ]
+    },
+    "contexts": {
+      "def": [
+        {
+          "localId": "256",
+          "locator": "27:1-27:15",
+          "name": "Patient"
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "localId": "254",
+          "locator": "27:1-27:15",
+          "name": "Patient",
+          "context": "Patient",
+          "expression": {
+            "localId": "255",
+            "type": "SingletonFrom",
+            "signature": [],
+            "operand": {
+              "localId": "253",
+              "locator": "27:1-27:15",
+              "dataType": "{http://hl7.org/fhir}Patient",
+              "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
+              "type": "Retrieve",
+              "include": [],
+              "codeFilter": [],
+              "dateFilter": [],
+              "otherFilter": []
+            }
+          }
+        },
+        {
+          "localId": "258",
+          "locator": "29:1-31:65",
+          "name": "Function Result is not null",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "258",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Function Result is not null\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "271",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "259",
+                            "s": [
+                              {
+                                "r": "262",
+                                "s": [
+                                  {
+                                    "r": "262",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Condition",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "C"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "270",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "270",
+                            "s": [
+                              {
+                                "r": "268",
+                                "s": [
+                                  {
+                                    "r": "265",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "268",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Normalize Interval\"",
+                                          " ( "
+                                        ]
+                                      },
+                                      {
+                                        "r": "267",
+                                        "s": [
+                                          {
+                                            "r": "266",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "C"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "267",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "abatement"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " )"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " is not null"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "271",
+            "locator": "30:3-31:65",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "259",
+                "locator": "30:3-30:26",
+                "alias": "C",
+                "expression": {
+                  "localId": "262",
+                  "locator": "30:3-30:24",
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "261",
+                    "locator": "30:15-30:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "270",
+              "locator": "31:5-31:65",
+              "type": "Not",
+              "signature": [],
+              "operand": {
+                "localId": "269",
+                "locator": "31:11-31:65",
+                "type": "IsNull",
+                "signature": [],
+                "operand": {
+                  "localId": "268",
+                  "locator": "31:11-31:53",
+                  "name": "Normalize Interval",
+                  "libraryName": "Global",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "267",
+                      "locator": "31:41-31:51",
+                      "path": "abatement",
+                      "scope": "C",
+                      "type": "Property"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "localId": "273",
+          "locator": "33:1-35:41",
+          "name": "Random Interval Param end is not null",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "273",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Random Interval Param end is not null\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "284",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "274",
+                            "s": [
+                              {
+                                "r": "277",
+                                "s": [
+                                  {
+                                    "r": "277",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Condition",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "C"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "283",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "283",
+                            "s": [
+                              {
+                                "r": "280",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "end of "
+                                    ]
+                                  },
+                                  {
+                                    "r": "281",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Index Date\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " is not null"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "284",
+            "locator": "34:3-35:41",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "274",
+                "locator": "34:3-34:26",
+                "alias": "C",
+                "expression": {
+                  "localId": "277",
+                  "locator": "34:3-34:24",
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "276",
+                    "locator": "34:15-34:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "283",
+              "locator": "35:5-35:41",
+              "type": "Not",
+              "signature": [],
+              "operand": {
+                "localId": "282",
+                "locator": "35:11-35:41",
+                "type": "IsNull",
+                "signature": [],
+                "operand": {
+                  "localId": "280",
+                  "locator": "35:11-35:29",
+                  "type": "End",
+                  "signature": [],
+                  "operand": {
+                    "localId": "281",
+                    "locator": "35:18-35:29",
+                    "name": "Index Date",
+                    "type": "ParameterRef"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "localId": "286",
+          "locator": "37:1-38:10",
+          "name": "Not True",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "286",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Not True\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "287",
+                    "s": [
+                      {
+                        "r": "288",
+                        "value": [
+                          "not ",
+                          "true"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "287",
+            "locator": "38:3-38:10",
+            "type": "Not",
+            "signature": [],
+            "operand": {
+              "localId": "288",
+              "locator": "38:7-38:10",
+              "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
+              "value": "true",
+              "type": "Literal"
+            }
+          }
+        },
+        {
+          "localId": "301",
+          "locator": "82:1-83:17",
+          "name": "A Function",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "type": "FunctionDef",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "301",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define function \"A Function\"(period Interval<DateTime>):\n  "
+                    ]
+                  },
+                  {
+                    "r": "566",
+                    "s": [
+                      {
+                        "r": "566",
+                        "s": [
+                          {
+                            "value": [
+                              "start of "
+                            ]
+                          },
+                          {
+                            "r": "567",
+                            "s": [
+                              {
+                                "value": [
+                                  "period"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "566",
+            "locator": "83:3-83:17",
+            "type": "Start",
+            "signature": [],
+            "operand": {
+              "localId": "567",
+              "locator": "83:12-83:17",
+              "name": "period",
+              "type": "OperandRef"
+            }
+          },
+          "operand": [
+            {
+              "localId": "304",
+              "name": "period",
+              "operandTypeSpecifier": {
+                "localId": "302",
+                "locator": "82:37-82:54",
+                "type": "IntervalTypeSpecifier",
+                "pointType": {
+                  "localId": "303",
+                  "locator": "82:46-82:53",
+                  "name": "{urn:hl7-org:elm-types:r1}DateTime",
+                  "type": "NamedTypeSpecifier"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "localId": "290",
+          "locator": "40:1-42:92",
+          "name": "FunctionRef In Same library",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "290",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"FunctionRef In Same library\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "311",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "291",
+                            "s": [
+                              {
+                                "r": "294",
+                                "s": [
+                                  {
+                                    "r": "294",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Condition",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "C"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "310",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "310",
+                            "s": [
+                              {
+                                "r": "305",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"A Function\"",
+                                      "("
+                                    ]
+                                  },
+                                  {
+                                    "r": "300",
+                                    "s": [
+                                      {
+                                        "r": "297",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Global"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "300",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Normalize Interval\"",
+                                              "("
+                                            ]
+                                          },
+                                          {
+                                            "r": "299",
+                                            "s": [
+                                              {
+                                                "r": "298",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "C"
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "."
+                                                ]
+                                              },
+                                              {
+                                                "r": "299",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "abatement"
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              ")"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ")"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "310",
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "308",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"Measurement Period\""
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "311",
+            "locator": "41:3-42:92",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "291",
+                "locator": "41:3-41:26",
+                "alias": "C",
+                "expression": {
+                  "localId": "294",
+                  "locator": "41:3-41:24",
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "293",
+                    "locator": "41:15-41:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "310",
+              "locator": "42:5-42:92",
+              "type": "In",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "305",
+                  "locator": "42:11-42:64",
+                  "name": "A Function",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "300",
+                      "locator": "42:24-42:63",
+                      "name": "Normalize Interval",
+                      "libraryName": "Global",
+                      "type": "FunctionRef",
+                      "signature": [],
+                      "operand": [
+                        {
+                          "localId": "299",
+                          "locator": "42:52-42:62",
+                          "path": "abatement",
+                          "scope": "C",
+                          "type": "Property"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "localId": "308",
+                  "locator": "42:73-42:92",
+                  "name": "Measurement Period",
+                  "type": "ParameterRef"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "322",
+          "locator": "85:1-86:6",
+          "name": "Passthrough",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "type": "FunctionDef",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "322",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define function \"Passthrough\"(cond Condition):\n  "
+                    ]
+                  },
+                  {
+                    "r": "568",
+                    "s": [
+                      {
+                        "r": "568",
+                        "s": [
+                          {
+                            "value": [
+                              "cond"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "568",
+            "locator": "86:3-86:6",
+            "name": "cond",
+            "type": "OperandRef"
+          },
+          "operand": [
+            {
+              "localId": "324",
+              "name": "cond",
+              "operandTypeSpecifier": {
+                "localId": "323",
+                "locator": "85:36-85:44",
+                "name": "{http://hl7.org/fhir}Condition",
+                "type": "NamedTypeSpecifier"
+              }
+            }
+          ]
+        },
+        {
+          "localId": "313",
+          "locator": "44:1-46:96",
+          "name": "FunctionRef With More Complexity in parameter",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "313",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"FunctionRef With More Complexity in parameter\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "333",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "314",
+                            "s": [
+                              {
+                                "r": "317",
+                                "s": [
+                                  {
+                                    "r": "317",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Condition",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "C"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "330",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "330",
+                            "s": [
+                              {
+                                "r": "328",
+                                "s": [
+                                  {
+                                    "r": "320",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "328",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Normalize Interval\"",
+                                          " ( "
+                                        ]
+                                      },
+                                      {
+                                        "r": "327",
+                                        "s": [
+                                          {
+                                            "r": "325",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "\"Passthrough\"",
+                                                  "("
+                                                ]
+                                              },
+                                              {
+                                                "r": "321",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "C"
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  ")"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "327",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "abatement"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " )"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "330",
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "329",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"Measurement Period\""
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "333",
+            "locator": "45:3-46:96",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "314",
+                "locator": "45:3-45:26",
+                "alias": "C",
+                "expression": {
+                  "localId": "317",
+                  "locator": "45:3-45:24",
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "316",
+                    "locator": "45:15-45:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "330",
+              "locator": "46:5-46:96",
+              "type": "IncludedIn",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "328",
+                  "locator": "46:11-46:68",
+                  "name": "Normalize Interval",
+                  "libraryName": "Global",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "327",
+                      "locator": "46:41-46:66",
+                      "path": "abatement",
+                      "type": "Property",
+                      "source": {
+                        "localId": "325",
+                        "locator": "46:41-46:56",
+                        "name": "Passthrough",
+                        "type": "FunctionRef",
+                        "signature": [],
+                        "operand": [
+                          {
+                            "localId": "321",
+                            "locator": "46:55",
+                            "name": "C",
+                            "type": "AliasRef"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "329",
+                  "locator": "46:77-46:96",
+                  "name": "Measurement Period",
+                  "type": "ParameterRef"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "335",
+          "locator": "48:1-50:40",
+          "name": "Equivalent with Parameter",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "335",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Equivalent with Parameter\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "348",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "336",
+                            "s": [
+                              {
+                                "r": "339",
+                                "s": [
+                                  {
+                                    "r": "339",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Condition",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "C"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "342",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "342",
+                            "s": [
+                              {
+                                "r": "344",
+                                "s": [
+                                  {
+                                    "r": "343",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "C"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "344",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "onset"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "~",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "345",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"Measurement Period\""
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "348",
+            "locator": "49:3-50:40",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "336",
+                "locator": "49:3-49:26",
+                "alias": "C",
+                "expression": {
+                  "localId": "339",
+                  "locator": "49:3-49:24",
+                  "dataType": "{http://hl7.org/fhir}Condition",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "338",
+                    "locator": "49:15-49:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "342",
+              "locator": "50:5-50:40",
+              "type": "Equivalent",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "347",
+                  "name": "ToInterval",
+                  "libraryName": "FHIRHelpers",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "346",
+                      "asType": "{http://hl7.org/fhir}Period",
+                      "type": "As",
+                      "signature": [],
+                      "operand": {
+                        "localId": "344",
+                        "locator": "50:11-50:17",
+                        "path": "onset",
+                        "scope": "C",
+                        "type": "Property"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "345",
+                  "locator": "50:21-50:40",
+                  "name": "Measurement Period",
+                  "type": "ParameterRef"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "350",
+          "locator": "52:1-54:110",
+          "name": "Encounter Starts 2 Years Or Less Before MP",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "350",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Encounter Starts 2 Years Or Less Before MP\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "384",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "351",
+                            "s": [
+                              {
+                                "r": "354",
+                                "s": [
+                                  {
+                                    "r": "354",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "383",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "383",
+                            "s": [
+                              {
+                                "r": "364",
+                                "s": [
+                                  {
+                                    "r": "361",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "364",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Normalize Interval\"",
+                                          " ( "
+                                        ]
+                                      },
+                                      {
+                                        "r": "363",
+                                        "s": [
+                                          {
+                                            "r": "362",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "Enc"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "363",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "period"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " )"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "383",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "starts "
+                                    ]
+                                  },
+                                  {
+                                    "r": "377",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "2 ",
+                                          "years"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      " or less before"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "374",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "end of "
+                                    ]
+                                  },
+                                  {
+                                    "r": "375",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Measurement Period\""
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "384",
+            "locator": "53:3-54:110",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "351",
+                "locator": "53:3-53:28",
+                "alias": "Enc",
+                "expression": {
+                  "localId": "354",
+                  "locator": "53:3-53:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "353",
+                    "locator": "53:15-53:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "383",
+              "locator": "54:5-54:110",
+              "type": "And",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "380",
+                  "locator": "54:61-54:75",
+                  "type": "In",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "376",
+                      "locator": "54:54-54:59",
+                      "type": "Start",
+                      "signature": [],
+                      "operand": {
+                        "localId": "364",
+                        "locator": "54:11-54:52",
+                        "name": "Normalize Interval",
+                        "libraryName": "Global",
+                        "type": "FunctionRef",
+                        "signature": [],
+                        "operand": [
+                          {
+                            "localId": "365",
+                            "type": "As",
+                            "signature": [],
+                            "operand": {
+                              "localId": "363",
+                              "locator": "54:41-54:50",
+                              "path": "period",
+                              "scope": "Enc",
+                              "type": "Property"
+                            },
+                            "asTypeSpecifier": {
+                              "localId": "366",
+                              "type": "ChoiceTypeSpecifier",
+                              "choice": [
+                                {
+                                  "localId": "367",
+                                  "name": "{http://hl7.org/fhir}dateTime",
+                                  "type": "NamedTypeSpecifier"
+                                },
+                                {
+                                  "localId": "368",
+                                  "name": "{http://hl7.org/fhir}Period",
+                                  "type": "NamedTypeSpecifier"
+                                },
+                                {
+                                  "localId": "369",
+                                  "name": "{http://hl7.org/fhir}Timing",
+                                  "type": "NamedTypeSpecifier"
+                                },
+                                {
+                                  "localId": "370",
+                                  "name": "{http://hl7.org/fhir}instant",
+                                  "type": "NamedTypeSpecifier"
+                                },
+                                {
+                                  "localId": "371",
+                                  "name": "{http://hl7.org/fhir}string",
+                                  "type": "NamedTypeSpecifier"
+                                },
+                                {
+                                  "localId": "372",
+                                  "name": "{http://hl7.org/fhir}Age",
+                                  "type": "NamedTypeSpecifier"
+                                },
+                                {
+                                  "localId": "373",
+                                  "name": "{http://hl7.org/fhir}Range",
+                                  "type": "NamedTypeSpecifier"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "localId": "379",
+                      "locator": "54:61-54:75",
+                      "lowClosed": true,
+                      "highClosed": false,
+                      "type": "Interval",
+                      "low": {
+                        "localId": "378",
+                        "locator": "54:84-54:110",
+                        "type": "Subtract",
+                        "signature": [],
+                        "operand": [
+                          {
+                            "localId": "374",
+                            "locator": "54:84-54:110",
+                            "type": "End",
+                            "signature": [],
+                            "operand": {
+                              "localId": "375",
+                              "locator": "54:91-54:110",
+                              "name": "Measurement Period",
+                              "type": "ParameterRef"
+                            }
+                          },
+                          {
+                            "localId": "377",
+                            "locator": "54:61-54:67",
+                            "value": 2,
+                            "unit": "years",
+                            "type": "Quantity"
+                          }
+                        ]
+                      },
+                      "high": {
+                        "localId": "374",
+                        "locator": "54:84-54:110",
+                        "type": "End",
+                        "signature": [],
+                        "operand": {
+                          "localId": "375",
+                          "locator": "54:91-54:110",
+                          "name": "Measurement Period",
+                          "type": "ParameterRef"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "382",
+                  "locator": "54:61-54:75",
+                  "type": "Not",
+                  "signature": [],
+                  "operand": {
+                    "localId": "381",
+                    "locator": "54:61-54:75",
+                    "type": "IsNull",
+                    "signature": [],
+                    "operand": {
+                      "localId": "374",
+                      "locator": "54:84-54:110",
+                      "type": "End",
+                      "signature": [],
+                      "operand": {
+                        "localId": "375",
+                        "locator": "54:91-54:110",
+                        "name": "Measurement Period",
+                        "type": "ParameterRef"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "386",
+          "locator": "56:1-58:76",
+          "name": "Encounter In MP",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "386",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Encounter In MP\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "413",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "387",
+                            "s": [
+                              {
+                                "r": "390",
+                                "s": [
+                                  {
+                                    "r": "390",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "411",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "411",
+                            "s": [
+                              {
+                                "r": "400",
+                                "s": [
+                                  {
+                                    "r": "397",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "400",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"Normalize Interval\"",
+                                          " ( "
+                                        ]
+                                      },
+                                      {
+                                        "r": "399",
+                                        "s": [
+                                          {
+                                            "r": "398",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "Enc"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "399",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "period"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " )"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " in "
+                                ]
+                              },
+                              {
+                                "r": "410",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"Measurement Period\""
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "413",
+            "locator": "57:3-58:76",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "387",
+                "locator": "57:3-57:28",
+                "alias": "Enc",
+                "expression": {
+                  "localId": "390",
+                  "locator": "57:3-57:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "389",
+                    "locator": "57:15-57:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "411",
+              "locator": "58:5-58:76",
+              "type": "In",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "400",
+                  "locator": "58:11-58:52",
+                  "name": "Normalize Interval",
+                  "libraryName": "Global",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "401",
+                      "type": "As",
+                      "signature": [],
+                      "operand": {
+                        "localId": "399",
+                        "locator": "58:41-58:50",
+                        "path": "period",
+                        "scope": "Enc",
+                        "type": "Property"
+                      },
+                      "asTypeSpecifier": {
+                        "localId": "402",
+                        "type": "ChoiceTypeSpecifier",
+                        "choice": [
+                          {
+                            "localId": "403",
+                            "name": "{http://hl7.org/fhir}dateTime",
+                            "type": "NamedTypeSpecifier"
+                          },
+                          {
+                            "localId": "404",
+                            "name": "{http://hl7.org/fhir}Period",
+                            "type": "NamedTypeSpecifier"
+                          },
+                          {
+                            "localId": "405",
+                            "name": "{http://hl7.org/fhir}Timing",
+                            "type": "NamedTypeSpecifier"
+                          },
+                          {
+                            "localId": "406",
+                            "name": "{http://hl7.org/fhir}instant",
+                            "type": "NamedTypeSpecifier"
+                          },
+                          {
+                            "localId": "407",
+                            "name": "{http://hl7.org/fhir}string",
+                            "type": "NamedTypeSpecifier"
+                          },
+                          {
+                            "localId": "408",
+                            "name": "{http://hl7.org/fhir}Age",
+                            "type": "NamedTypeSpecifier"
+                          },
+                          {
+                            "localId": "409",
+                            "name": "{http://hl7.org/fhir}Range",
+                            "type": "NamedTypeSpecifier"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "412",
+                  "type": "ToList",
+                  "signature": [],
+                  "operand": {
+                    "localId": "410",
+                    "locator": "58:57-58:76",
+                    "name": "Measurement Period",
+                    "type": "ParameterRef"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "428",
+          "locator": "88:1-89:40",
+          "name": "Interval From Period",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "type": "FunctionDef",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "428",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define function \"Interval From Period\"(period FHIR.Period):\n  "
+                    ]
+                  },
+                  {
+                    "r": "571",
+                    "s": [
+                      {
+                        "r": "571",
+                        "s": [
+                          {
+                            "r": "569",
+                            "s": [
+                              {
+                                "value": [
+                                  "Global"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "."
+                            ]
+                          },
+                          {
+                            "r": "571",
+                            "s": [
+                              {
+                                "value": [
+                                  "\"Normalize Interval\"",
+                                  " ( "
+                                ]
+                              },
+                              {
+                                "r": "570",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "period"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " )"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "571",
+            "locator": "89:3-89:40",
+            "name": "Normalize Interval",
+            "libraryName": "Global",
+            "type": "FunctionRef",
+            "signature": [],
+            "operand": [
+              {
+                "localId": "572",
+                "type": "As",
+                "signature": [],
+                "operand": {
+                  "localId": "570",
+                  "locator": "89:33-89:38",
+                  "name": "period",
+                  "type": "OperandRef"
+                },
+                "asTypeSpecifier": {
+                  "localId": "573",
+                  "type": "ChoiceTypeSpecifier",
+                  "choice": [
+                    {
+                      "localId": "574",
+                      "name": "{http://hl7.org/fhir}dateTime",
+                      "type": "NamedTypeSpecifier"
+                    },
+                    {
+                      "localId": "575",
+                      "name": "{http://hl7.org/fhir}Period",
+                      "type": "NamedTypeSpecifier"
+                    },
+                    {
+                      "localId": "576",
+                      "name": "{http://hl7.org/fhir}Timing",
+                      "type": "NamedTypeSpecifier"
+                    },
+                    {
+                      "localId": "577",
+                      "name": "{http://hl7.org/fhir}instant",
+                      "type": "NamedTypeSpecifier"
+                    },
+                    {
+                      "localId": "578",
+                      "name": "{http://hl7.org/fhir}string",
+                      "type": "NamedTypeSpecifier"
+                    },
+                    {
+                      "localId": "579",
+                      "name": "{http://hl7.org/fhir}Age",
+                      "type": "NamedTypeSpecifier"
+                    },
+                    {
+                      "localId": "580",
+                      "name": "{http://hl7.org/fhir}Range",
+                      "type": "NamedTypeSpecifier"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "operand": [
+            {
+              "localId": "430",
+              "name": "period",
+              "operandTypeSpecifier": {
+                "localId": "429",
+                "locator": "88:47-88:57",
+                "name": "{http://hl7.org/fhir}Period",
+                "type": "NamedTypeSpecifier"
+              }
+            }
+          ]
+        },
+        {
+          "localId": "415",
+          "locator": "60:1-62:105",
+          "name": "Function call in Interval",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "415",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Function call in Interval\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "463",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "416",
+                            "s": [
+                              {
+                                "r": "419",
+                                "s": [
+                                  {
+                                    "r": "419",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "461",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "461",
+                            "s": [
+                              {
+                                "r": "431",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "\"Interval From Period\"",
+                                      "("
+                                    ]
+                                  },
+                                  {
+                                    "r": "427",
+                                    "s": [
+                                      {
+                                        "r": "426",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Enc"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "427",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "period"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ")"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " in "
+                                ]
+                              },
+                              {
+                                "r": "460",
+                                "s": [
+                                  {
+                                    "r": "444",
+                                    "value": [
+                                      "Interval[",
+                                      "@2019-01-01T00:00:00.0",
+                                      ", ",
+                                      "@2020-01-01T00:00:00.0",
+                                      " )"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "463",
+            "locator": "61:3-62:105",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "416",
+                "locator": "61:3-61:28",
+                "alias": "Enc",
+                "expression": {
+                  "localId": "419",
+                  "locator": "61:3-61:24",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "418",
+                    "locator": "61:15-61:23",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "461",
+              "locator": "62:5-62:105",
+              "type": "In",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "431",
+                  "locator": "62:11-62:44",
+                  "name": "Interval From Period",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "427",
+                      "locator": "62:34-62:43",
+                      "path": "period",
+                      "scope": "Enc",
+                      "type": "Property"
+                    }
+                  ]
+                },
+                {
+                  "localId": "462",
+                  "type": "ToList",
+                  "signature": [],
+                  "operand": {
+                    "localId": "460",
+                    "locator": "62:49-62:105",
+                    "lowClosed": true,
+                    "highClosed": false,
+                    "type": "Interval",
+                    "low": {
+                      "localId": "444",
+                      "locator": "62:58-62:79",
+                      "type": "DateTime",
+                      "signature": [],
+                      "year": {
+                        "localId": "445",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "2019",
+                        "type": "Literal"
+                      },
+                      "month": {
+                        "localId": "446",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "1",
+                        "type": "Literal"
+                      },
+                      "day": {
+                        "localId": "447",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "1",
+                        "type": "Literal"
+                      },
+                      "hour": {
+                        "localId": "448",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      },
+                      "minute": {
+                        "localId": "449",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      },
+                      "second": {
+                        "localId": "450",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      },
+                      "millisecond": {
+                        "localId": "451",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      }
+                    },
+                    "high": {
+                      "localId": "452",
+                      "locator": "62:82-62:103",
+                      "type": "DateTime",
+                      "signature": [],
+                      "year": {
+                        "localId": "453",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "2020",
+                        "type": "Literal"
+                      },
+                      "month": {
+                        "localId": "454",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "1",
+                        "type": "Literal"
+                      },
+                      "day": {
+                        "localId": "455",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "1",
+                        "type": "Literal"
+                      },
+                      "hour": {
+                        "localId": "456",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      },
+                      "minute": {
+                        "localId": "457",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      },
+                      "second": {
+                        "localId": "458",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      },
+                      "millisecond": {
+                        "localId": "459",
+                        "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                        "value": "0",
+                        "type": "Literal"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "465",
+          "locator": "64:1-66:150",
+          "name": "GreaterThanOrEqual Birthdate at start of Observation",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "465",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"GreaterThanOrEqual Birthdate at start of Observation\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "487",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "466",
+                            "s": [
+                              {
+                                "r": "469",
+                                "s": [
+                                  {
+                                    "r": "469",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Observation",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "HPVTest"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "472",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "472",
+                            "s": [
+                              {
+                                "r": "483",
+                                "s": [
+                                  {
+                                    "r": "473",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Global"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "483",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "\"CalendarAgeInYearsAt\"",
+                                          " ( "
+                                        ]
+                                      },
+                                      {
+                                        "r": "477",
+                                        "s": [
+                                          {
+                                            "r": "474",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "FHIRHelpers"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "477",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "ToDate",
+                                                  " ( "
+                                                ]
+                                              },
+                                              {
+                                                "r": "476",
+                                                "s": [
+                                                  {
+                                                    "r": "475",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "Patient"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      "."
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "476",
+                                                    "s": [
+                                                      {
+                                                        "value": [
+                                                          "birthDate"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  " )"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          ", "
+                                        ]
+                                      },
+                                      {
+                                        "r": "478",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "start of "
+                                            ]
+                                          },
+                                          {
+                                            "r": "482",
+                                            "s": [
+                                              {
+                                                "r": "479",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "Global"
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "value": [
+                                                  "."
+                                                ]
+                                              },
+                                              {
+                                                "r": "482",
+                                                "s": [
+                                                  {
+                                                    "value": [
+                                                      "\"Normalize Interval\"",
+                                                      " ( "
+                                                    ]
+                                                  },
+                                                  {
+                                                    "r": "481",
+                                                    "s": [
+                                                      {
+                                                        "r": "480",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "HPVTest"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "value": [
+                                                          "."
+                                                        ]
+                                                      },
+                                                      {
+                                                        "r": "481",
+                                                        "s": [
+                                                          {
+                                                            "value": [
+                                                              "effective"
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "value": [
+                                                      " )"
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " )"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "486",
+                                "value": [
+                                  " ",
+                                  ">=",
+                                  " ",
+                                  "30"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "487",
+            "locator": "65:3-66:150",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "466",
+                "locator": "65:3-65:34",
+                "alias": "HPVTest",
+                "expression": {
+                  "localId": "469",
+                  "locator": "65:3-65:26",
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "468",
+                    "locator": "65:17-65:25",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "472",
+              "locator": "66:5-66:150",
+              "type": "GreaterOrEqual",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "483",
+                  "locator": "66:11-66:144",
+                  "name": "CalendarAgeInYearsAt",
+                  "libraryName": "Global",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "485",
+                      "type": "ToDateTime",
+                      "signature": [],
+                      "operand": {
+                        "localId": "477",
+                        "locator": "66:43-66:82",
+                        "name": "ToDate",
+                        "libraryName": "FHIRHelpers",
+                        "type": "FunctionRef",
+                        "signature": [],
+                        "operand": [
+                          {
+                            "localId": "476",
+                            "locator": "66:64-66:80",
+                            "path": "birthDate",
+                            "type": "Property",
+                            "source": {
+                              "localId": "475",
+                              "locator": "66:64-66:70",
+                              "name": "Patient",
+                              "type": "ExpressionRef"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "localId": "478",
+                      "locator": "66:85-66:142",
+                      "type": "Start",
+                      "signature": [],
+                      "operand": {
+                        "localId": "482",
+                        "locator": "66:94-66:142",
+                        "name": "Normalize Interval",
+                        "libraryName": "Global",
+                        "type": "FunctionRef",
+                        "signature": [],
+                        "operand": [
+                          {
+                            "localId": "481",
+                            "locator": "66:124-66:140",
+                            "path": "effective",
+                            "scope": "HPVTest",
+                            "type": "Property"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "486",
+                  "locator": "66:149-66:150",
+                  "valueType": "{urn:hl7-org:elm-types:r1}Integer",
+                  "value": "30",
+                  "type": "Literal"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "489",
+          "locator": "68:1-70:30",
+          "name": "GreaterThanOrEqual Observation Value",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "489",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"GreaterThanOrEqual Observation Value\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "502",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "490",
+                            "s": [
+                              {
+                                "r": "493",
+                                "s": [
+                                  {
+                                    "r": "493",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Observation",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Test"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "496",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "496",
+                            "s": [
+                              {
+                                "r": "498",
+                                "s": [
+                                  {
+                                    "r": "497",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Test"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "498",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "value"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  ">=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "499",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "2 ",
+                                      "'mg'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "502",
+            "locator": "69:3-70:30",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "490",
+                "locator": "69:3-69:31",
+                "alias": "Test",
+                "expression": {
+                  "localId": "493",
+                  "locator": "69:3-69:26",
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "492",
+                    "locator": "69:17-69:25",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "496",
+              "locator": "70:5-70:30",
+              "type": "GreaterOrEqual",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "501",
+                  "name": "ToQuantity",
+                  "libraryName": "FHIRHelpers",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "500",
+                      "asType": "{http://hl7.org/fhir}Quantity",
+                      "type": "As",
+                      "signature": [],
+                      "operand": {
+                        "localId": "498",
+                        "locator": "70:11-70:20",
+                        "path": "value",
+                        "scope": "Test",
+                        "type": "Property"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "localId": "499",
+                  "locator": "70:25-70:30",
+                  "value": 2,
+                  "unit": "mg",
+                  "type": "Quantity"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "localId": "520",
+          "locator": "91:1-92:19",
+          "name": "startTime",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "fluent": true,
+          "type": "FunctionDef",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "520",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define fluent function \"startTime\"(e FHIR.Encounter):\n  "
+                    ]
+                  },
+                  {
+                    "r": "581",
+                    "s": [
+                      {
+                        "r": "581",
+                        "s": [
+                          {
+                            "value": [
+                              "start of "
+                            ]
+                          },
+                          {
+                            "r": "583",
+                            "s": [
+                              {
+                                "r": "582",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "e"
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  "."
+                                ]
+                              },
+                              {
+                                "r": "583",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "period"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "581",
+            "locator": "92:3-92:19",
+            "type": "Start",
+            "signature": [],
+            "operand": {
+              "localId": "584",
+              "name": "ToInterval",
+              "libraryName": "FHIRHelpers",
+              "type": "FunctionRef",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "583",
+                  "locator": "92:12-92:19",
+                  "path": "period",
+                  "type": "Property",
+                  "source": {
+                    "localId": "582",
+                    "locator": "92:12",
+                    "name": "e",
+                    "type": "OperandRef"
+                  }
+                }
+              ]
+            }
+          },
+          "operand": [
+            {
+              "localId": "522",
+              "name": "e",
+              "operandTypeSpecifier": {
+                "localId": "521",
+                "locator": "91:38-91:51",
+                "name": "{http://hl7.org/fhir}Encounter",
+                "type": "NamedTypeSpecifier"
+              }
+            }
+          ]
+        },
+        {
+          "localId": "504",
+          "locator": "72:1-75:91",
+          "name": "Observation Issued During First 10 min of Encounter",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "504",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Observation Issued During First 10 min of Encounter\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "537",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "505",
+                            "s": [
+                              {
+                                "r": "506",
+                                "s": [
+                                  {
+                                    "r": "506",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Observation",
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Obs"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "536",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "507",
+                            "s": [
+                              {
+                                "r": "510",
+                                "s": [
+                                  {
+                                    "r": "510",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n      such that "
+                            ]
+                          },
+                          {
+                            "r": "534",
+                            "s": [
+                              {
+                                "r": "518",
+                                "s": [
+                                  {
+                                    "r": "517",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Obs"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "518",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "issued"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "534",
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "532",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "Interval["
+                                    ]
+                                  },
+                                  {
+                                    "r": "523",
+                                    "s": [
+                                      {
+                                        "r": "519",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "Enc"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "."
+                                        ]
+                                      },
+                                      {
+                                        "r": "523",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "startTime",
+                                              " ( )"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ", "
+                                    ]
+                                  },
+                                  {
+                                    "r": "528",
+                                    "s": [
+                                      {
+                                        "r": "530",
+                                        "s": [
+                                          {
+                                            "r": "529",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "Enc"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "530",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "startTime",
+                                                  " ( )"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          " + "
+                                        ]
+                                      },
+                                      {
+                                        "r": "531",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "10 ",
+                                              "'min'"
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "]"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "537",
+            "locator": "73:3-75:91",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "505",
+                "locator": "73:3-73:19",
+                "alias": "Obs",
+                "expression": {
+                  "localId": "506",
+                  "locator": "73:3-73:15",
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "type": "Retrieve",
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [
+              {
+                "localId": "536",
+                "locator": "74:5-75:91",
+                "alias": "Enc",
+                "type": "With",
+                "expression": {
+                  "localId": "510",
+                  "locator": "74:10-74:31",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "509",
+                    "locator": "74:22-74:30",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                },
+                "suchThat": {
+                  "localId": "534",
+                  "locator": "75:17-75:91",
+                  "type": "In",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "535",
+                      "name": "ToDateTime",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "signature": [],
+                      "operand": [
+                        {
+                          "localId": "518",
+                          "locator": "75:17-75:26",
+                          "path": "issued",
+                          "scope": "Obs",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "532",
+                      "locator": "75:35-75:91",
+                      "lowClosed": true,
+                      "highClosed": true,
+                      "type": "Interval",
+                      "low": {
+                        "localId": "523",
+                        "locator": "75:44-75:60",
+                        "name": "startTime",
+                        "type": "FunctionRef",
+                        "signature": [],
+                        "operand": [
+                          {
+                            "localId": "519",
+                            "locator": "75:44-75:46",
+                            "name": "Enc",
+                            "type": "AliasRef"
+                          }
+                        ]
+                      },
+                      "high": {
+                        "localId": "528",
+                        "locator": "75:63-75:90",
+                        "type": "Add",
+                        "signature": [],
+                        "operand": [
+                          {
+                            "localId": "530",
+                            "locator": "75:63-75:79",
+                            "name": "startTime",
+                            "type": "FunctionRef",
+                            "signature": [],
+                            "operand": [
+                              {
+                                "localId": "529",
+                                "locator": "75:63-75:65",
+                                "name": "Enc",
+                                "type": "AliasRef"
+                              }
+                            ]
+                          },
+                          {
+                            "localId": "531",
+                            "locator": "75:83-75:90",
+                            "value": 10,
+                            "unit": "min",
+                            "type": "Quantity"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "localId": "539",
+          "locator": "77:1-80:94",
+          "name": "Observation Issued Between Start of MP and Encounter",
+          "context": "Patient",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "539",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Observation Issued Between Start of MP and Encounter\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "565",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "540",
+                            "s": [
+                              {
+                                "r": "541",
+                                "s": [
+                                  {
+                                    "r": "541",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Observation",
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Obs"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "564",
+                        "s": [
+                          {
+                            "value": [
+                              "with "
+                            ]
+                          },
+                          {
+                            "r": "542",
+                            "s": [
+                              {
+                                "r": "545",
+                                "s": [
+                                  {
+                                    "r": "545",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Encounter",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "Enc"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "value": [
+                              "\n      such that "
+                            ]
+                          },
+                          {
+                            "r": "562",
+                            "s": [
+                              {
+                                "r": "553",
+                                "s": [
+                                  {
+                                    "r": "552",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "Obs"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "553",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "issued"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "r": "562",
+                                "value": [
+                                  " ",
+                                  "during",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "560",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "Interval["
+                                    ]
+                                  },
+                                  {
+                                    "r": "554",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "start of "
+                                        ]
+                                      },
+                                      {
+                                        "r": "555",
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"Measurement Period\""
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      ", "
+                                    ]
+                                  },
+                                  {
+                                    "r": "556",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "start of "
+                                        ]
+                                      },
+                                      {
+                                        "r": "558",
+                                        "s": [
+                                          {
+                                            "r": "557",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "Enc"
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "value": [
+                                              "."
+                                            ]
+                                          },
+                                          {
+                                            "r": "558",
+                                            "s": [
+                                              {
+                                                "value": [
+                                                  "period"
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "]"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "565",
+            "locator": "78:3-80:94",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "540",
+                "locator": "78:3-78:19",
+                "alias": "Obs",
+                "expression": {
+                  "localId": "541",
+                  "locator": "78:3-78:15",
+                  "dataType": "{http://hl7.org/fhir}Observation",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
+                  "type": "Retrieve",
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [
+              {
+                "localId": "564",
+                "locator": "79:5-80:94",
+                "alias": "Enc",
+                "type": "With",
+                "expression": {
+                  "localId": "545",
+                  "locator": "79:10-79:31",
+                  "dataType": "{http://hl7.org/fhir}Encounter",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Encounter",
+                  "codeProperty": "type",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "544",
+                    "locator": "79:22-79:30",
+                    "name": "test-vs",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                },
+                "suchThat": {
+                  "localId": "562",
+                  "locator": "80:17-80:94",
+                  "type": "In",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "563",
+                      "name": "ToDateTime",
+                      "libraryName": "FHIRHelpers",
+                      "type": "FunctionRef",
+                      "signature": [],
+                      "operand": [
+                        {
+                          "localId": "553",
+                          "locator": "80:17-80:26",
+                          "path": "issued",
+                          "scope": "Obs",
+                          "type": "Property"
+                        }
+                      ]
+                    },
+                    {
+                      "localId": "560",
+                      "locator": "80:35-80:94",
+                      "lowClosed": true,
+                      "highClosed": true,
+                      "type": "Interval",
+                      "low": {
+                        "localId": "554",
+                        "locator": "80:44-80:72",
+                        "type": "Start",
+                        "signature": [],
+                        "operand": {
+                          "localId": "555",
+                          "locator": "80:53-80:72",
+                          "name": "Measurement Period",
+                          "type": "ParameterRef"
+                        }
+                      },
+                      "high": {
+                        "localId": "556",
+                        "locator": "80:75-80:93",
+                        "type": "Start",
+                        "signature": [],
+                        "operand": {
+                          "localId": "559",
+                          "name": "ToInterval",
+                          "libraryName": "FHIRHelpers",
+                          "type": "FunctionRef",
+                          "signature": [],
+                          "operand": [
+                            {
+                              "localId": "558",
+                              "locator": "80:84-80:93",
+                              "path": "period",
+                              "scope": "Enc",
+                              "type": "Property"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

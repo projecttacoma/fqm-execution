@@ -1,0 +1,443 @@
+{
+  "library": {
+    "localId": "0",
+    "annotation": [
+      {
+        "translatorVersion": "3.15.0",
+        "translatorOptions": "EnableAnnotations,EnableLocators",
+        "signatureLevel": "None",
+        "type": "CqlToElmInfo"
+      },
+      {
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning",
+        "type": "CqlToElmError"
+      },
+      {
+        "type": "Annotation",
+        "s": {
+          "r": "217",
+          "s": [
+            {
+              "value": [
+                "",
+                "library SimpleDep version '0.0.1'"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "identifier": {
+      "id": "SimpleDep",
+      "version": "0.0.1"
+    },
+    "schemaIdentifier": {
+      "id": "urn:hl7-org:elm",
+      "version": "r1"
+    },
+    "usings": {
+      "def": [
+        {
+          "localId": "1",
+          "localIdentifier": "System",
+          "uri": "urn:hl7-org:elm-types:r1"
+        },
+        {
+          "localId": "206",
+          "locator": "3:1-3:26",
+          "localIdentifier": "FHIR",
+          "uri": "http://hl7.org/fhir",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "206",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "using "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIR"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version '4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "def": [
+        {
+          "localId": "207",
+          "locator": "5:1-5:35",
+          "localIdentifier": "FHIRHelpers",
+          "path": "FHIRHelpers",
+          "version": "4.0.1",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "207",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "include "
+                    ]
+                  },
+                  {
+                    "s": [
+                      {
+                        "value": [
+                          "FHIRHelpers"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "valueSets": {
+      "def": [
+        {
+          "localId": "208",
+          "locator": "7:1-7:52",
+          "name": "test-vs-2",
+          "id": "http://example.com/test-vs-2",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "208",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "valueset ",
+                      "\"test-vs-2\"",
+                      ": ",
+                      "'http://example.com/test-vs-2'"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "codeSystem": []
+        }
+      ]
+    },
+    "statements": {
+      "def": [
+        {
+          "localId": "210",
+          "locator": "9:1-10:26",
+          "name": "SimpleRetrieve",
+          "context": "Unfiltered",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "210",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"SimpleRetrieve\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "213",
+                    "s": [
+                      {
+                        "value": [
+                          "[",
+                          "Condition",
+                          ": "
+                        ]
+                      },
+                      {
+                        "s": [
+                          {
+                            "value": [
+                              "\"test-vs-2\""
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "]"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "213",
+            "locator": "10:3-10:26",
+            "dataType": "{http://hl7.org/fhir}Condition",
+            "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
+            "codeProperty": "code",
+            "codeComparator": "in",
+            "type": "Retrieve",
+            "codes": {
+              "localId": "212",
+              "locator": "10:15-10:25",
+              "name": "test-vs-2",
+              "preserve": true,
+              "type": "ValueSetRef"
+            },
+            "include": [],
+            "codeFilter": [],
+            "dateFilter": [],
+            "otherFilter": []
+          }
+        },
+        {
+          "localId": "217",
+          "locator": "13:1-15:25",
+          "name": "SimpleQuery",
+          "context": "Unfiltered",
+          "accessLevel": "Public",
+          "annotation": [
+            {
+              "type": "Annotation",
+              "s": {
+                "r": "217",
+                "s": [
+                  {
+                    "value": [
+                      "",
+                      "define ",
+                      "\"SimpleQuery\"",
+                      ":\n  "
+                    ]
+                  },
+                  {
+                    "r": "229",
+                    "s": [
+                      {
+                        "s": [
+                          {
+                            "r": "218",
+                            "s": [
+                              {
+                                "r": "221",
+                                "s": [
+                                  {
+                                    "r": "221",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "[",
+                                          "Procedure",
+                                          ": "
+                                        ]
+                                      },
+                                      {
+                                        "s": [
+                                          {
+                                            "value": [
+                                              "\"test-vs-2\""
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "value": [
+                                          "]"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "P"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "value": [
+                          "\n    "
+                        ]
+                      },
+                      {
+                        "r": "224",
+                        "s": [
+                          {
+                            "value": [
+                              "where "
+                            ]
+                          },
+                          {
+                            "r": "224",
+                            "s": [
+                              {
+                                "r": "226",
+                                "s": [
+                                  {
+                                    "r": "225",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "P"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "value": [
+                                      "."
+                                    ]
+                                  },
+                                  {
+                                    "r": "226",
+                                    "s": [
+                                      {
+                                        "value": [
+                                          "id"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "value": [
+                                  " ",
+                                  "=",
+                                  " "
+                                ]
+                              },
+                              {
+                                "r": "227",
+                                "s": [
+                                  {
+                                    "value": [
+                                      "'test-2'"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "expression": {
+            "localId": "229",
+            "locator": "14:3-15:25",
+            "type": "Query",
+            "source": [
+              {
+                "localId": "218",
+                "locator": "14:3-14:28",
+                "alias": "P",
+                "expression": {
+                  "localId": "221",
+                  "locator": "14:3-14:26",
+                  "dataType": "{http://hl7.org/fhir}Procedure",
+                  "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
+                  "codeProperty": "code",
+                  "codeComparator": "in",
+                  "type": "Retrieve",
+                  "codes": {
+                    "localId": "220",
+                    "locator": "14:15-14:25",
+                    "name": "test-vs-2",
+                    "preserve": true,
+                    "type": "ValueSetRef"
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
+                }
+              }
+            ],
+            "let": [],
+            "relationship": [],
+            "where": {
+              "localId": "224",
+              "locator": "15:5-15:25",
+              "type": "Equal",
+              "signature": [],
+              "operand": [
+                {
+                  "localId": "228",
+                  "name": "ToString",
+                  "libraryName": "FHIRHelpers",
+                  "type": "FunctionRef",
+                  "signature": [],
+                  "operand": [
+                    {
+                      "localId": "226",
+                      "locator": "15:11-15:14",
+                      "path": "id",
+                      "scope": "P",
+                      "type": "Property"
+                    }
+                  ]
+                },
+                {
+                  "localId": "227",
+                  "locator": "15:18-15:25",
+                  "valueType": "{urn:hl7-org:elm-types:r1}String",
+                  "value": "test-2",
+                  "type": "Literal"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
