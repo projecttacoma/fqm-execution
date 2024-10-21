@@ -315,7 +315,7 @@ export function buildStatementAndClauseResults(
 
     if (includeClauseResults) {
       // create clause results for all localIds in this statement
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(elmLibrary, statementResult.statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(elmLibrary, statementResult.statementName);
       for (const localId in localIds) {
         const clause = localIds[localId];
         const rawClauseResult =

@@ -3,13 +3,13 @@ import { ELM } from '../../src/types/ELMTypes';
 import { getJSONFixture } from './helpers/testHelpers';
 
 describe('ClauseResultsHelpers', () => {
-  describe('findAllLocalIdsInStatementByName', () => {
+  describe('findLocalIdsInStatementByName', () => {
     test('finds localIds for an Equivalent comparison operator that is wrapped in a Not expression', () => {
       // ELM from test/unit/fixtures/cql/NotEquivalent.cql
       const libraryElm: ELM = getJSONFixture('elm/NotEquivalent.json');
 
       const statementName = 'Not Equivalent Clause';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the localId for the Equivalent statement
       // is 23 and the localId for the Not expression is 24. We want 23 to not be included because 24 is
@@ -25,7 +25,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/NotEqual.json');
 
       const statementName = 'Not Equal Clause';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the localId for the Equal statement
       // is 100, and the localId for the Not expression is 23. We want 100 to not be included because 23 is
@@ -34,12 +34,12 @@ describe('ClauseResultsHelpers', () => {
       expect(localIds[100]).not.toBeDefined();
     });
 
-    test('finds localIds for an not null operator', () => {
+    test('finds localIds for a not null operator', () => {
       // ELM from test/unit/fixtures/cql/NotNull.cql, translated with 3.15.0 translator
       const libraryElm: ELM = getJSONFixture('elm/3.15.0/NotNull.json');
 
       const statementName = 'Not Null Clause';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the localId for the IsNull statement
       // is 237, and the localId for the Not expression is 238. We want 237 to not be included because 238 is
@@ -53,7 +53,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/ComparisonWithLiteral.json');
 
       const statementName = 'ipop';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the localId for the literal is 10 and
       // the localId for the comparison expression itself is 11 so the sourceLocalId for the literal
@@ -67,7 +67,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/ComparisonWithoutLiteral.json');
 
       const statementName = 'ipop';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the ELM Binary Expression does not have a literal
       // so the localId for the right side of the comparison should just be 12 and not have a sourceLocalId
@@ -78,7 +78,7 @@ describe('ClauseResultsHelpers', () => {
     test('finds localIds for case statement items and properly finds sourceLocalId for them', () => {
       // ELM from test/unit/elm/queries/CaseStatement.cql
       const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, 'Case');
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, 'Case');
 
       expect(localIds[11]).toEqual({ localId: '11', sourceLocalId: '9' });
       expect(localIds[17]).toEqual({ localId: '17', sourceLocalId: '15' });
@@ -87,7 +87,7 @@ describe('ClauseResultsHelpers', () => {
     test('finds localIds for null literals and properly sets isFalsyLiteral to true', () => {
       // ELM from test/unit/elm/queries/CaseStatement.cql
       const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, 'Case');
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, 'Case');
 
       expect(localIds[18]).toEqual({ localId: '18', isFalsyLiteral: true });
     });
@@ -95,7 +95,7 @@ describe('ClauseResultsHelpers', () => {
     test('finds localIds for false literals and properly sets isFalsyLiteral to true', () => {
       // ELM from test/unit/elm/queries/CaseStatement.cql
       const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, 'Case');
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, 'Case');
 
       expect(localIds[16]).toEqual({ localId: '16', isFalsyLiteral: true });
     });
@@ -108,7 +108,7 @@ describe('ClauseResultsHelpers', () => {
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Encounter with Principal Diagnosis and Age';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 49 and the functionRef itself is 55.
       expect(localIds[49]).toBeDefined();
@@ -122,7 +122,7 @@ describe('ClauseResultsHelpers', () => {
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Initial Population';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 109 and the functionRef itself is 110.
       expect(localIds[109]).toBeDefined();
@@ -136,7 +136,7 @@ describe('ClauseResultsHelpers', () => {
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Comfort Measures during Hospitalization';
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // For the fixture loaded for this test it is known that the library reference is 109 and the functionRef itself is 110.
       expect(localIds[42]).toBeDefined();
@@ -147,7 +147,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/SimpleAliasUsage.json');
       const statementName = 'Some Encounter';
 
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
       expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
@@ -157,7 +157,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/SimpleAliasFunctionRef.json');
       const statementName = 'Some Encounter';
 
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
       expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
@@ -167,7 +167,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/queries/QICoreQuery.json');
       const statementName = 'Query';
 
-      const localIds = ClauseResultsHelpers.findAllLocalIdsInStatementByName(libraryElm, statementName);
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // '7' is in the annotations but not in the ELM. We use '8' as the localId from the actual expression and subtract one from it
       expect(localIds[7]).toBeDefined();

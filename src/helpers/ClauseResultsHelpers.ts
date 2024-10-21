@@ -3,13 +3,13 @@ import { ELMFunctionRef } from '../types/ELMTypes';
 import { ELM, ELMBinaryExpression, ELMStatement } from '../types/ELMTypes';
 
 /**
- * Finds all localIds in a statement by its library and statement name.
+ * Finds all of the localIds that are needed for clause results for a single statement.
  * @public
  * @param {ELM} libraryElm - The library the statement belongs to.
  * @param {string} statementName - The statement name to search for.
- * @return {Hash} List of local ids in the statement.
+ * @return {Hash} List of result-relevant local ids in the statement.
  */
-export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName: string): any {
+export function findLocalIdsInStatementByName(libraryElm: ELM, statementName: string): any {
   // create place for aliases and their usages to be placed to be filled in later. Aliases and their usages (aka scope)
   // and returns do not have localIds in the elm but do in elm_annotations at a consistent calculable offset.
   // BE WARY of this calculable offset.
@@ -53,7 +53,7 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
   // find all localids in the annotation
   const allAnnotatedIds = findAnnotationLocalIds(statement?.annotation);
   // filter out local ids that aren't in the annotation
-  const annotatedLocalIds: { [key: string]: any } = {};
+  const annotatedLocalIds: Record<string, any> = {};
   for (const [key, value] of Object.entries(localIds)) {
     if (allAnnotatedIds.includes(key)) {
       annotatedLocalIds[key] = value;
@@ -63,7 +63,7 @@ export function findAllLocalIdsInStatementByName(libraryElm: ELM, statementName:
 }
 
 /**
- * Recursively finds just localIds that are in an annotation structure by pulling out all "r:"-keyed values
+ * Recursively finds localIds that are in an annotation structure by pulling out all "r:"-keyed values
  * @public
  * @param {object} annotation - all or a subset of the annotation structure to search
  * @return {Array} List of local ids in the annotation.
