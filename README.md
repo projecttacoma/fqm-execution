@@ -49,6 +49,7 @@ Library for calculating Electronic Clinical Quality Measures (eCQMs) written in 
 - [Recipes](#recipes)
   - [Displaying Highlighted HTML in a React App](#displaying-highlighted-html-in-a-react-app)
   - [Usage Within a FHIR Server](#usage-within-a-fhir-server)
+  - [Special Testing](#special-testing)
 - [Contributing](#contributing)
 - [License](#license)
 
