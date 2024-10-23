@@ -1,5 +1,6 @@
 node_modules
 build
 coverage
+coverage-percent-script
 connectathon
 ecqm-content-r4-2021
