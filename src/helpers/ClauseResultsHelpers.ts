@@ -132,8 +132,8 @@ export function findAllLocalIdsInStatement(
         aliasMap[v] = statement.expression.localId;
         // Determine the localId for this alias.
         if (statement.localId) {
-          // There is not a clear mapping for `With` and `Without` relationship alias with statements in newer
-          // translator versions. The node in the annotation that contains the alias does has a local id that doesn't
+          // There is not a clear mapping for `With` and `Without` relationship aliases with statements in newer
+          // translator versions. The node in the annotation that contains the alias has a local id that doesn't
           // exist in the elm. We have to find this localId by looking for it in the annotation structure.
           if (statement.type === 'With' || statement.type === 'Without') {
             if (annotation) {
@@ -353,7 +353,7 @@ export function findLocalIdsForComparisonOperators(
 }
 
 /**
- * Helper function to kick off the recursive search for the relationship (With, Without) source's localId in annotation
+ * Helper function to kick off the recursive search for the relationship (With, Without) source's localId in the annotation
  * structure. If found this returns the localId of the parent node of the given source localId. Null is returned if not
  * found.
  */
@@ -368,8 +368,8 @@ function findRelationshipAliasAnnotationId(annotation: Annotation[], sourceLocal
 }
 
 /**
- * Recursively looks through the annotation structure for the source localId and grab its parent id which also contains
- * the alias. This search is valid to be used with relationship (With, Without) clauses and  allows us to tag the found
+ * Recursively looks through the annotation structure for the source localId and grabs its parent id which also contains
+ * the alias. This search is valid to be used with relationship (With, Without) clauses and allows us to tag the found
  * localId, which only exists in the annotation, as the alias localId for the source so it can be highlighted when the
  * source clause has a result.
  *
