@@ -20,11 +20,13 @@ import { getELMFixture, getHTMLFixture, getJSONFixture } from './helpers/testHel
 
 describe('HTMLBuilder', () => {
   let elm = <ELM>{};
-  let simpleExpression: ELMStatement | undefined;
+  let denominatorExpression: ELMStatement | undefined;
+  let numeratorExpression: ELMStatement | undefined;
   let statementResults: StatementResult[];
   let trueClauseResults: ClauseResult[];
   let falseClauseResults: ClauseResult[];
-  const defineStatementLocalId = '119';
+  const denominatorLocalId = '119';
+  const numeratorLocalId = '135';
   const trueStyleString = objToCSS(cqlLogicClauseTrueStyle);
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
@@ -114,43 +116,51 @@ describe('HTMLBuilder', () => {
 
   beforeEach(() => {
     elm = getELMFixture('elm/CMS723v0.json');
-    simpleExpression = elm.library.statements.def.find(d => d.localId === defineStatementLocalId); // Simple expression for Denominator
+    denominatorExpression = elm.library.statements.def.find(d => d.localId === denominatorLocalId); // Simple expression for Denominator
+    numeratorExpression = elm.library.statements.def.find(d => d.localId === numeratorLocalId); // Simple expression for Denominator
 
     //
     statementResults = [
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         final: FinalResult.TRUE,
         relevance: Relevance.TRUE,
-        localId: defineStatementLocalId
+        localId: denominatorLocalId
+      },
+      {
+        statementName: numeratorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        final: FinalResult.UNHIT,
+        relevance: Relevance.FALSE,
+        localId: numeratorLocalId
       }
     ];
 
     trueClauseResults = [
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
-        localId: defineStatementLocalId,
+        localId: denominatorLocalId,
         final: FinalResult.TRUE,
         raw: true
       },
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         localId: '118',
         final: FinalResult.TRUE,
         raw: [{ resourceType: 'foo' }]
       },
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         localId: '116',
         final: FinalResult.TRUE,
         raw: [{ resourceType: 'foo' }]
       },
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         localId: '115',
         final: FinalResult.TRUE,
@@ -160,19 +170,19 @@ describe('HTMLBuilder', () => {
 
     falseClauseResults = [
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
-        localId: defineStatementLocalId,
+        localId: denominatorLocalId,
         final: FinalResult.FALSE,
         raw: false
       },
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         localId: '117',
         final: FinalResult.FALSE,
         raw: []
-      }
+      },
       // specifically not including this result to make this clause have no coverage styling.
       // This simulates a clause that only exists in the annotation.
       // {
@@ -182,12 +192,19 @@ describe('HTMLBuilder', () => {
       //   final: FinalResult.FALSE,
       //   raw: []
       // }
+      {
+        statementName: numeratorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: numeratorLocalId,
+        final: FinalResult.UNHIT,
+        raw: false
+      }
     ];
   });
 
   test('simple HTML with generation with mix of false and true clauses', () => {
     // Ignore tabs and new lines
-    const expectedHTML = getHTMLFixture('simpleTrueAnnotation.html').replace(/\s/g, '');
+    const expectedHTML = getHTMLFixture('simpleHighlightingAnnotation.html').replace(/\s/g, '');
     const res = generateHTML(
       simpleMeasure,
       [elm],
