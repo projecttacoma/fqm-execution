@@ -24,7 +24,7 @@ describe('HTMLBuilder', () => {
   let statementResults: StatementResult[];
   let trueClauseResults: ClauseResult[];
   let falseClauseResults: ClauseResult[];
-  const desiredLocalId = '119';
+  const defineStatementLocalId = '119';
   const trueStyleString = objToCSS(cqlLogicClauseTrueStyle);
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
@@ -114,15 +114,16 @@ describe('HTMLBuilder', () => {
 
   beforeEach(() => {
     elm = getELMFixture('elm/CMS723v0.json');
-    simpleExpression = elm.library.statements.def.find(d => d.localId === desiredLocalId); // Simple expression for Denominator
+    simpleExpression = elm.library.statements.def.find(d => d.localId === defineStatementLocalId); // Simple expression for Denominator
 
+    //
     statementResults = [
       {
         statementName: simpleExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         final: FinalResult.TRUE,
         relevance: Relevance.TRUE,
-        localId: desiredLocalId
+        localId: defineStatementLocalId
       }
     ];
 
@@ -130,9 +131,30 @@ describe('HTMLBuilder', () => {
       {
         statementName: simpleExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
-        localId: desiredLocalId,
+        localId: defineStatementLocalId,
         final: FinalResult.TRUE,
         raw: true
+      },
+      {
+        statementName: simpleExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '118',
+        final: FinalResult.TRUE,
+        raw: [{ resourceType: 'foo' }]
+      },
+      {
+        statementName: simpleExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '116',
+        final: FinalResult.TRUE,
+        raw: [{ resourceType: 'foo' }]
+      },
+      {
+        statementName: simpleExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '115',
+        final: FinalResult.TRUE,
+        raw: [{ resourceType: 'foo' }]
       }
     ];
 
@@ -140,28 +162,42 @@ describe('HTMLBuilder', () => {
       {
         statementName: simpleExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
-        localId: desiredLocalId,
+        localId: defineStatementLocalId,
         final: FinalResult.FALSE,
         raw: false
+      },
+      {
+        statementName: simpleExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '117',
+        final: FinalResult.FALSE,
+        raw: []
       }
+      // specifically not including this result to make this clause have no coverage styling.
+      // This simulates a clause that only exists in the annotation.
+      // {
+      //   statementName: simpleExpression?.name ?? '',
+      //   libraryName: elm.library.identifier.id,
+      //   localId: '101',
+      //   final: FinalResult.FALSE,
+      //   raw: []
+      // }
     ];
   });
 
-  test('simple HTML with generation with true clause', () => {
+  test('simple HTML with generation with mix of false and true clauses', () => {
     // Ignore tabs and new lines
     const expectedHTML = getHTMLFixture('simpleTrueAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test');
+    const res = generateHTML(
+      simpleMeasure,
+      [elm],
+      statementResults,
+      [...trueClauseResults, ...falseClauseResults],
+      'test'
+    );
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(trueStyleString)).toBeTruthy();
-  });
-
-  test('simple HTML with generation with false clause', () => {
-    // Ignore tabs and new lines
-    const expectedHTML = getHTMLFixture('simpleFalseAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML(simpleMeasure, [elm], statementResults, falseClauseResults, 'test');
-
-    expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(falseStyleString)).toBeTruthy();
   });
 
@@ -213,7 +249,7 @@ describe('HTMLBuilder', () => {
         detailedResults: [
           {
             statementResults: statementResults,
-            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            clauseResults: [...trueClauseResults, ...falseClauseResults],
             groupId: 'test'
           }
         ]
@@ -235,12 +271,12 @@ describe('HTMLBuilder', () => {
         detailedResults: [
           {
             statementResults: statementResults,
-            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            clauseResults: [...trueClauseResults, ...falseClauseResults],
             groupId: 'test'
           },
           {
             statementResults: statementResults,
-            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            clauseResults: [...trueClauseResults, ...falseClauseResults],
             groupId: 'test2'
           }
         ]
