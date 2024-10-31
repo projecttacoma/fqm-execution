@@ -33,7 +33,7 @@ export function findLocalIdsInStatementByName(libraryElm: ELM, statementName: st
   for (const alias of Array.from(emptyResultClauses)) {
     // Only do it if we have a clause for where the result should be fetched from
     // and have a localId for the clause that the result should map to
-    if (localIds[alias.expressionLocalId] != null && alias.aliasLocalId != null) {
+    if (localIds[alias.expressionLocalId] != null && alias.aliasLocalId) {
       localIds[alias.aliasLocalId] = {
         localId: alias.aliasLocalId,
         sourceLocalId: alias.expressionLocalId
@@ -408,14 +408,14 @@ function findRelationshipAliasNodeAnnotationId(
   annotation: AnnotationStatement[],
   sourceLocalId: string
 ): string | null {
-  for (const as of annotation) {
+  for (const node of annotation) {
     // if this node has a list of more nodes in s, look at the first one and see if it matches the sourceLocalId
-    if (as.r && as.s && as.s[0]?.r === sourceLocalId) {
+    if (node.r && node.s && node.s[0]?.r === sourceLocalId) {
       // return this localId which is the parent of the sourceLocalId
-      return as.r;
-    } else if (as.s) {
+      return node.r;
+    } else if (node.s) {
       // otherwise, keep recursing and return the alias localId if found
-      const id = findRelationshipAliasNodeAnnotationId(as.s, sourceLocalId);
+      const id = findRelationshipAliasNodeAnnotationId(node.s, sourceLocalId);
       if (id) {
         return id;
       }
