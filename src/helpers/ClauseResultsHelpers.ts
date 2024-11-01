@@ -1,4 +1,4 @@
-import { ELMProperty } from '../types/ELMTypes';
+import { Annotation, AnnotationStatement, ELMProperty } from '../types/ELMTypes';
 import { ELMFunctionRef } from '../types/ELMTypes';
 import { ELM, ELMBinaryExpression, ELMStatement } from '../types/ELMTypes';
 
@@ -33,7 +33,7 @@ export function findLocalIdsInStatementByName(libraryElm: ELM, statementName: st
   for (const alias of Array.from(emptyResultClauses)) {
     // Only do it if we have a clause for where the result should be fetched from
     // and have a localId for the clause that the result should map to
-    if (localIds[alias.expressionLocalId] != null && alias.aliasLocalId != null) {
+    if (localIds[alias.expressionLocalId] != null && alias.aliasLocalId) {
       localIds[alias.aliasLocalId] = {
         localId: alias.aliasLocalId,
         sourceLocalId: alias.expressionLocalId
@@ -132,11 +132,16 @@ export function findAllLocalIdsInStatement(
         aliasMap[v] = statement.expression.localId;
         // Determine the localId for this alias.
         if (statement.localId) {
-          // Older translator versions require with statements to use the statement.expression.localId + 1 as the alias Id
-          // even if the statement already has a localId. There is not a clear mapping for alias with statements in the new
-          // translator, so they will go un highlighted but this will not affect coverage calculation
+          // There is not a clear mapping for `With` and `Without` relationship aliases with statements in newer
+          // translator versions. The node in the annotation that contains the alias has a local id that doesn't
+          // exist in the elm. We have to find this localId by looking for it in the annotation structure.
           if (statement.type === 'With' || statement.type === 'Without') {
-            alId = (parseInt(statement.expression.localId, 10) + 1).toString();
+            if (annotation) {
+              const id = findRelationshipAliasAnnotationId(annotation, statement.expression.localId);
+              if (id) {
+                alId = id;
+              }
+            }
           } else {
             alId = statement.localId;
           }
@@ -345,6 +350,78 @@ export function findLocalIdsForComparisonOperators(
       });
     }
   }
+}
+
+/**
+ * Helper function to kick off the recursive search for the relationship (With, Without) source's localId in the annotation
+ * structure. If found this returns the localId of the parent node of the given source localId. Null is returned if not
+ * found.
+ */
+function findRelationshipAliasAnnotationId(annotation: Annotation[], sourceLocalId: string): string | null {
+  for (const a of annotation) {
+    const id = findRelationshipAliasNodeAnnotationId([a.s], sourceLocalId);
+    if (id) {
+      return id;
+    }
+  }
+  return null;
+}
+
+/**
+ * Recursively looks through the annotation structure for the source localId and grabs its parent id which also contains
+ * the alias. This search is valid to be used with relationship (With, Without) clauses and allows us to tag the found
+ * localId, which only exists in the annotation, as the alias localId for the source so it can be highlighted when the
+ * source clause has a result.
+ *
+ * For example in the below snippet. We are looking for the source localId 355 and want to return 301 which includes
+ * the alias.
+ *
+ *  {
+ *    "r": "301",
+ *    "s": [
+ *      {
+ *        "r": "355",
+ *        "s": [
+ *          {
+ *            "s": [
+ *              {
+ *                "value": [
+ *                  "\"Bladder Cancer Diagnosis\""
+ *                ]
+ *              }
+ *            ]
+ *          }
+ *        ]
+ *      },
+ *      {
+ *        "value": [
+ *          " ",
+ *          "BladderCancer"
+ *        ]
+ *      }
+ *    ]
+ *  }
+ *
+ * @returns id of the node that is parent to the source localId if found
+ */
+function findRelationshipAliasNodeAnnotationId(
+  annotation: AnnotationStatement[],
+  sourceLocalId: string
+): string | null {
+  for (const node of annotation) {
+    // if this node has a list of more nodes in s, look at the first one and see if it matches the sourceLocalId
+    if (node.r && node.s && node.s[0]?.r === sourceLocalId) {
+      // return this localId which is the parent of the sourceLocalId
+      return node.r;
+    } else if (node.s) {
+      // otherwise, keep recursing and return the alias localId if found
+      const id = findRelationshipAliasNodeAnnotationId(node.s, sourceLocalId);
+      if (id) {
+        return id;
+      }
+    }
+  }
+  return null;
 }
 
 /**

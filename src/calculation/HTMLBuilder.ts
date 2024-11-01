@@ -84,11 +84,11 @@ Handlebars.registerHelper('highlightCoverage', (localId, context) => {
   const libraryName: string = context.data.root.libraryName;
   const clauseResults: ClauseResult[] = context.data.root.clauseResults;
 
-  const clauseResult = clauseResults.filter(result => result.libraryName === libraryName && result.localId === localId);
+  const clauseResult = clauseResults.find(result => result.libraryName === libraryName && result.localId === localId);
   if (clauseResult) {
-    if (clauseResult.some(c => c.final === FinalResult.TRUE)) {
+    if (clauseResult.final === FinalResult.TRUE) {
       return objToCSS(cqlLogicClauseCoveredStyle);
-    } else if (clauseResult.every(c => c.final === FinalResult.FALSE || c.final === FinalResult.UNHIT)) {
+    } else if (clauseResult.final === FinalResult.FALSE || clauseResult.final === FinalResult.UNHIT) {
       return objToCSS(cqlLogicUncoveredClauseStyle);
     }
   }

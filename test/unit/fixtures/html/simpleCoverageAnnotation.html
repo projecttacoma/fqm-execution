@@ -1,5 +1,5 @@
 <div>
-  <h2>test Clause Coverage: 100%</h2>
+  <h2>test Clause Coverage: 66.7%</h2>
   <pre
     style="tab-size: 2"
     data-library-name="AnticoagulationTherapyforAtrialFibrillationFlutter"
@@ -8,13 +8,13 @@
       <code>
         <span data-ref-id="119" style="background-color:#daeaf5;color:#004e82">
           <span>define &quot;Denominator&quot;: </span>
-          <span data-ref-id="118" style="background-color:white;color:black">
-            <span data-ref-id="116" style="background-color:white;color:black">
-              <span data-ref-id="101" style="background-color:white;color:black">
+          <span data-ref-id="118" style="background-color:#daeaf5;color:#004e82">
+            <span data-ref-id="116" style="background-color:#daeaf5;color:#004e82">
+              <span data-ref-id="101" style="">
                 <span>&quot;Encounter with Atrial Ablation Procedure&quot;</span>
               </span>
               <span>union</span>
-              <span data-ref-id="115" style="background-color:white;color:black">
+              <span data-ref-id="115" style="background-color:#daeaf5;color:#004e82">
                 <span>&quot;History of Atrial FibrillationFlutter&quot;</span>
               </span>
             </span>
@@ -25,5 +25,12 @@
           </span>
         </span>
       </code>
+    </pre>
+    <pre style="tab-size: 2"
+    data-library-name="AnticoagulationTherapyforAtrialFibrillationFlutter" data-statement-name="Numerator">
+    <code>
+    <span data-ref-id="135" style="background-color:white;color:black"><span>define &quot;Numerator&quot;: </span><span data-ref-id="134" style=""><span><span data-ref-id="125" style=""><span data-ref-id="124" style=""><span><span>&quot;Denominator&quot;</span></span></span><span> NonElectiveEncounter</span></span></span><span>
+        </span><span data-ref-id="133" style=""><span>with </span><span data-ref-id="127" style=""><span data-ref-id="126" style=""><span><span>&quot;Anticoagulant Therapy at Discharge&quot;</span></span></span><span> Anticoagulant</span></span><span>
+            such that </span><span data-ref-id="132" style=""><span data-ref-id="129" style=""><span data-ref-id="128" style=""><span>Anticoagulant</span></span><span>.</span><span data-ref-id="129" style=""><span>authorDatetime</span></span></span><span> during </span><span data-ref-id="131" style=""><span data-ref-id="130" style=""><span>NonElectiveEncounter</span></span><span>.</span><span data-ref-id="131" style=""><span>relevantPeriod</span></span></span></span></span></span></span></code>
     </pre>
 </div>

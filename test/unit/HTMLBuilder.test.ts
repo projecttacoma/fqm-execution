@@ -20,11 +20,13 @@ import { getELMFixture, getHTMLFixture, getJSONFixture } from './helpers/testHel
 
 describe('HTMLBuilder', () => {
   let elm = <ELM>{};
-  let simpleExpression: ELMStatement | undefined;
+  let denominatorExpression: ELMStatement | undefined;
+  let numeratorExpression: ELMStatement | undefined;
   let statementResults: StatementResult[];
   let trueClauseResults: ClauseResult[];
   let falseClauseResults: ClauseResult[];
-  const desiredLocalId = '119';
+  const denominatorLocalId = '119';
+  const numeratorLocalId = '135';
   const trueStyleString = objToCSS(cqlLogicClauseTrueStyle);
   const falseStyleString = objToCSS(cqlLogicClauseFalseStyle);
   const coverageStyleString = objToCSS(cqlLogicClauseCoveredStyle);
@@ -114,54 +116,105 @@ describe('HTMLBuilder', () => {
 
   beforeEach(() => {
     elm = getELMFixture('elm/CMS723v0.json');
-    simpleExpression = elm.library.statements.def.find(d => d.localId === desiredLocalId); // Simple expression for Denominator
+    denominatorExpression = elm.library.statements.def.find(d => d.localId === denominatorLocalId); // Simple expression for Denominator
+    numeratorExpression = elm.library.statements.def.find(d => d.localId === numeratorLocalId); // Simple expression for Denominator
 
+    //
     statementResults = [
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
         final: FinalResult.TRUE,
         relevance: Relevance.TRUE,
-        localId: desiredLocalId
+        localId: denominatorLocalId
+      },
+      {
+        statementName: numeratorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        final: FinalResult.UNHIT,
+        relevance: Relevance.FALSE,
+        localId: numeratorLocalId
       }
     ];
 
     trueClauseResults = [
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
-        localId: desiredLocalId,
+        localId: denominatorLocalId,
         final: FinalResult.TRUE,
         raw: true
+      },
+      {
+        statementName: denominatorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '118',
+        final: FinalResult.TRUE,
+        raw: [{ resourceType: 'foo' }]
+      },
+      {
+        statementName: denominatorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '116',
+        final: FinalResult.TRUE,
+        raw: [{ resourceType: 'foo' }]
+      },
+      {
+        statementName: denominatorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '115',
+        final: FinalResult.TRUE,
+        raw: [{ resourceType: 'foo' }]
       }
     ];
 
     falseClauseResults = [
       {
-        statementName: simpleExpression?.name ?? '',
+        statementName: denominatorExpression?.name ?? '',
         libraryName: elm.library.identifier.id,
-        localId: desiredLocalId,
+        localId: denominatorLocalId,
         final: FinalResult.FALSE,
+        raw: false
+      },
+      {
+        statementName: denominatorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: '117',
+        final: FinalResult.FALSE,
+        raw: []
+      },
+      // specifically not including this result to make this clause have no coverage styling.
+      // This simulates a clause that only exists in the annotation.
+      // {
+      //   statementName: simpleExpression?.name ?? '',
+      //   libraryName: elm.library.identifier.id,
+      //   localId: '101',
+      //   final: FinalResult.FALSE,
+      //   raw: []
+      // }
+      {
+        statementName: numeratorExpression?.name ?? '',
+        libraryName: elm.library.identifier.id,
+        localId: numeratorLocalId,
+        final: FinalResult.UNHIT,
         raw: false
       }
     ];
   });
 
-  test('simple HTML with generation with true clause', () => {
+  test('simple HTML with generation with mix of false and true clauses', () => {
     // Ignore tabs and new lines
-    const expectedHTML = getHTMLFixture('simpleTrueAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML(simpleMeasure, [elm], statementResults, trueClauseResults, 'test');
+    const expectedHTML = getHTMLFixture('simpleHighlightingAnnotation.html').replace(/\s/g, '');
+    const res = generateHTML(
+      simpleMeasure,
+      [elm],
+      statementResults,
+      [...trueClauseResults, ...falseClauseResults],
+      'test'
+    );
 
     expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(trueStyleString)).toBeTruthy();
-  });
-
-  test('simple HTML with generation with false clause', () => {
-    // Ignore tabs and new lines
-    const expectedHTML = getHTMLFixture('simpleFalseAnnotation.html').replace(/\s/g, '');
-    const res = generateHTML(simpleMeasure, [elm], statementResults, falseClauseResults, 'test');
-
-    expect(res.replace(/\s/g, '')).toEqual(expectedHTML);
     expect(res.includes(falseStyleString)).toBeTruthy();
   });
 
@@ -213,7 +266,7 @@ describe('HTMLBuilder', () => {
         detailedResults: [
           {
             statementResults: statementResults,
-            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            clauseResults: [...trueClauseResults, ...falseClauseResults],
             groupId: 'test'
           }
         ]
@@ -235,12 +288,12 @@ describe('HTMLBuilder', () => {
         detailedResults: [
           {
             statementResults: statementResults,
-            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            clauseResults: [...trueClauseResults, ...falseClauseResults],
             groupId: 'test'
           },
           {
             statementResults: statementResults,
-            clauseResults: [trueClauseResults[0], falseClauseResults[0]],
+            clauseResults: [...trueClauseResults, ...falseClauseResults],
             groupId: 'test2'
           }
         ]
