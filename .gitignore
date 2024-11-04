@@ -10,6 +10,7 @@ cache
 test/integration/.start-translator
 regression/output/*-*
 regression/connectathon
+regression/coverage-script-bundles
 regression/ecqm-content-r4-2021
 regression/ecqm-content-qicore-2022
 data-requirements/fqm-e-dr/*

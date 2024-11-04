@@ -49,6 +49,10 @@ if [ ! -d "regression/ecqm-content-qicore-2022" ]; then
   git clone https://github.com/cqframework/ecqm-content-qicore-2022.git regression/ecqm-content-qicore-2022
 fi
 
+if [ ! -d "regression/coverage-script-bundles" ]; then
+  git clone https://gitlab.mitre.org/flame/coverage-script-bundles.git regression/coverage-script-bundles
+fi
+
 git fetch --all
 
 CURRENT_BRANCH=$(git symbolic-ref --short -q HEAD)
