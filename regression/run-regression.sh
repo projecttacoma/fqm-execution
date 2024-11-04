@@ -62,11 +62,13 @@ TIMESTAMP=$(date +%s)
 
 echo "Gathering results on current branch '$CURRENT_BRANCH'"
 
+npm i
 npx ts-node --files ./regression/regression.ts "$CURRENT_BRANCH-$TIMESTAMP" $VERBOSE
 
 echo "Gathering results on base branch '$BASE_BRANCH'"
 git checkout $BASE_BRANCH
 
+npm i
 npx ts-node --files ./regression/regression.ts "$BASE_BRANCH-$TIMESTAMP" $VERBOSE
 
 FAILURES=()
