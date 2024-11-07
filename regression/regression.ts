@@ -34,13 +34,18 @@ function findPatientBundlePathsInDirectory(patientDir: string): string[] {
 }
 
 /*
-* @public
-* @param {string} filesPath - patient file directory path
-* @param {string[]} testFilePaths - individual test files within that directory
-* @param {fhir4.Bundle} measureBundle - parsed measure bundle
-* @param {string} shortName - measure shortname for location of results
-*/
-async function calculateRegression(filesPath: string, testFilePaths: string[], measureBundle: fhir4.Bundle, shortName: string){
+ * @public
+ * @param {string} filesPath - patient file directory path
+ * @param {string[]} testFilePaths - individual test files within that directory
+ * @param {fhir4.Bundle} measureBundle - parsed measure bundle
+ * @param {string} shortName - measure shortname for location of results
+ */
+async function calculateRegression(
+  filesPath: string,
+  testFilePaths: string[],
+  measureBundle: fhir4.Bundle,
+  shortName: string
+) {
   const regressionResultsPath = path.join(REGRESSION_OUTPUT_DIR, shortName);
   console.log(`Path: ${regressionResultsPath}`);
   fs.mkdirSync(regressionResultsPath);
@@ -50,7 +55,7 @@ async function calculateRegression(filesPath: string, testFilePaths: string[], m
     const patientBundle = JSON.parse(fs.readFileSync(fullTestFilePath, 'utf8')) as fhir4.Bundle;
 
     //turn tfp into un-nested path for results file
-    const testResultsPath = path.join(regressionResultsPath, `results-${tfp.replace('/','-')}`);
+    const testResultsPath = path.join(regressionResultsPath, `results-${tfp.replace('/', '-')}`);
 
     try {
       const { results } = await Calculator.calculate(measureBundle, [patientBundle], {});
@@ -114,7 +119,6 @@ async function main() {
     await calculateRegression(filesPath, testFilePaths, measureBundle, dir.shortName);
   }
 
-
   // coverage directory organized with multiple measures for each set of test files
   const covDirs = fs.readdirSync(COVERAGE_BASE_PATH).map(f => ({
     shortName: f,
@@ -142,6 +146,5 @@ async function main() {
     await calculateRegression(patientDirectoryPath, testFilePaths, measureBundle332, `${dir.shortName}-v332`);
   }
 }
-
 
 main().then(() => console.log('done'));
