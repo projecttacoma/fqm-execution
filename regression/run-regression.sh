@@ -10,16 +10,18 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 VERBOSE=false
+INTERNAL=false
 BASE_BRANCH="master"
 
 function usage() {
     cat <<USAGE
 
-    Usage: $0 [-b|--base-branch <branch-name>] [-v|--verbose]
+    Usage: $0 [-b|--base-branch <branch-name>] [-v|--verbose] [-i|--internal]
 
     Options:
         -b/--base-branch:   Base branch to compare results with (default: master)
         -v/--verbose:       Use verbose regression. Will print out diffs of failing JSON files with spacing (default: false)
+        -i/--internal:      Include limited-access internal resources in the test files (default: false)
 USAGE
     exit 1
 }
@@ -28,6 +30,7 @@ while test $# != 0
 do
     case "$1" in
     -v | --verbose) VERBOSE=true ;;
+    -i | --internal) INTERNAL=true ;;
     -b | --base-branch)
       shift
       BASE_BRANCH=$1
@@ -49,7 +52,7 @@ if [ ! -d "regression/ecqm-content-qicore-2022" ]; then
   git clone https://github.com/cqframework/ecqm-content-qicore-2022.git regression/ecqm-content-qicore-2022
 fi
 
-if [ ! -d "regression/coverage-script-bundles" ]; then
+if [ $INTERNAL = "true" ] && [ ! -d "regression/coverage-script-bundles" ]; then
   git clone https://gitlab.mitre.org/flame/coverage-script-bundles.git regression/coverage-script-bundles
 fi
 
@@ -67,13 +70,13 @@ TIMESTAMP=$(date +%s)
 echo "Gathering results on current branch '$CURRENT_BRANCH'"
 
 npm i
-npx ts-node --files ./regression/regression.ts "$CURRENT_BRANCH-$TIMESTAMP" $VERBOSE
+npx ts-node --files ./regression/regression.ts "$CURRENT_BRANCH-$TIMESTAMP" $VERBOSE $INTERNAL
 
 echo "Gathering results on base branch '$BASE_BRANCH'"
 git checkout $BASE_BRANCH
 
 npm i
-npx ts-node --files ./regression/regression.ts "$BASE_BRANCH-$TIMESTAMP" $VERBOSE
+npx ts-node --files ./regression/regression.ts "$BASE_BRANCH-$TIMESTAMP" $VERBOSE $INTERNAL
 
 FAILURES=()
 BASE_BRANCH_BASE_PATH="regression/output/$BASE_BRANCH-$TIMESTAMP"

@@ -4,6 +4,7 @@ import { Calculator } from '../src';
 
 const regressionBaseName = process.argv[2] ?? 'regression-output';
 const verbose = process.argv[3] === 'true';
+const internal = process.argv[4] === 'true';
 
 const REGRESSION_OUTPUT_DIR = path.join(__dirname, `./output/${regressionBaseName}`);
 const CTHON_BASE_PATH = path.join(__dirname, './connectathon/fhir401/bundles/measure');
@@ -119,32 +120,34 @@ async function main() {
     await calculateRegression(filesPath, testFilePaths, measureBundle, dir.shortName);
   }
 
-  // coverage directory organized with multiple measures for each set of test files
-  const covDirs = fs.readdirSync(COVERAGE_BASE_PATH).map(f => ({
-    shortName: f,
-    fullPath: path.join(COVERAGE_BASE_PATH, f)
-  }));
-  for (const dir of covDirs) {
-    const basePath = dir.fullPath;
+  if (internal){
+    // coverage directory organized with multiple measures for each set of test files
+    const covDirs = fs.readdirSync(COVERAGE_BASE_PATH).map(f => ({
+      shortName: f,
+      fullPath: path.join(COVERAGE_BASE_PATH, f)
+    }));
+    for (const dir of covDirs) {
+      const basePath = dir.fullPath;
 
-    const patientDirectoryPath = path.join(basePath, `${dir.shortName}-TestCases`);
-    // Skip measures with no `*-TestCases` directory
-    if (!fs.existsSync(patientDirectoryPath)) continue;
-    const testFilePaths = findPatientBundlePathsInDirectory(patientDirectoryPath);
-    // Skip measures with no test patients in the `*-files` directory
-    if (testFilePaths.length === 0) continue;
+      const patientDirectoryPath = path.join(basePath, `${dir.shortName}-TestCases`);
+      // Skip measures with no `*-TestCases` directory
+      if (!fs.existsSync(patientDirectoryPath)) continue;
+      const testFilePaths = findPatientBundlePathsInDirectory(patientDirectoryPath);
+      // Skip measures with no test patients in the `*-files` directory
+      if (testFilePaths.length === 0) continue;
 
-    // Two versions of measure
-    const measureBundle314 = JSON.parse(
-      fs.readFileSync(path.join(basePath, `${dir.shortName}-v314.json`), 'utf8')
-    ) as fhir4.Bundle;
-    await calculateRegression(patientDirectoryPath, testFilePaths, measureBundle314, `${dir.shortName}-v314`);
+      // Two versions of measure
+      const measureBundle314 = JSON.parse(
+        fs.readFileSync(path.join(basePath, `${dir.shortName}-v314.json`), 'utf8')
+      ) as fhir4.Bundle;
+      await calculateRegression(patientDirectoryPath, testFilePaths, measureBundle314, `${dir.shortName}-v314`);
 
-    const measureBundle332 = JSON.parse(
-      fs.readFileSync(path.join(basePath, `${dir.shortName}-v332.json`), 'utf8')
-    ) as fhir4.Bundle;
-    await calculateRegression(patientDirectoryPath, testFilePaths, measureBundle332, `${dir.shortName}-v332`);
-  }
+      const measureBundle332 = JSON.parse(
+        fs.readFileSync(path.join(basePath, `${dir.shortName}-v332.json`), 'utf8')
+      ) as fhir4.Bundle;
+      await calculateRegression(patientDirectoryPath, testFilePaths, measureBundle332, `${dir.shortName}-v332`);
+    }
+  } 
 }
 
 main().then(() => console.log('done'));
