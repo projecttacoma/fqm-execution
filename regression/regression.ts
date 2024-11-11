@@ -120,7 +120,7 @@ async function main() {
     await calculateRegression(filesPath, testFilePaths, measureBundle, dir.shortName);
   }
 
-  if (internal){
+  if (internal) {
     // coverage directory organized with multiple measures for each set of test files
     const covDirs = fs.readdirSync(COVERAGE_BASE_PATH).map(f => ({
       shortName: f,
@@ -147,7 +147,7 @@ async function main() {
       ) as fhir4.Bundle;
       await calculateRegression(patientDirectoryPath, testFilePaths, measureBundle332, `${dir.shortName}-v332`);
     }
-  } 
+  }
 }
 
 main().then(() => console.log('done'));
