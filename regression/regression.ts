@@ -4,13 +4,15 @@ import { Calculator } from '../src';
 
 const regressionBaseName = process.argv[2] ?? 'regression-output';
 const verbose = process.argv[3] === 'true';
-const internal = process.argv[4] === 'true';
 
 const REGRESSION_OUTPUT_DIR = path.join(__dirname, `./output/${regressionBaseName}`);
-const CTHON_BASE_PATH = path.join(__dirname, './connectathon/fhir401/bundles/measure');
-const ECQM_CONTENT_BASE_PATH = path.join(__dirname, './ecqm-content-r4-2021/bundles/measure');
-const ECQM_CONTENT_QICORE_BASE_PATH = path.join(__dirname, './ecqm-content-qicore-2022/bundles/measure');
-const COVERAGE_BASE_PATH = path.join(__dirname, './coverage-script-bundles/measure');
+const CTHON_BASE_PATH = path.join(__dirname, './default-bundles/connectathon/fhir401/bundles/measure');
+const ECQM_CONTENT_BASE_PATH = path.join(__dirname, './default-bundles/ecqm-content-r4-2021/bundles/measure');
+const ECQM_CONTENT_QICORE_BASE_PATH = path.join(
+  __dirname,
+  './default-bundles/ecqm-content-qicore-2022/bundles/measure'
+);
+const BUNDLES_BASE_PATH = path.join(__dirname, './bundles'); // folders in this directory are assumed to have a coverage script bundles format
 
 const RESET = '\x1b[0m';
 const FG_YELLOW = '\x1b[33m';
@@ -120,11 +122,17 @@ async function main() {
     await calculateRegression(filesPath, testFilePaths, measureBundle, dir.shortName);
   }
 
-  if (internal) {
+  // Everything in the BUNDLES_BASE_PATH directory is expected in $set_name/measure/$measure_name structure with
+  // $measure_name-v332.json, $measure_name-v314.json, and $measure_name-TestCases folder within
+  const baseBundlePaths = fs
+    .readdirSync(BUNDLES_BASE_PATH)
+    .filter(f => !f.startsWith('.'))
+    .map(f => path.join(BUNDLES_BASE_PATH, f, 'measure'));
+  await baseBundlePaths.forEach(async dirPath => {
     // coverage directory organized with multiple measures for each set of test files
-    const covDirs = fs.readdirSync(COVERAGE_BASE_PATH).map(f => ({
+    const covDirs = fs.readdirSync(dirPath).map(f => ({
       shortName: f,
-      fullPath: path.join(COVERAGE_BASE_PATH, f)
+      fullPath: path.join(dirPath, f)
     }));
     for (const dir of covDirs) {
       const basePath = dir.fullPath;
@@ -147,7 +155,7 @@ async function main() {
       ) as fhir4.Bundle;
       await calculateRegression(patientDirectoryPath, testFilePaths, measureBundle332, `${dir.shortName}-v332`);
     }
-  }
+  });
 }
 
 main().then(() => console.log('done'));
