@@ -6,7 +6,7 @@ export interface GracefulError {
 }
 
 export const isOfTypeGracefulError = (tbd: any): tbd is GracefulError => {
-  if ((tbd as GracefulError).message) {
+  if ((tbd as GracefulError)?.message) {
     return true;
   }
   return false;
