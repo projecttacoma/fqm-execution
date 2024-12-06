@@ -720,6 +720,11 @@ export function interpretEqual(equal: ELMEqual, library: ELM): EqualsFilter | Un
     propRef = equal.operand[0] as ELMProperty;
   }
 
+  if (propRef == null) {
+    withError.message = `could not resolve property ref for Equal:${equal.localId}. first operand is a ${equal.operand[0].type}`;
+    return { type: 'unknown', withError };
+  }
+
   if (isOfTypeGracefulError(propRef)) {
     return { type: 'unknown', withError: propRef };
   }
