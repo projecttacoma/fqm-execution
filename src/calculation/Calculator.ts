@@ -710,7 +710,18 @@ export async function calculateQueryInfo(
   const parameters = { 'Measurement Period': new Interval(startCql, endCql) };
   // get the retrieves for every statement in the root library
   const withErrors: GracefulError[] = [];
-  const allRetrieves = rootLib.library.statements.def.flatMap(statement => {
+
+  let statements = rootLib.library.statements.def;
+  if (options.focusedStatement) {
+    const focalStatement = rootLib.library.statements.def.find(s => s.name === options.focusedStatement);
+    // if focal statement isn't found, warn and stick with the default
+    if (focalStatement) {
+      statements = [focalStatement];
+    } else {
+      console.warn(`Focused statement \"${options.focusedStatement}\" not found in root library.`);
+    }
+  }
+  const allRetrieves = statements.flatMap(statement => {
     if (statement.expression && statement.name != 'Patient') {
       const retrievesOutput = RetrievesHelper.findRetrieves(rootLib, elmJSONs, statement.expression);
       withErrors.push(...retrievesOutput.withErrors);

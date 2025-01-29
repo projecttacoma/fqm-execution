@@ -82,6 +82,11 @@ program
     'Path to a file that fqm-execution will write the calculation results to (default: output.json)'
   )
   .option('--root-lib-ref <root-lib-ref>', 'Reference to the root library', undefined)
+  .option(
+    '--focused-statement <statement name>',
+    'To specify the name of the statement that should be focused on for query info calculation',
+    undefined
+  )
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -202,7 +207,8 @@ const calcOptions: CalculationOptions = {
   useValueSetCaching: program.cacheValuesets,
   verboseCalculationResults: !program.slim,
   trustMetaProfile: program.trustMetaProfile,
-  rootLibRef: program.rootLibRef
+  rootLibRef: program.rootLibRef,
+  focusedStatement: program.focusedStatement
 };
 
 // Override the measurement period start/end in the options only if the user specified them

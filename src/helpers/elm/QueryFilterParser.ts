@@ -131,10 +131,10 @@ export async function parseQueryInfo(
         queryInfo.fromExternalClause = true;
       }
     }
-    // If this query's source is a reference to an expression that is a query then we should parse it and include
-    // the filters from it.
-    if (query.source[0].expression.type === 'ExpressionRef') {
-      const exprRef = query.source[0].expression as ELMExpressionRef;
+    // If this query's source is a reference to an expression that is a query (or function acting on a query)
+    // then we should parse it and include the filters from it.
+    if (query.source[0].expression.type === 'ExpressionRef' || query.source[0].expression.type == 'FunctionRef') {
+      const exprRef = query.source[0].expression as ELMExpressionRef | ELMFunctionRef;
       let queryLib: ELM | null = library;
       if (exprRef.libraryName) {
         queryLib = findLibraryReference(library, allELM, exprRef.libraryName);
@@ -517,31 +517,37 @@ export async function interpretOr(
 export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM): any {
   if (functionRef.libraryName) {
     const libraryId = findLibraryReferenceId(library, functionRef.libraryName);
-
-    // from fhir helpers or MAT Global or fhir common
+    // from fhir helpers or MAT Global or fhir common or qicore common
     if (
       libraryId === 'FHIRHelpers' ||
       libraryId === 'MATGlobalCommonFunctions' ||
       libraryId === 'FHIRCommon' ||
-      libraryId === 'MATGlobalCommonFunctionsFHIR4'
+      libraryId === 'MATGlobalCommonFunctionsFHIR4' ||
+      libraryId === 'QICoreCommon'
     ) {
       switch (functionRef.name) {
         case 'ToString':
         case 'ToConcept':
         case 'ToInterval':
+        case 'toInterval':
         case 'ToDateTime':
         case 'Normalize Interval':
         case 'Latest':
         case 'ToQuantity':
           // Act as pass through for all of the above
-          if (functionRef.operand[0].type == 'Property') {
+          if (functionRef.operand[0].type === 'Property') {
             return functionRef.operand[0] as ELMProperty;
-          } else if (
-            functionRef.operand[0].type === 'As' &&
-            (functionRef.operand[0] as ELMAs).operand.type == 'Property'
-          ) {
-            return (functionRef.operand[0] as ELMAs).operand as ELMProperty;
+          } else if (functionRef.operand[0].type === 'As') {
+            const asExp = functionRef.operand[0] as ELMAs;
+            if (asExp.operand.type === 'Property') {
+              return asExp.operand as ELMProperty;
+            }
+            // interpret inner function ref
+            if (asExp.operand.type === 'FunctionRef') {
+              return interpretFunctionRef(asExp.operand as ELMFunctionRef, library);
+            }
           }
+
           break;
         default:
           break;
@@ -834,6 +840,10 @@ export async function interpretIn(
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {
     propRef = inExpr.operand[0] as ELMProperty;
+    // Extra check for for property pass through (i.e. alias.property.value, grab what's inside the .value)
+    if (propRef.path === 'value' && !propRef.scope && propRef.source && propRef.source?.type === 'Property') {
+      propRef = propRef.source as ELMProperty;
+    }
   } else if (inExpr.operand[0].type == 'End' || inExpr.operand[0].type == 'Start') {
     const startOrEnd = inExpr.operand[0] as ELMUnaryExpression;
     const suffix = startOrEnd.type === 'End' ? '.end' : '.start';
