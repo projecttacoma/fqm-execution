@@ -1184,7 +1184,8 @@ export function interpretComparator(
 
   const valueFilter: ValueFilter = {
     type: 'value',
-    comparator: comparatorString
+    comparator: comparatorString,
+    attribute: propRef.path
   };
   const op = comparatorELM.operand[1];
 
@@ -1217,9 +1218,6 @@ export function interpretComparator(
 
   if (propRef.scope) {
     valueFilter.alias = propRef.scope;
-  }
-  if (propRef.path) {
-    valueFilter.attribute = propRef.path;
   }
   return valueFilter;
 }
