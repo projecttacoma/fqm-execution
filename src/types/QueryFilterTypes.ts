@@ -158,7 +158,7 @@ export interface codeFilterQuery {
 
 export interface ValueFilter extends Filter {
   type: 'value';
-  attribute?: string;
+  attribute: string;
   alias?: string;
   comparator: ValueFilterComparator;
   valueBoolean?: boolean;
@@ -169,5 +169,5 @@ export interface ValueFilter extends Filter {
   valueRange?: fhir4.Range;
 }
 
-// Information on these comparators found here: http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-value-filter-comparator.html
+// Information on these comparators found here: https://build.fhir.org/ig/HL7/fhir-extensions/StructureDefinition-cqf-valueFilter.html
 export type ValueFilterComparator = 'eq' | 'gt' | 'lt' | 'ge' | 'le' | 'sa' | 'eb';

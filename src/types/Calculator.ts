@@ -52,6 +52,8 @@ export interface CalculationOptions {
   disableHTMLOrdering?: boolean;
   /** Builds and returns HTML at the statement level */
   buildStatementLevelHTML?: boolean;
+  /** The name of the statement to focus all results on for a queryInfo calculation. Will be ignored for other calculation types */
+  focusedStatement?: string;
 }
 
 /**
