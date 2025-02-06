@@ -840,7 +840,7 @@ export async function interpretIn(
     propRef = interpretFunctionRef(inExpr.operand[0] as ELMFunctionRef, library);
   } else if (inExpr.operand[0].type == 'Property') {
     propRef = inExpr.operand[0] as ELMProperty;
-    // Extra check for for property pass through (i.e. alias.property.value, grab what's inside the .value)
+    // Extra check for property pass through (i.e. alias.property.value, grab what's inside the .value)
     if (propRef.path === 'value' && !propRef.scope && propRef.source && propRef.source?.type === 'Property') {
       propRef = propRef.source as ELMProperty;
     }

@@ -713,7 +713,7 @@ export async function calculateQueryInfo(
 
   let statements = rootLib.library.statements.def;
   if (options.focusedStatement) {
-    const focalStatement = rootLib.library.statements.def.find(s => s.name === options.focusedStatement);
+    const focalStatement = statements.find(s => s.name === options.focusedStatement);
     // if focal statement isn't found, warn and stick with the default
     if (focalStatement) {
       statements = [focalStatement];
