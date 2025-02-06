@@ -470,6 +470,7 @@ The options that we support for calculation are as follows:
 - `[useValueSetCaching]`<[boolean](#calculation-options)>: If `true`, ValueSets retrieved from a terminology service will be cached and used in subsequent runs where this is also `true` (default: `false`)
 - `[verboseCalculationResults]`<[boolean](#calculation-options)>: If `false`, detailed results will only contain information necessary to interpreting simple population results (default: `true`)
 - `[vsAPIKey]`<[string](#calculation-options)>: API key, to be used to access a terminology service for downloading any missing ValueSets
+- `[focusedStatement]`<[string](#calculation-options)>: Top level statement expression, i.e. "Initial Population", used to narrow the focus of a queryInfo calculation to just that statement and any children
 
 **Note**: The measurement period calculation options are formatted using the UTC time format. Timezone offsets, if provided, are not taken into account for measure calculation.
 
@@ -502,6 +503,7 @@ Options:
   -s, --measurement-period-start <dateTime>       Start of measurement period as a valid FHIR dateTime. Can be formatted as a date, date-time, or partial date. Milliseconds are optionally allowed. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
   -e, --measurement-period-end <dateTime>         End of measurement period as a valid FHIR dateTime. Can be formatted as a date, date-time, or partial date. Milliseconds are optionally allowed. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
   --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing ValueSets.
+  --focused-statement <statement expression>  Top level statement expression, i.e. "Initial Population", used to narrow the focus of a queryInfo calculation to just that statement and any children
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
   --trust-meta-profile                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
