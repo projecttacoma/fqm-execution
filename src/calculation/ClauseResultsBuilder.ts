@@ -19,9 +19,9 @@ import {
 import { UnexpectedProperty } from '../types/errors/CustomErrors';
 
 // code system, search parameters, and code paths for pulling pretty information from resources
-import { systemMap } from '../code-system/system-map';
+import { systemMap } from 'fhir-spec-tools/build/data/systemMap';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
-import { parsedCodePaths } from '../code-attributes/codePaths';
+import { parsedCodePaths } from 'fhir-spec-tools/build/data/codePaths';
 const clinicalDateParams = SearchParameters.entry.find(
   e => e.fullUrl === 'http://hl7.org/fhir/SearchParameter/clinical-date'
 )?.resource;
