@@ -1,10 +1,10 @@
 import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
+import { qiCore411PrimaryCodePaths } from 'fhir-spec-tools/build/data/primary-code-paths';
 
 const ELM_PARSER_DR_BASE_PATH = path.join(__dirname, './elm-parser-dr');
 const FQM_E_DR_BASE_PATH = path.join(__dirname, './fqm-e-dr');
-const primaryCodePaths = JSON.parse(fs.readFileSync('./primary-code-paths.json', 'utf8'));
 
 const measure = process.argv[2] ?? 'all';
 
@@ -199,7 +199,7 @@ async function main() {
         const elmParserMustSupports = dr.mustSupport;
         // find the primary code path for the resourceType from primary-code-paths.json (result of parsing
         // qicore-modelinfo-4.1.1.xml)
-        const primaryCodePath = primaryCodePaths[dr.type];
+        const primaryCodePath = qiCore411PrimaryCodePaths[dr.type];
 
         const elmParserValueSet = dr.codeFilter?.find(cf => cf.path === primaryCodePath)?.valueSet;
         const elmParserDirectCode = dr.codeFilter?.find(cf => cf.path === primaryCodePath)?.code?.[0].code;
