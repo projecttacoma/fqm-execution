@@ -2,7 +2,7 @@ import { Extension } from 'fhir/r4';
 import { CalculationOptions, DataTypeQuery, DRCalculationOutput } from '../types/Calculator';
 import { GracefulError } from '../types/errors/GracefulError';
 import { EqualsFilter, InFilter, DuringFilter, codeFilterQuery, AttributeFilter } from '../types/QueryFilterTypes';
-import { PatientParameters } from '../compartment-definition/PatientParameters';
+import { patientSearchParameters } from 'fhir-spec-tools/build/data/patient-search-parameters';
 import { SearchParameters } from '../compartment-definition/SearchParameters';
 import { ELM, ELMIdentifier } from '../types/ELMTypes';
 import { ExtractedLibrary } from '../types/CQLTypes';
@@ -156,7 +156,7 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
   }
 
   // Create an extension for each way that exists for referencing the patient
-  (<any>PatientParameters)[dataRequirement.type]?.forEach((patientContext: string) => {
+  (<any>patientSearchParameters)[dataRequirement.type]?.forEach((patientContext: string) => {
     const fhirPathExtension: Extension = {
       url: FHIR_QUERY_PATTERN_URL,
       valueString: queryString.concat(`${patientContext}=Patient/{{context.patientId}}`)
