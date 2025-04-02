@@ -975,7 +975,7 @@ export async function executeIntervalELM(
 
   // build an expression that has the interval creation and
   const intervalExecExpr = new Expression({ operand: intervalExpr });
-  const ctx = new PatientContext(new Library(library), null, null, parameters);
+  const ctx = new PatientContext(new Library(library), null, undefined, parameters);
   const interval: Interval = await intervalExecExpr.arg?.execute(ctx);
   if (interval != null && interval.start() != null && interval.end() != null) {
     return {
