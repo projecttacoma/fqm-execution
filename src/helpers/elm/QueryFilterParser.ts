@@ -976,14 +976,19 @@ export async function executeIntervalELM(
   // build an expression that has the interval creation and
   const intervalExecExpr = new Expression({ operand: intervalExpr });
   const ctx = new PatientContext(new Library(library), null, undefined, parameters);
-  const interval: Interval = await intervalExecExpr.arg?.execute(ctx);
-  if (interval != null && interval.start() != null && interval.end() != null) {
-    return {
-      start: interval.start().toString().replace('+00:00', 'Z'),
-      end: interval.end().toString().replace('+00:00', 'Z'),
-      interval
-    };
-  } else {
+  try {
+    const interval: Interval = await intervalExecExpr.arg?.execute(ctx);
+    if (interval != null && interval.start() != null && interval.end() != null) {
+      return {
+        start: interval.start().toString().replace('+00:00', 'Z'),
+        end: interval.end().toString().replace('+00:00', 'Z'),
+        interval
+      };
+    } else {
+      return withError;
+    }
+  } catch (e) {
+    withError.message += `\n ${e}`;
     return withError;
   }
 }
