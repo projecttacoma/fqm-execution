@@ -19,7 +19,8 @@ import {
   extractCompositeMeasure,
   getGroupIdForComponent,
   filterComponentResults,
-  getWeightForComponent
+  getWeightForComponent,
+  getImprovementNotationFromGroup
 } from '../../../src/helpers/MeasureBundleHelpers';
 import { PopulationType } from '../../../src/types/Enums';
 import { ValueSetResolver } from '../../../src/execution/ValueSetResolver';
@@ -31,6 +32,34 @@ import { UnexpectedResource } from '../../../src/types/errors/CustomErrors';
 const GROUP_NUMER_AND_DENOM_CRITERIA = getJSONFixture('measure/groups/groupNumerAndDenomCriteria.json');
 
 describe('MeasureBundleHelpers tests', () => {
+  describe('getImprovementNotationFromGroup', () => {
+    it('should return the code when extension is defined', () => {
+      const group: fhir4.MeasureGroup = {
+        extension: [
+          {
+            url: 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-improvementNotation',
+            valueCodeableConcept: {
+              coding: [
+                {
+                  system: 'http://terminology.hl7.org/CodeSystem/measure-improvement-notation',
+                  code: 'increase'
+                }
+              ]
+            }
+          }
+        ]
+      };
+
+      expect(getImprovementNotationFromGroup(group)).toEqual('increase');
+    });
+
+    it('should return null with no matching extension', () => {
+      const group: fhir4.MeasureGroup = {};
+
+      expect(getImprovementNotationFromGroup(group)).toBeNull();
+    });
+  });
+
   describe('getScoringCodeFromGroup', () => {
     it('should return the code when extension is defined', () => {
       const group: fhir4.MeasureGroup = {

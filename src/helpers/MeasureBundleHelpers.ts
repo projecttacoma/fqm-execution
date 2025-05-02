@@ -12,6 +12,13 @@ import { ExtractedLibrary } from '../types/CQLTypes';
  */
 const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
 const SCORING_CODE_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring';
+const IMPROVEMENT_NOTATION_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-improvementNotation';
+
+export function getImprovementNotationFromGroup(group?: fhir4.MeasureGroup): string | null {
+  return (
+    group?.extension?.find(ext => ext.url === IMPROVEMENT_NOTATION_EXT)?.valueCodeableConcept?.coding?.[0].code ?? null
+  );
+}
 
 export function getScoringCodeFromGroup(group?: fhir4.MeasureGroup): string | null {
   return group?.extension?.find(ext => ext.url === SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ?? null;
