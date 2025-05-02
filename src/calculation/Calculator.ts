@@ -519,7 +519,7 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         measureResource.improvementNotation?.coding?.[0].code;
 
       if (!improvementNotation) {
-        throw new UnexpectedProperty('Could not find improvement notation code for this group or measure');
+        throw new UnexpectedProperty('Unable to find improvement notation code for this group or measure');
       }
 
       // If positive improvement measure, consider patients in denominator but not numerator for gaps
