@@ -499,9 +499,12 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
 
     const drPromises = res.detailedResults?.map(async (dr, i) => {
       const measureResource = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
+      const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId) || measureResource.group?.[i];
 
       // Gaps only supported for proportion/ratio measures
-      const scoringCode = MeasureBundleHelpers.getScoringCodeFromMeasure(measureResource);
+      const scoringCode =
+        MeasureBundleHelpers.getScoringCodeFromGroup(matchingGroup) ??
+        MeasureBundleHelpers.getScoringCodeFromMeasure(measureResource);
 
       if (scoringCode !== MeasureScoreType.PROP) {
         throw new UnsupportedProperty(`Gaps in care not supported for measure scoring type ${scoringCode}`);
@@ -511,14 +514,12 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
       const numerResult = dr.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
       const numerRelevance = dr.populationRelevance?.find(pr => pr.populationType === PopulationType.NUMER)?.result;
 
-      if (!measureResource.improvementNotation?.coding) {
-        throw new UnexpectedProperty('Measure resource must include improvement notation');
-      }
-
-      const improvementNotation = measureResource.improvementNotation.coding[0].code;
+      const improvementNotation =
+        MeasureBundleHelpers.getImprovementNotationFromGroup(matchingGroup) ??
+        measureResource.improvementNotation?.coding?.[0].code;
 
       if (!improvementNotation) {
-        throw new UnexpectedProperty('Improvement notation code not present on measure');
+        throw new UnexpectedProperty('Unable to find improvement notation code for this group or measure');
       }
 
       // If positive improvement measure, consider patients in denominator but not numerator for gaps
@@ -528,8 +529,6 @@ export async function calculateGapsInCare<T extends OneOrMultiPatient>(
         numerRelevance &&
         (improvementNotation === ImprovementNotation.POSITIVE ? denomResult && !numerResult : numerResult);
       if (populationCriteria) {
-        const matchingGroup = measureResource.group?.find(g => g.id === dr.groupId) || measureResource.group?.[i];
-
         if (!matchingGroup) {
           throw new Error(`Could not find group with id ${dr.groupId} in measure resource`);
         }
