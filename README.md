@@ -465,7 +465,7 @@ The options that we support for calculation are as follows:
 - `[reportType]`<['individual' | 'summary'](#calculation-options)>: The type of FHIR MeasureReport to return (default: `'individual'`)
 - `[returnELM]`<[boolean](#calculation-options)>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
 - `[rootLibRef]`<[string](#calculation-options)>: Reference to root library to be used in `calculateLibraryDataRequirements`. Should be a canonical URL but resource ID will work if matching one exists in the bundle
-- `[trustMetaProfile]`<[boolean](#calculation-options)>: If `true`, trust the content of `meta.profile` as a source of truth for what profiles the data that `cql-exec-fhir` grabs validates against. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `false`)
+- `[trustMetaProfile]`<[boolean](#calculation-options)>: If `true`, trust the content of `meta.profile` as a source of truth for what profiles the data that `cql-exec-fhir` grabs validates against. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `true`)
 - `[useElmJsonsCaching]`<[boolean](#calculation-options)>: If `true`, cache ELM JSONs and associated data for access in subsequent runs within 10 minutes (default: `false`)
 - `[useValueSetCaching]`<[boolean](#calculation-options)>: If `true`, ValueSets retrieved from a terminology service will be cached and used in subsequent runs where this is also `true` (default: `false`)
 - `[verboseCalculationResults]`<[boolean](#calculation-options)>: If `false`, detailed results will only contain information necessary to interpreting simple population results (default: `true`)
@@ -505,7 +505,7 @@ Options:
   --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing ValueSets.
   --focused-statement <statement expression>  Top level statement expression, i.e. "Initial Population", used to narrow the focus of a queryInfo calculation to just that statement and any children
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
-  --trust-meta-profile                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: false)
+  --trust-meta-profile                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: true)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
   --root-lib-ref <root-lib-ref>               Reference to the root Library
   -h, --help                                  display help for command
@@ -653,14 +653,14 @@ From these results, it can be seen that `"episode-1"` has a duration of `1` day,
 
 ## `meta.profile` Checking
 
-`fqm-execution` can be configured to use a [trusted environment with cql-exec-fhir](https://github.com/cqframework/cql-exec-fhir#optional-trusted-environment-with-metaprofile), where resources returned as the result of an ELM Retrieve expression will only be included if they have a `meta.profile` list that contains the canonical URL of the profile being asked for by the Retrieve. To enable this environment, use the `trustMetaProfile` calculation option during calculation:
+`fqm-execution` is configured by default to use a [trusted environment with cql-exec-fhir](https://github.com/cqframework/cql-exec-fhir#optional-trusted-environment-with-metaprofile), where resources returned as the result of an ELM Retrieve expression will only be included if they have a `meta.profile` list that contains the canonical URL of the profile being asked for by the Retrieve. To disable this environment, set the `trustMetaProfile` calculation option to false during calculation:
 
 ```typescript
 import { Calculator } from 'fqm-execution';
 
 // ...
 
-const { results } = await Calculator.calculate(measureBundle, patientBundles, { trustMetaProfile: true });
+const { results } = await Calculator.calculate(measureBundle, patientBundles, { trustMetaProfile: false });
 ```
 
 ## Supplemental Data Elements
