@@ -75,7 +75,7 @@ program
   .option(
     '--trust-meta-profile',
     'To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against.',
-    false
+    true
   )
   .option(
     '-o, --out-file [file-path]',
@@ -164,7 +164,7 @@ async function populatePatientBundles() {
     // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
     // from patientBundles and wipe patientBundles to be an empty array.
     if (program.asPatientSource) {
-      const patientSource = PatientSource.FHIRv401({ requireProfileTagging: program.trustMetaProfile });
+      const patientSource = PatientSource.FHIRv401({ requireProfileTagging: program.trustMetaProfile ?? true });
       patientSource.loadBundles(patientBundles);
       calcOptions.patientSource = patientSource;
       patientBundles = [];
