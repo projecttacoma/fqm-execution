@@ -57,6 +57,7 @@ const clinicalDateParams = SearchParameters.entry.find(
  * @param {ELM[]} elmLibraries - All ELM libraries for the measure.
  * @param {fhir4.MeasureGroup} populationGroup - The population group being calculated.
  * @param {boolean} calculateSDEs - Whether or not to treat SDEs as calculated/relevant or not.
+ * @param {boolean} calculateRAVs - Whether or not to treat RAVs as calculated/relevant or not.
  * @returns {StatementResult[]} The StatementResults list for each statement with its relevance status populated.
  */
 export function buildStatementRelevanceMap(
@@ -65,7 +66,8 @@ export function buildStatementRelevanceMap(
   mainLibraryId: string,
   elmLibraries: ELM[],
   populationGroup: fhir4.MeasureGroup,
-  calculateSDEs: boolean
+  calculateSDEs: boolean,
+  calculateRAVs: boolean
 ): StatementResult[] {
   // build statement results defaulting to not applicable (NA)
   const statementResults: StatementResult[] = [];
@@ -86,10 +88,13 @@ export function buildStatementRelevanceMap(
   // TODO: Move this out to only happen once per measure to improve performance.
   const statementDependencies = ELMDependencyHelper.buildStatementDependencyMaps(elmLibraries);
 
-  // Calculate SDEs if specified
-  if (calculateSDEs && measure.supplementalData) {
+  // Calculate SDEs and/or RAVs if specified
+  if ((calculateSDEs || calculateRAVs) && measure.supplementalData) {
     measure.supplementalData.forEach(sde => {
-      if (sde.criteria?.expression) {
+      const matchUsage =
+        (sde.usage?.[0]?.coding?.[0].code === 'supplemental-data' && calculateSDEs) ||
+        (sde.usage?.[0]?.coding?.[0].code === 'risk-adjustment-factor' && calculateRAVs);
+      if (sde.criteria?.expression && matchUsage) {
         markStatementRelevant(
           elmLibraries,
           statementDependencies,
@@ -1002,7 +1007,7 @@ export function createOrSetResult(
   }
 }
 
-// Get raw results of matching SDE expressions for each SDE in the Measure
+// Get raw results of matching SDE expressions (both supplemental-data and risk-adjustment-factor usages) for each SDE in the Measure
 export function getSDEValues(measure: fhir4.Measure, statementResults: cql.StatementResults): SDEResult[] {
   const results: SDEResult[] = [];
   if (measure.supplementalData) {

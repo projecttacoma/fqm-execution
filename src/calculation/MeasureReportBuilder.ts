@@ -1,4 +1,10 @@
-import { ExecutionResult, CalculationOptions, PopulationResult, PopulationGroupResult } from '../types/Calculator';
+import {
+  ExecutionResult,
+  CalculationOptions,
+  PopulationResult,
+  PopulationGroupResult,
+  SDEResult
+} from '../types/Calculator';
 import { PopulationType, MeasureScoreType, AggregationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -15,6 +21,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
   report: fhir4.MeasureReport;
   isIndividual: boolean;
   calculateSDEs: boolean;
+  calculateRAVs: boolean;
   patientCount: number;
   scoringCode: string;
   numeratorAggregateMethod: string;
@@ -39,6 +46,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
 
     // determine if we should be calculating SDE, TODO: Support SDEs for summary/subject-list.
     this.calculateSDEs = this.options.calculateSDEs === true && this.isIndividual;
+    this.calculateRAVs = this.options.calculateRAVs === true && this.isIndividual;
 
     this.patientCount = 0;
     this.numeratorAggregateMethod = '';
@@ -297,6 +305,9 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     if (this.calculateSDEs) {
       this.addSDE(result);
     }
+    if (this.calculateRAVs) {
+      this.addRAV(result);
+    }
 
     this.addEvaluatedResources(result);
 
@@ -370,65 +381,75 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
   }
 
   private addSDE(result: ExecutionResult<T>) {
-    // 	Note that supplemental data are reported as observations for each patient and included in the evaluatedResources bundle. See the MeasureReport resource or the Quality Reporting topic for more information.
     result.supplementalData?.forEach(sd => {
-      if (sd && sd.rawResult) {
-        const observation = <fhir4.Observation>{};
-        observation.resourceType = 'Observation';
-        observation.code = { text: sd.name };
-        observation.id = uuidv4();
-        observation.status = 'final';
-        observation.extension = [
-          {
-            url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
-            extension: [
-              {
-                url: 'measure',
-                valueCanonical: this.measure.url
-              },
-              {
-                url: 'populationId',
-                valueString: sd.name
-              }
-            ]
-          }
-        ];
+      this.addSingleSDEResult(sd);
+    });
+  }
 
-        // add coding to valueCodeableConcept
-        if ('forEach' in sd.rawResult) {
-          observation.valueCodeableConcept = { coding: [] };
-          sd.rawResult?.forEach((rr: any) => {
-            if (rr.code?.value && rr.system?.value && rr.display?.value) {
-              // create supplemental data elements
-              observation.valueCodeableConcept?.coding?.push({
-                system: rr.system.value,
-                code: rr.code.value,
-                display: rr.display.value
-              });
-            } else if (rr.isCode) {
-              // if a CQL system code is returned
-              observation.valueCodeableConcept?.coding?.push({
-                system: rr.system,
-                code: rr.code,
-                display: rr.display
-              });
+  private addRAV(result: ExecutionResult<T>) {
+    result.riskAdjustment?.forEach(ra => {
+      this.addSingleSDEResult(ra);
+    });
+  }
+
+  // 	Note that supplemental data are reported as observations for each patient and included in the evaluatedResources bundle. See the MeasureReport resource or the Quality Reporting topic for more information.
+  private addSingleSDEResult(sd: SDEResult) {
+    if (sd && sd.rawResult) {
+      const observation = <fhir4.Observation>{};
+      observation.resourceType = 'Observation';
+      observation.code = { text: sd.name };
+      observation.id = uuidv4();
+      observation.status = 'final';
+      observation.extension = [
+        {
+          url: 'http://hl7.org/fhir/StructureDefinition/cqf-measureInfo',
+          extension: [
+            {
+              url: 'measure',
+              valueCanonical: this.measure.url
+            },
+            {
+              url: 'populationId',
+              valueString: sd.name
             }
-          });
-        } else if (sd.rawResult.isCode) {
-          observation.valueCodeableConcept = { coding: [] };
-          observation.valueCodeableConcept?.coding?.push({
-            system: sd.rawResult.system,
-            code: sd.rawResult.code,
-            display: sd.rawResult.display
-          });
+          ]
         }
-        // add as evaluated resource reference
-        this.report.contained?.push(observation);
-        this.report.evaluatedResource?.push({
-          reference: `#${observation.id}`
+      ];
+
+      // add coding to valueCodeableConcept
+      if ('forEach' in sd.rawResult) {
+        observation.valueCodeableConcept = { coding: [] };
+        sd.rawResult?.forEach((rr: any) => {
+          if (rr.code?.value && rr.system?.value && rr.display?.value) {
+            // create supplemental data elements
+            observation.valueCodeableConcept?.coding?.push({
+              system: rr.system.value,
+              code: rr.code.value,
+              display: rr.display.value
+            });
+          } else if (rr.isCode) {
+            // if a CQL system code is returned
+            observation.valueCodeableConcept?.coding?.push({
+              system: rr.system,
+              code: rr.code,
+              display: rr.display
+            });
+          }
+        });
+      } else if (sd.rawResult.isCode) {
+        observation.valueCodeableConcept = { coding: [] };
+        observation.valueCodeableConcept?.coding?.push({
+          system: sd.rawResult.system,
+          code: sd.rawResult.code,
+          display: sd.rawResult.display
         });
       }
-    });
+      // add as evaluated resource reference
+      this.report.contained?.push(observation);
+      this.report.evaluatedResource?.push({
+        reference: `#${observation.id}`
+      });
+    }
   }
 
   private populationTotal(population: fhir4.MeasureReportGroupPopulation[], type: PopulationType) {

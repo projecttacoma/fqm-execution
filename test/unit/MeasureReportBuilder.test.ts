@@ -93,6 +93,20 @@ const executionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
         criteriaExpression: 'SDE',
         usage: 'supplemental-data'
       }
+    ],
+    riskAdjustment: [
+      {
+        name: 'rav-code',
+        rawResult: {
+          isCode: true,
+          code: 'example',
+          system: 'http://example.com',
+          display: 'Example'
+        },
+        id: 'rav-id',
+        criteriaExpression: 'RAV',
+        usage: 'supplemental-data'
+      }
     ]
   }
 ];
@@ -413,7 +427,8 @@ const calculationOptions: CalculationOptions = {
   measurementPeriodStart: '2021-01-01',
   measurementPeriodEnd: '2021-12-31',
   calculateHTML: true,
-  calculateSDEs: true
+  calculateSDEs: true,
+  calculateRAVs: true
 };
 
 describe('MeasureReportBuilder Static', () => {
@@ -471,22 +486,29 @@ describe('MeasureReportBuilder Static', () => {
       });
     });
 
-    test('should include SDEs', () => {
+    test('should include SDEs and RAVs', () => {
       const [mr] = measureReports;
 
       // expect 1 SDE defined above
       expect(mr.contained).toBeDefined();
-      expect(mr.contained).toHaveLength(1);
+      expect(mr.contained).toHaveLength(2);
 
       const sde = mr.contained?.[0] as fhir4.Observation;
+      const rav = mr.contained?.[1] as fhir4.Observation;
 
       expect(sde.status).toEqual('final');
+      expect(rav.status).toEqual('final');
       expect(sde.code).toEqual({
         text: 'sde-code'
       });
+      expect(rav.code).toEqual({
+        text: 'rav-code'
+      });
 
       expect(sde.valueCodeableConcept).toBeDefined();
+      expect(rav.valueCodeableConcept).toBeDefined();
       const result = executionResults[0].supplementalData?.[0];
+      const resultRAV = executionResults[0].riskAdjustment?.[0];
 
       expect(sde.valueCodeableConcept).toEqual({
         coding: expect.arrayContaining([
@@ -494,6 +516,15 @@ describe('MeasureReportBuilder Static', () => {
             code: result!.rawResult.code,
             system: result!.rawResult.system,
             display: result!.rawResult.display
+          }
+        ])
+      });
+      expect(rav.valueCodeableConcept).toEqual({
+        coding: expect.arrayContaining([
+          {
+            code: resultRAV!.rawResult.code,
+            system: resultRAV!.rawResult.system,
+            display: resultRAV!.rawResult.display
           }
         ])
       });
@@ -789,22 +820,26 @@ describe('MeasureReportBuilder Class', () => {
     expect(builder.isIndividual).toBe(false);
   });
 
-  test('should persist calculateSDEs for individual reports', () => {
+  test('should persist calculateSDEs and calculateRAVs for individual reports', () => {
     const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual',
-      calculateSDEs: true
+      calculateSDEs: true,
+      calculateRAVs: true
     });
 
     expect(builder.calculateSDEs).toBe(true);
+    expect(builder.calculateRAVs).toBe(true);
   });
 
-  test('should not calculateSDEs for summary reports', () => {
+  test('should not calculateSDEs or calculateRAVs for summary reports', () => {
     const builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'summary',
-      calculateSDEs: true
+      calculateSDEs: true,
+      calculateRAVs: true
     });
 
     expect(builder.calculateSDEs).toBe(false);
+    expect(builder.calculateRAVs).toBe(false);
   });
 
   test('should add basic individual metadata', () => {
