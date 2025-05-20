@@ -132,7 +132,8 @@ export function handlePopulationValues(
   group: fhir4.MeasureGroup,
   measureScoringCode?: string
 ): PopulationResult[] {
-  /* Setting values of populations if the correct populations are not set based on the following logic guidelines
+  /* Population logic guidance: https://mmshub.cms.gov/sites/default/files/Measure-Calculations.pdf
+   * For proportional: Setting values of populations if the correct populations are not set based on the following logic guidelines
    * Initial Population (IPP): The set of patients or episodes of care to be evaluated by the measure.
    * Denominator (DENOM): A subset of the IPP.
    * Denominator Exclusions (DENEX): A subset of the Denominator that should not be considered for inclusion in the Numerator.
@@ -141,6 +142,7 @@ export function handlePopulationValues(
    * Numerator (NUMER): A subset of the Denominator. The Numerator criteria are the processes or outcomes expected for each patient,
    * procedure, or other unit of measurement defined in the Denominator.
    * Numerator Exclusions (NUMEX): A subset of the Numerator that should not be considered for calculation.
+   *
    * Measure Population Exclusions (MSRPOPLEX): Identify that subset of the MSRPOPL that meet the MSRPOPLEX criteria.
    */
   const populationResultsHandled = populationResults;
@@ -178,66 +180,83 @@ export function handlePopulationValues(
     return populationResultsHandled;
   }
 
-  // Cannot be in most populations if not in DENOM or MSRPOPL
-  if (
-    (hasResult(PopulationType.DENOM, populationResults) && !getResult(PopulationType.DENOM, populationResults)) ||
-    (hasResult(PopulationType.MSRPOPL, populationResults) && !getResult(PopulationType.MSRPOPL, populationResults))
-  ) {
-    setResult(PopulationType.DENEX, false, populationResults);
-    setResult(PopulationType.DENEXCEP, false, populationResults);
-    DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
+  if (MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
+    // ratio measurement treats denom and numer as independent
+    if (hasResult(PopulationType.DENOM, populationResults) && !getResult(PopulationType.DENOM, populationResults)) {
+      setResult(PopulationType.DENEX, false, populationResults);
+      setResult(PopulationType.DENEXCEP, false, populationResults);
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
 
-    // If there is a MSRPOPL, all observations point to it, so null them out
-    if (hasResult(PopulationType.MSRPOPL, populationResults)) {
+      // Cannot be in the denominator exception if they are excluded from the denominator
+    } else if (getResult(PopulationType.DENEX, populationResults)) {
+      setResult(PopulationType.DENEXCEP, false, populationResults);
+    }
+
+    // Cannot be in the NUMEX if not in the NUMER
+    if (!getResult(PopulationType.NUMER, populationResults)) {
+      setResult(PopulationType.NUMEX, false, populationResults);
+      // Not in NUMER, so no need for NUMER observations
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
+    }
+  } else if (MeasureBundleHelpers.isCVMeasure(group, measureScoringCode)) {
+    // Cannot be in most populations if not in DENOM or MSRPOPL
+    if (
+      (hasResult(PopulationType.MSRPOPL, populationResults) && !getResult(PopulationType.MSRPOPL, populationResults))
+    ) {
+      // If there is a MSRPOPL, all observations point to it, so null them out
       const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
       if (popResult) {
         popResult.result = false;
         popResult.observations = null;
       }
-    }
+      setResult(PopulationType.MSRPOPLEX, false, populationResults);
 
-    // If the numer is influenced by the DENOM, false it out and its observations since we are not in the DENOM for this branch of logic
-    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
+      // Cannot have observations if in the MSRPOPLEX
+    } else if (getResult(PopulationType.MSRPOPLEX, populationResults)) {
+      const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
+      if (popResult) {
+        popResult.result = false;
+        popResult.observations = null;
+      }
+    } 
+  } else {
+    // proportional handling
+    // Cannot be in most populations if not in DENOM or MSRPOPL
+    if (
+      hasResult(PopulationType.DENOM, populationResults) && !getResult(PopulationType.DENOM, populationResults)
+    ) {
+      setResult(PopulationType.DENEX, false, populationResults);
+      setResult(PopulationType.DENEXCEP, false, populationResults);
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.DENOM);
+
+      // If the numer is influenced by the DENOM, false it out and its observations since we are not in the DENOM for this branch of logic
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // If there are not multiple IPPs, then NUMER depends on DENOM. We're not in the DENOM, so let's null out NUMER observations
       DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
-    }
 
-    setResult(PopulationType.MSRPOPLEX, false, populationResults);
-
-    // Cannot be in the numerator if they are excluded from the denominator
-  } else if (getResult(PopulationType.DENEX, populationResults)) {
-    if (!MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode)) {
+      // Cannot be in the numerator if they are excluded from the denominator
+    } else if (getResult(PopulationType.DENEX, populationResults)) {
       setResult(PopulationType.NUMER, false, populationResults);
       setResult(PopulationType.NUMEX, false, populationResults);
       // Since we can't be in the numerator, null out numerator observations
       DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
+
+      // Cannot be in the denominator exception if in the denominator exclusion
+      setResult(PopulationType.DENEXCEP, false, populationResults);
+
+      // Cannot be in the NUMEX if not in the NUMER
+    } else if (!getResult(PopulationType.NUMER, populationResults)) {
+      setResult(PopulationType.NUMEX, false, populationResults);
+      // Not in NUMER, so no need for NUMER observations
+      DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
+
+      // Cannot be in the DENEXCEP if in the NUMER
+    } else if (getResult(PopulationType.NUMER, populationResults)) {
+      setResult(PopulationType.DENEXCEP, false, populationResults);
     }
-
-    setResult(PopulationType.DENEXCEP, false, populationResults);
-
-    // Cannot have observations if in the MSRPOPLEX
-  } else if (getResult(PopulationType.MSRPOPLEX, populationResults)) {
-    const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
-    if (popResult) {
-      popResult.result = false;
-      popResult.observations = null;
-    }
-
-    // Cannot be in the NUMEX if not in the NUMER
-  } else if (!getResult(PopulationType.NUMER, populationResults)) {
-    setResult(PopulationType.NUMEX, false, populationResults);
-    // Not in NUMER, so no need for NUMER observations
-    DetailedResultsHelpers.nullCriteriaRefMeasureObs(group, populationResults, PopulationType.NUMER);
-
-    // Cannot be in the DENEXCEP if in the NUMER
-  } else if (
-    !MeasureBundleHelpers.isRatioMeasure(group, measureScoringCode) &&
-    getResult(PopulationType.NUMER, populationResults)
-  ) {
-    setResult(PopulationType.DENEXCEP, false, populationResults);
   }
+
   return populationResultsHandled;
 }
 

@@ -220,6 +220,16 @@ export function isRatioMeasure(group?: fhir4.MeasureGroup, measureScoringCode?: 
 }
 
 /**
+ * Checks if a given measure/measure group has scoring code 'cv.' (continuous variable)
+ * @param group measure group (used to extract scoring code if present on the group)
+ * @param measureScoringCode scoring code for measure (used if scoring code not provided at the group level)
+ * @returns true if scoring code is 'cv' for the group or at the measure root, false otherwise
+ */
+export function isCVMeasure(group?: fhir4.MeasureGroup, measureScoringCode?: string): boolean {
+  return getScoringCodeFromGroup(group) === MeasureScoreType.CV || measureScoringCode === MeasureScoreType.CV;
+}
+
+/**
  * Check if a measure is an episode of care measure or not. Look for the cqfm-populationBasis extension.
  * If it is found return true if valueCode is not 'boolean' otherwise return false.
  *
