@@ -148,7 +148,7 @@ export function handlePopulationValues(
    * For Ratio: the NUMER and DENOM are independent, and there may be multiple IPPs.
    *
    * For CV:
-   * Measure Population Exclusions (MSRPOPL): A subset of the IPP for continuous variable measures.
+   * Measure Population (MSRPOPL): A subset of the IPP for continuous variable measures.
    * Measure Population Exclusions (MSRPOPLEX): A subset of the MSRPOPL that should not be considered for calculation.
    */
 
