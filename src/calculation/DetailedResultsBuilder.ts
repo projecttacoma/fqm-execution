@@ -244,9 +244,9 @@ export function handleCVPopulationValues(populationResults: PopulationResult[]):
     // Short-circuit return since no more processing needs to be done if IPP is false with only one IPP
     return populationResultsHandled;
   }
-  // Cannot be in most populations if not in DENOM or MSRPOPL
+  // Cannot be in most populations if not in MSRPOPL
   if (hasResult(PopulationType.MSRPOPL, populationResults) && !getResult(PopulationType.MSRPOPL, populationResults)) {
-    // If there is a MSRPOPL, all observations point to it, so null them out
+    // If a result exists for the MSRPOPL, all observations point to it, so null them out
     const popResult = populationResults.find(result => result.populationType === PopulationType.OBSERV);
     if (popResult) {
       popResult.result = false;
