@@ -997,7 +997,7 @@ describe('DetailedResultsBuilder', () => {
           DetailedResultsBuilder.handlePopulationValues(
             populationResults,
             groupWithMeasurePopulation,
-            MeasureScoreType.PROP
+            MeasureScoreType.CV
           )
         ).toEqual(expectedHandledResults);
       });
@@ -1082,7 +1082,7 @@ describe('DetailedResultsBuilder', () => {
           DetailedResultsBuilder.handlePopulationValues(
             populationResults,
             groupWithMeasurePopulation,
-            MeasureScoreType.PROP
+            MeasureScoreType.CV
           )
         ).toEqual(expectedHandledResults);
       });
@@ -1102,6 +1102,46 @@ describe('DetailedResultsBuilder', () => {
           { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
           { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: true },
           { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, ratioMeasureGroup, MeasureScoreType.RATIO)
+        ).toEqual(expectedHandledResults);
+      });
+
+      test('should false out NUMEX when NUMER is false for ratio measure', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: true },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: false }
+        ];
+
+        expect(
+          DetailedResultsBuilder.handlePopulationValues(populationResults, ratioMeasureGroup, MeasureScoreType.RATIO)
+        ).toEqual(expectedHandledResults);
+      });
+
+      test('should false out NUMEX when NUMER is false for ratio measure independent of DENOM value', () => {
+        const populationResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: true }
+        ];
+
+        const expectedHandledResults: PopulationResult[] = [
+          { populationType: PopulationType.IPP, criteriaExpression: 'ipp', result: true },
+          { populationType: PopulationType.DENOM, criteriaExpression: 'denom', result: false },
+          { populationType: PopulationType.NUMER, criteriaExpression: 'numer', result: false },
+          { populationType: PopulationType.NUMEX, criteriaExpression: 'numex', result: false }
         ];
 
         expect(
