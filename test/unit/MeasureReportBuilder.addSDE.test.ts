@@ -71,7 +71,8 @@ describe('MeasureReportBuilder Class', () => {
   beforeEach(() => {
     builder = new MeasureReportBuilder(simpleMeasure, {
       reportType: 'individual',
-      calculateSDEs: true
+      calculateSDEs: true,
+      calculateRAVs: true
     });
     executionResult = JSON.parse(JSON.stringify(executionResultsTemplate[0]));
   });
@@ -92,6 +93,7 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
+      executionResult.riskAdjustment = [];
       builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
@@ -127,6 +129,7 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
+      executionResult.riskAdjustment = [];
       builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
@@ -167,6 +170,7 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
+      executionResult.riskAdjustment = [];
       builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
@@ -195,10 +199,52 @@ describe('MeasureReportBuilder Class', () => {
           usage: 'supplemental-data'
         }
       ];
+      executionResult.riskAdjustment = [];
       builder.addPatientResults(executionResult);
       const report = builder.getReport();
 
       expect(report.contained as fhir4.FhirResource[]).toHaveLength(0);
+    });
+
+    test('Should allow for RAV supplemental data Results to be list of FHIR coding', () => {
+      executionResult.riskAdjustment = [
+        {
+          name: 'rav-code',
+          rawResult: [
+            {
+              system: {
+                value: 'urn:oid:2.16.840.1.113883.6.238'
+              },
+              code: {
+                value: '2028-9'
+              },
+              display: {
+                value: 'Asian'
+              }
+            }
+          ],
+          id: 'rav-id',
+          criteriaExpression: 'RAV',
+          usage: 'risk-adjustment-factor'
+        }
+      ];
+      executionResult.supplementalData = [];
+      builder.addPatientResults(executionResult);
+      const report = builder.getReport();
+
+      expect(report.contained as fhir4.FhirResource[]).toHaveLength(1);
+
+      const sdeObserv = (report.contained as fhir4.FhirResource[])[0] as fhir4.Observation;
+      expect(sdeObserv.code.text).toBe('rav-code');
+      expect(sdeObserv.valueCodeableConcept).toEqual({
+        coding: [
+          {
+            system: 'urn:oid:2.16.840.1.113883.6.238',
+            code: '2028-9',
+            display: 'Asian'
+          }
+        ]
+      });
     });
   });
 });

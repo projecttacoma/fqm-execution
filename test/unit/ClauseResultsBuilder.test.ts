@@ -150,6 +150,7 @@ describe('ClauseResultsBuilder', () => {
         mainLibraryId,
         [exampleELM],
         simpleMeasure.group[0],
+        true,
         true
       );
 
@@ -790,8 +791,8 @@ describe('ClauseResultsBuilder', () => {
   });
 
   describe('getSDEValues', () => {
-    test('should create proper SDE results', () => {
-      const sdeStatementResults: cql.StatementResults = { SDE: [] };
+    test('should create proper SDE and RAV results', () => {
+      const sdeStatementResults: cql.StatementResults = { SDE: [], RAV: [] };
       const result = ClauseResultsBuilder.getSDEValues(simpleMeasure, sdeStatementResults);
       const expectedResult = [
         {
@@ -801,6 +802,14 @@ describe('ClauseResultsBuilder', () => {
           id: 'sde-id',
           criteriaExpression: 'SDE',
           usage: 'supplemental-data'
+        },
+        {
+          name: 'rav-code',
+          rawResult: [],
+          pretty: '[]',
+          id: 'rav-id',
+          criteriaExpression: 'RAV',
+          usage: 'risk-adjustment-factor'
         }
       ];
       expect(result).toEqual(expectedResult);

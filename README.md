@@ -455,6 +455,7 @@ The options that we support for calculation are as follows:
 - `[calculateCoverageDetails]`<[boolean](#calculation-options)>: Include details on logic clause coverage. (default: `false`)
 - `[calculateHTML]`<[boolean](#calculation-options)>: Include HTML structure for highlighting (default: `true`)
 - `[calculateSDEs]`<[boolean](#calculation-options)>: Include Supplemental Data Elements (SDEs) in calculation (default: `true`)
+- `[calculateRAVs]`<[boolean](#calculation-options)>: Include Risk Adjustment Variables (RAVs) in calculation (default: `true`)
 - `[clearElmJsonsCache]`<[boolean](#calculation-options)>: If `true`, clears ELM JSON cache before running calculation (default: `false`)
 - `[disableHTMLOrdering]`<[boolean](#calculation-options)>: Disables custom ordering of CQL statements in HTML output (default: `false`)
 - `[enableDebugOutput]`<[boolean](#calculation-options)>: Enable debug output including CQL, ELM, results (default: `false`)
@@ -663,7 +664,7 @@ import { Calculator } from 'fqm-execution';
 const { results } = await Calculator.calculate(measureBundle, patientBundles, { trustMetaProfile: false });
 ```
 
-## Supplemental Data Elements
+## Supplemental Data Elements and Risk Adjustment Variables
 
 `fqm-execution` supports the calculation of Supplemental Data Elements (SDEs) defined on the `Measure` resource per the [conformance requirements](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#supplemental-data-elements) in the FHIR Quality Measure Implementation Guide. To enable calculation of SDEs, ensure the `calculateSDEs` option is set to `true` during calculation:
 
@@ -675,7 +676,7 @@ import { Calculator } from 'fqm-execution';
 const { results } = await Calculator.calculate(measureBundle, patientBundles, { calculateSDEs: true });
 ```
 
-When enabled, the overall patient-level results will contain the raw results of the SDE expressions when executed against the patient:
+When enabled, the overall patient-level results will contain the raw results of the supplemental data elements where usage is marked as `supplemental-data`. If there is no usage marked, it is assumed to be supplemental data. Results are structured as follows:
 
 ```typescript
 [
@@ -686,6 +687,31 @@ When enabled, the overall patient-level results will contain the raw results of 
       {
         name: 'SDE Expression Name',
         rawResult: 'sde-raw-result'
+      }
+    ]
+  }
+];
+```
+Risk Adjustment Variables (RAVs) are similarly calculated when the `calculateRAVs` option is set to `true`:
+
+```typescript
+import { Calculator } from 'fqm-execution';
+
+// ...
+
+const { results } = await Calculator.calculate(measureBundle, patientBundles, { calculateRAVs: true });
+```
+When enabled, the overall patient-level results will contain the raw results of the supplemental data elements where usage is marked as `risk-adjustment-factor`. Results are structured as follows:
+
+```typescript
+[
+  {
+    patientId: 'patient-1',
+    // ...
+    riskAdjustment: [
+      {
+        name: 'RAV Expression Name',
+        rawResult: 'rav-raw-result'
       }
     ]
   }

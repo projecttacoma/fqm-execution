@@ -70,6 +70,7 @@ export async function calculate<T extends CalculationOptions>(
   // Ensure the CalculationOptions have sane defaults, only if they're not set
   options.calculateHTML = options.calculateHTML ?? true;
   options.calculateSDEs = options.calculateSDEs ?? true;
+  options.calculateRAVs = options.calculateRAVs ?? true;
   options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
   options.calculateClauseUncoverage = options.calculateClauseUncoverage ?? false;
   options.calculateCoverageDetails = options.calculateCoverageDetails ?? false;
@@ -196,7 +197,8 @@ export async function calculate<T extends CalculationOptions>(
           mainLibraryName,
           executedELM,
           group,
-          options.calculateSDEs ?? false
+          options.calculateSDEs ?? false,
+          options.calculateRAVs ?? false
         );
 
         // adds result information to the statement results and builds up clause results
@@ -247,9 +249,18 @@ export async function calculate<T extends CalculationOptions>(
         }
       });
 
-      // put raw SDE values onto execution result
-      if (options.calculateSDEs) {
-        patientExecutionResult.supplementalData = ResultsHelpers.getSDEValues(measure, patientStatementResults);
+      if (options.calculateSDEs || options.calculateRAVs) {
+        const sdeValues = ResultsHelpers.getSDEValues(measure, patientStatementResults);
+
+        // put raw SDE values onto execution result
+        if (options.calculateSDEs) {
+          patientExecutionResult.supplementalData = sdeValues.filter(sd => sd.usage === 'supplemental-data');
+        }
+
+        // put raw RAV values onto execution result
+        if (options.calculateRAVs) {
+          patientExecutionResult.riskAdjustment = sdeValues.filter(sd => sd.usage === 'risk-adjustment-factor');
+        }
       }
     });
 

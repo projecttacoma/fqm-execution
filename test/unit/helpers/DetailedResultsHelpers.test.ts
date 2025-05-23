@@ -30,12 +30,13 @@ describe('pruneDetailedResults', () => {
     expect(pruneDetailedResults(ers)).toEqual(ers);
   });
 
-  test('should persist patientObject and supplementalData', () => {
+  test('should persist patientObject and supplementalData and riskAdjustment', () => {
     const ers: ExecutionResult<DetailedPopulationGroupResult>[] = [
       {
         patientId: 'test-patient',
         patientObject: {} as CQLPatient,
-        supplementalData: []
+        supplementalData: [],
+        riskAdjustment: []
       }
     ];
 

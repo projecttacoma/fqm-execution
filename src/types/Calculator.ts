@@ -20,6 +20,8 @@ export interface CalculationOptions {
   patientSource?: DataProvider;
   /** Include SDEs in calculation */
   calculateSDEs?: boolean;
+  /** Include RAVs in calculation */
+  calculateRAVs?: boolean;
   /** Include HTML structure for highlighting (defaults to logic highlighting) */
   calculateHTML?: boolean;
   /** Include HTML structure with clause coverage highlighting */
@@ -95,6 +97,8 @@ export interface ExecutionResult<T extends PopulationGroupResult> {
   componentResults?: ComponentResults[];
   /** SDE values, if specified for calculation */
   supplementalData?: SDEResult[];
+  /** RAV values, if specified for calculation */
+  riskAdjustment?: SDEResult[];
   /** Resources evaluated during execution */
   evaluatedResource?: fhir4.Resource[];
   /**
