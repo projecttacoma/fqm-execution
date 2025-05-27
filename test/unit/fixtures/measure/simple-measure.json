@@ -141,6 +141,26 @@
         "language": "text/cql",
         "expression": "SDE"
       }
+    },
+    {
+      "id": "rav-id",
+      "code": {
+        "text": "rav-code"
+      },
+      "usage": [
+        {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/measure-data-usage",
+              "code": "risk-adjustment-factor"
+            }
+          ]
+        }
+      ],
+      "criteria": {
+        "language": "text/cql",
+        "expression": "RAV"
+      }
     }
   ]
 }
