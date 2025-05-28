@@ -715,6 +715,7 @@ When enabled, the overall patient-level results will contain the raw results of 
   }
 ];
 ```
+
 Risk Adjustment Variables (RAVs) are similarly calculated when the `calculateRAVs` option is set to `true`:
 
 ```typescript
@@ -724,6 +725,7 @@ import { Calculator } from 'fqm-execution';
 
 const { results } = await Calculator.calculate(measureBundle, patientBundles, { calculateRAVs: true });
 ```
+
 When enabled, the overall patient-level results will contain the raw results of the supplemental data elements where usage is marked as `risk-adjustment-factor`. Results are structured as follows:
 
 ```typescript

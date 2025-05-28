@@ -163,7 +163,9 @@ async function populatePatientBundles() {
     // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
     // from patientBundles and wipe patientBundles to be an empty array.
     if (program.asPatientSource) {
-      const patientSource = PatientSource.FHIRv401({ requireProfileTagging: parseTrustMetaProfile(program.trustMetaProfile) });
+      const patientSource = PatientSource.FHIRv401({
+        requireProfileTagging: parseTrustMetaProfile(program.trustMetaProfile)
+      });
       patientSource.loadBundles(patientBundles);
       calcOptions.patientSource = patientSource;
       patientBundles = [];
@@ -200,14 +202,13 @@ if (program.cacheValuesets && !program.vsApiKey) {
 
 const cacheDirectory = 'cache/terminology';
 
-
 const parseTrustMetaProfile = (value?: string): boolean => {
   if (value?.toLowerCase() === 'true') return true;
   if (value?.toLowerCase() === 'false') return false;
 
   console.warn(`Invalid --trust-meta-profile value "${value}", defaulting to true`);
   return true;
-}
+};
 
 const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,
