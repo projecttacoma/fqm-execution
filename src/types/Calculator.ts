@@ -42,7 +42,8 @@ export interface CalculationOptions {
   useValueSetCaching?: boolean;
   /** If false, detailed results will only contain information necessary to interpreting simple population results */
   verboseCalculationResults?: boolean;
-  /** if true trust the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against */
+  /** Indicates whether to trust the meta.profile field in input FHIR resources as the authoritative source for profile
+   * validation. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: true) */
   trustMetaProfile?: boolean;
   /** if true, cache ELM JSONs and associated data for access in subsequent runs within 10 minutes */
   useElmJsonsCaching?: boolean;
