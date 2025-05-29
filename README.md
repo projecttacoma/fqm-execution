@@ -19,37 +19,60 @@ Library for calculating Electronic Clinical Quality Measures (eCQMs) written in 
 
 # Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Quickstart](#quickstart)
   - [Requirements](#requirements)
   - [Calculating an eCQM](#calculating-an-ecqm)
+    - [Statement Results](#statement-results)
   - [Interpreting Calculation Results](#interpreting-calculation-results)
+    - [Boolean Measures](#boolean-measures)
+    - [Episode-based Measures](#episode-based-measures)
 - [Other Calculation Capabilities](#other-calculation-capabilities)
   - [Gaps in Care](#gaps-in-care)
   - [Data Requirements](#data-requirements)
   - [Query Info](#query-info)
 - [API Reference](#api-reference)
   - [Calculator Functions](#calculator-functions)
+    - [`.calculate`](#calculate)
+    - [`.calculateDataRequirements`](#calculatedatarequirements)
+    - [`.calculateGapsInCare`](#calculategapsincare)
+    - [`.calculateLibraryDataRequirements`](#calculatelibrarydatarequirements)
+    - [`.calculateMeasureReports`](#calculatemeasurereports)
+    - [`.calculateQueryInfo`](#calculatequeryinfo)
+    - [`.calculateRaw`](#calculateraw)
   - [Measure Bundle Helpers](#measure-bundle-helpers)
+    - [`.addValueSetsToMeasureBundle`](#addvaluesetstomeasurebundle)
   - [Calculation Options](#calculation-options)
   - [CLI](#cli)
 - [Guides and Concepts](#guides-and-concepts)
+  - [Stratification](#stratification)
   - [Measures with Observation Functions](#measures-with-observation-functions)
   - [`meta.profile` Checking](#metaprofile-checking)
-  - [Supplemental Data Elements](#supplemental-data-elements)
+  - [Supplemental Data Elements and Risk Adjustment Variables](#supplemental-data-elements-and-risk-adjustment-variables)
   - [Composite Measures](#composite-measures)
   - [Slim Calculation Mode](#slim-calculation-mode)
   - [Measure Logic Highlighting](#measure-logic-highlighting)
+    - [Population Relevance for Highlighting](#population-relevance-for-highlighting)
+    - [CQL Statement Ordering in HTML](#cql-statement-ordering-in-html)
+    - [Statement-level HTML](#statement-level-html)
   - [Group Clause Coverage Highlighting](#group-clause-coverage-highlighting)
+    - [Uncoverage Highlighting](#uncoverage-highlighting)
+    - [Coverage Details](#coverage-details)
+    - [Clause Coverage of Null and False Literal Values](#clause-coverage-of-null-and-false-literal-values)
+    - [Visual Issues with Coverage Highlighting](#visual-issues-with-coverage-highlighting)
   - [ValueSet Resolution](#valueset-resolution)
   - [Custom PatientSource](#custom-patientsource)
   - [Usage with TypeScript](#usage-with-typescript)
+    - [DEPRECATION NOTICE](#deprecation-notice)
 - [Recipes](#recipes)
   - [Displaying Highlighted HTML in a React App](#displaying-highlighted-html-in-a-react-app)
   - [Usage Within a FHIR Server](#usage-within-a-fhir-server)
   - [Special Testing](#special-testing)
+    - [Regression Testing](#regression-testing)
+    - [Data Requirements Testing](#data-requirements-testing)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -466,7 +489,7 @@ The options that we support for calculation are as follows:
 - `[reportType]`<['individual' | 'summary'](#calculation-options)>: The type of FHIR MeasureReport to return (default: `'individual'`)
 - `[returnELM]`<[boolean](#calculation-options)>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
 - `[rootLibRef]`<[string](#calculation-options)>: Reference to root library to be used in `calculateLibraryDataRequirements`. Should be a canonical URL but resource ID will work if matching one exists in the bundle
-- `[trustMetaProfile]`<[boolean](#calculation-options)>: If `true`, trust the content of `meta.profile` as a source of truth for what profiles the data that `cql-exec-fhir` grabs validates against. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `true`)
+- `[trustMetaProfile]`<[true|false](#calculation-options)>: Indicates whether to trust the `meta.profile` field in input FHIR resources as the authoritative source for profile validation. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: `true`)
 - `[useElmJsonsCaching]`<[boolean](#calculation-options)>: If `true`, cache ELM JSONs and associated data for access in subsequent runs within 10 minutes (default: `false`)
 - `[useValueSetCaching]`<[boolean](#calculation-options)>: If `true`, ValueSets retrieved from a terminology service will be cached and used in subsequent runs where this is also `true` (default: `false`)
 - `[verboseCalculationResults]`<[boolean](#calculation-options)>: If `false`, detailed results will only contain information necessary to interpreting simple population results (default: `true`)
@@ -506,7 +529,7 @@ Options:
   --vs-api-key <key>                          API key, to authenticate against the ValueSet service to be used for resolving missing ValueSets.
   --focused-statement <statement expression>  Top level statement expression, i.e. "Initial Population", used to narrow the focus of a queryInfo calculation to just that statement and any children
   --cache-valuesets                           Whether or not to cache ValueSets retrieved from the ValueSet service. (default: false)
-  --trust-meta-profile                        To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against. (default: true)
+  --trust-meta-profile <true|false>           Indicates whether to trust the meta.profile field in input FHIR resources as the authoritative source for profile validation. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: true)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
   --root-lib-ref <root-lib-ref>               Reference to the root Library
   -h, --help                                  display help for command
@@ -692,6 +715,7 @@ When enabled, the overall patient-level results will contain the raw results of 
   }
 ];
 ```
+
 Risk Adjustment Variables (RAVs) are similarly calculated when the `calculateRAVs` option is set to `true`:
 
 ```typescript
@@ -701,6 +725,7 @@ import { Calculator } from 'fqm-execution';
 
 const { results } = await Calculator.calculate(measureBundle, patientBundles, { calculateRAVs: true });
 ```
+
 When enabled, the overall patient-level results will contain the raw results of the supplemental data elements where usage is marked as `risk-adjustment-factor`. Results are structured as follows:
 
 ```typescript

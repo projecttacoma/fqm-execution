@@ -73,9 +73,8 @@ program
   )
   .option('--cache-valuesets', 'Whether or not to cache ValueSets retrieved from the ValueSet service.', false)
   .option(
-    '--trust-meta-profile',
-    'To "trust" the content of meta.profile as a source of truth for what profiles the data that cql-exec-fhir grabs validates against.',
-    true
+    '--trust-meta-profile <trust-option>',
+    'Whether to trust meta.profile as a source of profile validation: `true` || `false`'
   )
   .option(
     '-o, --out-file [file-path]',
@@ -164,7 +163,9 @@ async function populatePatientBundles() {
     // if we want to pass patient data into the fqm-execution API as a cql-exec-fhir patient source. Build patientSource
     // from patientBundles and wipe patientBundles to be an empty array.
     if (program.asPatientSource) {
-      const patientSource = PatientSource.FHIRv401({ requireProfileTagging: program.trustMetaProfile ?? true });
+      const patientSource = PatientSource.FHIRv401({
+        requireProfileTagging: parseTrustMetaProfile(program.trustMetaProfile)
+      });
       patientSource.loadBundles(patientBundles);
       calcOptions.patientSource = patientSource;
       patientBundles = [];
@@ -201,12 +202,21 @@ if (program.cacheValuesets && !program.vsApiKey) {
 
 const cacheDirectory = 'cache/terminology';
 
+const parseTrustMetaProfile = (value?: string): boolean => {
+  if (value === undefined) return true; // if no flag
+  if (value?.toLowerCase() === 'true') return true;
+  if (value?.toLowerCase() === 'false') return false;
+
+  console.warn(`Invalid --trust-meta-profile value "${value}", defaulting to true`);
+  return true;
+};
+
 const calcOptions: CalculationOptions = {
   enableDebugOutput: program.debug,
   vsAPIKey: program.vsApiKey,
   useValueSetCaching: program.cacheValuesets,
   verboseCalculationResults: !program.slim,
-  trustMetaProfile: program.trustMetaProfile,
+  trustMetaProfile: parseTrustMetaProfile(program.trustMetaProfile),
   rootLibRef: program.rootLibRef,
   focusedStatement: program.focusedStatement
 };
