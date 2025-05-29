@@ -203,6 +203,7 @@ if (program.cacheValuesets && !program.vsApiKey) {
 const cacheDirectory = 'cache/terminology';
 
 const parseTrustMetaProfile = (value?: string): boolean => {
+  if (value === undefined) return true; // if flag no flag
   if (value?.toLowerCase() === 'true') return true;
   if (value?.toLowerCase() === 'false') return false;
 
