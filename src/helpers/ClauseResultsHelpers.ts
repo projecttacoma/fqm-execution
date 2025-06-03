@@ -313,7 +313,11 @@ export function findAllLocalIdsInSort(
   rootStatement: any
 ): any {
   const alId = statement.localId;
-  emptyResultClauses.push({ lib: libraryName, aliasLocalId: alId, expressionLocalId: rootStatement.localId });
+  emptyResultClauses.push({
+    lib: libraryName,
+    aliasLocalId: alId,
+    expressionLocalId: rootStatement.alias ? rootStatement.expression.localId : rootStatement.localId
+  });
   return (() => {
     const result = [];
     for (const k in statement) {
