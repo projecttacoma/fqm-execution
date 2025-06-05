@@ -18,6 +18,19 @@ describe('ClauseResultsHelpers', () => {
       expect(localIds[24]).toBeDefined();
     });
 
+    test('finds localIds for sort by', () => {
+      const libraryElm: ELM = getJSONFixture('elm/SortBy.json');
+
+      const statementName = 'SortByTest';
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
+
+      // For the fixture loaded it is known that the rootStatement.expression.localId is 231
+      // 231 should be used as the sourceLocalId for the sort localId rather than
+      // the rootStatement.localId which is 238
+      expect(localIds[227]).toBeDefined();
+      expect(localIds[227]).toEqual({ localId: '227', sourceLocalId: '231' });
+    });
+
     test('finds localIds for an Equal comparison operator that is wrapped in a Not expression', () => {
       // ELM from test/unit/fixtures/cql/NotEqual.cql, but modified so that Equal has a localId of "100"
       // This will soon be the translator functionality, the Equal clause will get a localId (it currently
