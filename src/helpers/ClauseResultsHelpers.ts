@@ -316,7 +316,7 @@ export function findAllLocalIdsInSort(
   emptyResultClauses.push({
     lib: libraryName,
     aliasLocalId: alId,
-    // In translator <= v3.3.2, a localId was added to the rootStatement of a sort clause
+    // In translator >= v3.14.0, a localId was added to the rootStatement of a sort clause
     // Therefore, we need to map the sort by localId to the rootStatement.expression.localId
     // if the rootStatement is an alias
     expressionLocalId: rootStatement.alias ? rootStatement.expression.localId : rootStatement.localId
