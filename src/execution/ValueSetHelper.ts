@@ -1,6 +1,7 @@
 import { CQLCode, ValueSetMap } from '../types/CQLTypes';
 import moment from 'moment';
 import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomErrors';
+import { Measure, Library } from 'fhir/r4';
 
 /**
  * Create the code service valueset database that the cql-execution engine needs.
@@ -160,6 +161,40 @@ export function getMissingDependentValuesets(
     }
     return acc.concat(libraryVsUrls as string[]);
   }, [] as string[]);
+
+  // pull all valueset urls out of the measure's contained library's dataRequirements and relatedArtifacts
+
+  const measureEntryWithContained = measureBundle.entry?.find(
+    e => e.resource?.resourceType === 'Measure' && e.resource.contained
+  )?.resource as Measure;
+
+  if (measureEntryWithContained) {
+    const containedLibrary = measureEntryWithContained?.contained?.find(
+      resource => resource.resourceType === 'Library' && resource.id === 'effective-data-requirements'
+    ) as Library;
+
+    containedLibrary.relatedArtifact?.forEach(ra => {
+      if (ra.type === 'depends-on') {
+        // look in invalid `url` field. may be needed for older measures
+        if (ra.url && ra.url.includes('ValueSet')) {
+          vsUrls.push(ra.url);
+        } else if (ra.resource && ra.resource.includes('ValueSet')) {
+          vsUrls.push(ra.resource);
+        }
+      }
+    });
+
+    containedLibrary.dataRequirement?.forEach(dr => {
+      if (dr.codeFilter && dr.codeFilter.length > 0) {
+        // get each valueset url for each codeFilter (if valueset url exists)
+        dr.codeFilter.forEach(cf => {
+          if (cf.valueSet) {
+            vsUrls.push(cf.valueSet);
+          }
+        });
+      }
+    });
+  }
 
   // unique-ify
   const uniqueVS = vsUrls.filter((value, index, self) => self.indexOf(value) === index);
