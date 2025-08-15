@@ -54,7 +54,7 @@ describe('ValueSetHelper', () => {
       const measureBundle: fhir4.Bundle = getJSONFixture(
         'bundle/missing-vs/measure-missing-contained-library-relatedArtifact-vs.json'
       );
-      const vs = getMissingDependentValuesets(measureBundle);
+      const vs = getMissingDependentValuesets(measureBundle, true);
       expect(vs.length).toEqual(1);
       expect(vs[0]).toEqual('http://example.com/ValueSet');
     });
@@ -63,9 +63,17 @@ describe('ValueSetHelper', () => {
       const measureBundle: fhir4.Bundle = getJSONFixture(
         'bundle/missing-vs/measure-missing-contained-library-codeFilter-vs.json'
       );
-      const vs = getMissingDependentValuesets(measureBundle);
+      const vs = getMissingDependentValuesets(measureBundle, true);
       expect(vs.length).toEqual(1);
       expect(vs[0]).toEqual('http://example.com/ValueSet');
+    });
+
+    test("Doesn't find any valuesets when the useEffectiveDataRequirements option is not provided in the Measure contained Library codeFilter missingVS measure", () => {
+      const measureBundle: fhir4.Bundle = getJSONFixture(
+        'bundle/missing-vs/measure-missing-contained-library-codeFilter-vs.json'
+      );
+      const vs = getMissingDependentValuesets(measureBundle);
+      expect(vs.length).toEqual(0);
     });
   });
 

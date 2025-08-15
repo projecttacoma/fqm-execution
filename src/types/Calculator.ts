@@ -57,6 +57,8 @@ export interface CalculationOptions {
   buildStatementLevelHTML?: boolean;
   /** The name of the statement to focus all results on for a queryInfo calculation. Will be ignored for other calculation types */
   focusedStatement?: string;
+  /** Uses */
+  useEffectiveDataRequirements?: boolean;
 }
 
 /**

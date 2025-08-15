@@ -86,6 +86,11 @@ program
     'To specify the name of the statement that should be focused on for query info calculation',
     undefined
   )
+  .option(
+    '--vs-effective-dr',
+    "Uses the Measure's contained effective-data-requirements Library to find dependent ValueSets",
+    false
+  )
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -218,7 +223,8 @@ const calcOptions: CalculationOptions = {
   verboseCalculationResults: !program.slim,
   trustMetaProfile: parseTrustMetaProfile(program.trustMetaProfile),
   rootLibRef: program.rootLibRef,
-  focusedStatement: program.focusedStatement
+  focusedStatement: program.focusedStatement,
+  useEffectiveDataRequirements: program.vsEffectiveDr
 };
 
 // Override the measurement period start/end in the options only if the user specified them
