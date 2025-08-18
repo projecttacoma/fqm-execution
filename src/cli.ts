@@ -88,7 +88,7 @@ program
   )
   .option(
     '--vs-effective-dr',
-    "Uses the Measure's contained effective-data-requirements Library to find dependent ValueSets",
+    'Uses the Measure's contained effective-data-requirements Library to find dependent ValueSets',
     false
   )
   .parse(process.argv);
