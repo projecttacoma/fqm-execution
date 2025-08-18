@@ -21,7 +21,9 @@ export async function execute(
   const newCache: fhir4.ValueSet[] = [];
 
   // Pass in existing cache to attempt any missing resolutions
-  const missingVS = getMissingDependentValuesets(measureBundle, [...valueSetCache]);
+  const missingVS = getMissingDependentValuesets(measureBundle, options.useEffectiveDataRequirements, [
+    ...valueSetCache
+  ]);
 
   if (missingVS.length > 0) {
     if (!options.vsAPIKey || options.vsAPIKey.length == 0) {

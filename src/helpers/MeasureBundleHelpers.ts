@@ -569,7 +569,7 @@ export async function addValueSetsToMeasureBundle(
   measureBundle: fhir4.Bundle,
   options: CalculationOptions
 ): Promise<valueSetOutput> {
-  const missingVS = getMissingDependentValuesets(measureBundle);
+  const missingVS = getMissingDependentValuesets(measureBundle, options.useEffectiveDataRequirements);
   if (missingVS.length > 0) {
     const valueSets: fhir4.ValueSet[] = [];
     if (!options.vsAPIKey) {
