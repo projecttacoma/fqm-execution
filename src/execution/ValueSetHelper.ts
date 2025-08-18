@@ -126,9 +126,9 @@ export function getMissingDependentValuesets(
     if (measureEntryWithContained) {
       const containedLibrary = measureEntryWithContained?.contained?.find(
         resource => resource.resourceType === 'Library' && resource.id === 'effective-data-requirements'
-      ) as Library;
+      ) as Library | undefined;
 
-      containedLibrary.relatedArtifact?.forEach(ra => {
+      containedLibrary?.relatedArtifact?.forEach(ra => {
         if (ra.type === 'depends-on') {
           // look in invalid `url` field. may be needed for older measures
           if (ra.url && ra.url.includes('ValueSet')) {
@@ -139,7 +139,7 @@ export function getMissingDependentValuesets(
         }
       });
 
-      containedLibrary.dataRequirement?.forEach(dr => {
+      containedLibrary?.dataRequirement?.forEach(dr => {
         if (dr.codeFilter && dr.codeFilter.length > 0) {
           // get each valueset url for each codeFilter (if valueset url exists)
           dr.codeFilter.forEach(cf => {
