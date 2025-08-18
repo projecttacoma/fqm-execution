@@ -532,6 +532,7 @@ Options:
   --trust-meta-profile <true|false>           Indicates whether to trust the meta.profile field in input FHIR resources as the authoritative source for profile validation. **Use of this option will cause `cql-exec-fhir` to filter out resources that don't have a valid `meta.profile` attribute** (default: true)
   -o, --out-file [file-path]                  Path to a file that fqm-execution will write the calculation results to (default: output.json)
   --root-lib-ref <root-lib-ref>               Reference to the root Library
+  --vs-effective-dr                           Use the Measure's contained effective-data-requirements Library to find dependent ValueSets. (default: false)
   -h, --help                                  display help for command
 ```
 
