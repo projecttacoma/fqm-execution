@@ -57,7 +57,7 @@ describe('HTMLBuilder', () => {
       }
     ]
   };
-  const popRetrieveFuncElm = getELMFixture('elm/PopRetrieveFunc.json');
+  const popRetrieveFuncElm = getELMFixture('elm/declarations/PopRetrieveFunc.json');
   const prfStatementResults = [
     {
       libraryName: 'Test',
@@ -115,7 +115,7 @@ describe('HTMLBuilder', () => {
   ];
 
   beforeEach(() => {
-    elm = getELMFixture('elm/CMS723v0.json');
+    elm = getELMFixture('elm/libraries/CMS723v0.json');
     denominatorExpression = elm.library.statements.def.find(d => d.localId === denominatorLocalId); // Simple expression for Denominator
     numeratorExpression = elm.library.statements.def.find(d => d.localId === numeratorLocalId); // Simple expression for Denominator
 

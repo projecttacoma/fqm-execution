@@ -1101,9 +1101,7 @@ describe('Find Reason Detail', () => {
 });
 
 const EXAMPLE_MEASURE_REPORT = getJSONFixture('./gaps/example-gaps-measurereport.json');
-const EXAMPLE_GAPS_PATIENT = getJSONFixture(
-  './EXM130-8.0.000/EXM130-8.0.000-patients/denominator/Abdul218_Fahey393_1c14630a-f7f6-49cd-9c38-b8c975b0864f.json'
-);
+const EXAMPLE_GAPS_PATIENT = getJSONFixture('patient/gaps-patient.json');
 describe('FHIR Bundle Generation', () => {
   test('generate gaps bundle', () => {
     const bundle = generateGapsInCareBundle(EXAMPLE_DETECTED_ISSUE, EXAMPLE_MEASURE_REPORT, EXAMPLE_GAPS_PATIENT);

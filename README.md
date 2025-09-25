@@ -1381,6 +1381,18 @@ const evaluateMeasure = async (args, { req }) => {
 
 ## Special Testing
 
+### Building Test Data 
+
+CQL test data can be built for the integration tests or for the unit test elm fixtures using the following npm scripts, respectively:
+```bash
+npm run build:test-data
+```
+```bash
+npm run build:elm-fixtures
+```
+More information about these scripts can be found in [test/integration/README.md](test/integration/README.md) and [test/unit/fixtures/elm/README.md](test/unit/fixtures/elm/README.md)
+
+
 ### Regression Testing
 
 The `./regression` directory is organized for internal calculation testing between branches of `fqm-execution`. The idea is that if changes are made to calculation on a local branch, running regression will compare the calculation output of measures in the following three repositories (`connectathon`, `ecqm-content-qi-2022`, `ecqm-content-r4-2021`) from the local branch to the calculation output of those measures from the master branch (or another user-specified branch). The `./run-regression.sh` script takes the following options:

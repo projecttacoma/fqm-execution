@@ -53,8 +53,8 @@ interface ElmLibrary extends translationService.ElmLibrary {
  * @returns {translationService.ElmLibraries} ELM from translator
  */
 async function translateCQL(): Promise<translationService.ElmLibraries> {
+  const cqlFiles = process.argv[2].split(' ');
   const cqlPath = path.resolve(path.join(__dirname), './');
-  const cqlFiles = fs.readdirSync(cqlPath).filter(f => path.extname(f) === '.cql');
   const cqlRequestBody: translationService.CqlLibraries = {};
 
   cqlFiles.forEach(f => {
@@ -65,6 +65,7 @@ async function translateCQL(): Promise<translationService.ElmLibraries> {
 
   const elm = await client.convertCQL(cqlRequestBody);
   return elm;
+  return {};
 }
 
 /**

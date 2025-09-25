@@ -5,8 +5,8 @@ import { getJSONFixture } from './helpers/testHelpers';
 describe('ClauseResultsHelpers', () => {
   describe('findLocalIdsInStatementByName', () => {
     test('finds localIds for an Equivalent comparison operator that is wrapped in a Not expression', () => {
-      // ELM from test/unit/fixtures/cql/NotEquivalent.cql
-      const libraryElm: ELM = getJSONFixture('elm/NotEquivalent.json');
+      // ELM from test/unit/fixtures/elm/operations/NotEquivalent.cql
+      const libraryElm: ELM = getJSONFixture('elm/operations/NotEquivalent.json');
 
       const statementName = 'Not Equivalent Clause';
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -19,7 +19,7 @@ describe('ClauseResultsHelpers', () => {
     });
 
     test('finds localIds for sort by', () => {
-      const libraryElm: ELM = getJSONFixture('elm/SortBy.json');
+      const libraryElm: ELM = getJSONFixture('elm/declarations/SortBy.json');
 
       const statementName = 'SortByTest';
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -32,10 +32,10 @@ describe('ClauseResultsHelpers', () => {
     });
 
     test('finds localIds for an Equal comparison operator that is wrapped in a Not expression', () => {
-      // ELM from test/unit/fixtures/cql/NotEqual.cql, but modified so that Equal has a localId of "100"
+      // ELM from test/unit/fixtures/elm/operations/NotEqual.cql, but modified so that Equal has a localId of "100"
       // This will soon be the translator functionality, the Equal clause will get a localId (it currently
       // does not get one)
-      const libraryElm: ELM = getJSONFixture('elm/NotEqual.json');
+      const libraryElm: ELM = getJSONFixture('elm/operations/NotEqual.json');
 
       const statementName = 'Not Equal Clause';
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -48,8 +48,8 @@ describe('ClauseResultsHelpers', () => {
     });
 
     test('finds localIds for a not null operator', () => {
-      // ELM from test/unit/fixtures/cql/NotNull.cql, translated with 3.15.0 translator
-      const libraryElm: ELM = getJSONFixture('elm/3.15.0/NotNull.json');
+      // ELM from test/unit/fixtures/elm/operations/NotNull.cql, translated with 3.15.0 translator
+      const libraryElm: ELM = getJSONFixture('elm/operations/NotNull.json');
 
       const statementName = 'Not Null Clause';
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -62,8 +62,8 @@ describe('ClauseResultsHelpers', () => {
     });
 
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
-      // ELM from test/unit/fixtures/cql/comparisonWithLiteral.cql
-      const libraryElm: ELM = getJSONFixture('elm/ComparisonWithLiteral.json');
+      // ELM from test/unit/fixtures/elm/operations/comparisonWithLiteral.cql
+      const libraryElm: ELM = getJSONFixture('elm/operations/ComparisonWithLiteral.json');
 
       const statementName = 'ipop';
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -76,8 +76,8 @@ describe('ClauseResultsHelpers', () => {
     });
 
     test('finds localIds for an ELM Binary Expression with a comparison operator without a literal', () => {
-      // ELM from test/unit/fixtures/cql/comparisonWithoutLiteral.cql
-      const libraryElm: ELM = getJSONFixture('elm/ComparisonWithoutLiteral.json');
+      // ELM from test/unit/fixtures/elm/operations/comparisonWithoutLiteral.cql
+      const libraryElm: ELM = getJSONFixture('elm/operations/ComparisonWithoutLiteral.json');
 
       const statementName = 'ipop';
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -117,7 +117,7 @@ describe('ClauseResultsHelpers', () => {
       // Loads Anticoagulation Therapy for Atrial Fibrillation/Flutter measure.
       // This measure has the MAT global functions library included and the measure uses the
       // "CalendarAgeInYearsAt" function.
-      const libraryElm: ELM = getJSONFixture('elm/CMS723v0.json');
+      const libraryElm: ELM = getJSONFixture('elm/libraries/CMS723v0.json');
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Encounter with Principal Diagnosis and Age';
@@ -131,7 +131,7 @@ describe('ClauseResultsHelpers', () => {
     test('finds localIds for library ExpressionRefs while finding localIds in statements', () => {
       // Loads Test104 aka. CMS13 measure.
       // This measure has both the TJC_Overall and MAT global libraries
-      const libraryElm: ELM = getJSONFixture('elm/CMS13v2.json');
+      const libraryElm: ELM = getJSONFixture('elm/libraries/CMS13v2.json');
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Initial Population';
@@ -145,7 +145,7 @@ describe('ClauseResultsHelpers', () => {
     test('handles library ExpressionRefs with libraryRef embedded in the clause', () => {
       // Loads Test104 aka. CMS13 measure.
       // This measure has both the TJC_Overall and MAT global libraries
-      const libraryElm: ELM = getJSONFixture('elm/CMS13v2.json');
+      const libraryElm: ELM = getJSONFixture('elm/libraries/CMS13v2.json');
 
       // Find the localid for the specific statement with the global function ref.
       const statementName = 'Comfort Measures during Hospitalization';
@@ -157,7 +157,7 @@ describe('ClauseResultsHelpers', () => {
     });
 
     test('should use original source localId on second use of alias in direct property ref', () => {
-      const libraryElm: ELM = getJSONFixture('elm/SimpleAliasUsage.json');
+      const libraryElm: ELM = getJSONFixture('elm/declarations/SimpleAliasUsage.json');
       const statementName = 'Some Encounter';
 
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -167,7 +167,7 @@ describe('ClauseResultsHelpers', () => {
     });
 
     test('should use original source localId on Property expression within FunctionRef', () => {
-      const libraryElm: ELM = getJSONFixture('elm/SimpleAliasFunctionRef.json');
+      const libraryElm: ELM = getJSONFixture('elm/declarations/SimpleAliasFunctionRef.json');
       const statementName = 'Some Encounter';
 
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
@@ -192,7 +192,7 @@ describe('ClauseResultsHelpers', () => {
     let annotationSnippet: any;
     beforeEach(() => {
       // Use a chunk of this fixture for these tests.
-      const libraryElm: ELM = getJSONFixture('elm/CMS723v0.json');
+      const libraryElm: ELM = getJSONFixture('elm/libraries/CMS723v0.json');
 
       // The annotation for the 'Encounter with Principal Diagnosis and Age' will be used for these tests
       // it is known the functionRef 'global.CalendarAgeInYearsAt' is a '55' and the libraryRef clause is at '49'
@@ -229,7 +229,7 @@ describe('ClauseResultsHelpers', () => {
     let annotationSnippet: any;
     beforeEach(() => {
       // Use a chunk of this fixture for these tests.
-      const libraryElm: ELM = getJSONFixture('elm/CMS13v2.json');
+      const libraryElm: ELM = getJSONFixture('elm/libraries/CMS13v2.json');
 
       // The annotation for the 'Initial Population' will be used for these tests
       // it is known the expressionRef 'TJC."Encounter with Principal Diagnosis and Age"' is '110' and the libraryRef
@@ -257,7 +257,7 @@ describe('ClauseResultsHelpers', () => {
     let annotationSnippet: any;
     beforeEach(() => {
       // Use a chunk of this fixture for these tests.
-      const libraryElm: ELM = getJSONFixture('elm/CMS13v2.json');
+      const libraryElm: ELM = getJSONFixture('elm/libraries/CMS13v2.json');
 
       // The annotation for the 'Comfort Measures during Hospitalization' will be used for these tests
       // it is known the expressionRef 'TJC."Encounter with Principal Diagnosis of Ischemic Stroke"' is '42' and the

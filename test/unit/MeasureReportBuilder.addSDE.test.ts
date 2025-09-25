@@ -6,9 +6,7 @@ import { getJSONFixture } from './helpers/testHelpers';
 import { ExecutionResult, DetailedPopulationGroupResult } from '../../src/types/Calculator';
 import { PopulationType } from '../../src/types/Enums';
 
-const patient1 = getJSONFixture(
-  'EXM130-8.0.000/EXM130-8.0.000-patients/numerator/Adeline686_Prohaska837_ee009b12-7dbe-4610-abc4-5f92ad5b2804.json'
-);
+const patient1 = getJSONFixture('patient/patient-1.json');
 const patientSource = PatientSource.FHIRv401();
 patientSource.loadBundles([patient1]);
 // ids from fixture patients
