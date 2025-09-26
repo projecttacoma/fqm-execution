@@ -1383,7 +1383,7 @@ const evaluateMeasure = async (args, { req }) => {
 
 ### Building Test Data 
 
-CQL test data can be built for the integration tests or for the unit test elm fixtures using the following npm scripts, respectively:
+CQL test data can be built for the integration tests or for the unit test ELM fixtures using the following npm scripts, respectively:
 ```bash
 npm run build:test-data
 ```

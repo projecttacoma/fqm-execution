@@ -32,4 +32,4 @@ To stop the translation service, run `make clean`. This will not delete any tran
 npm run build:elm-fixtures
 ```
 
-This will translate all CQL files within the elm/ directory structure to the output/ directory. It will then clean up the translateion service. The user can inspect translated files and decide whether to replace the existing fixture.
+This will translate all CQL files within the elm/ directory structure to the output/ directory. It will then clean up the translation service. The user can inspect translated files and decide whether to replace the existing fixture.
