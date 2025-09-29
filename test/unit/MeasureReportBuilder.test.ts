@@ -11,11 +11,9 @@ import {
 } from '../../src/types/Calculator';
 import { PopulationType } from '../../src/types/Enums';
 
-const patient1 = getJSONFixture(
-  'EXM130-8.0.000/EXM130-8.0.000-patients/numerator/Adeline686_Prohaska837_ee009b12-7dbe-4610-abc4-5f92ad5b2804.json'
-);
+const patient1 = getJSONFixture('patient/patient-1.json');
 
-const patient2 = getJSONFixture('EXM111-9.1.000/Armando772_Almanza534_08fc9439-b7ff-4309-b409-4d143388594c.json');
+const patient2 = getJSONFixture('patient/patient-2.json');
 
 const patientSource = PatientSource.FHIRv401();
 patientSource.loadBundles([patient1, patient2]);

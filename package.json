@@ -47,6 +47,7 @@
     "build": "tsc",
     "build:watch": "tsc -w",
     "build:test-data": "cd test/integration && make",
+    "build:elm-fixtures": "cd test/unit/fixtures/elm && make && make clean",
     "cli": "ts-node src/cli.ts",
     "coverage": "opener coverage/lcov-report/index.html",
     "docs": "docsify serve . ",

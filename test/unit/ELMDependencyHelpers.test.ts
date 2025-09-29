@@ -5,7 +5,7 @@ import { ELM, ELMValueSet, ELMValueSetRef } from '../../src/types/ELMTypes';
 describe('ELMDependencyHelper', () => {
   let elm: ELM;
   beforeAll(() => {
-    elm = getELMFixture('elm/EXM130/EXM130.json');
+    elm = getELMFixture('elm/libraries/EXM130.json');
   });
 
   describe('buildStatementDependencyMaps', () => {
@@ -36,7 +36,7 @@ describe('ELMDependencyHelper', () => {
   describe('findLibraryReferenceId', () => {
     let elm: ELM;
     beforeAll(() => {
-      elm = getELMFixture('elm/EXM130/EXM130.json');
+      elm = getELMFixture('elm/libraries/EXM130.json');
     });
     test('should find matching include by localIdentifier', () => {
       const libraryPath = ELMDependencyHelper.findLibraryReferenceId(elm, 'Global');

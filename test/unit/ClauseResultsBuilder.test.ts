@@ -11,7 +11,7 @@ type MeasureWithGroup = fhir4.Measure & {
 };
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWithGroup;
-const exampleELM = getELMFixture('elm/ExampleMeasure.json');
+const exampleELM = getELMFixture('elm/libraries/ExampleMeasure.json');
 const mainLibraryId = exampleELM.library.identifier.id;
 const populationResults: PopulationResult[] = [
   {
