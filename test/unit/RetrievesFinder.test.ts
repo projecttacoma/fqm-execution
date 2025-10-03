@@ -14,14 +14,14 @@ const EXPECTED_VS_RETRIEVE_RESULTS: { results: DataTypeQuery[]; withErrors: Grac
     {
       dataType: 'Condition',
       valueSet: 'http://example.com/test-vs',
-      retrieveLocalId: '14',
+      retrieveLocalId: '232',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleQueries',
       templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
-          localId: '14',
+          localId: '232',
           libraryName: 'SimpleQueries',
           type: 'Retrieve'
         }
@@ -37,19 +37,19 @@ const EXPECTED_VS_QUERY_RESULTS: { results: DataTypeQuery[]; withErrors: Gracefu
     {
       dataType: 'Condition',
       valueSet: 'http://example.com/test-vs',
-      retrieveLocalId: '18',
-      queryLocalId: '24',
+      retrieveLocalId: '252',
+      queryLocalId: '262',
       retrieveLibraryName: 'SimpleQueries',
       templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
-          localId: '24',
+          localId: '262',
           libraryName: 'SimpleQueries',
           type: 'Query'
         },
         {
-          localId: '18',
+          localId: '252',
           libraryName: 'SimpleQueries',
           type: 'Retrieve'
         }
@@ -68,14 +68,14 @@ const EXPECTED_CODE_RESULTS: { results: DataTypeQuery[]; withErrors: GracefulErr
         system: 'http://example.com',
         code: 'test'
       },
-      retrieveLocalId: '16',
+      retrieveLocalId: '240',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleQueries',
       templateId: 'http://hl7.org/fhir/StructureDefinition/Procedure',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
-          localId: '16',
+          localId: '240',
           libraryName: 'SimpleQueries',
           type: 'Retrieve'
         }
@@ -91,19 +91,19 @@ const EXPECTED_EXPRESSIONREF_RESULTS: { results: DataTypeQuery[]; withErrors: Gr
     {
       dataType: 'Condition',
       valueSet: 'http://example.com/test-vs',
-      retrieveLocalId: '14',
+      retrieveLocalId: '232',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleQueries',
       templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleQueries',
       expressionStack: [
         {
-          localId: '26',
+          localId: '266',
           libraryName: 'SimpleQueries',
           type: 'ExpressionRef'
         },
         {
-          localId: '14',
+          localId: '232',
           libraryName: 'SimpleQueries',
           type: 'Retrieve'
         }
@@ -119,19 +119,19 @@ const EXPECTED_DEPENDENCY_RESULTS: { results: DataTypeQuery[]; withErrors: Grace
     {
       dataType: 'Condition',
       valueSet: 'http://example.com/test-vs-2',
-      retrieveLocalId: '4',
+      retrieveLocalId: '217',
       queryLocalId: undefined,
       retrieveLibraryName: 'SimpleDep',
       templateId: 'http://hl7.org/fhir/StructureDefinition/Condition',
       queryLibraryName: 'SimpleDep',
       expressionStack: [
         {
-          localId: '29',
+          localId: '271',
           libraryName: 'SimpleQueries',
           type: 'ExpressionRef'
         },
         {
-          localId: '4',
+          localId: '217',
           libraryName: 'SimpleDep',
           type: 'Retrieve'
         }
@@ -147,40 +147,40 @@ const EXPECTED_QUERY_REFERENCING_QUERY_RESULTS: { results: DataTypeQuery[]; with
     {
       dataType: 'Procedure',
       valueSet: 'http://example.com/test-vs',
-      retrieveLocalId: '33',
-      queryLocalId: '46',
+      retrieveLocalId: '296',
+      queryLocalId: '313',
       retrieveLibraryName: 'SimpleQueries',
       templateId: 'http://hl7.org/fhir/StructureDefinition/Procedure',
       queryLibraryName: 'SimpleQueries',
       path: 'code',
       expressionStack: [
         {
-          localId: '49',
+          localId: '285',
           libraryName: 'SimpleQueries',
           type: 'Exists'
         },
         {
-          localId: '48',
+          localId: '314',
           libraryName: 'SimpleQueries',
           type: 'ExpressionRef'
         },
         {
-          localId: '46',
+          localId: '313',
           libraryName: 'SimpleQueries',
           type: 'Query'
         },
         {
-          localId: '41',
+          localId: '307',
           libraryName: 'SimpleQueries',
           type: 'ExpressionRef'
         },
         {
-          localId: '39',
+          localId: '306',
           libraryName: 'SimpleQueries',
           type: 'Query'
         },
         {
-          localId: '33',
+          localId: '296',
           libraryName: 'SimpleQueries',
           type: 'Retrieve'
         }
@@ -198,30 +198,30 @@ const EXPECTED_QUERY_REFERENCING_QUERY_IN_ANOTHER_LIBRARY_RESULTS: {
     {
       dataType: 'Procedure',
       valueSet: 'http://example.com/test-vs-2',
-      retrieveLocalId: '6',
-      queryLocalId: '65',
+      retrieveLocalId: '226',
+      queryLocalId: '346',
       retrieveLibraryName: 'SimpleDep',
       templateId: 'http://hl7.org/fhir/StructureDefinition/Procedure',
       queryLibraryName: 'SimpleQueries',
       path: 'code',
       expressionStack: [
         {
-          localId: '65',
+          localId: '346',
           libraryName: 'SimpleQueries',
           type: 'Query'
         },
         {
-          localId: '59',
+          localId: '338',
           libraryName: 'SimpleQueries',
           type: 'ExpressionRef'
         },
         {
-          localId: '12',
+          localId: '236',
           libraryName: 'SimpleDep',
           type: 'Query'
         },
         {
-          localId: '6',
+          localId: '226',
           libraryName: 'SimpleDep',
           type: 'Retrieve'
         }

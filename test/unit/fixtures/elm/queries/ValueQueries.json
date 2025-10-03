@@ -1,17 +1,36 @@
 {
   "library": {
+    "localId": "0",
     "annotation": [
       {
-        "translatorOptions": "EnableAnnotations,EnableLocators",
-        "type": "CqlToElmInfo"
+        "type": "CqlToElmInfo",
+        "translatorVersion": "4.0.0-SNAPSHOT",
+        "translatorOptions": "EnableLocators,EnableAnnotations",
+        "signatureLevel": "None"
+      },
+      {
+        "type": "CqlToElmError",
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning"
+      },
+      {
+        "type": "CqlToElmError",
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning"
       },
       {
         "type": "Annotation",
+        "t": [],
         "s": {
-          "r": "41",
+          "r": "253",
           "s": [
             {
-              "value": ["", "library ValueQuery version '0.0.1'"]
+              "value": [
+                "",
+                "library ValueQuery version '0.0.1'"
+              ]
             }
           ]
         }
@@ -28,11 +47,13 @@
     "usings": {
       "def": [
         {
+          "localId": "1",
           "localIdentifier": "System",
-          "uri": "urn:hl7-org:elm-types:r1"
+          "uri": "urn:hl7-org:elm-types:r1",
+          "annotation": []
         },
         {
-          "localId": "1",
+          "localId": "206",
           "locator": "3:1-3:26",
           "localIdentifier": "FHIR",
           "uri": "http://hl7.org/fhir",
@@ -40,21 +61,29 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "1",
+                "r": "206",
                 "s": [
                   {
-                    "value": ["", "using "]
+                    "value": [
+                      "",
+                      "using "
+                    ]
                   },
                   {
                     "s": [
                       {
-                        "value": ["FHIR"]
+                        "value": [
+                          "FHIR"
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [" version ", "'4.0.1'"]
+                    "value": [
+                      " version '4.0.1'"
+                    ]
                   }
                 ]
               }
@@ -66,7 +95,7 @@
     "includes": {
       "def": [
         {
-          "localId": "2",
+          "localId": "208",
           "locator": "5:1-5:35",
           "localIdentifier": "FHIRHelpers",
           "path": "FHIRHelpers",
@@ -74,21 +103,30 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "2",
+                "r": "208",
                 "s": [
                   {
-                    "value": ["", "include "]
+                    "value": [
+                      "",
+                      "include "
+                    ]
                   },
                   {
                     "s": [
                       {
-                        "value": ["FHIRHelpers"]
+                        "value": [
+                          "FHIRHelpers"
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [" version ", "'4.0.1'"]
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
                   }
                 ]
               }
@@ -100,7 +138,7 @@
     "valueSets": {
       "def": [
         {
-          "localId": "3",
+          "localId": "210",
           "locator": "7:1-7:48",
           "name": "test-vs",
           "id": "http://example.com/test-vs",
@@ -108,45 +146,66 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "3",
+                "r": "210",
                 "s": [
                   {
-                    "value": ["", "valueset ", "\"test-vs\"", ": ", "'http://example.com/test-vs'"]
+                    "value": [
+                      "",
+                      "valueset ",
+                      "\"test-vs\"",
+                      ": ",
+                      "'http://example.com/test-vs'"
+                    ]
                   }
                 ]
               }
             }
-          ]
+          ],
+          "codeSystem": []
         }
       ]
     },
     "contexts": {
       "def": [
         {
+          "localId": "215",
           "locator": "9:1-9:15",
-          "name": "Patient"
+          "name": "Patient",
+          "annotation": []
         }
       ]
     },
     "statements": {
       "def": [
         {
+          "localId": "213",
           "locator": "9:1-9:15",
           "name": "Patient",
           "context": "Patient",
+          "annotation": [],
           "expression": {
             "type": "SingletonFrom",
+            "localId": "214",
+            "annotation": [],
+            "signature": [],
             "operand": {
+              "type": "Retrieve",
+              "localId": "212",
               "locator": "9:1-9:15",
               "dataType": "{http://hl7.org/fhir}Patient",
               "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
-              "type": "Retrieve"
+              "annotation": [],
+              "include": [],
+              "codeFilter": [],
+              "dateFilter": [],
+              "otherFilter": []
             }
           }
         },
         {
-          "localId": "15",
+          "localId": "223",
           "locator": "14:1-16:58",
           "name": "Simple Observation Query",
           "context": "Patient",
@@ -154,133 +213,179 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "15",
+                "r": "223",
                 "s": [
                   {
-                    "value": ["", "define ", "\"Simple Observation Query\"", ":\n    "]
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Simple Observation Query\"",
+                      ":\n    "
+                    ]
                   },
                   {
-                    "r": "14",
+                    "r": "245",
                     "s": [
                       {
-                        "value": ["Last", "("]
+                        "value": [
+                          "Last",
+                          "("
+                        ]
                       },
                       {
-                        "r": "13",
+                        "r": "242",
                         "s": [
                           {
                             "s": [
                               {
-                                "r": "5",
+                                "r": "224",
                                 "s": [
                                   {
-                                    "r": "4",
+                                    "r": "227",
                                     "s": [
                                       {
-                                        "r": "4",
+                                        "r": "227",
                                         "s": [
                                           {
-                                            "value": ["[", "Observation", ": "]
+                                            "value": [
+                                              "[",
+                                              "Observation",
+                                              ": "
+                                            ]
                                           },
                                           {
                                             "s": [
                                               {
-                                                "value": ["\"test-vs\""]
+                                                "value": [
+                                                  "\"test-vs\""
+                                                ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": ["]"]
+                                            "value": [
+                                              "]"
+                                            ]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [" ", "O"]
+                                    "value": [
+                                      " ",
+                                      "O"
+                                    ]
                                   }
                                 ]
                               }
                             ]
                           },
                           {
-                            "value": ["\n      "]
+                            "value": [
+                              "\n      "
+                            ]
                           },
                           {
-                            "r": "12",
+                            "r": "240",
                             "s": [
                               {
-                                "value": ["where "]
+                                "value": [
+                                  "where "
+                                ]
                               },
                               {
-                                "r": "12",
+                                "r": "240",
                                 "s": [
                                   {
-                                    "r": "7",
+                                    "r": "232",
                                     "s": [
                                       {
-                                        "r": "6",
+                                        "r": "231",
                                         "s": [
                                           {
-                                            "value": ["O"]
+                                            "value": [
+                                              "O"
+                                            ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": ["."]
+                                        "value": [
+                                          "."
+                                        ]
                                       },
                                       {
-                                        "r": "7",
+                                        "r": "232",
                                         "s": [
                                           {
-                                            "value": ["status"]
+                                            "value": [
+                                              "status"
+                                            ]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [" in "]
+                                    "value": [
+                                      " in "
+                                    ]
                                   },
                                   {
-                                    "r": "11",
+                                    "r": "233",
                                     "s": [
                                       {
-                                        "value": ["{"]
+                                        "value": [
+                                          "{"
+                                        ]
                                       },
                                       {
-                                        "r": "8",
+                                        "r": "234",
                                         "s": [
                                           {
-                                            "value": ["'final'"]
+                                            "value": [
+                                              "'final'"
+                                            ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [", "]
+                                        "value": [
+                                          ", "
+                                        ]
                                       },
                                       {
-                                        "r": "9",
+                                        "r": "236",
                                         "s": [
                                           {
-                                            "value": ["'amended'"]
+                                            "value": [
+                                              "'amended'"
+                                            ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [", "]
+                                        "value": [
+                                          ", "
+                                        ]
                                       },
                                       {
-                                        "r": "10",
+                                        "r": "238",
                                         "s": [
                                           {
-                                            "value": ["'corrected'"]
+                                            "value": [
+                                              "'corrected'"
+                                            ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": ["}"]
+                                        "value": [
+                                          "}"
+                                        ]
                                       }
                                     ]
                                   }
@@ -291,7 +396,9 @@
                         ]
                       },
                       {
-                        "value": [")"]
+                        "value": [
+                          ")"
+                        ]
                       }
                     ]
                   }
@@ -300,79 +407,102 @@
             }
           ],
           "expression": {
-            "localId": "14",
-            "locator": "15:5-16:58",
             "type": "Last",
+            "localId": "245",
+            "locator": "15:5-16:58",
+            "annotation": [],
+            "signature": [],
             "source": {
-              "localId": "13",
-              "locator": "15:10-16:57",
               "type": "Query",
+              "localId": "242",
+              "locator": "15:10-16:57",
+              "annotation": [],
               "source": [
                 {
-                  "localId": "5",
+                  "localId": "224",
                   "locator": "15:10-15:35",
                   "alias": "O",
+                  "annotation": [],
                   "expression": {
-                    "localId": "4",
+                    "type": "Retrieve",
+                    "localId": "227",
                     "locator": "15:10-15:33",
                     "dataType": "{http://hl7.org/fhir}Observation",
                     "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
                     "codeProperty": "code",
                     "codeComparator": "in",
-                    "type": "Retrieve",
+                    "annotation": [],
                     "codes": {
+                      "type": "ValueSetRef",
+                      "localId": "226",
                       "locator": "15:24-15:32",
                       "name": "test-vs",
-                      "type": "ValueSetRef"
-                    }
+                      "preserve": true,
+                      "annotation": []
+                    },
+                    "include": [],
+                    "codeFilter": [],
+                    "dateFilter": [],
+                    "otherFilter": []
                   }
                 }
               ],
+              "let": [],
               "relationship": [],
               "where": {
-                "localId": "12",
-                "locator": "16:7-16:57",
                 "type": "In",
+                "localId": "240",
+                "locator": "16:7-16:57",
+                "annotation": [],
+                "signature": [],
                 "operand": [
                   {
+                    "type": "FunctionRef",
+                    "localId": "241",
                     "name": "ToString",
                     "libraryName": "FHIRHelpers",
-                    "type": "FunctionRef",
+                    "annotation": [],
+                    "signature": [],
                     "operand": [
                       {
-                        "localId": "7",
+                        "type": "Property",
+                        "localId": "232",
                         "locator": "16:13-16:20",
                         "path": "status",
                         "scope": "O",
-                        "type": "Property"
+                        "annotation": []
                       }
                     ]
                   },
                   {
-                    "localId": "11",
-                    "locator": "16:25-16:57",
                     "type": "List",
+                    "localId": "233",
+                    "locator": "16:25-16:57",
+                    "annotation": [],
                     "element": [
                       {
-                        "localId": "8",
+                        "type": "Literal",
+                        "localId": "234",
                         "locator": "16:26-16:32",
                         "valueType": "{urn:hl7-org:elm-types:r1}String",
                         "value": "final",
-                        "type": "Literal"
+                        "annotation": []
                       },
                       {
-                        "localId": "9",
+                        "type": "Literal",
+                        "localId": "236",
                         "locator": "16:35-16:43",
                         "valueType": "{urn:hl7-org:elm-types:r1}String",
                         "value": "amended",
-                        "type": "Literal"
+                        "annotation": []
                       },
                       {
-                        "localId": "10",
+                        "type": "Literal",
+                        "localId": "238",
                         "locator": "16:46-16:56",
                         "valueType": "{urn:hl7-org:elm-types:r1}String",
                         "value": "corrected",
-                        "type": "Literal"
+                        "annotation": []
                       }
                     ]
                   }
@@ -382,7 +512,7 @@
           }
         },
         {
-          "localId": "22",
+          "localId": "218",
           "locator": "11:1-12:56",
           "name": "Query ExpressionRef with Value Comparison",
           "context": "Patient",
@@ -390,74 +520,101 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "22",
+                "r": "218",
                 "s": [
                   {
-                    "value": ["", "define ", "\"Query ExpressionRef with Value Comparison\"", ":\n  "]
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Query ExpressionRef with Value Comparison\"",
+                      ":\n  "
+                    ]
                   },
                   {
-                    "r": "21",
+                    "r": "219",
                     "s": [
                       {
-                        "r": "19",
+                        "r": "220",
                         "s": [
                           {
-                            "value": ["("]
+                            "value": [
+                              "("
+                            ]
                           },
                           {
-                            "r": "19",
+                            "r": "220",
                             "s": [
                               {
-                                "r": "17",
+                                "r": "247",
                                 "s": [
                                   {
-                                    "r": "16",
+                                    "r": "246",
                                     "s": [
                                       {
-                                        "value": ["\"Simple Observation Query\""]
+                                        "value": [
+                                          "\"Simple Observation Query\""
+                                        ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": ["."]
+                                    "value": [
+                                      "."
+                                    ]
                                   },
                                   {
-                                    "r": "17",
+                                    "r": "247",
                                     "s": [
                                       {
-                                        "value": ["value"]
+                                        "value": [
+                                          "value"
+                                        ]
                                       }
                                     ]
                                   }
                                 ]
                               },
                               {
-                                "value": [" as "]
+                                "value": [
+                                  " as "
+                                ]
                               },
                               {
-                                "r": "18",
+                                "r": "248",
                                 "s": [
                                   {
-                                    "value": ["Quantity"]
+                                    "value": [
+                                      "Quantity"
+                                    ]
                                   }
                                 ]
                               }
                             ]
                           },
                           {
-                            "value": [")"]
+                            "value": [
+                              ")"
+                            ]
                           }
                         ]
                       },
                       {
-                        "value": [" ", ">", " "]
+                        "value": [
+                          " ",
+                          ">",
+                          " "
+                        ]
                       },
                       {
-                        "r": "20",
+                        "r": "249",
                         "s": [
                           {
-                            "value": ["9 ", "'%'"]
+                            "value": [
+                              "9 ",
+                              "'%'"
+                            ]
                           }
                         ]
                       }
@@ -468,53 +625,64 @@
             }
           ],
           "expression": {
-            "localId": "21",
-            "locator": "12:3-12:56",
             "type": "Greater",
+            "localId": "219",
+            "locator": "12:3-12:56",
+            "annotation": [],
+            "signature": [],
             "operand": [
               {
+                "type": "FunctionRef",
+                "localId": "250",
                 "name": "ToQuantity",
                 "libraryName": "FHIRHelpers",
-                "type": "FunctionRef",
+                "annotation": [],
+                "signature": [],
                 "operand": [
                   {
-                    "localId": "19",
+                    "type": "As",
+                    "localId": "220",
                     "locator": "12:3-12:48",
                     "strict": false,
-                    "type": "As",
+                    "annotation": [],
+                    "signature": [],
                     "operand": {
-                      "localId": "17",
+                      "type": "Property",
+                      "localId": "247",
                       "locator": "12:4-12:35",
                       "path": "value",
-                      "type": "Property",
+                      "annotation": [],
                       "source": {
-                        "localId": "16",
+                        "type": "ExpressionRef",
+                        "localId": "246",
                         "locator": "12:4-12:29",
                         "name": "Simple Observation Query",
-                        "type": "ExpressionRef"
+                        "annotation": []
                       }
                     },
                     "asTypeSpecifier": {
-                      "localId": "18",
+                      "type": "NamedTypeSpecifier",
+                      "localId": "248",
                       "locator": "12:40-12:47",
                       "name": "{http://hl7.org/fhir}Quantity",
-                      "type": "NamedTypeSpecifier"
+                      "annotation": []
                     }
                   }
                 ]
               },
               {
-                "localId": "20",
+                "type": "Quantity",
+                "localId": "249",
                 "locator": "12:52-12:56",
                 "value": 9,
                 "unit": "%",
-                "type": "Quantity"
+                "annotation": []
               }
             ]
           }
         },
         {
-          "localId": "41",
+          "localId": "253",
           "locator": "18:1-21:40",
           "name": "Has Elevated Value With Where",
           "context": "Patient",
@@ -522,206 +690,275 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "41",
+                "r": "253",
                 "s": [
                   {
-                    "value": ["", "define ", "\"Has Elevated Value With Where\"", ":\n    "]
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Has Elevated Value With Where\"",
+                      ":\n    "
+                    ]
                   },
                   {
-                    "r": "40",
+                    "r": "283",
                     "s": [
                       {
-                        "value": ["Last", "("]
+                        "value": [
+                          "Last",
+                          "("
+                        ]
                       },
                       {
-                        "r": "39",
+                        "r": "280",
                         "s": [
                           {
                             "s": [
                               {
-                                "r": "24",
+                                "r": "254",
                                 "s": [
                                   {
-                                    "r": "23",
+                                    "r": "257",
                                     "s": [
                                       {
-                                        "r": "23",
+                                        "r": "257",
                                         "s": [
                                           {
-                                            "value": ["[", "Observation", ": "]
+                                            "value": [
+                                              "[",
+                                              "Observation",
+                                              ": "
+                                            ]
                                           },
                                           {
                                             "s": [
                                               {
-                                                "value": ["\"test-vs\""]
+                                                "value": [
+                                                  "\"test-vs\""
+                                                ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": ["]"]
+                                            "value": [
+                                              "]"
+                                            ]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": [" ", "O"]
+                                    "value": [
+                                      " ",
+                                      "O"
+                                    ]
                                   }
                                 ]
                               }
                             ]
                           },
                           {
-                            "value": ["\n      "]
+                            "value": [
+                              "\n      "
+                            ]
                           },
                           {
-                            "r": "38",
+                            "r": "261",
                             "s": [
                               {
-                                "value": ["where "]
+                                "value": [
+                                  "where "
+                                ]
                               },
                               {
-                                "r": "38",
+                                "r": "261",
                                 "s": [
                                   {
-                                    "r": "31",
+                                    "r": "271",
                                     "s": [
                                       {
-                                        "r": "26",
+                                        "r": "263",
                                         "s": [
                                           {
-                                            "r": "25",
+                                            "r": "262",
                                             "s": [
                                               {
-                                                "value": ["O"]
+                                                "value": [
+                                                  "O"
+                                                ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": ["."]
+                                            "value": [
+                                              "."
+                                            ]
                                           },
                                           {
-                                            "r": "26",
+                                            "r": "263",
                                             "s": [
                                               {
-                                                "value": ["status"]
+                                                "value": [
+                                                  "status"
+                                                ]
                                               }
                                             ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [" in "]
+                                        "value": [
+                                          " in "
+                                        ]
                                       },
                                       {
-                                        "r": "30",
+                                        "r": "264",
                                         "s": [
                                           {
-                                            "value": ["{"]
+                                            "value": [
+                                              "{"
+                                            ]
                                           },
                                           {
-                                            "r": "27",
+                                            "r": "265",
                                             "s": [
                                               {
-                                                "value": ["'final'"]
+                                                "value": [
+                                                  "'final'"
+                                                ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [", "]
+                                            "value": [
+                                              ", "
+                                            ]
                                           },
                                           {
-                                            "r": "28",
+                                            "r": "267",
                                             "s": [
                                               {
-                                                "value": ["'amended'"]
+                                                "value": [
+                                                  "'amended'"
+                                                ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [", "]
+                                            "value": [
+                                              ", "
+                                            ]
                                           },
                                           {
-                                            "r": "29",
+                                            "r": "269",
                                             "s": [
                                               {
-                                                "value": ["'corrected'"]
+                                                "value": [
+                                                  "'corrected'"
+                                                ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": ["}"]
+                                            "value": [
+                                              "}"
+                                            ]
                                           }
                                         ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": ["\n      and "]
+                                    "value": [
+                                      "\n      and "
+                                    ]
                                   },
                                   {
-                                    "r": "37",
+                                    "r": "273",
                                     "s": [
                                       {
-                                        "r": "35",
+                                        "r": "274",
                                         "s": [
                                           {
-                                            "value": ["("]
+                                            "value": [
+                                              "("
+                                            ]
                                           },
                                           {
-                                            "r": "35",
+                                            "r": "274",
                                             "s": [
                                               {
-                                                "r": "33",
+                                                "r": "276",
                                                 "s": [
                                                   {
-                                                    "r": "32",
+                                                    "r": "275",
                                                     "s": [
                                                       {
-                                                        "value": ["O"]
+                                                        "value": [
+                                                          "O"
+                                                        ]
                                                       }
                                                     ]
                                                   },
                                                   {
-                                                    "value": ["."]
+                                                    "value": [
+                                                      "."
+                                                    ]
                                                   },
                                                   {
-                                                    "r": "33",
+                                                    "r": "276",
                                                     "s": [
                                                       {
-                                                        "value": ["value"]
+                                                        "value": [
+                                                          "value"
+                                                        ]
                                                       }
                                                     ]
                                                   }
                                                 ]
                                               },
                                               {
-                                                "value": [" as "]
+                                                "value": [
+                                                  " as "
+                                                ]
                                               },
                                               {
-                                                "r": "34",
+                                                "r": "277",
                                                 "s": [
                                                   {
-                                                    "value": ["Quantity"]
+                                                    "value": [
+                                                      "Quantity"
+                                                    ]
                                                   }
                                                 ]
                                               }
                                             ]
                                           },
                                           {
-                                            "value": [")"]
+                                            "value": [
+                                              ")"
+                                            ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": [" ", ">", " "]
+                                        "value": [
+                                          " ",
+                                          ">",
+                                          " "
+                                        ]
                                       },
                                       {
-                                        "r": "36",
+                                        "r": "278",
                                         "s": [
                                           {
-                                            "value": ["9 ", "'%'"]
+                                            "value": [
+                                              "9 ",
+                                              "'%'"
+                                            ]
                                           }
                                         ]
                                       }
@@ -734,7 +971,9 @@
                         ]
                       },
                       {
-                        "value": [")"]
+                        "value": [
+                          ")"
+                        ]
                       }
                     ]
                   }
@@ -743,126 +982,161 @@
             }
           ],
           "expression": {
-            "localId": "40",
-            "locator": "19:5-21:40",
             "type": "Last",
+            "localId": "283",
+            "locator": "19:5-21:40",
+            "annotation": [],
+            "signature": [],
             "source": {
-              "localId": "39",
-              "locator": "19:10-21:39",
               "type": "Query",
+              "localId": "280",
+              "locator": "19:10-21:39",
+              "annotation": [],
               "source": [
                 {
-                  "localId": "24",
+                  "localId": "254",
                   "locator": "19:10-19:35",
                   "alias": "O",
+                  "annotation": [],
                   "expression": {
-                    "localId": "23",
+                    "type": "Retrieve",
+                    "localId": "257",
                     "locator": "19:10-19:33",
                     "dataType": "{http://hl7.org/fhir}Observation",
                     "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
                     "codeProperty": "code",
                     "codeComparator": "in",
-                    "type": "Retrieve",
+                    "annotation": [],
                     "codes": {
+                      "type": "ValueSetRef",
+                      "localId": "256",
                       "locator": "19:24-19:32",
                       "name": "test-vs",
-                      "type": "ValueSetRef"
-                    }
+                      "preserve": true,
+                      "annotation": []
+                    },
+                    "include": [],
+                    "codeFilter": [],
+                    "dateFilter": [],
+                    "otherFilter": []
                   }
                 }
               ],
+              "let": [],
               "relationship": [],
               "where": {
-                "localId": "38",
-                "locator": "20:7-21:39",
                 "type": "And",
+                "localId": "261",
+                "locator": "20:7-21:39",
+                "annotation": [],
+                "signature": [],
                 "operand": [
                   {
-                    "localId": "31",
-                    "locator": "20:13-20:57",
                     "type": "In",
+                    "localId": "271",
+                    "locator": "20:13-20:57",
+                    "annotation": [],
+                    "signature": [],
                     "operand": [
                       {
+                        "type": "FunctionRef",
+                        "localId": "272",
                         "name": "ToString",
                         "libraryName": "FHIRHelpers",
-                        "type": "FunctionRef",
+                        "annotation": [],
+                        "signature": [],
                         "operand": [
                           {
-                            "localId": "26",
+                            "type": "Property",
+                            "localId": "263",
                             "locator": "20:13-20:20",
                             "path": "status",
                             "scope": "O",
-                            "type": "Property"
+                            "annotation": []
                           }
                         ]
                       },
                       {
-                        "localId": "30",
-                        "locator": "20:25-20:57",
                         "type": "List",
+                        "localId": "264",
+                        "locator": "20:25-20:57",
+                        "annotation": [],
                         "element": [
                           {
-                            "localId": "27",
+                            "type": "Literal",
+                            "localId": "265",
                             "locator": "20:26-20:32",
                             "valueType": "{urn:hl7-org:elm-types:r1}String",
                             "value": "final",
-                            "type": "Literal"
+                            "annotation": []
                           },
                           {
-                            "localId": "28",
+                            "type": "Literal",
+                            "localId": "267",
                             "locator": "20:35-20:43",
                             "valueType": "{urn:hl7-org:elm-types:r1}String",
                             "value": "amended",
-                            "type": "Literal"
+                            "annotation": []
                           },
                           {
-                            "localId": "29",
+                            "type": "Literal",
+                            "localId": "269",
                             "locator": "20:46-20:56",
                             "valueType": "{urn:hl7-org:elm-types:r1}String",
                             "value": "corrected",
-                            "type": "Literal"
+                            "annotation": []
                           }
                         ]
                       }
                     ]
                   },
                   {
-                    "localId": "37",
-                    "locator": "21:11-21:39",
                     "type": "Greater",
+                    "localId": "273",
+                    "locator": "21:11-21:39",
+                    "annotation": [],
+                    "signature": [],
                     "operand": [
                       {
+                        "type": "FunctionRef",
+                        "localId": "279",
                         "name": "ToQuantity",
                         "libraryName": "FHIRHelpers",
-                        "type": "FunctionRef",
+                        "annotation": [],
+                        "signature": [],
                         "operand": [
                           {
-                            "localId": "35",
+                            "type": "As",
+                            "localId": "274",
                             "locator": "21:11-21:31",
                             "strict": false,
-                            "type": "As",
+                            "annotation": [],
+                            "signature": [],
                             "operand": {
-                              "localId": "33",
+                              "type": "Property",
+                              "localId": "276",
                               "locator": "21:12-21:18",
                               "path": "value",
                               "scope": "O",
-                              "type": "Property"
+                              "annotation": []
                             },
                             "asTypeSpecifier": {
-                              "localId": "34",
+                              "type": "NamedTypeSpecifier",
+                              "localId": "277",
                               "locator": "21:23-21:30",
                               "name": "{http://hl7.org/fhir}Quantity",
-                              "type": "NamedTypeSpecifier"
+                              "annotation": []
                             }
                           }
                         ]
                       },
                       {
-                        "localId": "36",
+                        "type": "Quantity",
+                        "localId": "278",
                         "locator": "21:35-21:39",
                         "value": 9,
                         "unit": "%",
-                        "type": "Quantity"
+                        "annotation": []
                       }
                     ]
                   }

@@ -42,25 +42,25 @@ const populationResults: PopulationResult[] = [
 ];
 const localIdResults: cql.LocalIdResults = {
   [mainLibraryId]: {
-    '2': true,
-    '3': true,
-    '4': true,
-    '5': true,
-    '6': true,
-    '7': true,
-    '8': false,
-    '9': false,
-    '10': false,
-    '11': false,
-    '12': true,
-    '13': true
+    '211': true,
+    '210': true,
+    '215': true,
+    '214': true,
+    '219': true,
+    '218': true,
+    '223': false,
+    '222': false,
+    '227': false,
+    '226': false,
+    '231': true,
+    '230': true
   }
 };
 const statementResults: StatementResult[] = [
   {
     libraryName: mainLibraryId,
     statementName: 'Initial Population',
-    localId: '3',
+    localId: '210',
     final: FinalResult.TRUE,
     relevance: Relevance.TRUE,
     raw: true
@@ -68,7 +68,7 @@ const statementResults: StatementResult[] = [
   {
     libraryName: mainLibraryId,
     statementName: 'Denominator',
-    localId: '5',
+    localId: '214',
     final: FinalResult.TRUE,
     relevance: Relevance.TRUE,
     raw: true
@@ -76,7 +76,7 @@ const statementResults: StatementResult[] = [
   {
     libraryName: mainLibraryId,
     statementName: 'Numerator',
-    localId: '7',
+    localId: '218',
     final: FinalResult.TRUE,
     relevance: Relevance.TRUE,
     raw: true
@@ -84,7 +84,7 @@ const statementResults: StatementResult[] = [
   {
     libraryName: mainLibraryId,
     statementName: 'Numerator Exclusion',
-    localId: '9',
+    localId: '222',
     final: FinalResult.FALSE,
     relevance: Relevance.FALSE,
     raw: false
@@ -92,7 +92,7 @@ const statementResults: StatementResult[] = [
   {
     libraryName: mainLibraryId,
     statementName: 'Denominator Exclusion',
-    localId: '11',
+    localId: '226',
     final: FinalResult.FALSE,
     relevance: Relevance.FALSE,
     raw: false
@@ -100,7 +100,7 @@ const statementResults: StatementResult[] = [
   {
     libraryName: mainLibraryId,
     statementName: 'SDE',
-    localId: '13',
+    localId: '230',
     final: FinalResult.TRUE,
     relevance: Relevance.TRUE,
     raw: true
@@ -205,42 +205,42 @@ describe('ClauseResultsBuilder', () => {
             raw: true,
             statementName: 'Initial Population',
             libraryName: 'ExampleMeasure',
-            localId: '3',
+            localId: '210',
             final: FinalResult.TRUE
           },
           {
             raw: true,
             statementName: 'Denominator',
             libraryName: 'ExampleMeasure',
-            localId: '5',
+            localId: '214',
             final: FinalResult.TRUE
           },
           {
             raw: true,
             statementName: 'Numerator',
             libraryName: 'ExampleMeasure',
-            localId: '7',
+            localId: '218',
             final: FinalResult.TRUE
           },
           {
             raw: false,
             statementName: 'Numerator Exclusion',
             libraryName: 'ExampleMeasure',
-            localId: '9',
+            localId: '222',
             final: FinalResult.UNHIT
           },
           {
             raw: false,
             statementName: 'Denominator Exclusion',
             libraryName: 'ExampleMeasure',
-            localId: '11',
+            localId: '226',
             final: FinalResult.UNHIT
           },
           {
             raw: true,
             statementName: 'SDE',
             libraryName: 'ExampleMeasure',
-            localId: '13',
+            localId: '230',
             final: FinalResult.TRUE
           }
         ])

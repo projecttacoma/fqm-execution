@@ -122,12 +122,13 @@ describe('ELMDependencyHelper', () => {
         libraryName: 'SimpleDep',
         type: 'ValueSetRef'
       };
-      const expectedValueSet: ELMValueSet = {
-        localId: '3',
+      const expectedValueSet = {
+        localId: '210',
         locator: '7:1-7:52',
         name: 'test-vs-2',
         id: 'http://example.com/test-vs-2',
-        accessLevel: 'Public'
+        accessLevel: 'Public',
+        codeSystem: []
       };
       const vs = ELMDependencyHelper.findValueSetReference(elm, [elm, dependency], valueSetRef);
       if (vs) {

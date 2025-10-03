@@ -1,14 +1,42 @@
 {
   "library": {
+    "localId": "0",
     "annotation": [
       {
-        "translatorOptions": "EnableAnnotations,EnableLocators",
-        "type": "CqlToElmInfo"
+        "type": "CqlToElmInfo",
+        "translatorVersion": "4.0.0-SNAPSHOT",
+        "translatorOptions": "EnableLocators,EnableAnnotations",
+        "signatureLevel": "None"
+      },
+      {
+        "type": "CqlToElmError",
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning"
+      },
+      {
+        "type": "CqlToElmError",
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning"
+      },
+      {
+        "type": "CqlToElmError",
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning"
+      },
+      {
+        "type": "CqlToElmError",
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
+        "errorType": "semantic",
+        "errorSeverity": "warning"
       },
       {
         "type": "Annotation",
+        "t": [],
         "s": {
-          "r": "71",
+          "r": "349",
           "s": [
             {
               "value": [
@@ -31,11 +59,13 @@
     "usings": {
       "def": [
         {
+          "localId": "1",
           "localIdentifier": "System",
-          "uri": "urn:hl7-org:elm-types:r1"
+          "uri": "urn:hl7-org:elm-types:r1",
+          "annotation": []
         },
         {
-          "localId": "1",
+          "localId": "206",
           "locator": "3:1-3:26",
           "localIdentifier": "FHIR",
           "uri": "http://hl7.org/fhir",
@@ -43,8 +73,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "1",
+                "r": "206",
                 "s": [
                   {
                     "value": [
@@ -63,8 +94,7 @@
                   },
                   {
                     "value": [
-                      " version ",
-                      "'4.0.1'"
+                      " version '4.0.1'"
                     ]
                   }
                 ]
@@ -77,7 +107,7 @@
     "includes": {
       "def": [
         {
-          "localId": "2",
+          "localId": "208",
           "locator": "5:1-5:35",
           "localIdentifier": "FHIRHelpers",
           "path": "FHIRHelpers",
@@ -85,8 +115,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "2",
+                "r": "208",
                 "s": [
                   {
                     "value": [
@@ -115,7 +146,7 @@
           ]
         },
         {
-          "localId": "3",
+          "localId": "210",
           "locator": "6:1-6:33",
           "localIdentifier": "SimpleDep",
           "path": "SimpleDep",
@@ -123,8 +154,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "3",
+                "r": "210",
                 "s": [
                   {
                     "value": [
@@ -157,7 +189,7 @@
     "codeSystems": {
       "def": [
         {
-          "localId": "4",
+          "localId": "212",
           "locator": "8:1-8:42",
           "name": "EXAMPLE",
           "id": "http://example.com",
@@ -165,8 +197,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "4",
+                "r": "212",
                 "s": [
                   {
                     "value": [
@@ -183,7 +216,7 @@
           ]
         },
         {
-          "localId": "5",
+          "localId": "214",
           "locator": "9:1-9:46",
           "name": "EXAMPLE-2",
           "id": "http://example.com/2",
@@ -191,8 +224,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "5",
+                "r": "214",
                 "s": [
                   {
                     "value": [
@@ -213,7 +247,7 @@
     "valueSets": {
       "def": [
         {
-          "localId": "6",
+          "localId": "216",
           "locator": "11:1-11:48",
           "name": "test-vs",
           "id": "http://example.com/test-vs",
@@ -221,8 +255,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "6",
+                "r": "216",
                 "s": [
                   {
                     "value": [
@@ -236,14 +271,15 @@
                 ]
               }
             }
-          ]
+          ],
+          "codeSystem": []
         }
       ]
     },
     "codes": {
       "def": [
         {
-          "localId": "8",
+          "localId": "218",
           "locator": "13:1-13:39",
           "name": "test-code",
           "id": "test",
@@ -251,8 +287,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "8",
+                "r": "218",
                 "s": [
                   {
                     "value": [
@@ -265,7 +302,7 @@
                     ]
                   },
                   {
-                    "r": "7",
+                    "r": "219",
                     "s": [
                       {
                         "value": [
@@ -279,13 +316,14 @@
             }
           ],
           "codeSystem": {
-            "localId": "7",
+            "localId": "219",
             "locator": "13:31-13:39",
-            "name": "EXAMPLE"
+            "name": "EXAMPLE",
+            "annotation": []
           }
         },
         {
-          "localId": "10",
+          "localId": "221",
           "locator": "14:1-14:45",
           "name": "test-code-2",
           "id": "test-2",
@@ -293,8 +331,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "10",
+                "r": "221",
                 "s": [
                   {
                     "value": [
@@ -307,7 +346,7 @@
                     ]
                   },
                   {
-                    "r": "9",
+                    "r": "222",
                     "s": [
                       {
                         "value": [
@@ -321,9 +360,10 @@
             }
           ],
           "codeSystem": {
-            "localId": "9",
+            "localId": "222",
             "locator": "14:35-14:45",
-            "name": "EXAMPLE-2"
+            "name": "EXAMPLE-2",
+            "annotation": []
           }
         }
       ]
@@ -331,7 +371,7 @@
     "concepts": {
       "def": [
         {
-          "localId": "13",
+          "localId": "224",
           "locator": "16:1-16:77",
           "name": "test-concept",
           "display": "test-concept",
@@ -339,8 +379,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "13",
+                "r": "224",
                 "s": [
                   {
                     "value": [
@@ -351,7 +392,7 @@
                     ]
                   },
                   {
-                    "r": "11",
+                    "r": "225",
                     "s": [
                       {
                         "value": [
@@ -366,7 +407,7 @@
                     ]
                   },
                   {
-                    "r": "12",
+                    "r": "226",
                     "s": [
                       {
                         "value": [
@@ -387,14 +428,16 @@
           ],
           "code": [
             {
-              "localId": "11",
+              "localId": "225",
               "locator": "16:27-16:37",
-              "name": "test-code"
+              "name": "test-code",
+              "annotation": []
             },
             {
-              "localId": "12",
+              "localId": "226",
               "locator": "16:40-16:52",
-              "name": "test-code-2"
+              "name": "test-code-2",
+              "annotation": []
             }
           ]
         }
@@ -403,16 +446,17 @@
     "statements": {
       "def": [
         {
-          "localId": "15",
+          "localId": "229",
           "locator": "18:1-19:24",
           "name": "SimpleVSRetrieve",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "15",
+                "r": "229",
                 "s": [
                   {
                     "value": [
@@ -423,7 +467,7 @@
                     ]
                   },
                   {
-                    "r": "14",
+                    "r": "232",
                     "s": [
                       {
                         "value": [
@@ -453,31 +497,40 @@
             }
           ],
           "expression": {
-            "localId": "14",
+            "type": "Retrieve",
+            "localId": "232",
             "locator": "19:3-19:24",
             "dataType": "{http://hl7.org/fhir}Condition",
             "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
             "codeProperty": "code",
             "codeComparator": "in",
-            "type": "Retrieve",
+            "annotation": [],
             "codes": {
+              "type": "ValueSetRef",
+              "localId": "231",
               "locator": "19:15-19:23",
               "name": "test-vs",
-              "type": "ValueSetRef"
-            }
+              "preserve": true,
+              "annotation": []
+            },
+            "include": [],
+            "codeFilter": [],
+            "dateFilter": [],
+            "otherFilter": []
           }
         },
         {
-          "localId": "17",
+          "localId": "237",
           "locator": "21:1-22:26",
           "name": "SimpleCodeRetrieve",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "17",
+                "r": "237",
                 "s": [
                   {
                     "value": [
@@ -488,7 +541,7 @@
                     ]
                   },
                   {
-                    "r": "16",
+                    "r": "240",
                     "s": [
                       {
                         "value": [
@@ -518,34 +571,45 @@
             }
           ],
           "expression": {
-            "localId": "16",
+            "type": "Retrieve",
+            "localId": "240",
             "locator": "22:3-22:26",
             "dataType": "{http://hl7.org/fhir}Procedure",
             "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
             "codeProperty": "code",
             "codeComparator": "~",
-            "type": "Retrieve",
+            "annotation": [],
             "codes": {
               "type": "ToList",
+              "localId": "245",
+              "annotation": [],
+              "signature": [],
               "operand": {
+                "type": "CodeRef",
+                "localId": "239",
                 "locator": "22:15-22:25",
                 "name": "test-code",
-                "type": "CodeRef"
+                "annotation": []
               }
-            }
+            },
+            "include": [],
+            "codeFilter": [],
+            "dateFilter": [],
+            "otherFilter": []
           }
         },
         {
-          "localId": "25",
+          "localId": "248",
           "locator": "24:1-25:46",
           "name": "SimpleQuery",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "25",
+                "r": "248",
                 "s": [
                   {
                     "value": [
@@ -556,18 +620,18 @@
                     ]
                   },
                   {
-                    "r": "24",
+                    "r": "262",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "19",
+                            "r": "249",
                             "s": [
                               {
-                                "r": "18",
+                                "r": "252",
                                 "s": [
                                   {
-                                    "r": "18",
+                                    "r": "252",
                                     "s": [
                                       {
                                         "value": [
@@ -610,7 +674,7 @@
                         ]
                       },
                       {
-                        "r": "23",
+                        "r": "256",
                         "s": [
                           {
                             "value": [
@@ -618,13 +682,13 @@
                             ]
                           },
                           {
-                            "r": "23",
+                            "r": "256",
                             "s": [
                               {
-                                "r": "21",
+                                "r": "258",
                                 "s": [
                                   {
-                                    "r": "20",
+                                    "r": "257",
                                     "s": [
                                       {
                                         "value": [
@@ -639,7 +703,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "21",
+                                    "r": "258",
                                     "s": [
                                       {
                                         "value": [
@@ -658,7 +722,7 @@
                                 ]
                               },
                               {
-                                "r": "22",
+                                "r": "259",
                                 "s": [
                                   {
                                     "value": [
@@ -678,72 +742,91 @@
             }
           ],
           "expression": {
-            "localId": "24",
-            "locator": "25:3-25:46",
             "type": "Query",
+            "localId": "262",
+            "locator": "25:3-25:46",
+            "annotation": [],
             "source": [
               {
-                "localId": "19",
+                "localId": "249",
                 "locator": "25:3-25:26",
                 "alias": "C",
+                "annotation": [],
                 "expression": {
-                  "localId": "18",
+                  "type": "Retrieve",
+                  "localId": "252",
                   "locator": "25:3-25:24",
                   "dataType": "{http://hl7.org/fhir}Condition",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
                   "codeProperty": "code",
                   "codeComparator": "in",
-                  "type": "Retrieve",
+                  "annotation": [],
                   "codes": {
+                    "type": "ValueSetRef",
+                    "localId": "251",
                     "locator": "25:15-25:23",
                     "name": "test-vs",
-                    "type": "ValueSetRef"
-                  }
+                    "preserve": true,
+                    "annotation": []
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
                 }
               }
             ],
+            "let": [],
             "relationship": [],
             "where": {
-              "localId": "23",
-              "locator": "25:28-25:46",
               "type": "Equal",
+              "localId": "256",
+              "locator": "25:28-25:46",
+              "annotation": [],
+              "signature": [],
               "operand": [
                 {
+                  "type": "FunctionRef",
+                  "localId": "261",
                   "name": "ToString",
                   "libraryName": "FHIRHelpers",
-                  "type": "FunctionRef",
+                  "annotation": [],
+                  "signature": [],
                   "operand": [
                     {
-                      "localId": "21",
+                      "type": "Property",
+                      "localId": "258",
                       "locator": "25:34-25:37",
                       "path": "id",
                       "scope": "C",
-                      "type": "Property"
+                      "annotation": []
                     }
                   ]
                 },
                 {
-                  "localId": "22",
+                  "type": "Literal",
+                  "localId": "259",
                   "locator": "25:41-25:46",
                   "valueType": "{urn:hl7-org:elm-types:r1}String",
                   "value": "test",
-                  "type": "Literal"
+                  "annotation": []
                 }
               ]
             }
           }
         },
         {
-          "localId": "27",
+          "localId": "265",
           "locator": "27:1-28:20",
           "name": "SimpleExpressionRef",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "27",
+                "r": "265",
                 "s": [
                   {
                     "value": [
@@ -754,7 +837,7 @@
                     ]
                   },
                   {
-                    "r": "26",
+                    "r": "266",
                     "s": [
                       {
                         "value": [
@@ -768,23 +851,25 @@
             }
           ],
           "expression": {
-            "localId": "26",
+            "type": "ExpressionRef",
+            "localId": "266",
             "locator": "28:3-28:20",
             "name": "SimpleVSRetrieve",
-            "type": "ExpressionRef"
+            "annotation": []
           }
         },
         {
-          "localId": "30",
+          "localId": "269",
           "locator": "30:1-31:30",
           "name": "DepExpressionRef",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "30",
+                "r": "269",
                 "s": [
                   {
                     "value": [
@@ -795,10 +880,10 @@
                     ]
                   },
                   {
-                    "r": "29",
+                    "r": "271",
                     "s": [
                       {
-                        "r": "28",
+                        "r": "270",
                         "s": [
                           {
                             "value": [
@@ -813,7 +898,7 @@
                         ]
                       },
                       {
-                        "r": "29",
+                        "r": "271",
                         "s": [
                           {
                             "value": [
@@ -829,24 +914,26 @@
             }
           ],
           "expression": {
-            "localId": "29",
+            "type": "ExpressionRef",
+            "localId": "271",
             "locator": "31:3-31:30",
             "name": "SimpleRetrieve",
             "libraryName": "SimpleDep",
-            "type": "ExpressionRef"
+            "annotation": []
           }
         },
         {
-          "localId": "32",
+          "localId": "274",
           "locator": "33:1-34:29",
           "name": "SimpleConceptRetrieve",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "32",
+                "r": "274",
                 "s": [
                   {
                     "value": [
@@ -857,7 +944,7 @@
                     ]
                   },
                   {
-                    "r": "31",
+                    "r": "277",
                     "s": [
                       {
                         "value": [
@@ -887,26 +974,35 @@
             }
           ],
           "expression": {
-            "localId": "31",
+            "type": "Retrieve",
+            "localId": "277",
             "locator": "34:3-34:29",
             "dataType": "{http://hl7.org/fhir}Procedure",
             "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
             "codeProperty": "code",
             "codeComparator": "~",
-            "type": "Retrieve",
+            "annotation": [],
             "codes": {
-              "path": "codes",
               "type": "Property",
+              "localId": "281",
+              "path": "codes",
+              "annotation": [],
               "source": {
+                "type": "ConceptRef",
+                "localId": "276",
                 "locator": "34:15-34:28",
                 "name": "test-concept",
-                "type": "ConceptRef"
+                "annotation": []
               }
-            }
+            },
+            "include": [],
+            "codeFilter": [],
+            "dateFilter": [],
+            "otherFilter": []
           }
         },
         {
-          "localId": "40",
+          "localId": "292",
           "locator": "43:1-45:32",
           "name": "Retrieve Query",
           "context": "Unfiltered",
@@ -914,8 +1010,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "40",
+                "r": "292",
                 "s": [
                   {
                     "value": [
@@ -926,18 +1023,18 @@
                     ]
                   },
                   {
-                    "r": "39",
+                    "r": "306",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "34",
+                            "r": "293",
                             "s": [
                               {
-                                "r": "33",
+                                "r": "296",
                                 "s": [
                                   {
-                                    "r": "33",
+                                    "r": "296",
                                     "s": [
                                       {
                                         "value": [
@@ -980,7 +1077,7 @@
                         ]
                       },
                       {
-                        "r": "38",
+                        "r": "300",
                         "s": [
                           {
                             "value": [
@@ -988,13 +1085,13 @@
                             ]
                           },
                           {
-                            "r": "38",
+                            "r": "300",
                             "s": [
                               {
-                                "r": "36",
+                                "r": "302",
                                 "s": [
                                   {
-                                    "r": "35",
+                                    "r": "301",
                                     "s": [
                                       {
                                         "value": [
@@ -1009,7 +1106,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "36",
+                                    "r": "302",
                                     "s": [
                                       {
                                         "value": [
@@ -1028,7 +1125,7 @@
                                 ]
                               },
                               {
-                                "r": "37",
+                                "r": "303",
                                 "s": [
                                   {
                                     "value": [
@@ -1048,63 +1145,81 @@
             }
           ],
           "expression": {
-            "localId": "39",
-            "locator": "44:3-45:32",
             "type": "Query",
+            "localId": "306",
+            "locator": "44:3-45:32",
+            "annotation": [],
             "source": [
               {
-                "localId": "34",
+                "localId": "293",
                 "locator": "44:3-44:26",
                 "alias": "P",
+                "annotation": [],
                 "expression": {
-                  "localId": "33",
+                  "type": "Retrieve",
+                  "localId": "296",
                   "locator": "44:3-44:24",
                   "dataType": "{http://hl7.org/fhir}Procedure",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
                   "codeProperty": "code",
                   "codeComparator": "in",
-                  "type": "Retrieve",
+                  "annotation": [],
                   "codes": {
+                    "type": "ValueSetRef",
+                    "localId": "295",
                     "locator": "44:15-44:23",
                     "name": "test-vs",
-                    "type": "ValueSetRef"
-                  }
+                    "preserve": true,
+                    "annotation": []
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
                 }
               }
             ],
+            "let": [],
             "relationship": [],
             "where": {
-              "localId": "38",
-              "locator": "45:5-45:32",
               "type": "Equal",
+              "localId": "300",
+              "locator": "45:5-45:32",
+              "annotation": [],
+              "signature": [],
               "operand": [
                 {
+                  "type": "FunctionRef",
+                  "localId": "305",
                   "name": "ToString",
                   "libraryName": "FHIRHelpers",
-                  "type": "FunctionRef",
+                  "annotation": [],
+                  "signature": [],
                   "operand": [
                     {
-                      "localId": "36",
+                      "type": "Property",
+                      "localId": "302",
                       "locator": "45:11-45:18",
                       "path": "status",
                       "scope": "P",
-                      "type": "Property"
+                      "annotation": []
                     }
                   ]
                 },
                 {
-                  "localId": "37",
+                  "type": "Literal",
+                  "localId": "303",
                   "locator": "45:22-45:32",
                   "valueType": "{urn:hl7-org:elm-types:r1}String",
                   "value": "completed",
-                  "type": "Literal"
+                  "annotation": []
                 }
               ]
             }
           }
         },
         {
-          "localId": "47",
+          "localId": "288",
           "locator": "39:1-41:31",
           "name": "Further Filtering Query",
           "context": "Unfiltered",
@@ -1112,8 +1227,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "47",
+                "r": "288",
                 "s": [
                   {
                     "value": [
@@ -1124,15 +1240,15 @@
                     ]
                   },
                   {
-                    "r": "46",
+                    "r": "313",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "42",
+                            "r": "289",
                             "s": [
                               {
-                                "r": "41",
+                                "r": "307",
                                 "s": [
                                   {
                                     "s": [
@@ -1161,7 +1277,7 @@
                         ]
                       },
                       {
-                        "r": "45",
+                        "r": "312",
                         "s": [
                           {
                             "value": [
@@ -1169,13 +1285,13 @@
                             ]
                           },
                           {
-                            "r": "45",
+                            "r": "312",
                             "s": [
                               {
-                                "r": "44",
+                                "r": "310",
                                 "s": [
                                   {
-                                    "r": "43",
+                                    "r": "309",
                                     "s": [
                                       {
                                         "value": [
@@ -1190,7 +1306,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "44",
+                                    "r": "310",
                                     "s": [
                                       {
                                         "value": [
@@ -1217,52 +1333,63 @@
             }
           ],
           "expression": {
-            "localId": "46",
-            "locator": "40:3-41:31",
             "type": "Query",
+            "localId": "313",
+            "locator": "40:3-41:31",
+            "annotation": [],
             "source": [
               {
-                "localId": "42",
+                "localId": "289",
                 "locator": "40:3-40:20",
                 "alias": "P",
+                "annotation": [],
                 "expression": {
-                  "localId": "41",
+                  "type": "ExpressionRef",
+                  "localId": "307",
                   "locator": "40:3-40:18",
                   "name": "Retrieve Query",
-                  "type": "ExpressionRef"
+                  "annotation": []
                 }
               }
             ],
+            "let": [],
             "relationship": [],
             "where": {
-              "localId": "45",
-              "locator": "41:5-41:31",
               "type": "Not",
+              "localId": "312",
+              "locator": "41:5-41:31",
+              "annotation": [],
+              "signature": [],
               "operand": {
-                "locator": "41:11-41:31",
                 "type": "IsNull",
+                "localId": "311",
+                "locator": "41:11-41:31",
+                "annotation": [],
+                "signature": [],
                 "operand": {
-                  "localId": "44",
+                  "type": "Property",
+                  "localId": "310",
                   "locator": "41:11-41:19",
                   "path": "outcome",
                   "scope": "P",
-                  "type": "Property"
+                  "annotation": []
                 }
               }
             }
           }
         },
         {
-          "localId": "50",
+          "localId": "284",
           "locator": "36:1-37:34",
           "name": "Use Further Filtering",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "50",
+                "r": "284",
                 "s": [
                   {
                     "value": [
@@ -1273,7 +1400,7 @@
                     ]
                   },
                   {
-                    "r": "49",
+                    "r": "285",
                     "s": [
                       {
                         "value": [
@@ -1281,7 +1408,7 @@
                         ]
                       },
                       {
-                        "r": "48",
+                        "r": "314",
                         "s": [
                           {
                             "value": [
@@ -1297,28 +1424,32 @@
             }
           ],
           "expression": {
-            "localId": "49",
-            "locator": "37:3-37:34",
             "type": "Exists",
+            "localId": "285",
+            "locator": "37:3-37:34",
+            "annotation": [],
+            "signature": [],
             "operand": {
-              "localId": "48",
+              "type": "ExpressionRef",
+              "localId": "314",
               "locator": "37:10-37:34",
               "name": "Further Filtering Query",
-              "type": "ExpressionRef"
+              "annotation": []
             }
           }
         },
         {
-          "localId": "58",
+          "localId": "317",
           "locator": "47:1-49:32",
           "name": "Retrieve Using ValueSet In Dependency",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "58",
+                "r": "317",
                 "s": [
                   {
                     "value": [
@@ -1329,18 +1460,18 @@
                     ]
                   },
                   {
-                    "r": "57",
+                    "r": "332",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "52",
+                            "r": "318",
                             "s": [
                               {
-                                "r": "51",
+                                "r": "322",
                                 "s": [
                                   {
-                                    "r": "51",
+                                    "r": "322",
                                     "s": [
                                       {
                                         "value": [
@@ -1385,7 +1516,7 @@
                         ]
                       },
                       {
-                        "r": "56",
+                        "r": "326",
                         "s": [
                           {
                             "value": [
@@ -1393,13 +1524,13 @@
                             ]
                           },
                           {
-                            "r": "56",
+                            "r": "326",
                             "s": [
                               {
-                                "r": "54",
+                                "r": "328",
                                 "s": [
                                   {
-                                    "r": "53",
+                                    "r": "327",
                                     "s": [
                                       {
                                         "value": [
@@ -1414,7 +1545,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "54",
+                                    "r": "328",
                                     "s": [
                                       {
                                         "value": [
@@ -1433,7 +1564,7 @@
                                 ]
                               },
                               {
-                                "r": "55",
+                                "r": "329",
                                 "s": [
                                   {
                                     "value": [
@@ -1453,73 +1584,92 @@
             }
           ],
           "expression": {
-            "localId": "57",
-            "locator": "48:3-49:32",
             "type": "Query",
+            "localId": "332",
+            "locator": "48:3-49:32",
+            "annotation": [],
             "source": [
               {
-                "localId": "52",
+                "localId": "318",
                 "locator": "48:3-48:38",
                 "alias": "P",
+                "annotation": [],
                 "expression": {
-                  "localId": "51",
+                  "type": "Retrieve",
+                  "localId": "322",
                   "locator": "48:3-48:36",
                   "dataType": "{http://hl7.org/fhir}Procedure",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Procedure",
                   "codeProperty": "code",
                   "codeComparator": "in",
-                  "type": "Retrieve",
+                  "annotation": [],
                   "codes": {
+                    "type": "ValueSetRef",
+                    "localId": "321",
                     "locator": "48:15-48:35",
                     "name": "test-vs-2",
                     "libraryName": "SimpleDep",
-                    "type": "ValueSetRef"
-                  }
+                    "preserve": true,
+                    "annotation": []
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
                 }
               }
             ],
+            "let": [],
             "relationship": [],
             "where": {
-              "localId": "56",
-              "locator": "49:5-49:32",
               "type": "Equal",
+              "localId": "326",
+              "locator": "49:5-49:32",
+              "annotation": [],
+              "signature": [],
               "operand": [
                 {
+                  "type": "FunctionRef",
+                  "localId": "331",
                   "name": "ToString",
                   "libraryName": "FHIRHelpers",
-                  "type": "FunctionRef",
+                  "annotation": [],
+                  "signature": [],
                   "operand": [
                     {
-                      "localId": "54",
+                      "type": "Property",
+                      "localId": "328",
                       "locator": "49:11-49:18",
                       "path": "status",
                       "scope": "P",
-                      "type": "Property"
+                      "annotation": []
                     }
                   ]
                 },
                 {
-                  "localId": "55",
+                  "type": "Literal",
+                  "localId": "329",
                   "locator": "49:22-49:32",
                   "valueType": "{urn:hl7-org:elm-types:r1}String",
                   "value": "completed",
-                  "type": "Literal"
+                  "annotation": []
                 }
               ]
             }
           }
         },
         {
-          "localId": "66",
+          "localId": "335",
           "locator": "51:1-53:32",
           "name": "Nested Query From Another Library",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "66",
+                "r": "335",
                 "s": [
                   {
                     "value": [
@@ -1530,15 +1680,15 @@
                     ]
                   },
                   {
-                    "r": "65",
+                    "r": "346",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "60",
+                            "r": "336",
                             "s": [
                               {
-                                "r": "59",
+                                "r": "338",
                                 "s": [
                                   {
                                     "s": [
@@ -1569,7 +1719,7 @@
                         ]
                       },
                       {
-                        "r": "64",
+                        "r": "340",
                         "s": [
                           {
                             "value": [
@@ -1577,13 +1727,13 @@
                             ]
                           },
                           {
-                            "r": "64",
+                            "r": "340",
                             "s": [
                               {
-                                "r": "62",
+                                "r": "342",
                                 "s": [
                                   {
-                                    "r": "61",
+                                    "r": "341",
                                     "s": [
                                       {
                                         "value": [
@@ -1598,7 +1748,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "62",
+                                    "r": "342",
                                     "s": [
                                       {
                                         "value": [
@@ -1617,7 +1767,7 @@
                                 ]
                               },
                               {
-                                "r": "63",
+                                "r": "343",
                                 "s": [
                                   {
                                     "value": [
@@ -1637,65 +1787,77 @@
             }
           ],
           "expression": {
-            "localId": "65",
-            "locator": "52:3-53:32",
             "type": "Query",
+            "localId": "346",
+            "locator": "52:3-53:32",
+            "annotation": [],
             "source": [
               {
-                "localId": "60",
+                "localId": "336",
                 "locator": "52:3-52:27",
                 "alias": "S",
+                "annotation": [],
                 "expression": {
-                  "localId": "59",
+                  "type": "ExpressionRef",
+                  "localId": "338",
                   "locator": "52:3-52:25",
                   "name": "SimpleQuery",
                   "libraryName": "SimpleDep",
-                  "type": "ExpressionRef"
+                  "annotation": []
                 }
               }
             ],
+            "let": [],
             "relationship": [],
             "where": {
-              "localId": "64",
-              "locator": "53:5-53:32",
               "type": "Equal",
+              "localId": "340",
+              "locator": "53:5-53:32",
+              "annotation": [],
+              "signature": [],
               "operand": [
                 {
+                  "type": "FunctionRef",
+                  "localId": "345",
                   "name": "ToString",
                   "libraryName": "FHIRHelpers",
-                  "type": "FunctionRef",
+                  "annotation": [],
+                  "signature": [],
                   "operand": [
                     {
-                      "localId": "62",
+                      "type": "Property",
+                      "localId": "342",
                       "locator": "53:11-53:18",
                       "path": "status",
                       "scope": "S",
-                      "type": "Property"
+                      "annotation": []
                     }
                   ]
                 },
                 {
-                  "localId": "63",
+                  "type": "Literal",
+                  "localId": "343",
                   "locator": "53:22-53:32",
                   "valueType": "{urn:hl7-org:elm-types:r1}String",
                   "value": "completed",
-                  "type": "Literal"
+                  "annotation": []
                 }
               ]
             }
           }
         },
         {
-          "localId": "71",
+          "localId": "349",
           "locator": "55:1-56:42",
           "name": "Last of Referenced Query is Null",
-          "context": "Patient",
+          "context": "Unfiltered",
           "accessLevel": "Public",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "71",
+                "r": "349",
                 "s": [
                   {
                     "value": [
@@ -1706,13 +1868,13 @@
                     ]
                   },
                   {
-                    "r": "70",
+                    "r": "355",
                     "s": [
                       {
-                        "r": "69",
+                        "r": "354",
                         "s": [
                           {
-                            "r": "68",
+                            "r": "353",
                             "s": [
                               {
                                 "value": [
@@ -1721,7 +1883,7 @@
                                 ]
                               },
                               {
-                                "r": "67",
+                                "r": "350",
                                 "s": [
                                   {
                                     "value": [
@@ -1743,7 +1905,7 @@
                             ]
                           },
                           {
-                            "r": "69",
+                            "r": "354",
                             "s": [
                               {
                                 "value": [
@@ -1766,23 +1928,29 @@
             }
           ],
           "expression": {
-            "localId": "70",
-            "locator": "56:3-56:42",
             "type": "IsNull",
+            "localId": "355",
+            "locator": "56:3-56:42",
+            "annotation": [],
+            "signature": [],
             "operand": {
-              "localId": "69",
+              "type": "Property",
+              "localId": "354",
               "locator": "56:3-56:34",
               "path": "recordedDate",
-              "type": "Property",
+              "annotation": [],
               "source": {
-                "localId": "68",
-                "locator": "56:3-56:21",
                 "type": "Last",
+                "localId": "353",
+                "locator": "56:3-56:21",
+                "annotation": [],
+                "signature": [],
                 "source": {
-                  "localId": "67",
+                  "type": "ExpressionRef",
+                  "localId": "350",
                   "locator": "56:8-56:20",
                   "name": "SimpleQuery",
-                  "type": "ExpressionRef"
+                  "annotation": []
                 }
               }
             }

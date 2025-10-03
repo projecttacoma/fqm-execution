@@ -1,15 +1,18 @@
 {
   "library": {
+    "localId": "0",
     "annotation": [
       {
-        "translatorVersion": "2.10.0",
-        "translatorOptions": "EnableAnnotations,EnableLocators",
-        "type": "CqlToElmInfo"
+        "type": "CqlToElmInfo",
+        "translatorVersion": "4.0.0-SNAPSHOT",
+        "translatorOptions": "EnableLocators,EnableAnnotations",
+        "signatureLevel": "None"
       },
       {
         "type": "Annotation",
+        "t": [],
         "s": {
-          "r": "20",
+          "r": "223",
           "s": [
             {
               "value": [
@@ -31,11 +34,13 @@
     "usings": {
       "def": [
         {
+          "localId": "1",
           "localIdentifier": "System",
-          "uri": "urn:hl7-org:elm-types:r1"
+          "uri": "urn:hl7-org:elm-types:r1",
+          "annotation": []
         },
         {
-          "localId": "1",
+          "localId": "206",
           "locator": "3:1-3:26",
           "localIdentifier": "FHIR",
           "uri": "http://hl7.org/fhir",
@@ -43,8 +48,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "1",
+                "r": "206",
                 "s": [
                   {
                     "value": [
@@ -63,8 +69,7 @@
                   },
                   {
                     "value": [
-                      " version ",
-                      "'4.0.1'"
+                      " version '4.0.1'"
                     ]
                   }
                 ]
@@ -77,7 +82,7 @@
     "includes": {
       "def": [
         {
-          "localId": "2",
+          "localId": "208",
           "locator": "5:1-5:35",
           "localIdentifier": "FHIRHelpers",
           "path": "FHIRHelpers",
@@ -85,8 +90,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "2",
+                "r": "208",
                 "s": [
                   {
                     "value": [
@@ -119,29 +125,42 @@
     "contexts": {
       "def": [
         {
+          "localId": "213",
           "locator": "7:1-7:15",
-          "name": "Patient"
+          "name": "Patient",
+          "annotation": []
         }
       ]
     },
     "statements": {
       "def": [
         {
+          "localId": "211",
           "locator": "7:1-7:15",
           "name": "Patient",
           "context": "Patient",
+          "annotation": [],
           "expression": {
             "type": "SingletonFrom",
+            "localId": "212",
+            "annotation": [],
+            "signature": [],
             "operand": {
+              "type": "Retrieve",
+              "localId": "210",
               "locator": "7:1-7:15",
               "dataType": "{http://hl7.org/fhir}Patient",
               "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
-              "type": "Retrieve"
+              "annotation": [],
+              "include": [],
+              "codeFilter": [],
+              "dateFilter": [],
+              "otherFilter": []
             }
           }
         },
         {
-          "localId": "5",
+          "localId": "216",
           "locator": "9:1-10:24",
           "name": "First Observation",
           "context": "Patient",
@@ -149,8 +168,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "5",
+                "r": "216",
                 "s": [
                   {
                     "value": [
@@ -161,7 +181,7 @@
                     ]
                   },
                   {
-                    "r": "4",
+                    "r": "220",
                     "s": [
                       {
                         "value": [
@@ -170,7 +190,7 @@
                         ]
                       },
                       {
-                        "r": "3",
+                        "r": "217",
                         "s": [
                           {
                             "value": [
@@ -193,20 +213,27 @@
             }
           ],
           "expression": {
-            "localId": "4",
-            "locator": "10:5-10:24",
             "type": "First",
+            "localId": "220",
+            "locator": "10:5-10:24",
+            "annotation": [],
+            "signature": [],
             "source": {
-              "localId": "3",
+              "type": "Retrieve",
+              "localId": "217",
               "locator": "10:11-10:23",
               "dataType": "{http://hl7.org/fhir}Observation",
               "templateId": "http://hl7.org/fhir/StructureDefinition/Observation",
-              "type": "Retrieve"
+              "annotation": [],
+              "include": [],
+              "codeFilter": [],
+              "dateFilter": [],
+              "otherFilter": []
             }
           }
         },
         {
-          "localId": "20",
+          "localId": "223",
           "locator": "12:1-17:7",
           "name": "Case",
           "context": "Patient",
@@ -214,8 +241,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "20",
+                "r": "223",
                 "s": [
                   {
                     "value": [
@@ -226,7 +254,7 @@
                     ]
                   },
                   {
-                    "r": "19",
+                    "r": "224",
                     "s": [
                       {
                         "value": [
@@ -234,7 +262,7 @@
                         ]
                       },
                       {
-                        "r": "11",
+                        "r": "225",
                         "s": [
                           {
                             "value": [
@@ -242,13 +270,13 @@
                             ]
                           },
                           {
-                            "r": "9",
+                            "r": "226",
                             "s": [
                               {
-                                "r": "7",
+                                "r": "228",
                                 "s": [
                                   {
-                                    "r": "6",
+                                    "r": "227",
                                     "s": [
                                       {
                                         "value": [
@@ -263,7 +291,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "7",
+                                    "r": "228",
                                     "s": [
                                       {
                                         "value": [
@@ -275,7 +303,7 @@
                                 ]
                               },
                               {
-                                "r": "8",
+                                "r": "229",
                                 "value": [
                                   " ",
                                   ">",
@@ -286,7 +314,7 @@
                             ]
                           },
                           {
-                            "r": "10",
+                            "r": "232",
                             "value": [
                               " then ",
                               "true"
@@ -300,7 +328,7 @@
                         ]
                       },
                       {
-                        "r": "17",
+                        "r": "233",
                         "s": [
                           {
                             "value": [
@@ -308,13 +336,13 @@
                             ]
                           },
                           {
-                            "r": "15",
+                            "r": "234",
                             "s": [
                               {
-                                "r": "13",
+                                "r": "236",
                                 "s": [
                                   {
-                                    "r": "12",
+                                    "r": "235",
                                     "s": [
                                       {
                                         "value": [
@@ -329,7 +357,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "13",
+                                    "r": "236",
                                     "s": [
                                       {
                                         "value": [
@@ -341,7 +369,7 @@
                                 ]
                               },
                               {
-                                "r": "14",
+                                "r": "237",
                                 "value": [
                                   " ",
                                   "<",
@@ -352,7 +380,7 @@
                             ]
                           },
                           {
-                            "r": "16",
+                            "r": "240",
                             "value": [
                               " then ",
                               "false"
@@ -361,7 +389,7 @@
                         ]
                       },
                       {
-                        "r": "18",
+                        "r": "241",
                         "value": [
                           "\n        else ",
                           "null",
@@ -375,114 +403,145 @@
             }
           ],
           "expression": {
-            "localId": "19",
-            "locator": "13:5-17:7",
             "type": "Case",
+            "localId": "224",
+            "locator": "13:5-17:7",
+            "annotation": [],
             "caseItem": [
               {
-                "localId": "11",
+                "localId": "225",
                 "locator": "14:9-14:53",
+                "annotation": [],
                 "when": {
-                  "localId": "9",
-                  "locator": "14:14-14:43",
                   "type": "Greater",
+                  "localId": "226",
+                  "locator": "14:14-14:43",
+                  "annotation": [],
+                  "signature": [],
                   "operand": [
                     {
+                      "type": "FunctionRef",
+                      "localId": "231",
                       "name": "ToInteger",
                       "libraryName": "FHIRHelpers",
-                      "type": "FunctionRef",
+                      "annotation": [],
+                      "signature": [],
                       "operand": [
                         {
-                          "asType": "{http://hl7.org/fhir}integer",
                           "type": "As",
+                          "localId": "230",
+                          "asType": "{http://hl7.org/fhir}integer",
+                          "annotation": [],
+                          "signature": [],
                           "operand": {
-                            "localId": "7",
+                            "type": "Property",
+                            "localId": "228",
                             "locator": "14:14-14:38",
                             "path": "value",
-                            "type": "Property",
+                            "annotation": [],
                             "source": {
-                              "localId": "6",
+                              "type": "ExpressionRef",
+                              "localId": "227",
                               "locator": "14:14-14:32",
                               "name": "First Observation",
-                              "type": "ExpressionRef"
+                              "annotation": []
                             }
                           }
                         }
                       ]
                     },
                     {
-                      "localId": "8",
+                      "type": "Literal",
+                      "localId": "229",
                       "locator": "14:42-14:43",
                       "valueType": "{urn:hl7-org:elm-types:r1}Integer",
                       "value": "10",
-                      "type": "Literal"
+                      "annotation": []
                     }
                   ]
                 },
                 "then": {
-                  "localId": "10",
+                  "type": "Literal",
+                  "localId": "232",
                   "locator": "14:50-14:53",
                   "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
                   "value": "true",
-                  "type": "Literal"
+                  "annotation": []
                 }
               },
               {
-                "localId": "17",
+                "localId": "233",
                 "locator": "15:9-15:54",
+                "annotation": [],
                 "when": {
-                  "localId": "15",
-                  "locator": "15:14-15:43",
                   "type": "Less",
+                  "localId": "234",
+                  "locator": "15:14-15:43",
+                  "annotation": [],
+                  "signature": [],
                   "operand": [
                     {
+                      "type": "FunctionRef",
+                      "localId": "239",
                       "name": "ToInteger",
                       "libraryName": "FHIRHelpers",
-                      "type": "FunctionRef",
+                      "annotation": [],
+                      "signature": [],
                       "operand": [
                         {
-                          "asType": "{http://hl7.org/fhir}integer",
                           "type": "As",
+                          "localId": "238",
+                          "asType": "{http://hl7.org/fhir}integer",
+                          "annotation": [],
+                          "signature": [],
                           "operand": {
-                            "localId": "13",
+                            "type": "Property",
+                            "localId": "236",
                             "locator": "15:14-15:38",
                             "path": "value",
-                            "type": "Property",
+                            "annotation": [],
                             "source": {
-                              "localId": "12",
+                              "type": "ExpressionRef",
+                              "localId": "235",
                               "locator": "15:14-15:32",
                               "name": "First Observation",
-                              "type": "ExpressionRef"
+                              "annotation": []
                             }
                           }
                         }
                       ]
                     },
                     {
-                      "localId": "14",
+                      "type": "Literal",
+                      "localId": "237",
                       "locator": "15:42-15:43",
                       "valueType": "{urn:hl7-org:elm-types:r1}Integer",
                       "value": "10",
-                      "type": "Literal"
+                      "annotation": []
                     }
                   ]
                 },
                 "then": {
-                  "localId": "16",
+                  "type": "Literal",
+                  "localId": "240",
                   "locator": "15:50-15:54",
                   "valueType": "{urn:hl7-org:elm-types:r1}Boolean",
                   "value": "false",
-                  "type": "Literal"
+                  "annotation": []
                 }
               }
             ],
             "else": {
-              "asType": "{urn:hl7-org:elm-types:r1}Boolean",
               "type": "As",
+              "localId": "242",
+              "asType": "{urn:hl7-org:elm-types:r1}Boolean",
+              "annotation": [],
+              "signature": [],
               "operand": {
-                "localId": "18",
+                "type": "Null",
+                "localId": "241",
                 "locator": "16:14-16:17",
-                "type": "Null"
+                "annotation": []
               }
             }
           }

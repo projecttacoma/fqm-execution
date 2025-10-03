@@ -14,8 +14,8 @@ describe('ClauseResultsHelpers', () => {
       // For the fixture loaded for this test it is known that the localId for the Equivalent statement
       // is 23 and the localId for the Not expression is 24. We want 23 to not be included because 24 is
       // the correct id from the annotation.
-      expect(localIds[23]).not.toBeDefined();
-      expect(localIds[24]).toBeDefined();
+      expect(localIds[247]).not.toBeDefined();
+      expect(localIds[252]).toBeDefined();
     });
 
     test('finds localIds for sort by', () => {
@@ -27,8 +27,8 @@ describe('ClauseResultsHelpers', () => {
       // For the fixture loaded it is known that the rootStatement.expression.localId is 231
       // 231 should be used as the sourceLocalId for the sort localId rather than
       // the rootStatement.localId which is 238
-      expect(localIds[227]).toBeDefined();
-      expect(localIds[227]).toEqual({ localId: '227', sourceLocalId: '231' });
+      expect(localIds[232]).toBeDefined();
+      expect(localIds[232]).toEqual({ localId: '232', sourceLocalId: '236' });
     });
 
     test('finds localIds for an Equal comparison operator that is wrapped in a Not expression', () => {
@@ -43,8 +43,8 @@ describe('ClauseResultsHelpers', () => {
       // For the fixture loaded for this test it is known that the localId for the Equal statement
       // is 100, and the localId for the Not expression is 23. We want 100 to not be included because 23 is
       // the correct id from the annotation.
-      expect(localIds[23]).toBeDefined();
-      expect(localIds[100]).not.toBeDefined();
+      expect(localIds[253]).toBeDefined();
+      expect(localIds[247]).not.toBeDefined();
     });
 
     test('finds localIds for a not null operator', () => {
@@ -57,8 +57,8 @@ describe('ClauseResultsHelpers', () => {
       // For the fixture loaded for this test it is known that the localId for the IsNull statement
       // is 237, and the localId for the Not expression is 238. We want 237 to not be included because 238 is
       // the correct id from the annotation.
-      expect(localIds[238]).toBeDefined();
-      expect(localIds[237]).not.toBeDefined();
+      expect(localIds[250]).toBeDefined();
+      expect(localIds[249]).not.toBeDefined();
     });
 
     test('finds localIds for an ELM Binary Expression with a comparison operator with a literal', () => {
@@ -71,8 +71,8 @@ describe('ClauseResultsHelpers', () => {
       // For the fixture loaded for this test it is known that the localId for the literal is 10 and
       // the localId for the comparison expression itself is 11 so the sourceLocalId for the literal
       // should be 11
-      expect(localIds[10]).toBeDefined();
-      expect(localIds[10]).toEqual({ localId: '10', sourceLocalId: '11' });
+      expect(localIds[230]).toBeDefined();
+      expect(localIds[230]).toEqual({ localId: '230', sourceLocalId: '221' });
     });
 
     test('finds localIds for an ELM Binary Expression with a comparison operator without a literal', () => {
@@ -84,8 +84,8 @@ describe('ClauseResultsHelpers', () => {
 
       // For the fixture loaded for this test it is known that the ELM Binary Expression does not have a literal
       // so the localId for the right side of the comparison should just be 12 and not have a sourceLocalId
-      expect(localIds[12]).toBeDefined();
-      expect(localIds[12]).toEqual({ localId: '12' });
+      expect(localIds[234]).toBeDefined();
+      expect(localIds[234]).toEqual({ localId: '234' });
     });
 
     test('finds localIds for case statement items and properly finds sourceLocalId for them', () => {
@@ -93,8 +93,8 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, 'Case');
 
-      expect(localIds[11]).toEqual({ localId: '11', sourceLocalId: '9' });
-      expect(localIds[17]).toEqual({ localId: '17', sourceLocalId: '15' });
+      expect(localIds[225]).toEqual({ localId: '225', sourceLocalId: '226' });
+      expect(localIds[233]).toEqual({ localId: '233', sourceLocalId: '234' });
     });
 
     test('finds localIds for null literals and properly sets isFalsyLiteral to true', () => {
@@ -102,7 +102,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, 'Case');
 
-      expect(localIds[18]).toEqual({ localId: '18', isFalsyLiteral: true });
+      expect(localIds[241]).toEqual({ localId: '241', isFalsyLiteral: true });
     });
 
     test('finds localIds for false literals and properly sets isFalsyLiteral to true', () => {
@@ -110,7 +110,7 @@ describe('ClauseResultsHelpers', () => {
       const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, 'Case');
 
-      expect(localIds[16]).toEqual({ localId: '16', isFalsyLiteral: true });
+      expect(localIds[240]).toEqual({ localId: '240', isFalsyLiteral: true });
     });
 
     test('finds localIds for library FunctionRefs while finding localIds in statements', () => {
@@ -163,7 +163,7 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
-      expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
+      expect(localIds['225']).toEqual({ localId: '225', sourceLocalId: '222' });
     });
 
     test('should use original source localId on Property expression within FunctionRef', () => {
@@ -173,7 +173,7 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // '8' is in the annotations but not in the ELM. We use '9' as the localId from the actual expression and subtract one from it
-      expect(localIds['8']).toEqual({ localId: '8', sourceLocalId: '6' });
+      expect(localIds['224']).toEqual({ localId: '224', sourceLocalId: '222' });
     });
 
     test('should get the localIds for the query statement including the localId that is not in the ELM but is in the ELM annotation', () => {
@@ -183,8 +183,8 @@ describe('ClauseResultsHelpers', () => {
       const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, statementName);
 
       // '7' is in the annotations but not in the ELM. We use '8' as the localId from the actual expression and subtract one from it
-      expect(localIds[7]).toBeDefined();
-      expect(localIds['7']).toEqual({ localId: '7', sourceLocalId: '5' });
+      expect(localIds[224]).toBeDefined();
+      expect(localIds['224']).toEqual({ localId: '224', sourceLocalId: '222' });
     });
   });
 

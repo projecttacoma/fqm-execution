@@ -283,7 +283,10 @@ export function findAllLocalIdsInStatement(
       }
     } else if (k === 'localId') {
       // else if the key is localId, push the value
-      localIds[v] = { localId: v };
+      // unless the localId already exists in the structure
+      if (!localIds[v]) {
+        localIds[v] = { localId: v };
+      }
     } else if (Array.isArray(v) || typeof v === 'object') {
       // if the value is an array or object, recurse
       findAllLocalIdsInStatement(v, libraryName, annotation, localIds, aliasMap, emptyResultClauses, statement);

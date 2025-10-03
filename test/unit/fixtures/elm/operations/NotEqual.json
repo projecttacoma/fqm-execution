@@ -1,30 +1,30 @@
 {
   "library": {
+    "localId": "0",
     "annotation": [
       {
-        "translatorVersion": "2.11.0",
-        "translatorOptions": "EnableAnnotations,EnableLocators",
-        "type": "CqlToElmInfo"
+        "type": "CqlToElmInfo",
+        "translatorVersion": "4.0.0-SNAPSHOT",
+        "translatorOptions": "EnableLocators,EnableAnnotations",
+        "signatureLevel": "None"
       },
       {
-        "libraryId": "MATGlobalCommonFunctions",
-        "libraryVersion": "5.0.000",
-        "startLine": 277,
-        "startChar": 19,
-        "endLine": 277,
-        "endChar": 53,
-        "message": "Could not resolve membership operator for terminology target of the retrieve.",
+        "type": "CqlToElmError",
+        "message": "The function FHIRHelpers.ToString has multiple overloads and due to the SignatureLevel setting (None), the overload signature is not being included in the output. This may result in ambiguous function resolution at runtime, consider setting the SignatureLevel to Overloads or All to ensure that the output includes sufficient information to support correct overload selection at runtime.",
         "errorType": "semantic",
-        "errorSeverity": "warning",
-        "type": "CqlToElmError"
+        "errorSeverity": "warning"
       },
       {
         "type": "Annotation",
+        "t": [],
         "s": {
-          "r": "25",
+          "r": "239",
           "s": [
             {
-              "value": ["", "library Test"]
+              "value": [
+                "",
+                "library Test"
+              ]
             }
           ]
         }
@@ -40,11 +40,13 @@
     "usings": {
       "def": [
         {
+          "localId": "1",
           "localIdentifier": "System",
-          "uri": "urn:hl7-org:elm-types:r1"
+          "uri": "urn:hl7-org:elm-types:r1",
+          "annotation": []
         },
         {
-          "localId": "1",
+          "localId": "206",
           "locator": "3:1-3:26",
           "localIdentifier": "FHIR",
           "uri": "http://hl7.org/fhir",
@@ -52,21 +54,29 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "1",
+                "r": "206",
                 "s": [
                   {
-                    "value": ["", "using "]
+                    "value": [
+                      "",
+                      "using "
+                    ]
                   },
                   {
                     "s": [
                       {
-                        "value": ["FHIR"]
+                        "value": [
+                          "FHIR"
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [" version ", "'4.0.1'"]
+                    "value": [
+                      " version '4.0.1'"
+                    ]
                   }
                 ]
               }
@@ -78,7 +88,7 @@
     "includes": {
       "def": [
         {
-          "localId": "2",
+          "localId": "208",
           "locator": "5:1-5:35",
           "localIdentifier": "FHIRHelpers",
           "path": "FHIRHelpers",
@@ -86,21 +96,30 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "2",
+                "r": "208",
                 "s": [
                   {
-                    "value": ["", "include "]
+                    "value": [
+                      "",
+                      "include "
+                    ]
                   },
                   {
                     "s": [
                       {
-                        "value": ["FHIRHelpers"]
+                        "value": [
+                          "FHIRHelpers"
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [" version ", "'4.0.1'"]
+                    "value": [
+                      " version ",
+                      "'4.0.1'"
+                    ]
                   }
                 ]
               }
@@ -108,7 +127,7 @@
           ]
         },
         {
-          "localId": "3",
+          "localId": "210",
           "locator": "6:1-6:64",
           "localIdentifier": "Global",
           "path": "MATGlobalCommonFunctions",
@@ -116,21 +135,32 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "3",
+                "r": "210",
                 "s": [
                   {
-                    "value": ["", "include "]
+                    "value": [
+                      "",
+                      "include "
+                    ]
                   },
                   {
                     "s": [
                       {
-                        "value": ["MATGlobalCommonFunctions"]
+                        "value": [
+                          "MATGlobalCommonFunctions"
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [" version ", "'5.0.000'", " called ", "Global"]
+                    "value": [
+                      " version ",
+                      "'5.0.000'",
+                      " called ",
+                      "Global"
+                    ]
                   }
                 ]
               }
@@ -142,7 +172,7 @@
     "codeSystems": {
       "def": [
         {
-          "localId": "4",
+          "localId": "212",
           "locator": "8:1-8:42",
           "name": "EXAMPLE",
           "id": "http://example.com",
@@ -150,11 +180,18 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "4",
+                "r": "212",
                 "s": [
                   {
-                    "value": ["", "codesystem ", "\"EXAMPLE\"", ": ", "'http://example.com'"]
+                    "value": [
+                      "",
+                      "codesystem ",
+                      "\"EXAMPLE\"",
+                      ": ",
+                      "'http://example.com'"
+                    ]
                   }
                 ]
               }
@@ -162,7 +199,7 @@
           ]
         },
         {
-          "localId": "5",
+          "localId": "214",
           "locator": "9:1-9:46",
           "name": "EXAMPLE-2",
           "id": "http://example.com/2",
@@ -170,11 +207,18 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "5",
+                "r": "214",
                 "s": [
                   {
-                    "value": ["", "codesystem ", "\"EXAMPLE-2\"", ": ", "'http://example.com/2'"]
+                    "value": [
+                      "",
+                      "codesystem ",
+                      "\"EXAMPLE-2\"",
+                      ": ",
+                      "'http://example.com/2'"
+                    ]
                   }
                 ]
               }
@@ -182,7 +226,7 @@
           ]
         },
         {
-          "localId": "6",
+          "localId": "216",
           "locator": "10:1-10:101",
           "name": "ConditionClinicalStatusCodes",
           "id": "http://terminology.hl7.org/CodeSystem/condition-clinical",
@@ -190,8 +234,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "6",
+                "r": "216",
                 "s": [
                   {
                     "value": [
@@ -212,7 +257,7 @@
     "valueSets": {
       "def": [
         {
-          "localId": "7",
+          "localId": "218",
           "locator": "12:1-12:48",
           "name": "test-vs",
           "id": "http://example.com/test-vs",
@@ -220,23 +265,31 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "7",
+                "r": "218",
                 "s": [
                   {
-                    "value": ["", "valueset ", "\"test-vs\"", ": ", "'http://example.com/test-vs'"]
+                    "value": [
+                      "",
+                      "valueset ",
+                      "\"test-vs\"",
+                      ": ",
+                      "'http://example.com/test-vs'"
+                    ]
                   }
                 ]
               }
             }
-          ]
+          ],
+          "codeSystem": []
         }
       ]
     },
     "codes": {
       "def": [
         {
-          "localId": "9",
+          "localId": "220",
           "locator": "14:1-14:59",
           "name": "Active",
           "id": "active",
@@ -244,17 +297,27 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "9",
+                "r": "220",
                 "s": [
                   {
-                    "value": ["", "code ", "\"Active\"", ": ", "'active'", " from "]
+                    "value": [
+                      "",
+                      "code ",
+                      "\"Active\"",
+                      ": ",
+                      "'active'",
+                      " from "
+                    ]
                   },
                   {
-                    "r": "8",
+                    "r": "221",
                     "s": [
                       {
-                        "value": ["\"ConditionClinicalStatusCodes\""]
+                        "value": [
+                          "\"ConditionClinicalStatusCodes\""
+                        ]
                       }
                     ]
                   }
@@ -263,13 +326,14 @@
             }
           ],
           "codeSystem": {
-            "localId": "8",
+            "localId": "221",
             "locator": "14:30-14:59",
-            "name": "ConditionClinicalStatusCodes"
+            "name": "ConditionClinicalStatusCodes",
+            "annotation": []
           }
         },
         {
-          "localId": "11",
+          "localId": "223",
           "locator": "15:1-15:67",
           "name": "Recurrence",
           "id": "recurrence",
@@ -277,17 +341,27 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "11",
+                "r": "223",
                 "s": [
                   {
-                    "value": ["", "code ", "\"Recurrence\"", ": ", "'recurrence'", " from "]
+                    "value": [
+                      "",
+                      "code ",
+                      "\"Recurrence\"",
+                      ": ",
+                      "'recurrence'",
+                      " from "
+                    ]
                   },
                   {
-                    "r": "10",
+                    "r": "224",
                     "s": [
                       {
-                        "value": ["\"ConditionClinicalStatusCodes\""]
+                        "value": [
+                          "\"ConditionClinicalStatusCodes\""
+                        ]
                       }
                     ]
                   }
@@ -296,13 +370,14 @@
             }
           ],
           "codeSystem": {
-            "localId": "10",
+            "localId": "224",
             "locator": "15:38-15:67",
-            "name": "ConditionClinicalStatusCodes"
+            "name": "ConditionClinicalStatusCodes",
+            "annotation": []
           }
         },
         {
-          "localId": "13",
+          "localId": "226",
           "locator": "16:1-16:61",
           "name": "Relapse",
           "id": "relapse",
@@ -310,17 +385,27 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "13",
+                "r": "226",
                 "s": [
                   {
-                    "value": ["", "code ", "\"Relapse\"", ": ", "'relapse'", " from "]
+                    "value": [
+                      "",
+                      "code ",
+                      "\"Relapse\"",
+                      ": ",
+                      "'relapse'",
+                      " from "
+                    ]
                   },
                   {
-                    "r": "12",
+                    "r": "227",
                     "s": [
                       {
-                        "value": ["\"ConditionClinicalStatusCodes\""]
+                        "value": [
+                          "\"ConditionClinicalStatusCodes\""
+                        ]
                       }
                     ]
                   }
@@ -329,9 +414,10 @@
             }
           ],
           "codeSystem": {
-            "localId": "12",
+            "localId": "227",
             "locator": "16:32-16:61",
-            "name": "ConditionClinicalStatusCodes"
+            "name": "ConditionClinicalStatusCodes",
+            "annotation": []
           }
         }
       ]
@@ -339,7 +425,7 @@
     "concepts": {
       "def": [
         {
-          "localId": "17",
+          "localId": "229",
           "locator": "18:1-18:82",
           "name": "Condition Active",
           "display": "Active",
@@ -347,44 +433,63 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "17",
+                "r": "229",
                 "s": [
                   {
-                    "value": ["", "concept ", "\"Condition Active\"", ": { "]
+                    "value": [
+                      "",
+                      "concept ",
+                      "\"Condition Active\"",
+                      ": { "
+                    ]
                   },
                   {
-                    "r": "14",
+                    "r": "230",
                     "s": [
                       {
-                        "value": ["\"Active\""]
+                        "value": [
+                          "\"Active\""
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [", "]
+                    "value": [
+                      ", "
+                    ]
                   },
                   {
-                    "r": "15",
+                    "r": "231",
                     "s": [
                       {
-                        "value": ["\"Recurrence\""]
+                        "value": [
+                          "\"Recurrence\""
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [", "]
+                    "value": [
+                      ", "
+                    ]
                   },
                   {
-                    "r": "16",
+                    "r": "232",
                     "s": [
                       {
-                        "value": ["\"Relapse\""]
+                        "value": [
+                          "\"Relapse\""
+                        ]
                       }
                     ]
                   },
                   {
-                    "value": [" } display ", "'Active'"]
+                    "value": [
+                      " } display ",
+                      "'Active'"
+                    ]
                   }
                 ]
               }
@@ -392,19 +497,22 @@
           ],
           "code": [
             {
-              "localId": "14",
+              "localId": "230",
               "locator": "18:31-18:38",
-              "name": "Active"
+              "name": "Active",
+              "annotation": []
             },
             {
-              "localId": "15",
+              "localId": "231",
               "locator": "18:41-18:52",
-              "name": "Recurrence"
+              "name": "Recurrence",
+              "annotation": []
             },
             {
-              "localId": "16",
+              "localId": "232",
               "locator": "18:55-18:63",
-              "name": "Relapse"
+              "name": "Relapse",
+              "annotation": []
             }
           ]
         }
@@ -413,29 +521,42 @@
     "contexts": {
       "def": [
         {
+          "localId": "236",
           "locator": "20:1-20:15",
-          "name": "Patient"
+          "name": "Patient",
+          "annotation": []
         }
       ]
     },
     "statements": {
       "def": [
         {
+          "localId": "234",
           "locator": "20:1-20:15",
           "name": "Patient",
           "context": "Patient",
+          "annotation": [],
           "expression": {
             "type": "SingletonFrom",
+            "localId": "235",
+            "annotation": [],
+            "signature": [],
             "operand": {
+              "type": "Retrieve",
+              "localId": "233",
               "locator": "20:1-20:15",
               "dataType": "{http://hl7.org/fhir}Patient",
               "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
-              "type": "Retrieve"
+              "annotation": [],
+              "include": [],
+              "codeFilter": [],
+              "dateFilter": [],
+              "otherFilter": []
             }
           }
         },
         {
-          "localId": "25",
+          "localId": "239",
           "locator": "22:1-24:29",
           "name": "Not Equal Clause",
           "context": "Patient",
@@ -443,94 +564,127 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "25",
+                "r": "239",
                 "s": [
                   {
-                    "value": ["", "define ", "\"Not Equal Clause\"", ":\n    "]
+                    "value": [
+                      "",
+                      "define ",
+                      "\"Not Equal Clause\"",
+                      ":\n    "
+                    ]
                   },
                   {
-                    "r": "24",
+                    "r": "254",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "19",
+                            "r": "240",
                             "s": [
                               {
-                                "r": "18",
+                                "r": "243",
                                 "s": [
                                   {
-                                    "r": "18",
+                                    "r": "243",
                                     "s": [
                                       {
-                                        "value": ["[", "Condition", ": "]
+                                        "value": [
+                                          "[",
+                                          "Condition",
+                                          ": "
+                                        ]
                                       },
                                       {
                                         "s": [
                                           {
-                                            "value": ["\"test-vs\""]
+                                            "value": [
+                                              "\"test-vs\""
+                                            ]
                                           }
                                         ]
                                       },
                                       {
-                                        "value": ["]"]
+                                        "value": [
+                                          "]"
+                                        ]
                                       }
                                     ]
                                   }
                                 ]
                               },
                               {
-                                "value": [" ", "C"]
+                                "value": [
+                                  " ",
+                                  "C"
+                                ]
                               }
                             ]
                           }
                         ]
                       },
                       {
-                        "value": ["\n        "]
+                        "value": [
+                          "\n        "
+                        ]
                       },
                       {
-                        "r": "23",
+                        "r": "253",
                         "s": [
                           {
-                            "value": ["where "]
+                            "value": [
+                              "where "
+                            ]
                           },
                           {
-                            "r": "23",
+                            "r": "253",
                             "s": [
                               {
-                                "r": "21",
+                                "r": "249",
                                 "s": [
                                   {
-                                    "r": "20",
+                                    "r": "248",
                                     "s": [
                                       {
-                                        "value": ["C"]
+                                        "value": [
+                                          "C"
+                                        ]
                                       }
                                     ]
                                   },
                                   {
-                                    "value": ["."]
+                                    "value": [
+                                      "."
+                                    ]
                                   },
                                   {
-                                    "r": "21",
+                                    "r": "249",
                                     "s": [
                                       {
-                                        "value": ["id"]
+                                        "value": [
+                                          "id"
+                                        ]
                                       }
                                     ]
                                   }
                                 ]
                               },
                               {
-                                "value": [" ", "!=", " "]
+                                "value": [
+                                  " ",
+                                  "!=",
+                                  " "
+                                ]
                               },
                               {
-                                "r": "22",
+                                "r": "250",
                                 "s": [
                                   {
-                                    "value": ["'notId'"]
+                                    "value": [
+                                      "'notId'"
+                                    ]
                                   }
                                 ]
                               }
@@ -545,61 +699,80 @@
             }
           ],
           "expression": {
-            "localId": "24",
-            "locator": "23:5-24:29",
             "type": "Query",
+            "localId": "254",
+            "locator": "23:5-24:29",
+            "annotation": [],
             "source": [
               {
-                "localId": "19",
+                "localId": "240",
                 "locator": "23:5-23:28",
                 "alias": "C",
+                "annotation": [],
                 "expression": {
-                  "localId": "18",
+                  "type": "Retrieve",
+                  "localId": "243",
                   "locator": "23:5-23:26",
                   "dataType": "{http://hl7.org/fhir}Condition",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
                   "codeProperty": "code",
                   "codeComparator": "in",
-                  "type": "Retrieve",
+                  "annotation": [],
                   "codes": {
+                    "type": "ValueSetRef",
+                    "localId": "242",
                     "locator": "23:17-23:25",
                     "name": "test-vs",
                     "preserve": true,
-                    "type": "ValueSetRef"
-                  }
+                    "annotation": []
+                  },
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
                 }
               }
             ],
+            "let": [],
             "relationship": [],
             "where": {
-              "localId": "23",
-              "locator": "24:9-24:29",
               "type": "Not",
+              "localId": "253",
+              "locator": "24:9-24:29",
+              "annotation": [],
+              "signature": [],
               "operand": {
-                "locator": "24:15-24:29",
-                "localId": "100",
                 "type": "Equal",
+                "localId": "247",
+                "locator": "24:15-24:29",
+                "annotation": [],
+                "signature": [],
                 "operand": [
                   {
+                    "type": "FunctionRef",
+                    "localId": "252",
                     "name": "ToString",
                     "libraryName": "FHIRHelpers",
-                    "type": "FunctionRef",
+                    "annotation": [],
+                    "signature": [],
                     "operand": [
                       {
-                        "localId": "21",
+                        "type": "Property",
+                        "localId": "249",
                         "locator": "24:15-24:18",
                         "path": "id",
                         "scope": "C",
-                        "type": "Property"
+                        "annotation": []
                       }
                     ]
                   },
                   {
-                    "localId": "22",
+                    "type": "Literal",
+                    "localId": "250",
                     "locator": "24:23-24:29",
                     "valueType": "{urn:hl7-org:elm-types:r1}String",
                     "value": "notId",
-                    "type": "Literal"
+                    "annotation": []
                   }
                 ]
               }

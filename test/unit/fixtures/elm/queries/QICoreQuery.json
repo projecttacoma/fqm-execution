@@ -1,15 +1,18 @@
 {
   "library": {
+    "localId": "0",
     "annotation": [
       {
-        "translatorVersion": "2.10.0",
-        "translatorOptions": "EnableAnnotations,EnableLocators",
-        "type": "CqlToElmInfo"
+        "type": "CqlToElmInfo",
+        "translatorVersion": "4.0.0-SNAPSHOT",
+        "translatorOptions": "EnableLocators,EnableAnnotations",
+        "signatureLevel": "None"
       },
       {
         "type": "Annotation",
+        "t": [],
         "s": {
-          "r": "12",
+          "r": "220",
           "s": [
             {
               "value": [
@@ -31,19 +34,22 @@
     "usings": {
       "def": [
         {
+          "localId": "1",
           "localIdentifier": "System",
-          "uri": "urn:hl7-org:elm-types:r1"
+          "uri": "urn:hl7-org:elm-types:r1",
+          "annotation": []
         },
         {
-          "localId": "1",
+          "localId": "206",
           "locator": "3:1-3:28",
           "localIdentifier": "QICore",
           "uri": "http://hl7.org/fhir",
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "1",
+                "r": "206",
                 "s": [
                   {
                     "value": [
@@ -62,8 +68,7 @@
                   },
                   {
                     "value": [
-                      " version ",
-                      "'4.1.1'"
+                      " version '4.1.1'"
                     ]
                   }
                 ]
@@ -76,7 +81,7 @@
     "includes": {
       "def": [
         {
-          "localId": "2",
+          "localId": "208",
           "locator": "5:1-5:35",
           "localIdentifier": "FHIRHelpers",
           "path": "FHIRHelpers",
@@ -84,8 +89,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "2",
+                "r": "208",
                 "s": [
                   {
                     "value": [
@@ -118,7 +124,7 @@
     "codeSystems": {
       "def": [
         {
-          "localId": "3",
+          "localId": "210",
           "locator": "7:1-7:42",
           "name": "EXAMPLE",
           "id": "http://example.com",
@@ -126,8 +132,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "3",
+                "r": "210",
                 "s": [
                   {
                     "value": [
@@ -148,7 +155,7 @@
     "valueSets": {
       "def": [
         {
-          "localId": "4",
+          "localId": "212",
           "locator": "9:1-9:48",
           "name": "test-vs",
           "id": "http://example.com/test-vs",
@@ -156,8 +163,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "4",
+                "r": "212",
                 "s": [
                   {
                     "value": [
@@ -171,36 +179,50 @@
                 ]
               }
             }
-          ]
+          ],
+          "codeSystem": []
         }
       ]
     },
     "contexts": {
       "def": [
         {
+          "localId": "217",
           "locator": "11:1-11:15",
-          "name": "Patient"
+          "name": "Patient",
+          "annotation": []
         }
       ]
     },
     "statements": {
       "def": [
         {
+          "localId": "215",
           "locator": "11:1-11:15",
           "name": "Patient",
           "context": "Patient",
+          "annotation": [],
           "expression": {
             "type": "SingletonFrom",
+            "localId": "216",
+            "annotation": [],
+            "signature": [],
             "operand": {
+              "type": "Retrieve",
+              "localId": "214",
               "locator": "11:1-11:15",
               "dataType": "{http://hl7.org/fhir}Patient",
               "templateId": "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient",
-              "type": "Retrieve"
+              "annotation": [],
+              "include": [],
+              "codeFilter": [],
+              "dateFilter": [],
+              "otherFilter": []
             }
           }
         },
         {
-          "localId": "12",
+          "localId": "220",
           "locator": "13:1-14:75",
           "name": "Query",
           "context": "Patient",
@@ -208,8 +230,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "12",
+                "r": "220",
                 "s": [
                   {
                     "value": [
@@ -220,18 +243,18 @@
                     ]
                   },
                   {
-                    "r": "11",
+                    "r": "233",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "6",
+                            "r": "221",
                             "s": [
                               {
-                                "r": "5",
+                                "r": "222",
                                 "s": [
                                   {
-                                    "r": "5",
+                                    "r": "222",
                                     "s": [
                                       {
                                         "value": [
@@ -260,7 +283,7 @@
                         ]
                       },
                       {
-                        "r": "10",
+                        "r": "232",
                         "s": [
                           {
                             "value": [
@@ -268,13 +291,13 @@
                             ]
                           },
                           {
-                            "r": "10",
+                            "r": "232",
                             "s": [
                               {
-                                "r": "8",
+                                "r": "226",
                                 "s": [
                                   {
-                                    "r": "7",
+                                    "r": "224",
                                     "s": [
                                       {
                                         "value": [
@@ -289,7 +312,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "8",
+                                    "r": "226",
                                     "s": [
                                       {
                                         "value": [
@@ -306,7 +329,7 @@
                                 ]
                               },
                               {
-                                "r": "9",
+                                "r": "231",
                                 "s": [
                                   {
                                     "value": [
@@ -326,62 +349,87 @@
             }
           ],
           "expression": {
-            "localId": "11",
-            "locator": "14:5-14:75",
             "type": "Query",
+            "localId": "233",
+            "locator": "14:5-14:75",
+            "annotation": [],
             "source": [
               {
-                "localId": "6",
+                "localId": "221",
                 "locator": "14:5-14:30",
                 "alias": "ValidEncounter",
+                "annotation": [],
                 "expression": {
-                  "localId": "5",
+                  "type": "Retrieve",
+                  "localId": "222",
                   "locator": "14:5-14:15",
                   "dataType": "{http://hl7.org/fhir}Encounter",
                   "templateId": "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter",
-                  "type": "Retrieve"
+                  "annotation": [],
+                  "include": [],
+                  "codeFilter": [],
+                  "dateFilter": [],
+                  "otherFilter": []
                 }
               }
             ],
+            "let": [],
             "relationship": [],
             "where": {
-              "localId": "10",
-              "locator": "14:32-14:75",
               "type": "AnyInValueSet",
+              "localId": "232",
+              "locator": "14:32-14:75",
+              "annotation": [],
+              "signature": [],
               "codes": {
-                "localId": "8",
-                "locator": "14:38-14:62",
                 "type": "Query",
+                "localId": "226",
+                "locator": "14:38-14:62",
+                "annotation": [],
                 "source": [
                   {
+                    "localId": "227",
                     "alias": "$this",
+                    "annotation": [],
                     "expression": {
+                      "type": "Property",
+                      "localId": "225",
                       "path": "reasonCode",
                       "scope": "ValidEncounter",
-                      "type": "Property"
+                      "annotation": []
                     }
                   }
                 ],
+                "let": [],
+                "relationship": [],
                 "return": {
+                  "localId": "230",
                   "distinct": false,
+                  "annotation": [],
                   "expression": {
+                    "type": "FunctionRef",
+                    "localId": "228",
                     "name": "ToConcept",
                     "libraryName": "FHIRHelpers",
-                    "type": "FunctionRef",
+                    "annotation": [],
+                    "signature": [],
                     "operand": [
                       {
+                        "type": "AliasRef",
+                        "localId": "229",
                         "name": "$this",
-                        "type": "AliasRef"
+                        "annotation": []
                       }
                     ]
                   }
                 }
               },
               "valueset": {
-                "localId": "9",
+                "localId": "231",
                 "locator": "14:67-14:75",
                 "name": "test-vs",
-                "preserve": true
+                "preserve": true,
+                "annotation": []
               }
             }
           }

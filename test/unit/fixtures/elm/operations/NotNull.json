@@ -3,15 +3,16 @@
     "localId": "0",
     "annotation": [
       {
-        "translatorVersion": "3.15.0",
-        "translatorOptions": "EnableAnnotations,EnableLocators",
-        "signatureLevel": "None",
-        "type": "CqlToElmInfo"
+        "type": "CqlToElmInfo",
+        "translatorVersion": "4.0.0-SNAPSHOT",
+        "translatorOptions": "EnableLocators,EnableAnnotations",
+        "signatureLevel": "None"
       },
       {
         "type": "Annotation",
+        "t": [],
         "s": {
-          "r": "228",
+          "r": "239",
           "s": [
             {
               "value": [
@@ -35,7 +36,8 @@
         {
           "localId": "1",
           "localIdentifier": "System",
-          "uri": "urn:hl7-org:elm-types:r1"
+          "uri": "urn:hl7-org:elm-types:r1",
+          "annotation": []
         },
         {
           "localId": "206",
@@ -46,6 +48,7 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
                 "r": "206",
                 "s": [
@@ -79,7 +82,7 @@
     "includes": {
       "def": [
         {
-          "localId": "207",
+          "localId": "208",
           "locator": "5:1-5:35",
           "localIdentifier": "FHIRHelpers",
           "path": "FHIRHelpers",
@@ -87,8 +90,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "207",
+                "r": "208",
                 "s": [
                   {
                     "value": [
@@ -117,7 +121,7 @@
           ]
         },
         {
-          "localId": "208",
+          "localId": "210",
           "locator": "6:1-6:64",
           "localIdentifier": "Global",
           "path": "MATGlobalCommonFunctions",
@@ -125,8 +129,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "208",
+                "r": "210",
                 "s": [
                   {
                     "value": [
@@ -161,7 +166,7 @@
     "codeSystems": {
       "def": [
         {
-          "localId": "209",
+          "localId": "212",
           "locator": "8:1-8:42",
           "name": "EXAMPLE",
           "id": "http://example.com",
@@ -169,8 +174,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "209",
+                "r": "212",
                 "s": [
                   {
                     "value": [
@@ -187,7 +193,7 @@
           ]
         },
         {
-          "localId": "210",
+          "localId": "214",
           "locator": "9:1-9:46",
           "name": "EXAMPLE-2",
           "id": "http://example.com/2",
@@ -195,8 +201,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "210",
+                "r": "214",
                 "s": [
                   {
                     "value": [
@@ -213,7 +220,7 @@
           ]
         },
         {
-          "localId": "211",
+          "localId": "216",
           "locator": "10:1-10:101",
           "name": "ConditionClinicalStatusCodes",
           "id": "http://terminology.hl7.org/CodeSystem/condition-clinical",
@@ -221,8 +228,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "211",
+                "r": "216",
                 "s": [
                   {
                     "value": [
@@ -243,7 +251,7 @@
     "valueSets": {
       "def": [
         {
-          "localId": "212",
+          "localId": "218",
           "locator": "12:1-12:48",
           "name": "test-vs",
           "id": "http://example.com/test-vs",
@@ -251,8 +259,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "212",
+                "r": "218",
                 "s": [
                   {
                     "value": [
@@ -274,7 +283,7 @@
     "codes": {
       "def": [
         {
-          "localId": "213",
+          "localId": "220",
           "locator": "14:1-14:59",
           "name": "Active",
           "id": "active",
@@ -282,8 +291,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "213",
+                "r": "220",
                 "s": [
                   {
                     "value": [
@@ -296,7 +306,7 @@
                     ]
                   },
                   {
-                    "r": "214",
+                    "r": "221",
                     "s": [
                       {
                         "value": [
@@ -310,13 +320,14 @@
             }
           ],
           "codeSystem": {
-            "localId": "214",
+            "localId": "221",
             "locator": "14:30-14:59",
-            "name": "ConditionClinicalStatusCodes"
+            "name": "ConditionClinicalStatusCodes",
+            "annotation": []
           }
         },
         {
-          "localId": "215",
+          "localId": "223",
           "locator": "15:1-15:67",
           "name": "Recurrence",
           "id": "recurrence",
@@ -324,8 +335,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "215",
+                "r": "223",
                 "s": [
                   {
                     "value": [
@@ -338,7 +350,7 @@
                     ]
                   },
                   {
-                    "r": "216",
+                    "r": "224",
                     "s": [
                       {
                         "value": [
@@ -352,13 +364,14 @@
             }
           ],
           "codeSystem": {
-            "localId": "216",
+            "localId": "224",
             "locator": "15:38-15:67",
-            "name": "ConditionClinicalStatusCodes"
+            "name": "ConditionClinicalStatusCodes",
+            "annotation": []
           }
         },
         {
-          "localId": "217",
+          "localId": "226",
           "locator": "16:1-16:61",
           "name": "Relapse",
           "id": "relapse",
@@ -366,8 +379,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "217",
+                "r": "226",
                 "s": [
                   {
                     "value": [
@@ -380,7 +394,7 @@
                     ]
                   },
                   {
-                    "r": "218",
+                    "r": "227",
                     "s": [
                       {
                         "value": [
@@ -394,9 +408,10 @@
             }
           ],
           "codeSystem": {
-            "localId": "218",
+            "localId": "227",
             "locator": "16:32-16:61",
-            "name": "ConditionClinicalStatusCodes"
+            "name": "ConditionClinicalStatusCodes",
+            "annotation": []
           }
         }
       ]
@@ -404,7 +419,7 @@
     "concepts": {
       "def": [
         {
-          "localId": "219",
+          "localId": "229",
           "locator": "18:1-18:82",
           "name": "Condition Active",
           "display": "Active",
@@ -412,8 +427,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "219",
+                "r": "229",
                 "s": [
                   {
                     "value": [
@@ -424,7 +440,7 @@
                     ]
                   },
                   {
-                    "r": "220",
+                    "r": "230",
                     "s": [
                       {
                         "value": [
@@ -439,7 +455,7 @@
                     ]
                   },
                   {
-                    "r": "221",
+                    "r": "231",
                     "s": [
                       {
                         "value": [
@@ -454,7 +470,7 @@
                     ]
                   },
                   {
-                    "r": "222",
+                    "r": "232",
                     "s": [
                       {
                         "value": [
@@ -475,19 +491,22 @@
           ],
           "code": [
             {
-              "localId": "220",
+              "localId": "230",
               "locator": "18:31-18:38",
-              "name": "Active"
+              "name": "Active",
+              "annotation": []
             },
             {
-              "localId": "221",
+              "localId": "231",
               "locator": "18:41-18:52",
-              "name": "Recurrence"
+              "name": "Recurrence",
+              "annotation": []
             },
             {
-              "localId": "222",
+              "localId": "232",
               "locator": "18:55-18:63",
-              "name": "Relapse"
+              "name": "Relapse",
+              "annotation": []
             }
           ]
         }
@@ -496,29 +515,33 @@
     "contexts": {
       "def": [
         {
-          "localId": "226",
+          "localId": "236",
           "locator": "20:1-20:15",
-          "name": "Patient"
+          "name": "Patient",
+          "annotation": []
         }
       ]
     },
     "statements": {
       "def": [
         {
-          "localId": "224",
+          "localId": "234",
           "locator": "20:1-20:15",
           "name": "Patient",
           "context": "Patient",
+          "annotation": [],
           "expression": {
-            "localId": "225",
             "type": "SingletonFrom",
+            "localId": "235",
+            "annotation": [],
             "signature": [],
             "operand": {
-              "localId": "223",
+              "type": "Retrieve",
+              "localId": "233",
               "locator": "20:1-20:15",
               "dataType": "{http://hl7.org/fhir}Patient",
               "templateId": "http://hl7.org/fhir/StructureDefinition/Patient",
-              "type": "Retrieve",
+              "annotation": [],
               "include": [],
               "codeFilter": [],
               "dateFilter": [],
@@ -527,7 +550,7 @@
           }
         },
         {
-          "localId": "228",
+          "localId": "239",
           "locator": "22:1-24:30",
           "name": "Not Null Clause",
           "context": "Patient",
@@ -535,8 +558,9 @@
           "annotation": [
             {
               "type": "Annotation",
+              "t": [],
               "s": {
-                "r": "228",
+                "r": "239",
                 "s": [
                   {
                     "value": [
@@ -547,18 +571,18 @@
                     ]
                   },
                   {
-                    "r": "239",
+                    "r": "251",
                     "s": [
                       {
                         "s": [
                           {
-                            "r": "229",
+                            "r": "240",
                             "s": [
                               {
-                                "r": "232",
+                                "r": "243",
                                 "s": [
                                   {
-                                    "r": "232",
+                                    "r": "243",
                                     "s": [
                                       {
                                         "value": [
@@ -601,7 +625,7 @@
                         ]
                       },
                       {
-                        "r": "238",
+                        "r": "250",
                         "s": [
                           {
                             "value": [
@@ -609,13 +633,13 @@
                             ]
                           },
                           {
-                            "r": "238",
+                            "r": "250",
                             "s": [
                               {
-                                "r": "236",
+                                "r": "248",
                                 "s": [
                                   {
-                                    "r": "235",
+                                    "r": "247",
                                     "s": [
                                       {
                                         "value": [
@@ -630,7 +654,7 @@
                                     ]
                                   },
                                   {
-                                    "r": "236",
+                                    "r": "248",
                                     "s": [
                                       {
                                         "value": [
@@ -657,28 +681,32 @@
             }
           ],
           "expression": {
-            "localId": "239",
-            "locator": "23:5-24:30",
             "type": "Query",
+            "localId": "251",
+            "locator": "23:5-24:30",
+            "annotation": [],
             "source": [
               {
-                "localId": "229",
+                "localId": "240",
                 "locator": "23:5-23:28",
                 "alias": "C",
+                "annotation": [],
                 "expression": {
-                  "localId": "232",
+                  "type": "Retrieve",
+                  "localId": "243",
                   "locator": "23:5-23:26",
                   "dataType": "{http://hl7.org/fhir}Condition",
                   "templateId": "http://hl7.org/fhir/StructureDefinition/Condition",
                   "codeProperty": "code",
                   "codeComparator": "in",
-                  "type": "Retrieve",
+                  "annotation": [],
                   "codes": {
-                    "localId": "231",
+                    "type": "ValueSetRef",
+                    "localId": "242",
                     "locator": "23:17-23:25",
                     "name": "test-vs",
                     "preserve": true,
-                    "type": "ValueSetRef"
+                    "annotation": []
                   },
                   "include": [],
                   "codeFilter": [],
@@ -690,21 +718,24 @@
             "let": [],
             "relationship": [],
             "where": {
-              "localId": "238",
-              "locator": "24:9-24:30",
               "type": "Not",
+              "localId": "250",
+              "locator": "24:9-24:30",
+              "annotation": [],
               "signature": [],
               "operand": {
-                "localId": "237",
-                "locator": "24:15-24:30",
                 "type": "IsNull",
+                "localId": "249",
+                "locator": "24:15-24:30",
+                "annotation": [],
                 "signature": [],
                 "operand": {
-                  "localId": "236",
+                  "type": "Property",
+                  "localId": "248",
                   "locator": "24:15-24:18",
                   "path": "id",
                   "scope": "C",
-                  "type": "Property"
+                  "annotation": []
                 }
               }
             }
