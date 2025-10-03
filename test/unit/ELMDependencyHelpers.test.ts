@@ -1,6 +1,6 @@
 import * as ELMDependencyHelper from '../../src/helpers/elm/ELMDependencyHelpers';
 import { getELMFixture } from './helpers/testHelpers';
-import { ELM, ELMValueSet, ELMValueSetRef } from '../../src/types/ELMTypes';
+import { ELM, ELMValueSetRef } from '../../src/types/ELMTypes';
 
 describe('ELMDependencyHelper', () => {
   let elm: ELM;
