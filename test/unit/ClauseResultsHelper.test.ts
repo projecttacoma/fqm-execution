@@ -105,6 +105,14 @@ describe('ClauseResultsHelpers', () => {
       expect(localIds[18]).toEqual({ localId: '18', isFalsyLiteral: true });
     });
 
+    test('finds localIds for null literals and properly sets isFalsyLiteral to true with kotlin translator ELM', () => {
+      // ELM from test/unit/elm/queries/CaseStatement.cql translated with kotlin translator 4.0.0-SNAPSHOT
+      const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement-kotlin.json');
+      const localIds = ClauseResultsHelpers.findLocalIdsInStatementByName(libraryElm, 'Case');
+
+      expect(localIds[241]).toEqual({ localId: '241', isFalsyLiteral: true });
+    });
+
     test('finds localIds for false literals and properly sets isFalsyLiteral to true', () => {
       // ELM from test/unit/elm/queries/CaseStatement.cql
       const libraryElm: ELM = getJSONFixture('elm/queries/CaseStatement.json');
