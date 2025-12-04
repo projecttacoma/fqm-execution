@@ -43,6 +43,13 @@ composite-weighted:
 		&& ecqm-bundler make-composite /tmp/comp1.json /tmp/comp2.json --composite-scoring "weighted" --detailed-component "measure-WeightedComponentOne|0.0.1##3" "measure-WeightedComponentTwo|0.0.1##1" -o ./composite-weighted/composite-weighted-bundle.json \
 		&& rm /tmp/comp1.json /tmp/comp2.json
 
+composite-group:
+	ecqm-bundler generate -c ./composite-groups/cql/group-component-one.cql --deps-directory ./helpers/cql --measure-version "0.0.1" --ipop "Initial Population" --numer "Numerator" --denom "Denominator" -o /tmp/comp1.json \
+	  && ecqm-bundler generate -c ./composite-groups/cql/group-component-two.cql --deps-directory ./helpers/cql --ipop "Initial Population" --numer "Numerator" --denom "Denominator" --measure-version "0.0.1" -o /tmp/comp2.json \
+	  	&& ecqm-bundler generate -c ./composite-groups/cql/group-component-three.cql --deps-directory ./helpers/cql --ipop "Initial Population" --numer "Numerator" --denom "Denominator" --measure-version "0.0.1" -o /tmp/comp3.json \
+		&& ecqm-bundler make-composite /tmp/comp1.json /tmp/comp2.json /tmp/comp3.json --composite-scoring "weighted" --detailed-component "measure-GroupComponentOne|0.0.1##3" "measure-GroupComponentTwo|0.0.1##3" "measure-GroupComponentTwo|0.0.1##1" -o ./composite-groups/composite-group-bundle.json \
+		&& rm /tmp/comp1.json /tmp/comp2.json /tmp/comp3.json
+
 proportion-Encounter-tuple:
 	ecqm-bundler -c ./proportion-Encounter-tuple/cql/proportion-Encounter-tuple.cql -v ./valuesets --deps-directory ./helpers/cql --ipop ipp --numer numer --denom denom --basis Encounter -o ./proportion-Encounter-tuple/proportion-Encounter-tuple-bundle.json
 
