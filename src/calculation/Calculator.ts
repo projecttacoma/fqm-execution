@@ -81,6 +81,10 @@ export async function calculate<T extends CalculationOptions>(
 
   const isCompositeExecution = compositeMeasureResource != null;
 
+  // TODO: Right now, if it is a composite execution where the composite measure has components defined
+  // in it's Measure.group, then ONLY those component groups are included in the measuresToExecute.
+  // In the future, we may want to include the composite measure itself in this list for the Measure.group
+  // scenario.
   const measuresToExecute = isCompositeExecution
     ? MeasureBundleHelpers.extractComponentsFromMeasure(compositeMeasureResource, measureBundle)
     : [MeasureBundleHelpers.extractMeasureFromBundle(measureBundle)];
