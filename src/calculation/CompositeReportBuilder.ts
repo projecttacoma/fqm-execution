@@ -3,21 +3,21 @@ import {
   getCompositeScoringFromMeasure,
   getGroupIdForComponent,
   getWeightForComponent,
-  filterComponentResults
+  filterComponentResults,
+  getCompositeScoringFromGroup,
+  getWeightForComponentFromExtension
 } from '../helpers/MeasureBundleHelpers';
 import { CompositeScoreType, PopulationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
 
 export type CompositeMeasureReport = fhir4.MeasureReport & {
-  group: [
-    fhir4.MeasureReportGroup & {
-      population: [
-        fhir4.MeasureReportGroupPopulation & { count: number },
-        fhir4.MeasureReportGroupPopulation & { count: number }
-      ];
-    }
-  ];
+  group: (fhir4.MeasureReportGroup & {
+    population: [
+      fhir4.MeasureReportGroupPopulation & { count: number },
+      fhir4.MeasureReportGroupPopulation & { count: number }
+    ];
+  })[];
 };
 
 interface ComponentPopulationResults {
@@ -32,49 +32,56 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 > {
   report: CompositeMeasureReport;
   compositeScoringType: CompositeScoreType;
-  compositeFraction: { numerator: number; denominator: number };
+  compositeFraction:
+    | { numerator: number; denominator: number }
+    | Record<string, { numerator: number; denominator: number }>;
   components: Record<string, Record<string, number> | number>;
+  groups: Record<string, Record<string, number | string>>;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
     super(compositeMeasure, options);
 
-    this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure) ?? 'all-or-nothing';
-    this.compositeFraction = { numerator: 0, denominator: 0 };
-    this.options = options;
-    // mapping of component canonical to group(s) and weight(s), defined by CQFM extensions
-    this.components = {};
+    // need to check if composite scoring is defined at the measure level or at the group level
 
-    compositeMeasure.relatedArtifact?.forEach(ra => {
-      if (ra.resource && ra.type === 'composed-of') {
-        // gather group Id and weight extension values
-        const groupId = getGroupIdForComponent(ra);
-        const weight = getWeightForComponent(ra) || 1;
+    this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure) ?? 'group-defined';
 
-        if (groupId) {
-          if (!(ra.resource in this.components)) {
-            this.components[ra.resource] = { [groupId]: weight };
-          } else {
-            // cast to Record<string, number> since groupId is defined
-            (this.components[ra.resource] as Record<string, number>)[groupId] = weight;
-          }
-        } else {
-          this.components[ra.resource] = weight;
+    if (this.compositeScoringType === 'group-defined') {
+      this.components = {};
+      this.compositeFraction = {};
+      this.groups = {};
+      // need to handle as group
+      let groupsForMeasureReport: (fhir4.MeasureReportGroup & {
+        population: [
+          fhir4.MeasureReportGroupPopulation & { count: number },
+          fhir4.MeasureReportGroupPopulation & { count: number }
+        ];
+      })[] = [];
+      compositeMeasure.group?.forEach(g => {
+        // For now we are going to assume that all groups in Measure.group have an id
+        if (g.id) {
+          // If a group doesn't have a composite scoring type defined, we will just make it all-or-nothing for now
+          (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[g.id] = {
+            numerator: 0,
+            denominator: 0
+          };
+          const groupCompositeScoringType = getCompositeScoringFromGroup(g) || 'all-or-nothing';
+          this.groups[g.id] = { ['compositeScoringType']: groupCompositeScoringType };
+          g.extension?.forEach(e => {
+            if (
+              e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' &&
+              e.valueRelatedArtifact &&
+              e.valueRelatedArtifact.resource &&
+              g.id
+            ) {
+              // get weight for component or set to 1
+              const weight = getWeightForComponentFromExtension(e) || 1;
+              this.groups[g.id][e.valueRelatedArtifact.resource] = weight;
+            }
+          });
         }
-      }
-    });
 
-    this.report = {
-      resourceType: 'MeasureReport',
-      id: uuidv4(),
-      status: 'complete',
-      type: 'summary',
-      period: {
-        start: this.options.measurementPeriodStart,
-        end: this.options.measurementPeriodEnd
-      },
-      measure: compositeMeasure.url ?? 'UnknownMeasure',
-      group: [
-        {
+        groupsForMeasureReport.push({
+          id: g.id,
           population: [
             {
               count: 0,
@@ -99,21 +106,295 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               }
             }
           ]
+        });
+      });
+
+      this.report = {
+        resourceType: 'MeasureReport',
+        id: uuidv4(),
+        status: 'complete',
+        type: 'summary',
+        period: {
+          start: this.options.measurementPeriodStart,
+          end: this.options.measurementPeriodEnd
+        },
+        measure: compositeMeasure.url ?? 'UnknownMeasure',
+        group: groupsForMeasureReport,
+        evaluatedResource: []
+      };
+    } else {
+      this.groups = {};
+      this.compositeFraction = { numerator: 0, denominator: 0 };
+      this.options = options;
+      // mapping of component canonical to group(s) and weight(s), defined by CQFM extensions
+      this.components = {};
+
+      compositeMeasure.relatedArtifact?.forEach(ra => {
+        if (ra.resource && ra.type === 'composed-of') {
+          // gather group Id and weight extension values
+          const groupId = getGroupIdForComponent(ra);
+          const weight = getWeightForComponent(ra) || 1;
+
+          if (groupId) {
+            if (!(ra.resource in this.components)) {
+              this.components[ra.resource] = { [groupId]: weight };
+            } else {
+              // cast to Record<string, number> since groupId is defined
+              (this.components[ra.resource] as Record<string, number>)[groupId] = weight;
+            }
+          } else {
+            this.components[ra.resource] = weight;
+          }
         }
-      ],
-      evaluatedResource: []
-    };
+      });
+
+      this.report = {
+        resourceType: 'MeasureReport',
+        id: uuidv4(),
+        status: 'complete',
+        type: 'summary',
+        period: {
+          start: this.options.measurementPeriodStart,
+          end: this.options.measurementPeriodEnd
+        },
+        measure: compositeMeasure.url ?? 'UnknownMeasure',
+        group: [
+          {
+            population: [
+              {
+                count: 0,
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'denominator'
+                    }
+                  ]
+                }
+              },
+              {
+                count: 0,
+                code: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/measure-population',
+                      code: 'numerator'
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        evaluatedResource: []
+      };
+    }
   }
 
   public addAllResults(results: ExecutionResult<T>[]) {
     // the weighted composite scoring type is component-based, but the others are individual-based
-    if (this.compositeScoringType === 'weighted') {
-      this.addWeightedResults(results);
+    if (this.compositeScoringType === 'group-defined') {
+      // Add new methods in here for now rather than reuse old ones
+      // go through all of the groups in this.groups
+      for (const groupId of Object.keys(this.groups)) {
+        const compositeGroupScoringType = this.groups[groupId]['compositeScoringType'];
+        if (compositeGroupScoringType === 'weighted') {
+          this.addGroupWeightedResults(results, groupId);
+        } else {
+          results.forEach(result => {
+            this.addGroupPatientResults(result, groupId);
+          });
+        }
+      }
     } else {
-      results.forEach(result => {
-        this.addPatientResults(result);
-      });
+      if (this.compositeScoringType === 'weighted') {
+        this.addWeightedResults(results);
+      } else {
+        results.forEach(result => {
+          this.addPatientResults(result);
+        });
+      }
     }
+  }
+
+  private addGroupPatientResults(result: ExecutionResult<T>, groupId: string) {
+    const componentResults = filterComponentResults(this.groups[groupId], result.componentResults);
+    if (this.groups[groupId]['compositeScoringType'] === 'all-or-nothing') {
+      let inIpp = false;
+      let inDenom = false;
+      let inNumer = true;
+      componentResults.forEach(componentResult => {
+        const ippResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.IPP
+        )?.result;
+        if (ippResult === true) {
+          inIpp = true;
+        }
+
+        const denomResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.DENOM
+        )?.result;
+        if (denomResult === true) {
+          inDenom = true;
+        }
+
+        const numerResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.NUMER
+        )?.result;
+        if (numerResult === false) {
+          inNumer = false;
+        }
+      });
+
+      if (inIpp) {
+        // I think this may have been incorrect before but I want to talk through it. This
+        // used to check if inDenom && this.compositeFraction.denominator...but I think that is false
+        // if the value of the denominator is 0? Which I am not sure makes sense
+        if (inDenom) {
+          (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator++;
+          if (inNumer) {
+            (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].numerator++;
+          }
+        }
+      }
+    } else if (this.groups[groupId]['compositeScoringType'] === 'opportunity') {
+      let inIpp = false;
+      let inDenom = false;
+
+      componentResults.forEach(componentResult => {
+        const ippResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.IPP
+        )?.result;
+        if (ippResult === true) {
+          inIpp = true;
+        }
+
+        const denomResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.DENOM
+        )?.result;
+        if (denomResult === true) {
+          inDenom = true;
+        }
+
+        const numerResults = componentResult.populationResults
+          ?.filter(pop => pop.populationType === PopulationType.NUMER)
+          ?.map(r => r.result);
+
+        if (inIpp) {
+          if (inDenom) {
+            (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
+              .denominator++;
+          }
+          numerResults?.forEach(result => {
+            if (result) {
+              (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
+                .numerator++;
+            }
+          });
+        }
+      });
+    } else if (this.groups[groupId]['compositeScoringType'] === 'linear') {
+      (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator++;
+
+      const [patientDenomCount, patientNumerCount] = componentResults.reduce(
+        (sums, componentResult) => {
+          if (
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
+          ) {
+            sums[0] += 1;
+          }
+
+          if (
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
+          ) {
+            sums[1] += 1;
+          }
+
+          return sums;
+        },
+        [0, 0]
+      ) ?? [0, 0];
+
+      if (patientDenomCount !== 0) {
+        (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].numerator +=
+          (patientNumerCount * 1.0) / patientDenomCount;
+      }
+    } else if (this.compositeScoringType === 'weighted') {
+      // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
+      throw new Error(
+        'addPatientResults cannot be used for weighted scoring since it is a component-based composite measure scoring method, addAllResults should be used instead'
+      );
+    }
+
+    this.addEvaluatedResources(result);
+  }
+
+  private addGroupWeightedResults(results: ExecutionResult<T>[], groupId: string) {
+    const componentPopulationResults: Record<
+      string,
+      ComponentPopulationResults | Record<string, ComponentPopulationResults>
+    > = {};
+
+    results.forEach(result => {
+      const componentResults = filterComponentResults(this.groups[groupId], result.componentResults);
+      componentResults.forEach(componentResult => {
+        if (componentResult.componentCanonical) {
+          const componentInfo = this.groups[groupId][componentResult.componentCanonical];
+          const noGroupExt = typeof componentInfo === 'number';
+          if (noGroupExt) {
+            if (!(componentResult.componentCanonical in componentPopulationResults)) {
+              componentPopulationResults[componentResult.componentCanonical] = {
+                numerator: 0,
+                denominator: 0,
+                weight: componentInfo
+              };
+            }
+          } else {
+            // TODO: multiple groups are specified for the component
+          }
+
+          if (componentPopulationResults[componentResult.componentCanonical]) {
+            if (
+              componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
+            ) {
+              if (noGroupExt) {
+                (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
+                  .numerator++;
+              } else {
+                // TODO: handle multiple groups
+              }
+            }
+            if (
+              componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
+            ) {
+              if (noGroupExt) {
+                (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
+                  .denominator++;
+              } else {
+                // TODO: handle multiple groups
+              }
+            }
+          }
+        }
+      });
+
+      this.addEvaluatedResources(result);
+    });
+
+    // Multiple each of the component ratios by the weight associated with the component
+    const isComponentResult = (obj: any): obj is ComponentPopulationResults => {
+      return 'numerator' in obj;
+    };
+    Object.values(componentPopulationResults)
+      .flatMap(e => (isComponentResult(e) ? e : Object.values(e)))
+      .forEach(value => {
+        if (value.denominator !== 0) {
+          (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].numerator +=
+            value.weight * (value.numerator / value.denominator);
+        }
+        (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator +=
+          value.weight;
+      });
   }
 
   private addWeightedResults(results: ExecutionResult<T>[]) {
@@ -219,9 +500,9 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       .flatMap(e => (isComponentResult(e) ? e : Object.values(e)))
       .forEach(value => {
         if (value.denominator !== 0) {
-          this.compositeFraction.numerator += value.weight * (value.numerator / value.denominator);
+          (this.compositeFraction.numerator as number) += value.weight * (value.numerator / value.denominator);
         }
-        this.compositeFraction.denominator += value.weight;
+        (this.compositeFraction.denominator as number) += value.weight;
       });
   }
 
@@ -259,10 +540,13 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       });
 
       if (inIpp) {
-        if (inDenom) {
-          this.compositeFraction.denominator++;
+        // I think this is wrong and should just check for inDenom and not
+        // inDenom && this.compositeFraction.denominator because if the denominator
+        // is 0 then I think it's false?
+        if (inDenom && this.compositeFraction.denominator) {
+          (this.compositeFraction.denominator as number)++;
           if (inNumer) {
-            this.compositeFraction.numerator++;
+            (this.compositeFraction.numerator as number)++;
           }
         }
       }
@@ -293,11 +577,11 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
         if (inIpp) {
           if (inDenom) {
-            this.compositeFraction.denominator++;
+            (this.compositeFraction.denominator as number)++;
           }
           numerResults?.forEach(result => {
             if (result) {
-              this.compositeFraction.numerator++;
+              (this.compositeFraction.numerator as number)++;
             }
           });
         }
@@ -306,7 +590,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#patient-level-linear-combination-scoring
 
       // Always increment the denominator for linear scoring when processing a patient result
-      this.compositeFraction.denominator++;
+      (this.compositeFraction.denominator as number)++;
 
       const [patientDenomCount, patientNumerCount] = componentResults.reduce(
         (sums, componentResult) => {
@@ -328,7 +612,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       ) ?? [0, 0];
 
       if (patientDenomCount !== 0) {
-        this.compositeFraction.numerator += (patientNumerCount * 1.0) / patientDenomCount;
+        (this.compositeFraction.numerator as number) += (patientNumerCount * 1.0) / patientDenomCount;
       }
     } else if (this.compositeScoringType === 'weighted') {
       // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
@@ -342,14 +626,40 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
   getReport(): CompositeMeasureReport {
     // Composite measure population list is a tuple of [denom, numer]
-    this.report.group[0].population[0].count = this.compositeFraction.denominator;
-    this.report.group[0].population[1].count = this.compositeFraction.numerator;
-    this.report.group[0].measureScore = {
-      value:
-        this.compositeFraction.denominator > 0
-          ? (this.compositeFraction.numerator * 1.0) / this.compositeFraction.denominator
-          : 0
-    };
+
+    if (this.compositeScoringType === 'group-defined') {
+      for (const group of this.report.group) {
+        if (group.id) {
+          const index = this.report.group.findIndex(g => g.id === group.id);
+          this.report.group[index].population[0].count = (
+            this.compositeFraction as Record<string, { numerator: number; denominator: number }>
+          )[group.id].denominator;
+          this.report.group[index].population[1].count = (
+            this.compositeFraction as Record<string, { numerator: number; denominator: number }>
+          )[group.id].numerator;
+          this.report.group[index].measureScore = {
+            value:
+              (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[group.id]
+                .denominator > 0
+                ? ((this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[group.id]
+                    .numerator *
+                    1.0) /
+                  (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[group.id]
+                    .denominator
+                : 0
+          };
+        }
+      }
+    } else {
+      this.report.group[0].population[0].count = this.compositeFraction.denominator as number;
+      this.report.group[0].population[1].count = this.compositeFraction.numerator as number;
+      this.report.group[0].measureScore = {
+        value:
+          (this.compositeFraction.denominator as number) > 0
+            ? ((this.compositeFraction.numerator as number) * 1.0) / (this.compositeFraction.denominator as number)
+            : 0
+      };
+    }
 
     return this.report;
   }

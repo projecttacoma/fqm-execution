@@ -12,7 +12,7 @@ export enum MeasureScoreType {
 /**
  * Enum for composite score types: Matching http://terminology.hl7.org/CodeSystem/composite-measure-scoring
  */
-export const compositeScoringCodes = ['all-or-nothing', 'opportunity', 'linear', 'weighted'] as const;
+export const compositeScoringCodes = ['all-or-nothing', 'opportunity', 'linear', 'weighted', 'group-defined'] as const;
 export type CompositeScoreType = typeof compositeScoringCodes[number];
 
 /**
