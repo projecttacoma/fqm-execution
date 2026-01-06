@@ -50,7 +50,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       this.compositeFraction = {};
       this.groups = {};
       // need to handle as group
-      let groupsForMeasureReport: (fhir4.MeasureReportGroup & {
+      const groupsForMeasureReport: (fhir4.MeasureReportGroup & {
         population: [
           fhir4.MeasureReportGroupPopulation & { count: number },
           fhir4.MeasureReportGroupPopulation & { count: number }
@@ -247,9 +247,6 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       });
 
       if (inIpp) {
-        // I think this may have been incorrect before but I want to talk through it. This
-        // used to check if inDenom && this.compositeFraction.denominator...but I think that is false
-        // if the value of the denominator is 0? Which I am not sure makes sense
         if (inDenom) {
           (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator++;
           if (inNumer) {
@@ -540,10 +537,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       });
 
       if (inIpp) {
-        // I think this is wrong and should just check for inDenom and not
-        // inDenom && this.compositeFraction.denominator because if the denominator
-        // is 0 then I think it's false?
-        if (inDenom && this.compositeFraction.denominator) {
+        if (inDenom) {
           (this.compositeFraction.denominator as number)++;
           if (inNumer) {
             (this.compositeFraction.numerator as number)++;
