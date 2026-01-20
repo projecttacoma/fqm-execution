@@ -192,22 +192,57 @@ describe('DetailedResultsBuilder', () => {
       expect(results.populationResults).toEqual(expect.arrayContaining(expectedPopulationResults));
     });
 
-    test.skip('MSRPOPLEX should be unchanged if MSRPOPL satisfied', () => {
-      const statementResults: StatementResults = {
+    test('MSRPOPLEX should be unchanged if MSRPOPL satisfied', () => {
+      // MSRPOPLEX true
+      let statementResults: StatementResults = {
         'Initial Population': true,
         'Measure Population': true,
-        'Measure Population Exclusion': true,
-        'Measure Observation': false
+        'Measure Population Exclusions': true,
+        'Measure Observation': true
       };
 
-      const expectedPopulationResults: PopulationResult[] = [
+      let expectedPopulationResults: PopulationResult[] = [
         { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
         { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: true },
         { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: true },
-        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false }
+        expect.objectContaining({
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'MeasureObservation',
+          result: true
+        })
       ];
 
-      const results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
+      let results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
+
+      expect(results.populationResults).toBeDefined();
+      expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
+      expect(results.populationResults).toEqual(expect.arrayContaining(expectedPopulationResults));
+
+      // MSRPOPLEX false
+
+      statementResults = {
+        'Initial Population': true,
+        'Measure Population': true,
+        'Measure Population Exclusions': false,
+        'Measure Observation': true
+      };
+
+      expectedPopulationResults = [
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: true },
+        {
+          populationType: PopulationType.MSRPOPLEX,
+          criteriaExpression: 'Measure Population Exclusions',
+          result: false
+        },
+        expect.objectContaining({
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'MeasureObservation',
+          result: true
+        })
+      ];
+
+      results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
