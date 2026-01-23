@@ -1,0 +1,220 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "id": "6199fde0-79f3-46cb-9fd5-eb19b14efbb2",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "pt-encounter-procedure",
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "http://example.com/test-id",
+            "value": "test-patient-5e1e085f-ba65-4775-9beb-6f2676094aef"
+          }
+        ],
+        "name": [
+          {
+            "family": "Franey950",
+            "given": ["Sarah450"]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2001-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/pt-encounter-procedure"
+      },
+      "fullUrl": "urn:uuid:pt-encounter-procedure"
+    },
+    {
+      "fullUrl": "urn:uuid:d788142c-984b-4b1c-91b8-c809a90f5820",
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "d788142c-984b-4b1c-91b8-c809a90f5820",
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "80146002",
+              "display": "Appendectomy (Procedure)"
+            }
+          ],
+          "text": "Appendectomy"
+        },
+        "subject": {
+          "reference": "Patient/pt-encounter-procedure"
+        },
+        "occurrenceDateTime": "2013-04-05"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/d788142c-984b-4b1c-91b8-c809a90f5820"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:pt3-encounter",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "pt3-encounter",
+        "status": "in-progress",
+        "class": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "IMP",
+                "display": "inpatient encounter"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/5e1e085f-ba65-4775-9beb-6f2676094aef"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/pt3-encounter"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "7dfec21d-70b1-45c7-b126-c0753c103b99",
+        "meta": {
+          "profile": ["http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-coverage"]
+        },
+        "type": {
+          "coding": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "code": "521",
+              "display": "Commercial Indemnity"
+            }
+          ]
+        },
+        "beneficiary": {
+          "reference": "Patient/pt-encounter-procedure"
+        },
+        "period": {
+          "start": "2026-02-10T06:12:06.568Z",
+          "end": "2026-02-11T06:12:06.568Z"
+        }
+      },
+      "fullUrl": "urn:uuid:7dfec21d-70b1-45c7-b126-c0753c103b99",
+      "request": {
+        "method": "PUT",
+        "url": "Coverage/7dfec21d-70b1-45c7-b126-c0753c103b99"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MeasureReport",
+        "id": "d89f9c36-b97e-4dd5-8d9a-455be852d752",
+        "measure": "https://madie.cms.gov/Measure/CMS130FHIRColorectalCancerScrn",
+        "period": {
+          "start": "2026-01-01T05:00:00.000Z",
+          "end": "2026-12-31T05:00:00.000Z"
+        },
+        "status": "complete",
+        "type": "individual",
+        "meta": {
+          "profile": ["http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/test-case-cqfm"]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-inputParameters",
+            "valueReference": {
+              "reference": "#52b80236-de04-4dc7-bc8d-1e6ff934b145"
+            }
+          }
+        ],
+        "modifierExtension": [
+          {
+            "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-isTestCase",
+            "valueBoolean": true
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Parameters",
+            "id": "52b80236-de04-4dc7-bc8d-1e6ff934b145",
+            "parameter": [
+              {
+                "name": "subject",
+                "valueString": "pt-encounter-procedure"
+              }
+            ]
+          }
+        ],
+        "group": [
+          {
+            "population": [
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "initial-population",
+                      "display": "Initial Population"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator",
+                      "display": "Denominator"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "denominator-exclusion",
+                      "display": "Denominator Exclusion"
+                    }
+                  ]
+                },
+                "count": 0
+              },
+              {
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/measure-population",
+                      "code": "numerator",
+                      "display": "Numerator"
+                    }
+                  ]
+                },
+                "count": 0
+              }
+            ],
+            "measureScore": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MeasureReport/d89f9c36-b97e-4dd5-8d9a-455be852d752"
+      },
+      "fullUrl": "urn:uuid:d89f9c36-b97e-4dd5-8d9a-455be852d752"
+    }
+  ]
+}

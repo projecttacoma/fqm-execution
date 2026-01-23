@@ -1,0 +1,114 @@
+{
+  "resourceType": "Measure",
+  "id": "example-group-composite-measure",
+  "url": "http://example.com/Measure/example-group-composite-measure",
+  "status": "draft",
+  "group": [
+    {
+      "id": "group-1",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-compositeScoring",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/composite-measure-scoring",
+                "code": "all-or-nothing"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-scoring",
+                "code": "composite"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component",
+          "valueRelatedArtifact": {
+            "type": "composed-of",
+            "display": "Example Component 1",
+            "resource": "http://example.com/Measure/example-component-one|0.0.1"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component",
+          "valueRelatedArtifact": {
+            "type": "composed-of",
+            "display": "Example Component 2",
+            "resource": "http://example.com/Measure/example-component-two|0.0.1"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component",
+          "valueRelatedArtifact": {
+            "type": "composed-of",
+            "display": "Example Component 3",
+            "resource": "http://example.com/Measure/example-component-three|0.0.1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-2",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-compositeScoring",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/composite-measure-scoring",
+                "code": "weighted"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/measure-scoring",
+                "code": "composite"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component",
+          "valueRelatedArtifact": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight",
+                "valueDecimal": 3
+              }
+            ],
+            "type": "composed-of",
+            "display": "Example Component 1",
+            "resource": "http://example.com/Measure/example-component-one|0.0.1"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component",
+          "valueRelatedArtifact": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight",
+                "valueDecimal": 1
+              }
+            ],
+            "type": "composed-of",
+            "display": "Example Component 3",
+            "resource": "http://example.com/Measure/example-component-three|0.0.1"
+          }
+        }
+      ]
+    }
+  ]
+}
