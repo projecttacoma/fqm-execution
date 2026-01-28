@@ -46,57 +46,6 @@ export function getCompositeScoringFromMeasure(measure: fhir4.Measure): Composit
   )?.code as CompositeScoreType | undefined;
 }
 
-export function extractComponentsFromGroups(
-  compositeMeasureResource: fhir4.Measure,
-  group: fhir4.Group,
-  measureBundle: fhir4.Bundle
-): MeasureWithLibrary[] {
-  const componentRefs = group.extension?.filter(
-    ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component'
-  );
-  if (componentRefs == null || componentRefs.length < 2) {
-    throw new Error('Composite measures must specify at least two components');
-  }
-
-  const uniqueCanonicalsFromComposite = new Set(componentRefs.map(ext => ext.valueRelatedArtifact?.resource as string));
-
-  const allMeasuresInBundle =
-    measureBundle.entry
-      ?.filter(
-        e =>
-          e.resource?.resourceType === 'Measure' && (e.resource as fhir4.Measure).url !== compositeMeasureResource.url
-      )
-      .map(e => e.resource as fhir4.Measure) ?? [];
-
-  const uniqueCanonicalsInBundle = new Set(allMeasuresInBundle.map(m => `${m.url}${m.version ? `|${m.version}` : ''}`));
-
-  const missingCanonicalsInBundle = new Set(
-    [...uniqueCanonicalsFromComposite].filter(c => !uniqueCanonicalsInBundle.has(c))
-  );
-
-  if (missingCanonicalsInBundle.size > 0) {
-    throw new Error(`Missing components from measure bundle: "${[...missingCanonicalsInBundle].join(', ')}"`);
-  }
-
-  return allMeasuresInBundle.filter(measure => {
-    if (!measure.library) {
-      throw new UnexpectedProperty(`Measure resource "Measure/${measure.id}" must specify a "library"`);
-    }
-
-    if (!measure.url) return false;
-
-    if (uniqueCanonicalsFromComposite.has(measure.url)) {
-      return true;
-    }
-
-    if (measure.version) {
-      return uniqueCanonicalsFromComposite.has(`${measure.url}|${measure.version}`);
-    }
-
-    return false;
-  }) as MeasureWithLibrary[];
-}
-
 /**
  * Extracts all component measures that are defined on the relatedArtifact of a composite measure.
  * @param compositeMeasureResource composite measure resource
