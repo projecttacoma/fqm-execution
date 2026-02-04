@@ -212,7 +212,7 @@ const cvExecutionResults: ExecutionResult<DetailedPopulationGroupResult>[] = [
           },
           {
             populationType: PopulationType.MSRPOPLEX,
-            criteriaExpression: 'Measure Population Exclusions',
+            criteriaExpression: 'Measure Population Exclusion 1',
             result: true
           },
           {

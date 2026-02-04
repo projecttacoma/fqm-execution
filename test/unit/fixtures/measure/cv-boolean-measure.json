@@ -1,10 +1,10 @@
 {
   "resourceType": "Measure",
-  "id": "cv-example",
+  "id": "cv-boolean-example",
   "extension": [
     {
       "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis",
-      "valueCode": "Encounter"
+      "valueCode": "boolean"
     },
     {
       "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-softwaresystem",
@@ -13,8 +13,8 @@
       }
     }
   ],
-  "url": "http://example.com/cv-example",
-  "name": "CV Example",
+  "url": "http://example.com/cv-boolean-example",
+  "name": "CV Boolean Example",
   "status": "active",
   "effectivePeriod": {
     "start": "2021-01-01",
@@ -108,7 +108,7 @@
               }
             ]
           },
-          "description": "The duration from the Decision to Admit (order or assessment) to the departure from the Emergency Department",
+          "description": "(Contrived) The number of encounters a patient has in the measurement period",
           "criteria": {
             "language": "text/cql",
             "expression": "MeasureObservation"
@@ -120,22 +120,11 @@
           "code": {
             "text": "stratification-1"
           },
-          "description": "Patient encounters without a principal diagnosis (rank=1) of 'Psychiatric/Mental Health Diagnosis'",
+          "description": "(Contrived) Patients that have gender female",
           "criteria": {
             "name": "stratification-1",
             "language": "text/cql",
             "expression": "Stratification 1"
-          }
-        },
-        {
-          "code": {
-            "text": "stratification-2"
-          },
-          "description": "Patient encounters with a principal diagnosis (rank=1) of 'Psychiatric/Mental Health Diagnosis'",
-          "criteria": {
-            "name": "stratification-2",
-            "language": "text/cql",
-            "expression": "Stratification 2"
           }
         }
       ]

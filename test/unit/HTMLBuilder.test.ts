@@ -450,7 +450,7 @@ describe('HTMLBuilder', () => {
     statementResults = [
       {
         libraryName: 'Test',
-        statementName: 'Measure Population Exclusions',
+        statementName: 'Measure Population Exclusion 1',
         localId: 'test-id-1',
         final: FinalResult.FALSE,
         relevance: Relevance.TRUE
@@ -480,7 +480,7 @@ describe('HTMLBuilder', () => {
     sortStatements(cvMeasure, 'test', statementResults);
     expect(statementResults[0].statementName === 'Initial Population');
     expect(statementResults[1].statementName === 'Measure Population');
-    expect(statementResults[2].statementName === 'Measure Population Exclusions');
+    expect(statementResults[2].statementName === 'Measure Population Exclusion 1');
     expect(statementResults[3].statementName === 'MeasureObservation');
   });
 });
