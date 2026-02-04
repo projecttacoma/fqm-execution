@@ -536,7 +536,12 @@ export function interpretFunctionRef(functionRef: ELMFunctionRef, library: ELM):
         case 'ToQuantity':
           // Act as pass through for all of the above
           if (functionRef.operand[0].type === 'Property') {
-            return functionRef.operand[0] as ELMProperty;
+            const property = functionRef.operand[0] as ELMProperty;
+            if (property.source?.type === 'FunctionRef') {
+              return interpretFunctionRef(property.source as ELMFunctionRef, library);
+            } else {
+              return property;
+            }
           } else if (functionRef.operand[0].type === 'As') {
             const asExp = functionRef.operand[0] as ELMAs;
             if (asExp.operand.type === 'Property') {

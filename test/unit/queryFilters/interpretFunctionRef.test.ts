@@ -68,7 +68,7 @@ describe('interpretFunctionRef', () => {
   });
 
   /** This is more complicated than originally expected and needs some further work to handle this unexpected scenario. */
-  test.skip('FunctionRef with complexity in param of known function not supported', () => {
+  test('FunctionRef with complexity in param of known function not supported', () => {
     const functionRefRes = QueryFilter.interpretFunctionRef(FUNCTIONREF_WITH_PARAM_COMPLEXITY, extraQueriesELM);
     expect(functionRefRes).toBeUndefined();
   });

@@ -12,6 +12,7 @@ type MeasureWithGroup = fhir4.Measure & {
 
 const simpleMeasure = getJSONFixture('measure/simple-measure.json') as MeasureWithGroup;
 const cvMeasure = getJSONFixture('measure/cv-measure.json') as MeasureWithGroup;
+const cvBooleanMeasure = getJSONFixture('measure/cv-boolean-measure.json') as MeasureWithGroup;
 const ratioMeasure = getJSONFixture('measure/ratio-measure.json') as MeasureWithGroup;
 const simpleMeasureGroup = simpleMeasure.group[0];
 const cvMeasureGroup = cvMeasure.group[0];
@@ -174,7 +175,7 @@ describe('DetailedResultsBuilder', () => {
         { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: false },
         {
           populationType: PopulationType.MSRPOPLEX,
-          criteriaExpression: 'Measure Population Exclusions',
+          criteriaExpression: 'Measure Population Exclusion 1',
           result: false
         },
         {
@@ -192,22 +193,75 @@ describe('DetailedResultsBuilder', () => {
       expect(results.populationResults).toEqual(expect.arrayContaining(expectedPopulationResults));
     });
 
-    test.skip('MSRPOPLEX should be unchanged if MSRPOPL satisfied', () => {
-      const statementResults: StatementResults = {
+    // Note: "Measure Population Exclusion 1" criteria expression does not match the display name in order to ensure
+    // that the test is appropriately pulling from the expression rather than the display
+    test('MSRPOPLEX should be unchanged if MSRPOPL satisfied', () => {
+      // MSRPOPLEX true
+      let statementResults: StatementResults = {
         'Initial Population': true,
         'Measure Population': true,
-        'Measure Population Exclusion': true,
-        'Measure Observation': false
+        'Measure Population Exclusion 1': true,
+        'Measure Observation': true,
+        obs_func_MeasureObservation: 1
       };
 
-      const expectedPopulationResults: PopulationResult[] = [
+      let expectedPopulationResults: PopulationResult[] = [
         { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
         { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: true },
-        { populationType: PopulationType.MSRPOPLEX, criteriaExpression: 'Measure Population Exclusions', result: true },
-        { populationType: PopulationType.OBSERV, criteriaExpression: 'MeasureObservation', result: false }
+        {
+          populationType: PopulationType.MSRPOPLEX,
+          criteriaExpression: 'Measure Population Exclusion 1',
+          result: true
+        },
+        expect.objectContaining({
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'MeasureObservation',
+          observations: null,
+          result: false
+        })
       ];
 
-      const results = DetailedResultsBuilder.createPopulationValues(cvMeasure, cvMeasureGroup, statementResults);
+      let results = DetailedResultsBuilder.createPopulationValues(
+        cvBooleanMeasure,
+        cvBooleanMeasure.group[0],
+        statementResults
+      );
+
+      expect(results.populationResults).toBeDefined();
+      expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
+      expect(results.populationResults).toEqual(expect.arrayContaining(expectedPopulationResults));
+
+      // MSRPOPLEX false
+
+      statementResults = {
+        'Initial Population': true,
+        'Measure Population': true,
+        'Measure Population Exclusion 1': false,
+        'Measure Observation': true,
+        obs_func_MeasureObservation: 1
+      };
+
+      expectedPopulationResults = [
+        { populationType: PopulationType.IPP, criteriaExpression: 'Initial Population', result: true },
+        { populationType: PopulationType.MSRPOPL, criteriaExpression: 'Measure Population', result: true },
+        {
+          populationType: PopulationType.MSRPOPLEX,
+          criteriaExpression: 'Measure Population Exclusion 1',
+          result: false
+        },
+        expect.objectContaining({
+          populationType: PopulationType.OBSERV,
+          criteriaExpression: 'MeasureObservation',
+          result: true,
+          observations: [1]
+        })
+      ];
+
+      results = DetailedResultsBuilder.createPopulationValues(
+        cvBooleanMeasure,
+        cvBooleanMeasure.group[0],
+        statementResults
+      );
 
       expect(results.populationResults).toBeDefined();
       expect(results.populationResults).toHaveLength(expectedPopulationResults.length);
