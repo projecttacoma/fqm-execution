@@ -58,6 +58,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       })[] = [];
       compositeMeasure.group?.forEach(g => {
         // For now we are going to assume that all groups in Measure.group have an id
+        // Could make type where MeasureGroup.id must exist
         if (g.id) {
           // If a group doesn't have a composite scoring type defined, we will just make it all-or-nothing for now
           (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[g.id] = {
@@ -202,7 +203,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           this.addGroupWeightedResults(results, groupId);
         } else {
           results.forEach(result => {
-            this.addGroupPatientResults(result, groupId);
+            this.addPatientResults(result, groupId);
           });
         }
       }
@@ -215,115 +216,6 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
         });
       }
     }
-  }
-
-  private addGroupPatientResults(result: ExecutionResult<T>, groupId: string) {
-    const componentResults = filterComponentResults(this.groups[groupId], result.componentResults);
-    if (this.groups[groupId]['compositeScoringType'] === 'all-or-nothing') {
-      let inIpp = false;
-      let inDenom = false;
-      let inNumer = true;
-      componentResults.forEach(componentResult => {
-        const ippResult = componentResult.populationResults?.find(
-          pop => pop.populationType === PopulationType.IPP
-        )?.result;
-        if (ippResult === true) {
-          inIpp = true;
-        }
-
-        const denomResult = componentResult.populationResults?.find(
-          pop => pop.populationType === PopulationType.DENOM
-        )?.result;
-        if (denomResult === true) {
-          inDenom = true;
-        }
-
-        const numerResult = componentResult.populationResults?.find(
-          pop => pop.populationType === PopulationType.NUMER
-        )?.result;
-        if (numerResult === false) {
-          inNumer = false;
-        }
-      });
-
-      if (inIpp) {
-        if (inDenom) {
-          (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator++;
-          if (inNumer) {
-            (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].numerator++;
-          }
-        }
-      }
-    } else if (this.groups[groupId]['compositeScoringType'] === 'opportunity') {
-      let inIpp = false;
-      let inDenom = false;
-
-      componentResults.forEach(componentResult => {
-        const ippResult = componentResult.populationResults?.find(
-          pop => pop.populationType === PopulationType.IPP
-        )?.result;
-        if (ippResult === true) {
-          inIpp = true;
-        }
-
-        const denomResult = componentResult.populationResults?.find(
-          pop => pop.populationType === PopulationType.DENOM
-        )?.result;
-        if (denomResult === true) {
-          inDenom = true;
-        }
-
-        const numerResults = componentResult.populationResults
-          ?.filter(pop => pop.populationType === PopulationType.NUMER)
-          ?.map(r => r.result);
-
-        if (inIpp) {
-          if (inDenom) {
-            (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
-              .denominator++;
-          }
-          numerResults?.forEach(result => {
-            if (result) {
-              (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
-                .numerator++;
-            }
-          });
-        }
-      });
-    } else if (this.groups[groupId]['compositeScoringType'] === 'linear') {
-      (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator++;
-
-      const [patientDenomCount, patientNumerCount] = componentResults.reduce(
-        (sums, componentResult) => {
-          if (
-            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
-          ) {
-            sums[0] += 1;
-          }
-
-          if (
-            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
-          ) {
-            sums[1] += 1;
-          }
-
-          return sums;
-        },
-        [0, 0]
-      ) ?? [0, 0];
-
-      if (patientDenomCount !== 0) {
-        (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].numerator +=
-          (patientNumerCount * 1.0) / patientDenomCount;
-      }
-    } else if (this.compositeScoringType === 'weighted') {
-      // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
-      throw new Error(
-        'addPatientResults cannot be used for weighted scoring since it is a component-based composite measure scoring method, addAllResults should be used instead'
-      );
-    }
-
-    this.addEvaluatedResources(result);
   }
 
   private addGroupWeightedResults(results: ExecutionResult<T>[], groupId: string) {
@@ -503,7 +395,164 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       });
   }
 
-  public addPatientResults(result: ExecutionResult<T>) {
+  public addPatientResults(result: ExecutionResult<T>, groupId?: string) {
+    const componentResults = groupId
+      ? filterComponentResults(this.groups[groupId], result.componentResults)
+      : filterComponentResults(this.components, result.componentResults);
+
+    // all-or-nothing for both group-defined and not
+    if (
+      this.compositeScoringType === 'all-or-nothing' ||
+      (groupId && this.groups[groupId]['compositeScoringType'] === 'all-or-nothing')
+    ) {
+      let inIpp = false;
+      let inDenom = false;
+      let inNumer = true;
+      componentResults.forEach(componentResult => {
+        const ippResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.IPP
+        )?.result;
+        if (ippResult === true) {
+          inIpp = true;
+        }
+
+        const denomResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.DENOM
+        )?.result;
+        if (denomResult === true) {
+          inDenom = true;
+        }
+
+        const numerResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.NUMER
+        )?.result;
+        if (numerResult === false) {
+          inNumer = false;
+        }
+      });
+
+      if (inIpp) {
+        if (inDenom) {
+          if (groupId) {
+            (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
+              .denominator++;
+            if (inNumer) {
+              (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
+                .numerator++;
+            }
+          } else {
+            (this.compositeFraction.denominator as number)++;
+            if (inNumer) {
+              (this.compositeFraction.numerator as number)++;
+            }
+          }
+        }
+      }
+    } else if (
+      this.compositeScoringType === 'opportunity' ||
+      (groupId && this.groups[groupId]['compositeScoringType'] === 'opportunity')
+    ) {
+      let inIpp = false;
+      let inDenom = false;
+
+      componentResults.forEach(componentResult => {
+        const ippResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.IPP
+        )?.result;
+        if (ippResult === true) {
+          inIpp = true;
+        }
+
+        const denomResult = componentResult.populationResults?.find(
+          pop => pop.populationType === PopulationType.DENOM
+        )?.result;
+        if (denomResult === true) {
+          inDenom = true;
+        }
+
+        const numerResults = componentResult.populationResults
+          ?.filter(pop => pop.populationType === PopulationType.NUMER)
+          ?.map(r => r.result);
+
+        // add calc
+        if (inIpp) {
+          if (groupId) {
+            if (inDenom) {
+              (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
+                .denominator++;
+            }
+            numerResults?.forEach(result => {
+              if (result) {
+                (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId]
+                  .numerator++;
+              }
+            });
+          } else {
+            if (inDenom) {
+              (this.compositeFraction.denominator as number)++;
+            }
+            numerResults?.forEach(result => {
+              if (result) {
+                (this.compositeFraction.numerator as number)++;
+              }
+            });
+          }
+        }
+      });
+    } else if (
+      this.compositeScoringType === 'linear' ||
+      (groupId && this.groups[groupId]['compositeScoringType'] === 'linear')
+    ) {
+      // linear for both group-defined and not
+
+      // Always increment the denominator for linear scoring when processing a patient result
+      if (groupId) {
+        (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator++;
+      } else {
+        (this.compositeFraction.denominator as number)++;
+      }
+
+      const [patientDenomCount, patientNumerCount] = componentResults.reduce(
+        (sums, componentResult) => {
+          if (
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
+          ) {
+            sums[0] += 1;
+          }
+
+          if (
+            componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
+          ) {
+            sums[1] += 1;
+          }
+
+          return sums;
+        },
+        [0, 0]
+      ) ?? [0, 0];
+
+      if (patientDenomCount !== 0) {
+        if (groupId) {
+          (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].numerator +=
+            (patientNumerCount * 1.0) / patientDenomCount;
+        } else {
+          (this.compositeFraction.numerator as number) += (patientNumerCount * 1.0) / patientDenomCount;
+        }
+      }
+    } else if (
+      this.compositeScoringType === 'weighted' ||
+      (groupId && this.groups[groupId]['compositeScoringType'] === 'weighted')
+    ) {
+      // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
+      throw new Error(
+        'addPatientResults cannot be used for weighted scoring since it is a component-based composite measure scoring method, addAllResults should be used instead'
+      );
+    }
+
+    this.addEvaluatedResources(result);
+  }
+
+  public addPatientResults2(result: ExecutionResult<T>) {
     // filter component results according to CQFM Group Id extension
     // https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-groupId.html
     const componentResults = filterComponentResults(this.components, result.componentResults);
