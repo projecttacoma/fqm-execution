@@ -398,7 +398,7 @@ describe('addPatientResults', () => {
     groupCompositeReportBuilder.groups['group-1']['compositeScoringType'] = 'opportunity';
     groupCompositeReportBuilder.addAllResults(groupCompositeExecutionResults);
     const groupReport = groupCompositeReportBuilder.getReport();
-    expect(groupReport.group[0].measureScore?.value).toEqual(5 / 6);
+    expect(groupReport.group[0].measureScore?.value).toBeCloseTo(5 / 6);
     expect(
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-1'
@@ -460,12 +460,12 @@ describe('addComponentResults', () => {
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-2'
       ].numerator
-    ).toEqual(2.5);
+    ).toEqual(2.5); // (weight 3) * (score .5) + (weight 1) * (score 1) 
     expect(
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-2'
       ].denominator
-    ).toEqual(4);
+    ).toEqual(4); // (weight 3) + (weight 1)
   });
 
   it('increments numerator and denominator for weighted scoring when a weight is not specified so it is treated as 1', () => {
@@ -486,12 +486,12 @@ describe('addComponentResults', () => {
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-1'
       ].numerator
-    ).toEqual(2.5);
+    ).toEqual(2.5); // (weight 1) * (score .5) + (weight 1) * (score 1) + (weight 1) * (score 1)
     expect(
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-1'
       ].denominator
-    ).toEqual(3);
+    ).toEqual(3); // (weight 1) + (weight 1) + (weight 1)
   });
 });
 
