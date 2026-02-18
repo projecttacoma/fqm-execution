@@ -460,7 +460,7 @@ describe('addComponentResults', () => {
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-2'
       ].numerator
-    ).toEqual(2.5); // (weight 3) * (score .5) + (weight 1) * (score 1) 
+    ).toEqual(2.5); // (weight 3) * (score .5) + (weight 1) * (score 1)
     expect(
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-2'
