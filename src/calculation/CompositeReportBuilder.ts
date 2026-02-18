@@ -69,7 +69,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             denominator: 0
           };
           const groupCompositeScoringType = getCompositeScoringFromGroup(g);
-          this.groups[g.id] = { ['compositeScoringType']: groupCompositeScoringType };
+          this.groups[g.id] = { compositeScoringType: groupCompositeScoringType };
           g.extension?.forEach(e => {
             if (
               e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' &&
