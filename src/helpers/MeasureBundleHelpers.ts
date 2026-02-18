@@ -122,7 +122,11 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
           getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite') ||
         (e.resource?.resourceType === 'Measure' &&
           e.resource?.group?.find(g =>
-            g.extension?.find(e => e.valueCodeableConcept?.coding?.[0].code === 'composite')
+            g.extension?.find(
+              e =>
+                e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring' &&
+                e.valueCodeableConcept?.coding?.[0].code === 'composite'
+            )
           ))
     )
     ?.map(e => e.resource as fhir4.Measure);
