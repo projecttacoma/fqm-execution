@@ -342,27 +342,24 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     const isComponentResult = (obj: any): obj is ComponentPopulationResults => {
       return 'numerator' in obj;
     };
-    if (groupId) {
-      Object.values(componentPopulationResults)
-        .flatMap(e => (isComponentResult(e) ? e : Object.values(e)))
-        .forEach(value => {
+
+    Object.values(componentPopulationResults)
+      .flatMap(e => (isComponentResult(e) ? e : Object.values(e)))
+      .forEach(value => {
+        if (groupId) {
           if (value.denominator !== 0) {
             (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].numerator +=
               value.weight * (value.numerator / value.denominator);
           }
           (this.compositeFraction as Record<string, { numerator: number; denominator: number }>)[groupId].denominator +=
             value.weight;
-        });
-    } else {
-      Object.values(componentPopulationResults)
-        .flatMap(e => (isComponentResult(e) ? e : Object.values(e)))
-        .forEach(value => {
+        } else {
           if (value.denominator !== 0) {
             (this.compositeFraction.numerator as number) += value.weight * (value.numerator / value.denominator);
           }
           (this.compositeFraction.denominator as number) += value.weight;
-        });
-    }
+        }
+      });
   }
 
   public addPatientResults(result: ExecutionResult<T>, groupId?: string) {
@@ -444,7 +441,6 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           ?.filter(pop => pop.populationType === PopulationType.NUMER)
           ?.map(r => r.result);
 
-        // add calc
         if (inIpp) {
           if (groupId) {
             if (inDenom) {
