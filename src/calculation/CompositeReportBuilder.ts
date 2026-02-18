@@ -56,7 +56,11 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     }
 
     this.groupDefinedCompositeMeasure =
-      compositeMeasure.group === undefined || compositeMeasure.group.length < 1 ? false : true;
+      compositeMeasure.group === undefined ||
+      compositeMeasure.group.length < 1 ||
+      this.compositeScoringType !== undefined
+        ? false
+        : true;
 
     if (this.groupDefinedCompositeMeasure === true) {
       this.components = {};
