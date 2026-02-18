@@ -43,9 +43,20 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     super(compositeMeasure, options);
 
     // need to check if composite scoring is defined at the measure level or at the group level
+    const scoring = getCompositeScoringFromMeasure(compositeMeasure);
 
-    this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure);
-    this.groupDefinedCompositeMeasure = this.compositeScoringType === undefined ? true : false;
+    if (scoring !== undefined) {
+      this.compositeScoringType = scoring;
+    } else {
+      if (compositeMeasure.group === undefined || compositeMeasure.group.length < 1) {
+        this.compositeScoringType = 'all-or-nothing';
+      } else {
+        this.compositeScoringType = undefined;
+      }
+    }
+
+    this.groupDefinedCompositeMeasure =
+      compositeMeasure.group === undefined || compositeMeasure.group.length < 1 ? false : true;
 
     if (this.groupDefinedCompositeMeasure === true) {
       this.components = {};
