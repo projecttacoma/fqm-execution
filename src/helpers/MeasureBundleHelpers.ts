@@ -57,7 +57,6 @@ export function extractComponentsFromMeasure(
   measureBundle: fhir4.Bundle
 ): MeasureWithLibrary[] {
   const componentRefs =
-    compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of') ||
     compositeMeasureResource.group?.flatMap(group =>
       group.extension
         ?.filter(
@@ -66,7 +65,7 @@ export function extractComponentsFromMeasure(
             ext.valueRelatedArtifact?.type === 'composed-of'
         )
         .map(ext => ext.valueRelatedArtifact)
-    );
+    ) || compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
 
   if (componentRefs == null || componentRefs.length < 2) {
     throw new Error('Composite measures must specify at least two components');
