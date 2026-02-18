@@ -289,7 +289,7 @@ describe('CompositeReportBuilder constructor', () => {
     expect(
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-1'
-      ].denominator
+      ].numerator
     ).toEqual(0);
 
     expect(
@@ -300,7 +300,7 @@ describe('CompositeReportBuilder constructor', () => {
     expect(
       (groupCompositeReportBuilder.compositeFraction as Record<string, { numerator: number; denominator: number }>)[
         'group-2'
-      ].denominator
+      ].numerator
     ).toEqual(0);
   });
 
@@ -337,7 +337,7 @@ describe('CompositeReportBuilder constructor', () => {
       });
     });
 
-    it('defines a single group with numerator and denominator populations', () => {
+    it('defines a single group with numerator and denominator populations fro Measure defined composite measure and two groups for group defined composite measures', () => {
       expect(compositeMeasureReport.group.length).toEqual(1);
       expect(compositeMeasureReport.group[0].population.length).toEqual(2);
 
