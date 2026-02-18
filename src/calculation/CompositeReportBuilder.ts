@@ -51,6 +51,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       this.components = {};
       this.compositeFraction = {};
       this.groups = {};
+      this.options = options;
       // need to handle as group
       const groupsForMeasureReport: (fhir4.MeasureReportGroup & {
         population: [
@@ -333,6 +334,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           }
         }
       });
+      this.addEvaluatedResources(result);
     });
 
     // Multiply each of the component ratios by the weight associated with the component
