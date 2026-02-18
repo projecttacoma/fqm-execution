@@ -72,7 +72,9 @@ export function extractComponentsFromMeasure(
     throw new Error('Composite measures must specify at least two components');
   }
 
-  const uniqueCanonicalsFromComposite = new Set(componentRefs.map(ra => ra?.resource as string));
+  const uniqueCanonicalsFromComposite = new Set(
+    componentRefs.map(ra => ra?.resource as string).filter(ra => ra !== 'undefined')
+  );
 
   const allMeasuresInBundle =
     measureBundle.entry
