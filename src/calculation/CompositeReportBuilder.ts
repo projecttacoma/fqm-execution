@@ -77,7 +77,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               g.id
             ) {
               // get weight for component or set to 1
-              const weight = getWeightForComponentFromExtension(e) || 1;
+              const weight = getWeightForComponentFromExtension(e);
               this.groups[g.id][e.valueRelatedArtifact.resource] = weight;
             }
           });

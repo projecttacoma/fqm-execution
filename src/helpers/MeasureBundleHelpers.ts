@@ -177,7 +177,7 @@ export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): n
   return weightExtension?.[0]?.valueDecimal ?? null;
 }
 
-export function getWeightForComponentFromExtension(extension: fhir4.Extension): number | null {
+export function getWeightForComponentFromExtension(extension: fhir4.Extension): number {
   const weightExtension = extension.valueRelatedArtifact?.extension?.filter(
     ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
   );
@@ -187,7 +187,7 @@ export function getWeightForComponentFromExtension(extension: fhir4.Extension): 
       `Only one CQFM Weight extension can be defined on a component, but ${weightExtension.length} were provided.`
     );
   }
-  return weightExtension?.[0]?.valueDecimal ?? null;
+  return weightExtension?.[0]?.valueDecimal ?? 1;
 }
 
 /**
