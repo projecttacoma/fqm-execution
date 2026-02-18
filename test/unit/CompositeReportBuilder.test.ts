@@ -268,9 +268,11 @@ describe('CompositeReportBuilder constructor', () => {
     groupCompositeMeasureReport = groupCompositeReportBuilder.getReport();
   });
 
-  it('defines a composite scoring type', () => {
+  it('defines a composite scoring type or remains undefined if it is group-defined', () => {
     expect(compositeReportBuilder.compositeScoringType).toBeDefined();
-    expect(groupCompositeReportBuilder.compositeScoringType).toBeDefined();
+    expect(compositeReportBuilder.groupDefinedCompositeMeasure).toBeFalsy();
+    expect(groupCompositeReportBuilder.compositeScoringType).toBeUndefined();
+    expect(groupCompositeReportBuilder.groupDefinedCompositeMeasure).toBeTruthy();
   });
 
   it('initializes a composite fraction', () => {

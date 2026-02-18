@@ -31,21 +31,23 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   CompositeMeasureReport
 > {
   report: CompositeMeasureReport;
-  compositeScoringType: CompositeScoreType;
+  compositeScoringType: CompositeScoreType | undefined;
   compositeFraction:
     | { numerator: number; denominator: number }
     | Record<string, { numerator: number; denominator: number }>;
   components: Record<string, Record<string, number> | number>;
   groups: Record<string, Record<string, number | string>>;
+  groupDefinedCompositeMeasure: boolean;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
     super(compositeMeasure, options);
 
     // need to check if composite scoring is defined at the measure level or at the group level
 
-    this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure) ?? 'group-defined';
+    this.compositeScoringType = getCompositeScoringFromMeasure(compositeMeasure);
+    this.groupDefinedCompositeMeasure = this.compositeScoringType === undefined ? true : false;
 
-    if (this.compositeScoringType === 'group-defined') {
+    if (this.groupDefinedCompositeMeasure === true) {
       this.components = {};
       this.compositeFraction = {};
       this.groups = {};
@@ -194,7 +196,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
   public addAllResults(results: ExecutionResult<T>[]) {
     // the weighted composite scoring type is component-based, but the others are individual-based
-    if (this.compositeScoringType === 'group-defined') {
+    if (this.groupDefinedCompositeMeasure === true) {
       // Add new methods in here for now rather than reuse old ones
       // go through all of the groups in this.groups
       for (const groupId of Object.keys(this.groups)) {
@@ -521,7 +523,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   getReport(): CompositeMeasureReport {
     // Composite measure population list is a tuple of [denom, numer]
 
-    if (this.compositeScoringType === 'group-defined') {
+    if (this.groupDefinedCompositeMeasure === true) {
       for (const group of this.report.group) {
         if (group.id) {
           const index = this.report.group.findIndex(g => g.id === group.id);
