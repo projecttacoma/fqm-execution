@@ -33,10 +33,10 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
   )?.code;
 }
 
-export function getCompositeScoringFromGroup(group?: fhir4.MeasureGroup): string | null {
+export function getCompositeScoringFromGroup(group?: fhir4.MeasureGroup): string {
   return (
     group?.extension?.find(ext => ext.url === COMPOSITE_SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ??
-    null
+    'all-or-nothing'
   );
 }
 

@@ -67,7 +67,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             numerator: 0,
             denominator: 0
           };
-          const groupCompositeScoringType = getCompositeScoringFromGroup(g) || 'all-or-nothing';
+          const groupCompositeScoringType = getCompositeScoringFromGroup(g);
           this.groups[g.id] = { ['compositeScoringType']: groupCompositeScoringType };
           g.extension?.forEach(e => {
             if (
