@@ -337,7 +337,7 @@ describe('CompositeReportBuilder constructor', () => {
       });
     });
 
-    it('defines a single group with numerator and denominator populations fro Measure defined composite measure and two groups for group defined composite measures', () => {
+    it('defines a single group with numerator and denominator populations for Measure defined composite measure and two groups for group defined composite measures', () => {
       expect(compositeMeasureReport.group.length).toEqual(1);
       expect(compositeMeasureReport.group[0].population.length).toEqual(2);
 

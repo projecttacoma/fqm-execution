@@ -84,7 +84,7 @@ export function extractComponentsFromMeasure(
   }
 
   const uniqueCanonicalsFromComposite = new Set(
-    componentRefs.map(ra => ra?.resource as string).filter(ra => ra !== 'undefined')
+    componentRefs.filter(ra => ra?.resource !== undefined).map(ra => ra?.resource as string)
   );
 
   const allMeasuresInBundle =
