@@ -67,8 +67,20 @@ export function extractComponentsFromMeasure(
         .map(ext => ext.valueRelatedArtifact)
     ) || compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
 
-  if (componentRefs == null || componentRefs.length < 2) {
-    throw new Error('Composite measures must specify at least two components');
+  // Composite Measures with components defined in the group are constrained to have at least one component (cmp-11)
+  // https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-composite-measure-cqfm.html#constraints
+  if (compositeMeasureResource.group) {
+    if (componentRefs == null || componentRefs.length < 1) {
+      throw new Error(
+        'Composite measures with components defined at the group level must specify at least one component'
+      );
+    }
+  } else {
+    if (componentRefs == null || componentRefs.length < 2) {
+      throw new Error(
+        'Composite measures with components defined at the Measure level must specify at least two components'
+      );
+    }
   }
 
   const uniqueCanonicalsFromComposite = new Set(

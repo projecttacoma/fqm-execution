@@ -1126,7 +1126,7 @@ describe('MeasureBundleHelpers tests', () => {
       };
 
       expect(() => extractComponentsFromMeasure(compositeMeasure, measureBundle)).toThrow(
-        /composite measures must specify at least two components/i
+        /composite measures with components defined at the Measure level must specify at least two components/i
       );
     });
 
@@ -1163,7 +1163,7 @@ describe('MeasureBundleHelpers tests', () => {
       };
 
       expect(() => extractComponentsFromMeasure(compositeMeasure, measureBundle)).toThrow(
-        /composite measures must specify at least two components/i
+        /composite measures with components defined at the Measure level must specify at least two components/i
       );
     });
 
