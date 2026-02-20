@@ -13,6 +13,7 @@ import { ExtractedLibrary } from '../types/CQLTypes';
 const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
 const SCORING_CODE_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring';
 const IMPROVEMENT_NOTATION_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-improvementNotation';
+const COMPOSITE_SCORING_CODE_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-compositeScoring';
 
 export function getImprovementNotationFromGroup(group?: fhir4.MeasureGroup): string | null {
   return (
@@ -32,6 +33,13 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
   )?.code;
 }
 
+export function getCompositeScoringFromGroup(group?: fhir4.MeasureGroup): string {
+  return (
+    group?.extension?.find(ext => ext.url === COMPOSITE_SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ??
+    'all-or-nothing'
+  );
+}
+
 export function getCompositeScoringFromMeasure(measure: fhir4.Measure): CompositeScoreType | undefined {
   return measure.compositeScoring?.coding?.find(
     c => c.system === 'http://terminology.hl7.org/CodeSystem/composite-measure-scoring'
@@ -48,12 +56,36 @@ export function extractComponentsFromMeasure(
   compositeMeasureResource: fhir4.Measure,
   measureBundle: fhir4.Bundle
 ): MeasureWithLibrary[] {
-  const componentRefs = compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
-  if (componentRefs == null || componentRefs.length < 2) {
-    throw new Error('Composite measures must specify at least two components');
+  const componentRefs =
+    compositeMeasureResource.group?.flatMap(group =>
+      group.extension
+        ?.filter(
+          ext =>
+            ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' &&
+            ext.valueRelatedArtifact?.type === 'composed-of'
+        )
+        .map(ext => ext.valueRelatedArtifact)
+    ) || compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
+
+  // Composite Measures with components defined in the group are constrained to have at least one component (cmp-11)
+  // https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-composite-measure-cqfm.html#constraints
+  if (compositeMeasureResource.group) {
+    if (componentRefs == null || componentRefs.length < 1) {
+      throw new Error(
+        'Composite measures with components defined at the group level must specify at least one component'
+      );
+    }
+  } else {
+    if (componentRefs == null || componentRefs.length < 2) {
+      throw new Error(
+        'Composite measures with components defined at the Measure level must specify at least two components'
+      );
+    }
   }
 
-  const uniqueCanonicalsFromComposite = new Set(componentRefs.map(ra => ra.resource as string));
+  const uniqueCanonicalsFromComposite = new Set(
+    componentRefs.filter(ra => ra?.resource !== undefined).map(ra => ra?.resource as string)
+  );
 
   const allMeasuresInBundle =
     measureBundle.entry
@@ -97,7 +129,16 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
   const allCompositeMeasures = measureBundle.entry
     ?.filter(
       e =>
-        e.resource?.resourceType === 'Measure' && getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite'
+        (e.resource?.resourceType === 'Measure' &&
+          getScoringCodeFromMeasure(e.resource as fhir4.Measure) === 'composite') ||
+        (e.resource?.resourceType === 'Measure' &&
+          e.resource?.group?.find(g =>
+            g.extension?.find(
+              e =>
+                e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring' &&
+                e.valueCodeableConcept?.coding?.[0].code === 'composite'
+            )
+          ))
     )
     ?.map(e => e.resource as fhir4.Measure);
 
@@ -151,6 +192,19 @@ export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): n
   return weightExtension?.[0]?.valueDecimal ?? null;
 }
 
+export function getWeightForComponentFromExtension(extension: fhir4.Extension): number {
+  const weightExtension = extension.valueRelatedArtifact?.extension?.filter(
+    ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
+  );
+
+  if (weightExtension && weightExtension.length > 1) {
+    throw new Error(
+      `Only one CQFM Weight extension can be defined on a component, but ${weightExtension.length} were provided.`
+    );
+  }
+  return weightExtension?.[0]?.valueDecimal ?? 1;
+}
+
 /**
  * Filters component results using mapping of group ids defined by the CQFM Group Id extension on the
  * composite measure. Throws error if a component contains multiple groups but no group is specified to
@@ -160,7 +214,7 @@ export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): n
  * @returns component results, filtered by desired group Ids
  */
 export function filterComponentResults(
-  componentGroupIds: Record<string, Record<string, number> | number>,
+  componentGroupIds: Record<string, Record<string, number> | number | string>,
   componentResults?: ComponentResults[]
 ): ComponentResults[] {
   const filteredComponentResults = componentResults?.filter(cr => {
