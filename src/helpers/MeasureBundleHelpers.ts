@@ -173,6 +173,19 @@ export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): 
   return groupIdExtension?.[0]?.valueString ?? null;
 }
 
+export function getGroupIdForComponentFromExtension(extension: fhir4.Extension): string | null {
+  const groupIdExtension = extension.valueRelatedArtifact?.extension?.filter(
+    ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId'
+  );
+
+  if (groupIdExtension && groupIdExtension.length > 1) {
+    throw new Error(
+      `Only one CQFM groupId extension can be defined on a component, but ${groupIdExtension.length} were provided.`
+    );
+  }
+  return groupIdExtension?.[0]?.valueString ?? null;
+}
+
 /**
  * Extracts CQFM Weight from a given composite measure Related Artifact.
  * https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-weight.html

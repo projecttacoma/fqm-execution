@@ -5,7 +5,8 @@ import {
   getWeightForComponent,
   filterComponentResults,
   getCompositeScoringFromGroup,
-  getWeightForComponentFromExtension
+  getWeightForComponentFromExtension,
+  getGroupIdForComponentFromExtension
 } from '../helpers/MeasureBundleHelpers';
 import { CompositeScoreType, PopulationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,7 +37,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     | { numerator: number; denominator: number }
     | Record<string, { numerator: number; denominator: number }>;
   components: Record<string, Record<string, number> | number>;
-  groups: Record<string, Record<string, number | string>>;
+  groups: Record<string, Record<string, Record<string, number> | number | string>>;
   groupDefinedCompositeMeasure: boolean;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
@@ -93,8 +94,19 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               g.id
             ) {
               // get weight for component or set to 1
-              const weight = getWeightForComponentFromExtension(e);
-              this.groups[g.id][e.valueRelatedArtifact.resource] = weight;
+              const weight = getWeightForComponentFromExtension(e) || 1;
+              const componentGroupId = getGroupIdForComponentFromExtension(e);
+
+              if (componentGroupId) {
+                if (!(e.valueRelatedArtifact.resource in this.groups[g.id])) {
+                  this.groups[g.id][e.valueRelatedArtifact.resource] = { [componentGroupId]: weight };
+                } else {
+                  (this.groups[g.id][e.valueRelatedArtifact.resource] as Record<string, number>)[componentGroupId] =
+                    weight;
+                }
+              } else {
+                this.groups[g.id][e.valueRelatedArtifact.resource] = weight;
+              }
             }
           });
         }
@@ -265,12 +277,41 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               };
             }
           } else {
-            // TODO: multiple group functionality for group-defined composite measures
             if (!groupId) {
               // multiple groups are specified for the component
               Object.keys(this.components[componentResult.componentCanonical]).forEach(gId => {
                 if (componentResult.componentCanonical) {
                   const weight = (this.components[componentResult.componentCanonical] as Record<string, number>)[gId];
+                  if (!(componentResult.componentCanonical in componentPopulationResults)) {
+                    componentPopulationResults[componentResult.componentCanonical] = {
+                      [gId]: {
+                        numerator: 0,
+                        denominator: 0,
+                        weight: weight
+                      }
+                    };
+                  } else {
+                    if (!(gId in componentPopulationResults[componentResult.componentCanonical]))
+                      (
+                        componentPopulationResults[componentResult.componentCanonical] as Record<
+                          string,
+                          ComponentPopulationResults
+                        >
+                      )[gId] = {
+                        numerator: 0,
+                        denominator: 0,
+                        weight: weight
+                      };
+                  }
+                }
+              });
+            } else {
+              // multiple groups are specified for the component, but the component is defined at the group level
+              Object.keys(this.groups[groupId][componentResult.componentCanonical]).forEach(gId => {
+                if (componentResult.componentCanonical) {
+                  const weight = (this.groups[groupId][componentResult.componentCanonical] as Record<string, number>)[
+                    gId
+                  ];
                   if (!(componentResult.componentCanonical in componentPopulationResults)) {
                     componentPopulationResults[componentResult.componentCanonical] = {
                       [gId]: {
@@ -301,49 +342,32 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             if (
               componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
             ) {
-              if (groupId) {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .numerator++;
-                } else {
-                  // TODO: handle multiple groups
-                }
+              if (noGroupExt) {
+                (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
+                  .numerator++;
               } else {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .numerator++;
-                } else {
-                  (
-                    componentPopulationResults[componentResult.componentCanonical] as Record<
-                      string,
-                      ComponentPopulationResults
-                    >
-                  )[componentResult.groupId].numerator++;
-                }
+                (
+                  componentPopulationResults[componentResult.componentCanonical] as Record<
+                    string,
+                    ComponentPopulationResults
+                  >
+                )[componentResult.groupId].numerator++;
               }
             }
+
             if (
               componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
             ) {
-              if (groupId) {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .denominator++;
-                } else {
-                  // TODO: handle multiple groups
-                }
+              if (noGroupExt) {
+                (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
+                  .denominator++;
               } else {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .denominator++;
-                } else {
-                  (
-                    componentPopulationResults[componentResult.componentCanonical] as Record<
-                      string,
-                      ComponentPopulationResults
-                    >
-                  )[componentResult.groupId].denominator++;
-                }
+                (
+                  componentPopulationResults[componentResult.componentCanonical] as Record<
+                    string,
+                    ComponentPopulationResults
+                  >
+                )[componentResult.groupId].denominator++;
               }
             }
           }
