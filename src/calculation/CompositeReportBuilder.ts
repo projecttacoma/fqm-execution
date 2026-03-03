@@ -37,6 +37,30 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     | { numerator: number; denominator: number }
     | Record<string, { numerator: number; denominator: number }>;
   components: Record<string, Record<string, number> | number>;
+  /**
+   * below is a complex Record structure due to the flexibility required for information that each group contains
+   * the top level key values are Composite Measure groupId, and those groupId values contain:
+   * - key of `compositeScoringType` with value string that represents the composite scoring type of the Composite Measure group
+   * - key of type string that is the Measure component resource canonical with values of either number or Record<string, number>:
+   *    - if the Measure component resource has only one group, then the value is a number that is the weight of the component
+   *    - if the Measure component resource has more than one group, then the value is a Record<string, number> where:
+   *        - the key is of type string that is the groupId of the Measure component resource
+   *        - the value is of type number that is the weight of the group of the Measure component resource
+   * 
+   * Example for a Composite Measure with two groups and two components and one of the component Measures has two groups:
+   * {
+      'group-1': {
+        compositeScoringType: 'all-or-nothing',
+        'http://example.com/Measure/measure-GroupComponentOne|0.0.1': { 'comp-1-group-1': 1, 'comp-1-group-2': 1 },
+        'http://example.com/Measure/measure-GroupComponentTwo|0.0.1': 1
+      },
+      'group-2': {
+        compositeScoringType: 'weighted',
+        'http://example.com/Measure/measure-GroupComponentOne|0.0.1': { 'comp-1-group-1': 3 },
+        'http://example.com/Measure/measure-GroupComponentTwo|0.0.1': 1
+      }
+    }
+   */
   groups: Record<string, Record<string, Record<string, number> | number | string>>;
   groupDefinedCompositeMeasure: boolean;
 
@@ -94,7 +118,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               g.id
             ) {
               // get weight for component or set to 1
-              const weight = getWeightForComponentFromExtension(e) || 1;
+              const weight = getWeightForComponentFromExtension(e);
               const componentGroupId = getGroupIdForComponentFromExtension(e);
 
               if (componentGroupId) {

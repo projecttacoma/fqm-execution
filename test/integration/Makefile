@@ -50,6 +50,7 @@ composite-group:
 		&& ecqm-bundler make-composite /tmp/comp1.json /tmp/comp2.json /tmp/comp3.json --composite-scoring "weighted" --detailed-component "measure-GroupComponentOne|0.0.1##3" "measure-GroupComponentTwo|0.0.1##3" "measure-GroupComponentTwo|0.0.1##1" -o ./composite-groups/composite-group-bundle.json \
 		&& rm /tmp/comp1.json /tmp/comp2.json /tmp/comp3.json
 
+# Using this option requires additional manual editing unless/until ecqm-bundler is updated
 composite-groups-group-id:
 	ecqm-bundler generate -c ./composite-groups-group-ids/cql/component-one.cql --deps-directory ./helpers/cql/ --measure-version "0.0.1" --ipop "Initial Population" --denom "Denominator" --numer "Numerator 1" -o /tmp/comp1-1.json \
 		&& ecqm-bundler generate -c ./composite-groups-group-ids/cql/component-one.cql --deps-directory ./helpers/cql/ --measure-version "0.0.1" --ipop "Initial Population" --denom "Denominator" --numer "Numerator 2" -o /tmp/comp1-2.json \
