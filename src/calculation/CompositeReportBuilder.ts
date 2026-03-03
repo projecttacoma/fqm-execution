@@ -301,65 +301,36 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               };
             }
           } else {
-            if (!groupId) {
-              // multiple groups are specified for the component
-              Object.keys(this.components[componentResult.componentCanonical]).forEach(gId => {
-                if (componentResult.componentCanonical) {
-                  const weight = (this.components[componentResult.componentCanonical] as Record<string, number>)[gId];
-                  if (!(componentResult.componentCanonical in componentPopulationResults)) {
-                    componentPopulationResults[componentResult.componentCanonical] = {
-                      [gId]: {
-                        numerator: 0,
-                        denominator: 0,
-                        weight: weight
-                      }
+            const component = groupId
+              ? this.groups[groupId][componentResult.componentCanonical]
+              : this.components[componentResult.componentCanonical];
+
+            Object.keys(component).forEach(gId => {
+              if (componentResult.componentCanonical) {
+                const weight = (component as Record<string, number>)[gId];
+                if (!(componentResult.componentCanonical in componentPopulationResults)) {
+                  componentPopulationResults[componentResult.componentCanonical] = {
+                    [gId]: {
+                      numerator: 0,
+                      denominator: 0,
+                      weight: weight
+                    }
+                  };
+                } else {
+                  if (!(gId in componentPopulationResults[componentResult.componentCanonical]))
+                    (
+                      componentPopulationResults[componentResult.componentCanonical] as Record<
+                        string,
+                        ComponentPopulationResults
+                      >
+                    )[gId] = {
+                      numerator: 0,
+                      denominator: 0,
+                      weight: weight
                     };
-                  } else {
-                    if (!(gId in componentPopulationResults[componentResult.componentCanonical]))
-                      (
-                        componentPopulationResults[componentResult.componentCanonical] as Record<
-                          string,
-                          ComponentPopulationResults
-                        >
-                      )[gId] = {
-                        numerator: 0,
-                        denominator: 0,
-                        weight: weight
-                      };
-                  }
                 }
-              });
-            } else {
-              // multiple groups are specified for the component, but the component is defined at the group level
-              Object.keys(this.groups[groupId][componentResult.componentCanonical]).forEach(gId => {
-                if (componentResult.componentCanonical) {
-                  const weight = (this.groups[groupId][componentResult.componentCanonical] as Record<string, number>)[
-                    gId
-                  ];
-                  if (!(componentResult.componentCanonical in componentPopulationResults)) {
-                    componentPopulationResults[componentResult.componentCanonical] = {
-                      [gId]: {
-                        numerator: 0,
-                        denominator: 0,
-                        weight: weight
-                      }
-                    };
-                  } else {
-                    if (!(gId in componentPopulationResults[componentResult.componentCanonical]))
-                      (
-                        componentPopulationResults[componentResult.componentCanonical] as Record<
-                          string,
-                          ComponentPopulationResults
-                        >
-                      )[gId] = {
-                        numerator: 0,
-                        denominator: 0,
-                        weight: weight
-                      };
-                  }
-                }
-              });
-            }
+              }
+            });
           }
 
           if (componentPopulationResults[componentResult.componentCanonical]) {

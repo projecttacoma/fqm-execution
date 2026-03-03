@@ -806,7 +806,7 @@ describe('addComponentResults', () => {
           { numerator: number; denominator: number }
         >
       )['group-1'].denominator
-    ).toEqual(3); // (weight 1) + (weight 1) + (weight 1)s
+    ).toEqual(3); // (weight 1) + (weight 1) + (weight 1)
   });
 });
 
