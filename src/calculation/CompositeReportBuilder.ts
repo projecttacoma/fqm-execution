@@ -21,6 +21,22 @@ export type CompositeMeasureReport = fhir4.MeasureReport & {
   })[];
 };
 
+/** CompositeGroupData contains information about the scoring type and weights for specific
+ * component within groups defined by a composite measure. The componentMap is keyed by the
+ * Measure component resource canonical with values of either number or Record<string, number>:
+ *    - if the Measure component resource has only one group, then the value is a number that is the weight of the component
+ *    - if the Measure component resource has more than one group, then the value is a Record<string, number> where:
+ *        - the key is of type string that is the groupId of the Measure component resource
+ *        - the value is of type number that is the weight of the group of the Measure component resource
+ * Example componentMap:
+ *  {'http://example.com/Measure/measure-GroupComponentOne|0.0.1': { 'comp-1-group-1': 3 },
+ *  'http://example.com/Measure/measure-GroupComponentTwo|0.0.1': 1}
+ */
+interface CompositeGroupData {
+  compositeScoringType?: string;
+  componentMap: Record<string, number | Record<string, number>>;
+}
+
 interface ComponentPopulationResults {
   numerator: number;
   denominator: number;
@@ -37,31 +53,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     | { numerator: number; denominator: number }
     | Record<string, { numerator: number; denominator: number }>;
   components: Record<string, Record<string, number> | number>;
-  /**
-   * below is a complex Record structure due to the flexibility required for information that each group contains
-   * the top level key values are Composite Measure groupId, and those groupId values contain:
-   * - key of `compositeScoringType` with value string that represents the composite scoring type of the Composite Measure group
-   * - key of type string that is the Measure component resource canonical with values of either number or Record<string, number>:
-   *    - if the Measure component resource has only one group, then the value is a number that is the weight of the component
-   *    - if the Measure component resource has more than one group, then the value is a Record<string, number> where:
-   *        - the key is of type string that is the groupId of the Measure component resource
-   *        - the value is of type number that is the weight of the group of the Measure component resource
-   * 
-   * Example for a Composite Measure with two groups and two components and one of the component Measures has two groups:
-   * {
-      'group-1': {
-        compositeScoringType: 'all-or-nothing',
-        'http://example.com/Measure/measure-GroupComponentOne|0.0.1': { 'comp-1-group-1': 1, 'comp-1-group-2': 1 },
-        'http://example.com/Measure/measure-GroupComponentTwo|0.0.1': 1
-      },
-      'group-2': {
-        compositeScoringType: 'weighted',
-        'http://example.com/Measure/measure-GroupComponentOne|0.0.1': { 'comp-1-group-1': 3 },
-        'http://example.com/Measure/measure-GroupComponentTwo|0.0.1': 1
-      }
-    }
-   */
-  groups: Record<string, Record<string, Record<string, number> | number | string>>;
+  groups: Record<string, CompositeGroupData>;
   groupDefinedCompositeMeasure: boolean;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
@@ -109,7 +101,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             denominator: 0
           };
           const groupCompositeScoringType = getCompositeScoringFromGroup(g);
-          this.groups[g.id] = { compositeScoringType: groupCompositeScoringType };
+          this.groups[g.id] = { compositeScoringType: groupCompositeScoringType, componentMap: {} };
           g.extension?.forEach(e => {
             if (
               e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' &&
@@ -122,11 +114,12 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               const componentGroupId = getGroupIdForComponentFromExtension(e);
 
               if (componentGroupId) {
-                this.groups[g.id][e.valueRelatedArtifact.resource] ??= {};
-                (this.groups[g.id][e.valueRelatedArtifact.resource] as Record<string, number>)[componentGroupId] =
-                  weight;
+                this.groups[g.id].componentMap[e.valueRelatedArtifact.resource] ??= {};
+                (this.groups[g.id].componentMap[e.valueRelatedArtifact.resource] as Record<string, number>)[
+                  componentGroupId
+                ] = weight;
               } else {
-                this.groups[g.id][e.valueRelatedArtifact.resource] = weight;
+                this.groups[g.id].componentMap[e.valueRelatedArtifact.resource] = weight;
               }
             }
           });
@@ -245,7 +238,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       // Add new methods in here for now rather than reuse old ones
       // go through all of the groups in this.groups
       for (const groupId of Object.keys(this.groups)) {
-        const compositeGroupScoringType = this.groups[groupId]['compositeScoringType'];
+        const compositeGroupScoringType = this.groups[groupId].compositeScoringType;
         if (compositeGroupScoringType === 'weighted') {
           this.addWeightedResults(results, groupId);
         } else {
@@ -276,13 +269,13 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
     results.forEach(result => {
       const componentResults = groupId
-        ? filterComponentResults(this.groups[groupId], result.componentResults)
+        ? filterComponentResults(this.groups[groupId].componentMap, result.componentResults)
         : filterComponentResults(this.components, result.componentResults);
 
       componentResults.forEach(componentResult => {
         if (componentResult.componentCanonical) {
           const componentInfo = groupId
-            ? this.groups[groupId][componentResult.componentCanonical]
+            ? this.groups[groupId].componentMap[componentResult.componentCanonical]
             : this.components[componentResult.componentCanonical];
           const noGroupExt = typeof componentInfo === 'number';
           if (noGroupExt) {
@@ -295,7 +288,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             }
           } else {
             const component = groupId
-              ? this.groups[groupId][componentResult.componentCanonical]
+              ? this.groups[groupId].componentMap[componentResult.componentCanonical]
               : this.components[componentResult.componentCanonical];
 
             Object.keys(component).forEach(gId => {
@@ -391,13 +384,13 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
   public addPatientResults(result: ExecutionResult<T>, groupId?: string) {
     const componentResults = groupId
-      ? filterComponentResults(this.groups[groupId], result.componentResults)
+      ? filterComponentResults(this.groups[groupId].componentMap, result.componentResults)
       : filterComponentResults(this.components, result.componentResults);
 
     // all-or-nothing for both group-defined and not
     if (
       this.compositeScoringType === 'all-or-nothing' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'all-or-nothing')
+      (groupId && this.groups[groupId].compositeScoringType === 'all-or-nothing')
     ) {
       let inIpp = false;
       let inDenom = false;
@@ -444,7 +437,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       }
     } else if (
       this.compositeScoringType === 'opportunity' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'opportunity')
+      (groupId && this.groups[groupId].compositeScoringType === 'opportunity')
     ) {
       let inIpp = false;
       let inDenom = false;
@@ -494,7 +487,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       });
     } else if (
       this.compositeScoringType === 'linear' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'linear')
+      (groupId && this.groups[groupId].compositeScoringType === 'linear')
     ) {
       // linear for both group-defined and not
 
@@ -534,7 +527,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       }
     } else if (
       this.compositeScoringType === 'weighted' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'weighted')
+      (groupId && this.groups[groupId].compositeScoringType === 'weighted')
     ) {
       // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
       throw new Error(
