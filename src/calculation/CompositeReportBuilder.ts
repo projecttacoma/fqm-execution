@@ -122,12 +122,9 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               const componentGroupId = getGroupIdForComponentFromExtension(e);
 
               if (componentGroupId) {
-                if (!(e.valueRelatedArtifact.resource in this.groups[g.id])) {
-                  this.groups[g.id][e.valueRelatedArtifact.resource] = { [componentGroupId]: weight };
-                } else {
-                  (this.groups[g.id][e.valueRelatedArtifact.resource] as Record<string, number>)[componentGroupId] =
-                    weight;
-                }
+                this.groups[g.id][e.valueRelatedArtifact.resource] ??= {};
+                (this.groups[g.id][e.valueRelatedArtifact.resource] as Record<string, number>)[componentGroupId] =
+                  weight;
               } else {
                 this.groups[g.id][e.valueRelatedArtifact.resource] = weight;
               }
@@ -191,12 +188,8 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           const weight = getWeightForComponent(ra) || 1;
 
           if (groupId) {
-            if (!(ra.resource in this.components)) {
-              this.components[ra.resource] = { [groupId]: weight };
-            } else {
-              // cast to Record<string, number> since groupId is defined
-              (this.components[ra.resource] as Record<string, number>)[groupId] = weight;
-            }
+            this.components[ra.resource] ??= {};
+            (this.components[ra.resource] as Record<string, number>)[groupId] = weight;
           } else {
             this.components[ra.resource] = weight;
           }
