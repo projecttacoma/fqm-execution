@@ -746,18 +746,18 @@ When enabled, the overall patient-level results will contain the raw results of 
 
 ## Composite Measures
 
-:warning: Composite measure support is highly experimental, and may change as the [specification](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html) evolves :warning:
+:warning: Composite measure support is highly experimental, and may change as the [specification](https://hl7.org/fhir/us/cqfmeasures/STU5/composite-measures.html#composites) evolves :warning:
 
 **NOTE**: Composite measures are currently only supported for the [`calculate`](#calculate) and [`calculateMeasureReports`](#calculatemeasurereports) API functions.
 
-`fqm-execution` supports the calculation of [composite measures](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html) under the following conditions:
+`fqm-execution` supports the calculation of [composite measures](https://hl7.org/fhir/us/cqfmeasures/STU5/composite-measures.html#composites) under the following conditions:
 
-- The provided measure bundle **must** contain only one composite `Measure` resource (i.e. a FHIR `Measure` resource with `composite` as the scoring code)
-  - See the [conformance requirements of a composite measure](https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#component-quality-measures) and the [CQFMCompositeMeasure profile](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-composite-measure-cqfm.html) for specific guidance regarding a composite `Measure` resource
+- The provided measure bundle **must** contain only one composite `Measure` resource (i.e. a FHIR `Measure` resource with `composite` as the scoring code or with groups using the `cqfm-scoring` extension with `composite` as the scoring code)
+  - See the [conformance requirements of a composite measure](https://hl7.org/fhir/us/cqfmeasures/STU5/composite-measures.html#component-quality-measures) and the [CQFM Composite Measure Profile](https://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition-composite-measure-cqfm.html) for specific guidance regarding a composite `Measure` resource
 - The provided measure bundle **must** contain all component `Measure` resources and their dependent `Library` resources needed for calculation
   - **NOTE**: Dependent `ValueSet` resources should either be included in the measure bundle itself or resolved via one of the [ValueSet resolution strategies](#valueset-resolution)
 
-Additionally, `fqm-execution` supports composite measures that are defined in one of the two following ways, both of which follow the [CQFM Composite Measure Profile](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-composite-measure-cqfm.html):
+Additionally, `fqm-execution` supports composite measures that are defined in one of the two following ways, both of which follow the [CQFM Composite Measure Profile](https://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition-composite-measure-cqfm.html):
 
 1. Component measures are defined at the Measure level of the composite measure. An example can be found here: [simple-composite-measure.json](https://github.com/projecttacoma/fqm-execution/blob/master/test/unit/fixtures/measure/simple-composite-measure.json).
 
@@ -785,7 +785,7 @@ The calculation results can be interpreted with a strategy similar to the one ou
 
 - Each `detailedResult` object will include a `componentCanonical` property, which will match the canonical referenced in each `relatedArtifact` with type `composed-of` in the composite `Measure` resource.
 - Each patient execution result object will include a `componentResults` list which contains the overall population results for every group of every component for this patient
-  - **NOTE**: Every group of every component is included in the results regardless of presence of the [cqfm-groupId extension](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-groupId.html). Consumers of this results object are responsible for parsing out the relevant `groupId` from each component result when using this extension.
+  - **NOTE**: Every group of every component is included in the results regardless of presence of the [cqfm-groupId extension](http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId). Consumers of this results object are responsible for parsing out the relevant `groupId` from each component result when using this extension.
 
 ```typescript
 [
