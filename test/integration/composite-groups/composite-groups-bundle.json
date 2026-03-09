@@ -109,8 +109,8 @@
                     }
                   ],
                   "type": "composed-of",
-                  "display": "measure-GroupComponentThree|0.0.1",
-                  "resource": "http://example.com/Measure/measure-GroupComponentThree|0.0.1"
+                  "display": "measure-GroupComponentTwo|0.0.1",
+                  "resource": "http://example.com/Measure/measure-GroupComponentTwo|0.0.1"
                 }
               }
             ]

@@ -196,16 +196,16 @@ describe('MeasureBundleHelpers tests', () => {
       expect(getWeightForComponent(relatedArtifact)).toEqual(0.5);
     });
 
-    it('should return null when weight extension is not present', () => {
+    it('should return 1 when weight extension is not present', () => {
       const relatedArtifact: fhir4.RelatedArtifact = {
         type: 'composed-of',
         display: 'test-related-artifact',
         resource: 'http://example.com/Measure/test-measure|0.0.1'
       };
-      expect(getWeightForComponent(relatedArtifact)).toBeNull();
+      expect(getWeightForComponent(relatedArtifact)).toEqual(1);
     });
 
-    it('should return null when weight is not defined on the extension', () => {
+    it('should return 1 when weight is not defined on the extension', () => {
       const relatedArtifact: fhir4.RelatedArtifact = {
         type: 'composed-of',
         display: 'test-related-artifact',
@@ -216,7 +216,7 @@ describe('MeasureBundleHelpers tests', () => {
           }
         ]
       };
-      expect(getWeightForComponent(relatedArtifact)).toBeNull();
+      expect(getWeightForComponent(relatedArtifact)).toEqual(1);
     });
 
     it('should throw error when multiple CQFM Weight extensions are defined', () => {

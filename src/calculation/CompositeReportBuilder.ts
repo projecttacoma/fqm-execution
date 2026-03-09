@@ -178,7 +178,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
         if (ra.resource && ra.type === 'composed-of') {
           // gather group Id and weight extension values
           const groupId = getGroupIdForComponent(ra);
-          const weight = getWeightForComponent(ra) || 1;
+          const weight = getWeightForComponent(ra);
 
           if (groupId) {
             this.components[ra.resource] ??= {};
