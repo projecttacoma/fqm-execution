@@ -5,7 +5,8 @@ import {
   getWeightForComponent,
   filterComponentResults,
   getCompositeScoringFromGroup,
-  getWeightForComponentFromExtension
+  getWeightForComponentFromExtension,
+  getGroupIdForComponentFromExtension
 } from '../helpers/MeasureBundleHelpers';
 import { CompositeScoreType, PopulationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,6 +20,22 @@ export type CompositeMeasureReport = fhir4.MeasureReport & {
     ];
   })[];
 };
+
+/** CompositeGroupData contains information about the scoring type and weights for specific
+ * component within groups defined by a composite measure. The componentMap is keyed by the
+ * Measure component resource canonical with values of either number or Record<string, number>:
+ *    - if the Measure component resource has only one group, then the value is a number that is the weight of the component
+ *    - if the Measure component resource has more than one group, then the value is a Record<string, number> where:
+ *        - the key is of type string that is the groupId of the Measure component resource
+ *        - the value is of type number that is the weight of the group of the Measure component resource
+ * Example componentMap:
+ *  {'http://example.com/Measure/measure-GroupComponentOne|0.0.1': { 'comp-1-group-1': 3 },
+ *  'http://example.com/Measure/measure-GroupComponentTwo|0.0.1': 1}
+ */
+interface CompositeGroupData {
+  compositeScoringType?: string;
+  componentMap: Record<string, number | Record<string, number>>;
+}
 
 interface ComponentPopulationResults {
   numerator: number;
@@ -36,7 +53,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
     | { numerator: number; denominator: number }
     | Record<string, { numerator: number; denominator: number }>;
   components: Record<string, Record<string, number> | number>;
-  groups: Record<string, Record<string, number | string>>;
+  groups: Record<string, CompositeGroupData>;
   groupDefinedCompositeMeasure: boolean;
 
   constructor(compositeMeasure: fhir4.Measure, options: CalculationOptions) {
@@ -84,7 +101,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             denominator: 0
           };
           const groupCompositeScoringType = getCompositeScoringFromGroup(g);
-          this.groups[g.id] = { compositeScoringType: groupCompositeScoringType };
+          this.groups[g.id] = { compositeScoringType: groupCompositeScoringType, componentMap: {} };
           g.extension?.forEach(e => {
             if (
               e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' &&
@@ -94,7 +111,16 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
             ) {
               // get weight for component or set to 1
               const weight = getWeightForComponentFromExtension(e);
-              this.groups[g.id][e.valueRelatedArtifact.resource] = weight;
+              const componentGroupId = getGroupIdForComponentFromExtension(e);
+
+              if (componentGroupId) {
+                this.groups[g.id].componentMap[e.valueRelatedArtifact.resource] ??= {};
+                (this.groups[g.id].componentMap[e.valueRelatedArtifact.resource] as Record<string, number>)[
+                  componentGroupId
+                ] = weight;
+              } else {
+                this.groups[g.id].componentMap[e.valueRelatedArtifact.resource] = weight;
+              }
             }
           });
         }
@@ -155,12 +181,8 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           const weight = getWeightForComponent(ra) || 1;
 
           if (groupId) {
-            if (!(ra.resource in this.components)) {
-              this.components[ra.resource] = { [groupId]: weight };
-            } else {
-              // cast to Record<string, number> since groupId is defined
-              (this.components[ra.resource] as Record<string, number>)[groupId] = weight;
-            }
+            this.components[ra.resource] ??= {};
+            (this.components[ra.resource] as Record<string, number>)[groupId] = weight;
           } else {
             this.components[ra.resource] = weight;
           }
@@ -216,7 +238,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       // Add new methods in here for now rather than reuse old ones
       // go through all of the groups in this.groups
       for (const groupId of Object.keys(this.groups)) {
-        const compositeGroupScoringType = this.groups[groupId]['compositeScoringType'];
+        const compositeGroupScoringType = this.groups[groupId].compositeScoringType;
         if (compositeGroupScoringType === 'weighted') {
           this.addWeightedResults(results, groupId);
         } else {
@@ -247,13 +269,13 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
     results.forEach(result => {
       const componentResults = groupId
-        ? filterComponentResults(this.groups[groupId], result.componentResults)
+        ? filterComponentResults(this.groups[groupId].componentMap, result.componentResults)
         : filterComponentResults(this.components, result.componentResults);
 
       componentResults.forEach(componentResult => {
         if (componentResult.componentCanonical) {
           const componentInfo = groupId
-            ? this.groups[groupId][componentResult.componentCanonical]
+            ? this.groups[groupId].componentMap[componentResult.componentCanonical]
             : this.components[componentResult.componentCanonical];
           const noGroupExt = typeof componentInfo === 'number';
           if (noGroupExt) {
@@ -265,85 +287,68 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
               };
             }
           } else {
-            // TODO: multiple group functionality for group-defined composite measures
-            if (!groupId) {
-              // multiple groups are specified for the component
-              Object.keys(this.components[componentResult.componentCanonical]).forEach(gId => {
-                if (componentResult.componentCanonical) {
-                  const weight = (this.components[componentResult.componentCanonical] as Record<string, number>)[gId];
-                  if (!(componentResult.componentCanonical in componentPopulationResults)) {
-                    componentPopulationResults[componentResult.componentCanonical] = {
-                      [gId]: {
-                        numerator: 0,
-                        denominator: 0,
-                        weight: weight
-                      }
+            const component = groupId
+              ? this.groups[groupId].componentMap[componentResult.componentCanonical]
+              : this.components[componentResult.componentCanonical];
+
+            Object.keys(component).forEach(gId => {
+              if (componentResult.componentCanonical) {
+                const weight = (component as Record<string, number>)[gId];
+                if (!(componentResult.componentCanonical in componentPopulationResults)) {
+                  componentPopulationResults[componentResult.componentCanonical] = {
+                    [gId]: {
+                      numerator: 0,
+                      denominator: 0,
+                      weight: weight
+                    }
+                  };
+                } else {
+                  if (!(gId in componentPopulationResults[componentResult.componentCanonical]))
+                    (
+                      componentPopulationResults[componentResult.componentCanonical] as Record<
+                        string,
+                        ComponentPopulationResults
+                      >
+                    )[gId] = {
+                      numerator: 0,
+                      denominator: 0,
+                      weight: weight
                     };
-                  } else {
-                    if (!(gId in componentPopulationResults[componentResult.componentCanonical]))
-                      (
-                        componentPopulationResults[componentResult.componentCanonical] as Record<
-                          string,
-                          ComponentPopulationResults
-                        >
-                      )[gId] = {
-                        numerator: 0,
-                        denominator: 0,
-                        weight: weight
-                      };
-                  }
                 }
-              });
-            }
+              }
+            });
           }
 
           if (componentPopulationResults[componentResult.componentCanonical]) {
             if (
               componentResult.populationResults?.find(pr => pr.populationType === PopulationType.NUMER)?.result === true
             ) {
-              if (groupId) {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .numerator++;
-                } else {
-                  // TODO: handle multiple groups
-                }
+              if (noGroupExt) {
+                (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
+                  .numerator++;
               } else {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .numerator++;
-                } else {
-                  (
-                    componentPopulationResults[componentResult.componentCanonical] as Record<
-                      string,
-                      ComponentPopulationResults
-                    >
-                  )[componentResult.groupId].numerator++;
-                }
+                (
+                  componentPopulationResults[componentResult.componentCanonical] as Record<
+                    string,
+                    ComponentPopulationResults
+                  >
+                )[componentResult.groupId].numerator++;
               }
             }
+
             if (
               componentResult.populationResults?.find(pr => pr.populationType === PopulationType.DENOM)?.result === true
             ) {
-              if (groupId) {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .denominator++;
-                } else {
-                  // TODO: handle multiple groups
-                }
+              if (noGroupExt) {
+                (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
+                  .denominator++;
               } else {
-                if (noGroupExt) {
-                  (componentPopulationResults[componentResult.componentCanonical] as ComponentPopulationResults)
-                    .denominator++;
-                } else {
-                  (
-                    componentPopulationResults[componentResult.componentCanonical] as Record<
-                      string,
-                      ComponentPopulationResults
-                    >
-                  )[componentResult.groupId].denominator++;
-                }
+                (
+                  componentPopulationResults[componentResult.componentCanonical] as Record<
+                    string,
+                    ComponentPopulationResults
+                  >
+                )[componentResult.groupId].denominator++;
               }
             }
           }
@@ -379,13 +384,13 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
 
   public addPatientResults(result: ExecutionResult<T>, groupId?: string) {
     const componentResults = groupId
-      ? filterComponentResults(this.groups[groupId], result.componentResults)
+      ? filterComponentResults(this.groups[groupId].componentMap, result.componentResults)
       : filterComponentResults(this.components, result.componentResults);
 
     // all-or-nothing for both group-defined and not
     if (
       this.compositeScoringType === 'all-or-nothing' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'all-or-nothing')
+      (groupId && this.groups[groupId].compositeScoringType === 'all-or-nothing')
     ) {
       let inIpp = false;
       let inDenom = false;
@@ -432,7 +437,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       }
     } else if (
       this.compositeScoringType === 'opportunity' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'opportunity')
+      (groupId && this.groups[groupId].compositeScoringType === 'opportunity')
     ) {
       let inIpp = false;
       let inDenom = false;
@@ -482,7 +487,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       });
     } else if (
       this.compositeScoringType === 'linear' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'linear')
+      (groupId && this.groups[groupId].compositeScoringType === 'linear')
     ) {
       // linear for both group-defined and not
 
@@ -522,7 +527,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       }
     } else if (
       this.compositeScoringType === 'weighted' ||
-      (groupId && this.groups[groupId]['compositeScoringType'] === 'weighted')
+      (groupId && this.groups[groupId].compositeScoringType === 'weighted')
     ) {
       // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
       throw new Error(
