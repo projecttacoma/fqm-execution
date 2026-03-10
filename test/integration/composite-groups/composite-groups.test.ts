@@ -118,7 +118,7 @@ describe('Composite measure defined at the Measure.group level', () => {
 
     expect(results).toBeDefined();
     const result = results as CompositeMeasureReport;
-    // all or nothing component
+    // all or nothing
     expect(result.group[0].measureScore?.value).toBeDefined();
     // Expected numerator calculation: 1 patient
     expect(result.group[0].population[1].count).toEqual(1);
@@ -127,7 +127,7 @@ describe('Composite measure defined at the Measure.group level', () => {
     // Expected measure score calculation: (numerator 1) / (denominator 2)
     expect(result.group[0].measureScore?.value).toEqual(0.5);
 
-    // weighted component
+    // weighted
     expect(result.group[1].measureScore?.value).toBeDefined();
     // Expected numerator calculation: (comp1weight 3) x (comp1score .5) + (comp2weight 1) x (comp2score 1)
     expect(result.group[1].population[1].count).toEqual(2.5);
