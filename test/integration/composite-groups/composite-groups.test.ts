@@ -1,6 +1,7 @@
 import { getJSONFixture, getPopulationResultAssertion } from '../helpers/testHelpers';
-import { calculate } from '../../../src/calculation/Calculator';
+import { calculate, calculateMeasureReports } from '../../../src/calculation/Calculator';
 import { ComponentResults, PopulationType } from '../../../src';
+import { CompositeMeasureReport } from '../../../src/calculation/CompositeReportBuilder';
 
 const MEASURE_BUNDLE: fhir4.Bundle = getJSONFixture('composite-groups/composite-groups-bundle.json');
 
@@ -102,5 +103,37 @@ describe('Composite measure defined at the Measure.group level', () => {
         })
       ])
     );
+  });
+
+  it('should calculate composite all-or-nothing (group 1) and weighted (group 2) measure report across both patients', async () => {
+    const { results } = await calculateMeasureReports(
+      MEASURE_BUNDLE,
+      [PATIENT_COMP1_NUMER_COMP2_NUMER_COMP3_NUMER, PATIENT_COMP1_DENOM_COMP2_NUMER_COMP3_DENOM],
+      {
+        measurementPeriodStart: '2023-01-01',
+        measurementPeriodEnd: '2023-12-31',
+        reportType: 'summary'
+      }
+    );
+
+    expect(results).toBeDefined();
+    const result = results as CompositeMeasureReport;
+    // all or nothing
+    expect(result.group[0].measureScore?.value).toBeDefined();
+    // Expected numerator calculation: 1 patient
+    expect(result.group[0].population[1].count).toEqual(1);
+    // Expected denominator calculation: 2 patients
+    expect(result.group[0].population[0].count).toEqual(2);
+    // Expected measure score calculation: (numerator 1) / (denominator 2)
+    expect(result.group[0].measureScore?.value).toEqual(0.5);
+
+    // weighted
+    expect(result.group[1].measureScore?.value).toBeDefined();
+    // Expected numerator calculation: (comp1weight 3) x (comp1score .5) + (comp2weight 1) x (comp2score 1)
+    expect(result.group[1].population[1].count).toEqual(2.5);
+    // Expected denominator calculation: (comp1weight 3) x 1 + (comp2weight 1) x 1
+    expect(result.group[1].population[0].count).toEqual(4);
+    // Expected measure score calculation: (numerator 2.5) / (denominator 4)
+    expect(result.group[1].measureScore?.value).toEqual(0.625);
   });
 });

@@ -120,13 +120,17 @@
                 "valueRelatedArtifact": {
                   "extension": [
                     {
+                      "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId",
+                      "valueString": "comp-1-group-2"
+                    },
+                    {
                       "url": "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight",
                       "valueDecimal": 1
                     }
                   ],
                   "type": "composed-of",
-                  "display": "measure-GroupComponentTwo|0.0.1",
-                  "resource": "http://example.com/Measure/measure-GroupComponentTwo|0.0.1"
+                  "display": "measure-GroupComponentOne|0.0.1",
+                  "resource": "http://example.com/Measure/measure-GroupComponentOne|0.0.1"
                 }
               }
             ]

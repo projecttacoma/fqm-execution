@@ -1,5 +1,6 @@
 import { ComponentResults, PopulationType } from '../../../src';
-import { calculate } from '../../../src/calculation/Calculator';
+import { calculate, calculateMeasureReports } from '../../../src/calculation/Calculator';
+import { CompositeMeasureReport } from '../../../src/calculation/CompositeReportBuilder';
 import { getJSONFixture, getPopulationResultAssertion } from '../helpers/testHelpers';
 
 const MEASURE_BUNDLE: fhir4.Bundle = getJSONFixture('composite-all-or-nothing/composite-all-or-nothing-bundle.json');
@@ -162,5 +163,33 @@ describe('Composite measure all-or-nothing scoring', () => {
         })
       ])
     );
+  });
+
+  it('should calculate composite all-or-nothing measure report across all patients', async () => {
+    const { results } = await calculateMeasureReports(
+      MEASURE_BUNDLE,
+      [
+        PATIENT_COMP1_NUMER_COMP2_NUMER,
+        PATIENT_COMP1_NUMER_COMP2_DENOM,
+        PATIENT_COMP1_DENOM_COMP2_NUMER,
+        PATIENT_COMP1_DENOM_COMP2_DENOM
+      ],
+      {
+        measurementPeriodStart: '2023-01-01',
+        measurementPeriodEnd: '2023-12-31',
+        reportType: 'summary'
+      }
+    );
+
+    expect(results).toBeDefined();
+    const result = results as CompositeMeasureReport;
+    // all or nothing results
+    expect(result.group[0].measureScore?.value).toBeDefined();
+    // Expected numerator calculation: 1 patient
+    expect(result.group[0].population[1].count).toEqual(1);
+    // Expected denominator calculation: 4 patients
+    expect(result.group[0].population[0].count).toEqual(4);
+    // Expected measure score calculation: (numerator 1) / (denominator 4)
+    expect(result.group[0].measureScore?.value).toEqual(0.25);
   });
 });
