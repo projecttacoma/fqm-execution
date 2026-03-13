@@ -17,6 +17,7 @@ We will gladly accept pull requests to help improve `fqm-execution`. When submit
 - Instructions for the reviewer on how to test the pull request and verify the expected behavior
 
 ## Governance
+
 Guidelines covering project governance, including issue workflow and release expectations, can be found in the [governance guidelines](governance.md).
 
 # Development Environment
@@ -76,8 +77,7 @@ which is useful for inspecting contents of ELM, CQL, or results.
 Most commonly, development on `fqm-execution` will involve pre-existing measure bundles provided via a content repository or some other means (e.g. attached to a GitHub issue report). However, in some cases it may be useful to create a smaller "stripped down" version of a measure bundle
 that makes it easier to debug potential issues.
 
-To create your own measure bundle to use during development, consider using the [ecqm-bundler command line utility](https://github.com/mgramigna/ecqm-bundler) to easily generate valid measure bundles that `fqm-execution` will accept as input. Alongside this, you can also use our [publicly deployed instance](https://projecttacoma.github.io/fqm-testify/) of [fqm-testify](https://github.com/projecttacoma/fqm-testify)
-to create simple patients that you can run through `fqm-execution` as well.
+To create your own measure bundle to use during development, consider using the [ecqm-bundler command line utility](https://github.com/projecttacoma/ecqm-bundler) to easily generate valid measure bundles that `fqm-execution` will accept as input. Alongside this, you can also use our [publicly deployed instance](https://projecttacoma.github.io/fqm-testify/) of [fqm-testify](https://github.com/projecttacoma/fqm-testify) to create simple patients that you can run through `fqm-execution` as well.
 
 # Debugging
 
@@ -93,7 +93,7 @@ Error throws with this message commonly come from `cql-execution`. The most comm
 2. Visually inspect the content of the ELM JSON for this library, and ensure that the operands for the function being called are the correct data types (e.g. see if it should be wrapped in a `FHIRHelpers.To___` function call)
 3. Ensure that the HL7® FHIR®<sup id="fn-1">[\[1\]](#fnref-1)</sup> data present in the patient `Bundle` are valid according to the FHIR specification
 
-If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository. To verify that the issue indeed comes from `cql-execution`, consider using the [execution extractor command line utility](https://github.com/mgramigna/execution-extractor) to extract all of the ELM content, ValueSets, etc. and run it through `cql-execution` directly without needing to go through `fqm-execution`. If the error still persists, then the issue lies outside `fqm-execution`, and is either a problem with the input or with `cql-execution` itself.
+If the above conditions do not lead to an identified cause, it might be worth raising an issue in the [cql-execution](https://github.com/cqframework/cql-execution) repository.
 
 ### Unexpected Population Results
 
@@ -110,17 +110,17 @@ If everything from steps 1-3 seems correct, there may be an issue with the popul
 A commonly seen unexpected population result may come up when two compared `DateTime` properties are thought to be equivalent. When considering `DateTime` equivalencies, it is important to note the precision of the compared `DateTime` properties.
 
 Consider the following `DateTime` data:
+
 - a: "2021-12-01T08:00:00.000+00:00"
 - b: "2021-12-01T08:00:00+00:00"
 
-While these describe the "same time" according to human inspection, the calculation engine must consider the uncertainty that comes from the less precise `DateTime` `b`. For the `b` `DateTime`, `cql-execution` constructs an `Uncertainty` containing the range of 0 to 999 milliseconds. 
+While these describe the "same time" according to human inspection, the calculation engine must consider the uncertainty that comes from the less precise `DateTime` `b`. For the `b` `DateTime`, `cql-execution` constructs an `Uncertainty` containing the range of 0 to 999 milliseconds.
 
 When evaluating a statement about `b`,`cql-execution` needs to account for all possible `b` values. This will be represented as an `Uncertainty`. `b` may be anywhere in the range "2021-12-01T08:00:00.000+00:00" to "2021-12-01T08:00:00.999+00:00". As such, if we're comparing `a` and `b`, the engine can guarantee that `a` is <= `b` but not guarantee that `b` is <= `a`. If `b` must be before or equivalent to `a`, the result of the comparison clause will be `null` and show falsy values in highlighting.
 
-To fix: Consider changing your test data to have matching precision, millisecond precision preferred. Alternatively, the precision you wish to use for the comparison can be added to the logic. ex. `during seconds of`. 
+To fix: Consider changing your test data to have matching precision, millisecond precision preferred. Alternatively, the precision you wish to use for the comparison can be added to the logic. ex. `during seconds of`.
 
 Examples of this issue and a description of the resolution can be seen in [Issue #177](https://github.com/projecttacoma/fqm-execution/issues/177) and [Issue #224](https://github.com/projecttacoma/fqm-execution/issues/224)
-
 
 ## VS Code Debugger Setup
 
@@ -193,7 +193,7 @@ The above command will:
 - [ecqm-content-qicore-2022](https://github.com/cqframework/ecqm-content-qicore-2022)
 
 2. Run every measure bundle in those repositories through calculation for every test patient provided in that repository
-3. Run the same calculations on the "base" branch to compare the results with (default is the `master` branch, but this can be customized with `-b/--base-branch`
+3. Run the same calculations on the "base" branch to compare the results with (default is the `master` branch, but this can be customized with `-b/--base-branch`)
 4. Compare the contents of the calculation results across the two branches. If any calculation results differ, the offending files will be reported as failures in the console
 
 Full command options:
@@ -208,7 +208,7 @@ Options:
 
 # License
 
-Copyright 2020-2023 The MITRE Corporation
+Copyright 2020-2026 The MITRE Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

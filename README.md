@@ -115,13 +115,13 @@ const { results } = await Calculator.calculate(measureBundle, patientBundles, op
 
 To calculate a FHIR-based eCQM, `fqm-execution` needs the following information:
 
-- A [FHIR Bundle](http://hl7.org/fhir/bundle.html) resource that contains:
+- A [FHIR Bundle](http://hl7.org/fhir/R4/bundle.html) resource that contains:
   - One [FHIR Measure](https://hl7.org/fhir/uv/crmi/StructureDefinition-crmi-shareablemeasure.html) resource containing the metadata for the measure
   - The [FHIR Library](https://hl7.org/fhir/uv/crmi/StructureDefinition-crmi-shareablelibrary.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
     - **NOTE**: These `Library` resources _must_ contain `base64`-encoded ELM JSON content directly on the resource. `fqm-execution` does not do any real-time translation of CQL to ELM
-  - Any [FHIR ValueSet](http://hl7.org/fhir/valueset.html) resources that are used in the measure logic\*
+  - Any [FHIR ValueSet](http://hl7.org/fhir/R4/valueset.html) resources that are used in the measure logic\*
 - One or more FHIR `Bundle` resources\*\* that contain:
-  - One [FHIR Patient](http://hl7.org/fhir/patient.html) resource
+  - One [FHIR Patient](http://hl7.org/fhir/R4/patient.html) resource
   - Any other FHIR resources that contain relevant data for the above patient that should be considered during measure calculation
 
 \*`ValueSet` resources can be omitted if you follow the approach outlined in the [ValueSet Resolution](#valueset-resolution) section
@@ -883,7 +883,7 @@ The calculation results can be interpreted with a strategy similar to the one ou
 ];
 ```
 
-For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), see the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts#L73).
+For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), see the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts#L46).
 
 - **NOTE**: For composite measures with a `weighted` scoring type, the weight of each component should be defined on each related artifact in the composite measure as a [CQFM Weight extension](https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-weight.html). If none is provided, then 1 is used.
 
@@ -1140,7 +1140,7 @@ For example, the define statement of "SDE Sex" is a case statement where the `el
 
 ### Visual Issues with Coverage Highlighting
 
-Clause coverage HTML generation relies on annotations generated from the [cql-to-elm translator](https://github.com/cqframework/clinical_quality_language/blob/master/Src/java/cql-to-elm/OVERVIEW.md). In some cases, the identifying information for snippets of text in these annotations may not be consistent with what is in the actual ELM expression.
+Clause coverage HTML generation relies on annotations generated from the [cql-to-elm translator](https://github.com/cqframework/clinical_quality_language/blob/main/Src/java/cql-to-elm/README.md). In some cases, the identifying information for snippets of text in these annotations may not be consistent with what is in the actual ELM expression.
 This leads to a discrepancy in the clause coverage view where the percentage value is accurate, but parts of the HTML appear to be falsely uncovered.
 
 If a case like this is encountered where something is not highlighting despite the clause actually being covered by a given patient, please feel free to [submit an issue](/contributing.md#issue-reports).
@@ -1329,10 +1329,10 @@ export default function CalculationComponent() {
 
 ## Usage Within a FHIR Server
 
-`fqm-execution` can be easily integrated into FHIR servers built with JavaScript/TypeScript. Good examples of these are MITRE's [DEQM Test Server](https://github.com/projecttacoma/deqm-test-server) and [Measure Repository Service](https://github.com/projecttacoma/measure-repository-service), both of which use `fqm-execution` to provide calculation and/or data requirements analysis on measures.
+`fqm-execution` can be easily integrated into FHIR servers built with JavaScript/TypeScript. Good examples of these are MITRE's [DEQM Test Server](https://github.com/projecttacoma/deqm-test-server) and [Measure Repository Service](https://github.com/projecttacoma/measure-repository), both of which use `fqm-execution` to provide calculation and/or data requirements analysis on measures.
 Both of these servers are built with [Bluehalo's node-fhir-server-core](https://github.com/bluehalo/node-fhir-server-core) framework.
 
-This example will use `node-fhir-server-core` to sketch out how one might integrate `fqm-execution` in a FHIR server to provide a service for measure calculation via the [$evaluate-measure](https://hl7.org/fhir/operation-measure-evaluate-measure.html) FHIR operation.
+This example will use `node-fhir-server-core` to sketch out how one might integrate `fqm-execution` in a FHIR server to provide a service for measure calculation via the [$evaluate-measure](https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html) FHIR operation.
 
 1. Follow the [`node-fhir-server-core` Getting Started Guide](https://github.com/bluehalo/node-fhir-server-core/blob/master/docs/GettingStarted.md) to quickly spin up a FHIR server in JavaScript
 2. Follow the [`node-fhir-server-core` Custom Operations Guide](https://github.com/bluehalo/node-fhir-server-core/blob/master/docs/CustomOperations.md) to configure a custom operation for `$evaluate-measure`, e.g.
@@ -1411,7 +1411,7 @@ More information about these scripts can be found in [test/integration/README.md
 
 ### Regression Testing
 
-The `./regression` directory is organized for internal calculation testing between branches of `fqm-execution`. The idea is that if changes are made to calculation on a local branch, running regression will compare the calculation output of measures in the following three repositories (`connectathon`, `ecqm-content-qi-2022`, `ecqm-content-r4-2021`) from the local branch to the calculation output of those measures from the master branch (or another user-specified branch). The `./run-regression.sh` script takes the following options:
+The `./regression` directory is organized for internal calculation testing between branches of `fqm-execution`. The idea is that if changes are made to calculation on a local branch, running regression will compare the calculation output of measures in the following three repositories (`connectathon`, `ecqm-content-qicore-2022`, `ecqm-content-r4-2021`) from the local branch to the calculation output of those measures from the master branch (or another user-specified branch). The `./run-regression.sh` script takes the following options:
 
 ```
 -b, --base-branch <branch-name>                   Base branch to compare results with (default: master)
@@ -1436,7 +1436,7 @@ For more information, please see our [contribution guide](/contributing.md).
 
 # License
 
-Copyright 2020-2023 The MITRE Corporation
+Copyright 2020-2026 The MITRE Corporation
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
