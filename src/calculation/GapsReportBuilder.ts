@@ -62,7 +62,7 @@ export function processQueriesForGaps(
 }
 
 /**
- * Generate a FHIR DetectedIssue resource for Gaps in Care per http://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-detectedissue-deqm.html
+ * Generate a FHIR DetectedIssue resource for Gaps in Care per https://hl7.org/fhir/us/davinci-deqm/STU3/StructureDefinition-gaps-detectedissue-deqm.html
  *
  * @param queries numerator queries from a call to findRetrieves
  * @param measureReport FHIR MeasureReport to be referenced by the issue
@@ -317,7 +317,7 @@ export function generateReasonCode(reason: ReasonDetailData): fhir4.CodeableConc
 }
 
 /**
- * Generate a Gaps in Care Bundle resource per http://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-bundle-deqm.html
+ * Generate a Gaps in Care Bundle resource per https://hl7.org/fhir/us/davinci-deqm/STU3/StructureDefinition-gaps-bundle-deqm.html
  *
  * @param detectedIssue FHIR DetectedIssue generated during gaps
  * @param measureReport FHIR MeasureReport generated during calculation
