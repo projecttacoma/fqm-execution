@@ -1,6 +1,6 @@
 # fqm-execution Integration Testing
 
-This directory includes example CQL files that showcase specific types of eCQM logic. The measure bundles are auto-generated using the [ecqm-bundler](https://github.com/mgramigna/ecqm-bundler) CLI.
+This directory includes example CQL files that showcase specific types of eCQM logic. The measure bundles are auto-generated using the [ecqm-bundler](https://github.com/projecttacoma/ecqm-bundler) CLI.
 
 ## Building Bundles from Existing CQL
 
@@ -51,7 +51,7 @@ To get started creating a new measure bundle, first create the directory structu
         └──[scoring-code]-[population-basis].cql
 ```
 
-Next, add a target to the `Makefile` with the necessary `ecqm-bundler` command to generate the measure bundle. See [the ecqm-bundler documentation](https://github.com/mgramigna/ecqm-bundler#usage) for more information.
+Next, add a target to the `Makefile` with the necessary `ecqm-bundler` command to generate the measure bundle. See [the ecqm-bundler documentation](https://github.com/projecttacoma/ecqm-bundler#usagee) for more information.
 
 ```makefile
 # ...
