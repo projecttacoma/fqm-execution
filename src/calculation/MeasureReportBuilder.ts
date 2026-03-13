@@ -472,7 +472,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     }
   }
 
-  // http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-aggregate-method.html
+  // https://terminology.hl7.org/6.0.2/ValueSet-measure-aggregate-method.html
   private aggregate(aggregation: string, observations: number[]) {
     // Note: add break for any non-returning case
     switch (aggregation) {

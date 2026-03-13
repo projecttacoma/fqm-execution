@@ -81,7 +81,7 @@ Library for calculating Electronic Clinical Quality Measures (eCQMs) written in 
 `fqm-execution` is a library for calculating FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL). It wraps the [cql-execution](https://github.com/cqframework/cql-execution) and [cql-exec-fhir](https://github.com/cqframework/cql-exec-fhir/)
 libraries in order to provide eCQM-specific output/interpretation of the raw results returned from executing the CQL/ELM on provided patient data.
 
-More information about FHIR eCQMs can be found in the [FHIR Quality Measure Implementation Guide](https://build.fhir.org/ig/HL7/cqf-measures/index.html), which informs the majority of how `fqm-execution` calculation behaves.
+More information about FHIR eCQMs can be found in the [FHIR Quality Measure Implementation Guide](https://hl7.org/fhir/us/cqfmeasures/index.html), which informs the majority of how `fqm-execution` calculation behaves.
 
 # Installation
 
@@ -116,8 +116,8 @@ const { results } = await Calculator.calculate(measureBundle, patientBundles, op
 To calculate a FHIR-based eCQM, `fqm-execution` needs the following information:
 
 - A [FHIR Bundle](http://hl7.org/fhir/bundle.html) resource that contains:
-  - One [FHIR Measure](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-measure-cqfm.html) resource containing the metadata for the measure
-  - The [FHIR Library](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-library-cqfm.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
+  - One [FHIR Measure](https://hl7.org/fhir/uv/crmi/StructureDefinition-crmi-shareablemeasure.html) resource containing the metadata for the measure
+  - The [FHIR Library](https://hl7.org/fhir/uv/crmi/StructureDefinition-crmi-shareablelibrary.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
     - **NOTE**: These `Library` resources _must_ contain `base64`-encoded ELM JSON content directly on the resource. `fqm-execution` does not do any real-time translation of CQL to ELM
   - Any [FHIR ValueSet](http://hl7.org/fhir/valueset.html) resources that are used in the measure logic\*
 - One or more FHIR `Bundle` resources\*\* that contain:
@@ -224,7 +224,7 @@ For example, if the `Measure` resource defines the populations for `"Initial Pop
 ];
 ```
 
-These results are assembled according to the various [Measure Population Semantics](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#measure-population-semantics) defined in the FHIR Quality Measure Implementation Guide, meaning that dependencies of the various eCQM populations are factored in
+These results are assembled according to the various [Measure Population Semantics](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#measure-population-semantics) defined in the FHIR Quality Measure Implementation Guide, meaning that dependencies of the various eCQM populations are factored in
 during the results processing (e.g. a patient cannot be in the numerator if they are not in the denominator).
 
 ### Episode-based Measures
@@ -319,9 +319,9 @@ Beyond just calculation of eCQM results, the `fqm-execution` `Calculator` has ot
 
 ## Gaps in Care
 
-A detailed overview of Gaps in Care can be seen in the [DEQM Implementation Guide](https://build.fhir.org/ig/HL7/davinci-deqm/gaps-examples.html) and the [fqm-execution Wiki page](https://github.com/projecttacoma/fqm-execution/wiki/Gaps-In-Care).
+A detailed overview of Gaps in Care can be seen in the [DEQM Implementation Guide](https://hl7.org/fhir/us/davinci-deqm/gaps-examples.html) and the [fqm-execution Wiki page](https://github.com/projecttacoma/fqm-execution/wiki/Gaps-In-Care). `fqm-execution`'s Gaps in Care functionality is based on [DEQM STU3 Implementation Guide](https://hl7.org/fhir/us/davinci-deqm/STU3/gaps-examples.html).
 
-In short, Gaps in Care is a means of identifying detailed reasons why patients may not have calculated into the "desired" population for a measure (e.g. the numerator population in most positive improvement measures). `fqm-execution` can produce [DEQM Gaps in Care Bundles](https://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-bundle-deqm.html)
+In short, Gaps in Care is a means of identifying detailed reasons why patients may not have calculated into the "desired" population for a measure (e.g. the numerator population in most positive improvement measures). `fqm-execution` can produce [DEQM STU3 Gaps in Care Bundles](https://hl7.org/fhir/us/davinci-deqm/STU3/StructureDefinition-gaps-bundle-deqm.html)
 via the [`.calculateGapsInCare`](#calculategapsincare) API function.
 
 ## Data Requirements
@@ -379,7 +379,7 @@ Get data requirements for a given Measure.
 
 ### `.calculateGapsInCare`
 
-Get gaps in care for each patient. Output adheres to the [DEQM Gaps In Care Bundle Profile](https://build.fhir.org/ig/HL7/davinci-deqm/StructureDefinition-gaps-bundle-deqm.html).
+Get gaps in care for each patient. Output adheres to the [DEQM STU3 Gaps In Care Bundle Profile](https://hl7.org/fhir/us/davinci-deqm/STU3/StructureDefinition-gaps-bundle-deqm.html).
 
 **Parameters**:
 
@@ -483,8 +483,8 @@ The options that we support for calculation are as follows:
 - `[disableHTMLOrdering]`<[boolean](#calculation-options)>: Disables custom ordering of CQL statements in HTML output (default: `false`)
 - `[enableDebugOutput]`<[boolean](#calculation-options)>: Enable debug output including CQL, ELM, results (default: `false`)
 - `[includeClauseResults]` <[boolean](#calculation-options)>: Option to include clause results (default: `false`)
-- `[measurementPeriodEnd]`<[string](#calculation-options)>: End of measurement period as a valid [FHIR dateTime](https://build.fhir.org/datatypes.html#dateTime). Can be formatted as a date, date-time, or partial date. Milliseconds are optionally allowed. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
-- `[measurementPeriodStart]`<[string](#calculation-options)>: Start of measurement period as a valid [FHIR dateTime](https://build.fhir.org/datatypes.html#dateTime). Can be formatted as a date, date-time, or partial date. Milliseconds are optionally allowed. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+- `[measurementPeriodEnd]`<[string](#calculation-options)>: End of measurement period as a valid [FHIR dateTime](https://hl7.org/fhir/R4/datatypes.html#dateTime). Can be formatted as a date, date-time, or partial date. Milliseconds are optionally allowed. Defaults to the `.effectivePeriod.end` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
+- `[measurementPeriodStart]`<[string](#calculation-options)>: Start of measurement period as a valid [FHIR dateTime](https://hl7.org/fhir/R4/datatypes.html#dateTime). Can be formatted as a date, date-time, or partial date. Milliseconds are optionally allowed. Defaults to the `.effectivePeriod.start` on the `Measure` resource, but can be overridden or specified using this option, which will take precedence
 - `[patientSource]`<[DataProvider](https://github.com/cqframework/cql-execution/blob/e4d3f24571daf3ae9f891df11bb22fc964f6de5d/src/types/cql-patient.interfaces.ts#L8)>: PatientSource to use. **If provided, the `patientBundles` argument must be `[]`**. See the [Custom PatientSource section](#custom-patientsource) for more info
 - `[reportType]`<['individual' | 'summary'](#calculation-options)>: The type of FHIR MeasureReport to return (default: `'individual'`)
 - `[returnELM]`<[boolean](#calculation-options)>: Enables the return of ELM Libraries and name of main library to be used for further processing (e.g. gaps in care) (default: `false`)
@@ -592,7 +592,7 @@ The results for each stratifier on a Measure (if they exist) are reported on the
 
 ## Measures with Observation Functions
 
-For [Continuous Variable Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#continuous-variable-measure) and [Ratio Measures](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#ratio-measures), some of the measure populations can have an associated "measure observation", which is a CQL function that will return some result based on some information present on the data during calculation. In the case of these measures, `fqm-execution` will include an `observations` property on the `populationResult` object for each measure observation population. This `observations` property
+For [Continuous Variable Measures](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#continuous-variable-measure) and [Ratio Measures](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#ratio-measures), some of the measure populations can have an associated "measure observation", which is a CQL function that will return some result based on some information present on the data during calculation. In the case of these measures, `fqm-execution` will include an `observations` property on the `populationResult` object for each measure observation population. This `observations` property
 will be a list of the raw results returned from the execution of that CQL function on each unit of measure (e.g. on each `Encounter` resource for an `Encounter`-based episode measure).
 
 In the following example, consider an `Encounter`-based measure with two relevant episodes (`"episode-1"` and `"episode-2"`) on the patient `patient-1` in group `group-1`. The measure observation function `daysObservation` will be measuring the duration, in days, of each `Encounter` resource that lands in the denominator.
@@ -674,7 +674,7 @@ In the following example, consider an `Encounter`-based measure with two relevan
 ];
 ```
 
-From these results, it can be seen that `"episode-1"` has a duration of `1` day, and `"episode-2"` has a duration of `2` days. The results are also indicating the `populationId` property on each `populationResult`, as well as the `criteriaReferenceId` property on each measure observation `populationResult`. In the case of measure observations, it is common to assign an `id` property to each population in the `Measure` resource, as well as use the [cqfm-criteriaReference extension](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-criteriaReference.html) on the measure observation population in order to indicate which population that function is observing (denominator in this example). Doing so allows consumers of the above result to easily identify which populations the measure observation results are referring to, which is especially useful if there are multiple measure observations defined.
+From these results, it can be seen that `"episode-1"` has a duration of `1` day, and `"episode-2"` has a duration of `2` days. The results are also indicating the `populationId` property on each `populationResult`, as well as the `criteriaReferenceId` property on each measure observation `populationResult`. In the case of measure observations, it is common to assign an `id` property to each population in the `Measure` resource, as well as use the [cqfm-criteriaReference extension](https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-criteriaReference.html) on the measure observation population in order to indicate which population that function is observing (denominator in this example). Doing so allows consumers of the above result to easily identify which populations the measure observation results are referring to, which is especially useful if there are multiple measure observations defined.
 
 ## `meta.profile` Checking
 
@@ -690,7 +690,7 @@ const { results } = await Calculator.calculate(measureBundle, patientBundles, { 
 
 ## Supplemental Data Elements and Risk Adjustment Variables
 
-`fqm-execution` supports the calculation of Supplemental Data Elements (SDEs) defined on the `Measure` resource per the [conformance requirements](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#supplemental-data-elements) in the FHIR Quality Measure Implementation Guide. To enable calculation of SDEs, ensure the `calculateSDEs` option is set to `true` during calculation:
+`fqm-execution` supports the calculation of Supplemental Data Elements (SDEs) defined on the `Measure` resource per the [conformance requirements](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#supplemental-data-elements) in the FHIR Quality Measure Implementation Guide. To enable calculation of SDEs, ensure the `calculateSDEs` option is set to `true` during calculation:
 
 ```typescript
 import { Calculator } from 'fqm-execution';
@@ -885,7 +885,7 @@ The calculation results can be interpreted with a strategy similar to the one ou
 
 For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), see the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts#L73).
 
-- **NOTE**: For composite measures with a `weighted` scoring type, the weight of each component should be defined on each related artifact in the composite measure as a [CQFM Weight extension](https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-weight.html). If none is provided, then 1 is used.
+- **NOTE**: For composite measures with a `weighted` scoring type, the weight of each component should be defined on each related artifact in the composite measure as a [CQFM Weight extension](https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-weight.html). If none is provided, then 1 is used.
 
 ## Slim Calculation Mode
 
@@ -975,7 +975,7 @@ const { results } = await Calculator.calculateMeasureReports(measureBundle, pati
 
 However, highlighted HTML provided by `fqm-execution` is not solely based on whether individual pieces of the measure logic CQL had "truthy" or "falsy" values. When there are populations that depend on each other, a relevance hierarchy is built to ensure that populations that are subsets of others aren't considered for membership until membership is determined for their superset population. If a statement's superset statement is false, then no highlighting will appear, regardless of whether that statement's value is "truthy" or "falsy". This pattern reflects the actual population results that are being returned during calculation.
 
-The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false. The relevance calculation matches the semantics for proportion measures defined in [this flowchart](https://build.fhir.org/ig/HL7/cqf-measures/measure-conformance.html#proportion-measure-scoring).
+The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false. The relevance calculation matches the semantics for proportion measures defined in [this flowchart](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#proportion-measure-scoring).
 
 ![Screenshot of Highlighting HTML Measure Logic](./static/logic-highlighting-example-2.png)
 
