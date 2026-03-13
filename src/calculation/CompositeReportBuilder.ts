@@ -259,7 +259,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   }
 
   private addWeightedResults(results: ExecutionResult<T>[], groupId?: string) {
-    // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
+    // https://hl7.org/fhir/us/cqfmeasures/composite-measures.html#weighted-scoring
     // map component canonical to its population results (if only one group exists), or map to a Record that
     // maps each component group to its corresponding weight
     const componentPopulationResults: Record<
@@ -529,7 +529,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
       this.compositeScoringType === 'weighted' ||
       (groupId && this.groups[groupId].compositeScoringType === 'weighted')
     ) {
-      // https://build.fhir.org/ig/HL7/cqf-measures/composite-measures.html#weighted-scoring
+      // https://hl7.org/fhir/us/cqfmeasures/composite-measures.html#weighted-scoring
       throw new Error(
         'addPatientResults cannot be used for weighted scoring since it is a component-based composite measure scoring method, addAllResults should be used instead'
       );

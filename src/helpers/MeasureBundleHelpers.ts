@@ -68,7 +68,7 @@ export function extractComponentsFromMeasure(
     ) || compositeMeasureResource.relatedArtifact?.filter(ra => ra.type === 'composed-of');
 
   // Composite Measures with components defined in the group are constrained to have at least one component (cmp-11)
-  // https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-composite-measure-cqfm.html#constraints
+  // https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-composite-measure-cqfm.html#constraints
   if (compositeMeasureResource.group) {
     if (componentRefs == null || componentRefs.length < 1) {
       throw new Error(
@@ -157,7 +157,7 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
 
 /**
  * Extracts CQFM Group Id from a given composite measure Related Artifact.
- * https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-groupId.html
+ * https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-groupId.html
  * @param relatedArtifact related artifact defined on the composite measure
  * @returns group id, if defined
  */
@@ -188,7 +188,7 @@ export function getGroupIdForComponentFromExtension(extension: fhir4.Extension):
 
 /**
  * Extracts CQFM Weight from a given composite measure Related Artifact.
- * https://build.fhir.org/ig/HL7/cqf-measures/StructureDefinition-cqfm-weight.html
+ * https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-weight.html
  * @param relatedArtifact related artifact defined on the composite measure
  * @returns weight extension value, or 1 if not defined
  */
