@@ -116,8 +116,8 @@ const { results } = await Calculator.calculate(measureBundle, patientBundles, op
 To calculate a FHIR-based eCQM, `fqm-execution` needs the following information:
 
 - A [FHIR Bundle](http://hl7.org/fhir/R4/bundle.html) resource that contains:
-  - One [FHIR Measure](https://hl7.org/fhir/uv/crmi/StructureDefinition-crmi-shareablemeasure.html) resource containing the metadata for the measure
-  - The [FHIR Library](https://hl7.org/fhir/uv/crmi/StructureDefinition-crmi-shareablelibrary.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
+  - One [FHIR Measure](https://hl7.org/fhir/uv/crmi/STU1/StructureDefinition-crmi-shareablemeasure.html) resource containing the metadata for the measure
+  - The [FHIR Library](https://hl7.org/fhir/uv/crmi/STU1/StructureDefinition-crmi-shareablelibrary.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
     - **NOTE**: These `Library` resources _must_ contain `base64`-encoded ELM JSON content directly on the resource. `fqm-execution` does not do any real-time translation of CQL to ELM
   - Any [FHIR ValueSet](http://hl7.org/fhir/R4/valueset.html) resources that are used in the measure logic\*
 - One or more FHIR `Bundle` resources\*\* that contain:
@@ -883,7 +883,7 @@ The calculation results can be interpreted with a strategy similar to the one ou
 ];
 ```
 
-For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), see the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts#L46).
+For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), see the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts).
 
 - **NOTE**: For composite measures with a `weighted` scoring type, the weight of each component should be defined on each related artifact in the composite measure as a [CQFM Weight extension](https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-weight.html). If none is provided, then 1 is used.
 
@@ -1350,7 +1350,7 @@ const config = {
           name: 'evaluateMeasure',
           route: '/:id/$evaluate-measure',
           method: 'GET',
-          reference: 'https://www.hl7.org/fhir/measure-operation-evaluate-measure.html'
+          reference: 'https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html'
         }
       ]
     }

@@ -259,7 +259,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
   }
 
   private addWeightedResults(results: ExecutionResult<T>[], groupId?: string) {
-    // https://hl7.org/fhir/us/cqfmeasures/composite-measures.html#weighted-scoring
+    // https://hl7.org/fhir/us/cqfmeasures/STU5/composite-measures.html#weighted-scoring
     // map component canonical to its population results (if only one group exists), or map to a Record that
     // maps each component group to its corresponding weight
     const componentPopulationResults: Record<
