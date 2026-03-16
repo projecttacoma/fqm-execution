@@ -63,7 +63,7 @@ export function findObsMsrPopl(
     population => MeasureBundleHelpers.codeableConceptToPopulationType(population.code) === PopulationType.MSRPOPL
   );
 
-  // Measure populations may also use 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference' extension to reference another population within the same group
+  // Measure populations may also use 'http://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition/cqfm-criteriaReference' extension to reference another population within the same group
   // In this case, we can identify the population that is being observed by looking through the entire group for a population with an ID that matches the valueString of this extension
   if (!msrPop) {
     const criteriaRefId = getCriteriaReferenceIdFromPopulation(obsrvPop);

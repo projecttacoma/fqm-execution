@@ -81,7 +81,7 @@ Library for calculating Electronic Clinical Quality Measures (eCQMs) written in 
 `fqm-execution` is a library for calculating FHIR-based Electronic Clinical Quality Measures (eCQMs) written in Clinical Quality Language (CQL). It wraps the [cql-execution](https://github.com/cqframework/cql-execution) and [cql-exec-fhir](https://github.com/cqframework/cql-exec-fhir/)
 libraries in order to provide eCQM-specific output/interpretation of the raw results returned from executing the CQL/ELM on provided patient data.
 
-More information about FHIR eCQMs can be found in the [FHIR Quality Measure Implementation Guide](https://hl7.org/fhir/us/cqfmeasures/index.html), which informs the majority of how `fqm-execution` calculation behaves.
+More information about FHIR eCQMs can be found in the [FHIR Quality Measure Implementation Guide](https://hl7.org/fhir/us/cqfmeasures/STU5/index.html), which informs the majority of how `fqm-execution` calculation behaves.
 
 # Installation
 
@@ -224,7 +224,7 @@ For example, if the `Measure` resource defines the populations for `"Initial Pop
 ];
 ```
 
-These results are assembled according to the various [Measure Population Semantics](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#measure-population-semantics) defined in the FHIR Quality Measure Implementation Guide, meaning that dependencies of the various eCQM populations are factored in
+These results are assembled according to the various [Measure Population Semantics](https://hl7.org/fhir/us/cqfmeasures/STU5/measure-conformance.html#measure-population-semantics) defined in the FHIR Quality Measure Implementation Guide, meaning that dependencies of the various eCQM populations are factored in
 during the results processing (e.g. a patient cannot be in the numerator if they are not in the denominator).
 
 ### Episode-based Measures
@@ -592,7 +592,7 @@ The results for each stratifier on a Measure (if they exist) are reported on the
 
 ## Measures with Observation Functions
 
-For [Continuous Variable Measures](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#continuous-variable-measure) and [Ratio Measures](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#ratio-measures), some of the measure populations can have an associated "measure observation", which is a CQL function that will return some result based on some information present on the data during calculation. In the case of these measures, `fqm-execution` will include an `observations` property on the `populationResult` object for each measure observation population. This `observations` property
+For [Continuous Variable Measures](https://hl7.org/fhir/us/cqfmeasures/STU5/measure-conformance.html#continuous-variable-measure) and [Ratio Measures](https://hl7.org/fhir/us/cqfmeasures/STU5/measure-conformance.html#ratio-measures), some of the measure populations can have an associated "measure observation", which is a CQL function that will return some result based on some information present on the data during calculation. In the case of these measures, `fqm-execution` will include an `observations` property on the `populationResult` object for each measure observation population. This `observations` property
 will be a list of the raw results returned from the execution of that CQL function on each unit of measure (e.g. on each `Encounter` resource for an `Encounter`-based episode measure).
 
 In the following example, consider an `Encounter`-based measure with two relevant episodes (`"episode-1"` and `"episode-2"`) on the patient `patient-1` in group `group-1`. The measure observation function `daysObservation` will be measuring the duration, in days, of each `Encounter` resource that lands in the denominator.
@@ -674,7 +674,7 @@ In the following example, consider an `Encounter`-based measure with two relevan
 ];
 ```
 
-From these results, it can be seen that `"episode-1"` has a duration of `1` day, and `"episode-2"` has a duration of `2` days. The results are also indicating the `populationId` property on each `populationResult`, as well as the `criteriaReferenceId` property on each measure observation `populationResult`. In the case of measure observations, it is common to assign an `id` property to each population in the `Measure` resource, as well as use the [cqfm-criteriaReference extension](https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-criteriaReference.html) on the measure observation population in order to indicate which population that function is observing (denominator in this example). Doing so allows consumers of the above result to easily identify which populations the measure observation results are referring to, which is especially useful if there are multiple measure observations defined.
+From these results, it can be seen that `"episode-1"` has a duration of `1` day, and `"episode-2"` has a duration of `2` days. The results are also indicating the `populationId` property on each `populationResult`, as well as the `criteriaReferenceId` property on each measure observation `populationResult`. In the case of measure observations, it is common to assign an `id` property to each population in the `Measure` resource, as well as use the [cqfm-criteriaReference extension](https://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition-cqfm-criteriaReference.html) on the measure observation population in order to indicate which population that function is observing (denominator in this example). Doing so allows consumers of the above result to easily identify which populations the measure observation results are referring to, which is especially useful if there are multiple measure observations defined.
 
 ## `meta.profile` Checking
 
@@ -690,7 +690,7 @@ const { results } = await Calculator.calculate(measureBundle, patientBundles, { 
 
 ## Supplemental Data Elements and Risk Adjustment Variables
 
-`fqm-execution` supports the calculation of Supplemental Data Elements (SDEs) defined on the `Measure` resource per the [conformance requirements](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#supplemental-data-elements) in the FHIR Quality Measure Implementation Guide. To enable calculation of SDEs, ensure the `calculateSDEs` option is set to `true` during calculation:
+`fqm-execution` supports the calculation of Supplemental Data Elements (SDEs) defined on the `Measure` resource per the [conformance requirements](https://hl7.org/fhir/us/cqfmeasures/STU5/measure-conformance.html#supplemental-data-elements) in the FHIR Quality Measure Implementation Guide. To enable calculation of SDEs, ensure the `calculateSDEs` option is set to `true` during calculation:
 
 ```typescript
 import { Calculator } from 'fqm-execution';
@@ -767,9 +767,9 @@ Additionally, `fqm-execution` supports composite measures that are defined in on
 
 2. Component measures are defined at the Measure.group level of the composite measure. An example can be found here: [group-composite-measure.json](https://github.com/projecttacoma/fqm-execution/blob/master/test/unit/fixtures/measure/group-composite-measure.json).
 
-- At least one component Measure is defined on `Measure.group` by a `http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component` extension.
-- Scoring type ("composite") is defined on `Measure.group` by a `http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring` extension.
-- Composite Scoring type is defined on the `Measure.group` by a `http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-compositeScoring` extension.
+- At least one component Measure is defined on `Measure.group` by a `http://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition/cqfm-component` extension.
+- Scoring type ("composite") is defined on `Measure.group` by a `http://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition/cqfm-scoring` extension.
+- Composite Scoring type is defined on the `Measure.group` by a `http://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition/cqfm-compositeScoring` extension.
 
 When the above criteria are met, `fqm-execution` will infer the need for composite measure calculation, and will report calculation results for all of the referenced components in the composite measure, so the syntax for calculating a composite measure is the same as any other measure:
 
@@ -785,7 +785,7 @@ The calculation results can be interpreted with a strategy similar to the one ou
 
 - Each `detailedResult` object will include a `componentCanonical` property, which will match the canonical referenced in each `relatedArtifact` with type `composed-of` in the composite `Measure` resource.
 - Each patient execution result object will include a `componentResults` list which contains the overall population results for every group of every component for this patient
-  - **NOTE**: Every group of every component is included in the results regardless of presence of the [cqfm-groupId extension](http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId). Consumers of this results object are responsible for parsing out the relevant `groupId` from each component result when using this extension.
+  - **NOTE**: Every group of every component is included in the results regardless of presence of the [cqfm-groupId extension](http://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition/cqfm-groupId). Consumers of this results object are responsible for parsing out the relevant `groupId` from each component result when using this extension.
 
 ```typescript
 [
@@ -885,7 +885,7 @@ The calculation results can be interpreted with a strategy similar to the one ou
 
 For examples showcasing ways to calculate a measure score based on the various [composite scoring types](https://terminology.hl7.org/3.1.0/ValueSet-composite-measure-scoring.html), see the [fqm-execution composite MeasureReport builder](https://github.com/projecttacoma/fqm-execution/blob/master/src/calculation/CompositeReportBuilder.ts).
 
-- **NOTE**: For composite measures with a `weighted` scoring type, the weight of each component should be defined on each related artifact in the composite measure as a [CQFM Weight extension](https://hl7.org/fhir/us/cqfmeasures/StructureDefinition-cqfm-weight.html). If none is provided, then 1 is used.
+- **NOTE**: For composite measures with a `weighted` scoring type, the weight of each component should be defined on each related artifact in the composite measure as a [CQFM Weight extension](https://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition-cqfm-weight.html). If none is provided, then 1 is used.
 
 ## Slim Calculation Mode
 
@@ -975,7 +975,7 @@ const { results } = await Calculator.calculateMeasureReports(measureBundle, pati
 
 However, highlighted HTML provided by `fqm-execution` is not solely based on whether individual pieces of the measure logic CQL had "truthy" or "falsy" values. When there are populations that depend on each other, a relevance hierarchy is built to ensure that populations that are subsets of others aren't considered for membership until membership is determined for their superset population. If a statement's superset statement is false, then no highlighting will appear, regardless of whether that statement's value is "truthy" or "falsy". This pattern reflects the actual population results that are being returned during calculation.
 
-The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false. The relevance calculation matches the semantics for proportion measures defined in [this flowchart](https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#proportion-measure-scoring).
+The following example of a proportion boolean measure shows how the logic highlighting will not style the numerator and denominator despite their truthy raw values because the initial population evaluates to false. The relevance calculation matches the semantics for proportion measures defined in [this flowchart](https://hl7.org/fhir/us/cqfmeasures/STU5/measure-conformance.html#proportion-measure-scoring).
 
 ![Screenshot of Highlighting HTML Measure Logic](./static/logic-highlighting-example-2.png)
 
