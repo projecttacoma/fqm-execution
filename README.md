@@ -116,8 +116,8 @@ const { results } = await Calculator.calculate(measureBundle, patientBundles, op
 To calculate a FHIR-based eCQM, `fqm-execution` needs the following information:
 
 - A [FHIR Bundle](http://hl7.org/fhir/R4/bundle.html) resource that contains:
-  - One [FHIR Measure](https://hl7.org/fhir/uv/crmi/STU1/StructureDefinition-crmi-shareablemeasure.html) resource containing the metadata for the measure
-  - The [FHIR Library](https://hl7.org/fhir/uv/crmi/STU1/StructureDefinition-crmi-shareablelibrary.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
+  - One [FHIR Measure](https://hl7.org/fhir/us/cqfmeasures/STU5/StructureDefinition-executable-measure-cqfm.html) resource containing the metadata for the measure
+  - The [FHIR Library](https://hl7.org/fhir/uv/crmi/STU1/StructureDefinition-crmi-executablelibrary.html) resource that is referenced from the above `Measure` resource's `.library` property, and any other FHIR `Library` resources that are dependencies of the main measure logic (e.g. `FHIRHelpers`)
     - **NOTE**: These `Library` resources _must_ contain `base64`-encoded ELM JSON content directly on the resource. `fqm-execution` does not do any real-time translation of CQL to ELM
   - Any [FHIR ValueSet](http://hl7.org/fhir/R4/valueset.html) resources that are used in the measure logic\*
 - One or more FHIR `Bundle` resources\*\* that contain:
