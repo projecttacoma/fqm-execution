@@ -16,7 +16,7 @@ export const compositeScoringCodes = ['all-or-nothing', 'opportunity', 'linear',
 export type CompositeScoreType = typeof compositeScoringCodes[number];
 
 /**
- * Enum for measure aggregation types. Matching https://terminology.hl7.org/6.0.2/ValueSet-measure-aggregate-method.html
+ * Enum for measure aggregation types. Matching https://terminology.hl7.org/5.5.0/CodeSystem-measure-aggregate-method.html
  */
 export enum AggregationType {
   SUM = 'sum',
