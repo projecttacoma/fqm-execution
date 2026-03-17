@@ -42,6 +42,18 @@ import { clearElmInfoCache } from '../helpers/elm/ELMInfoCache';
 import _, { omit } from 'lodash';
 import { ELM } from '../types/ELMTypes';
 import { getReportBuilder } from '../helpers/ReportBuilderFactory';
+import {
+  DEFAULT_BUILD_STATEMENT_LEVEL_HTML,
+  DEFAULT_CALCULATE_CLAUSE_COVERAGE,
+  DEFAULT_CALCULATE_CLAUSE_UNCOVERAGE,
+  DEFAULT_CALCULATE_COVERAGE_DETAILS,
+  DEFAULT_CALCULATE_HTML,
+  DEFAULT_CALCULATE_RAVS,
+  DEFAULT_CALCULATE_SDES,
+  DEFAULT_DISABLE_HTML_ORDERING,
+  DEFAULT_TRUST_META_PROFILE,
+  DEFAULT_VERBOSE_CALCULATION_RESULTS
+} from '../constants';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -59,7 +71,7 @@ export async function calculate<T extends CalculationOptions>(
   valueSetCache: fhir4.ValueSet[] = []
 ): Promise<CalculationOutput<T>> {
   // Ensure verboseCalculationResults defaults to true when not provided in options
-  options.verboseCalculationResults = options.verboseCalculationResults ?? true;
+  options.verboseCalculationResults = options.verboseCalculationResults ?? DEFAULT_VERBOSE_CALCULATION_RESULTS;
 
   const debugObject: DebugOutput | undefined = options.enableDebugOutput ? <DebugOutput>{} : undefined;
 
@@ -68,14 +80,14 @@ export async function calculate<T extends CalculationOptions>(
   }
 
   // Ensure the CalculationOptions have sane defaults, only if they're not set
-  options.calculateHTML = options.calculateHTML ?? true;
-  options.calculateSDEs = options.calculateSDEs ?? true;
-  options.calculateRAVs = options.calculateRAVs ?? true;
-  options.calculateClauseCoverage = options.calculateClauseCoverage ?? true;
-  options.calculateClauseUncoverage = options.calculateClauseUncoverage ?? false;
-  options.calculateCoverageDetails = options.calculateCoverageDetails ?? false;
-  options.disableHTMLOrdering = options.disableHTMLOrdering ?? false;
-  options.buildStatementLevelHTML = options.buildStatementLevelHTML ?? false;
+  options.calculateHTML = options.calculateHTML ?? DEFAULT_CALCULATE_HTML;
+  options.calculateSDEs = options.calculateSDEs ?? DEFAULT_CALCULATE_SDES;
+  options.calculateRAVs = options.calculateRAVs ?? DEFAULT_CALCULATE_RAVS;
+  options.calculateClauseCoverage = options.calculateClauseCoverage ?? DEFAULT_CALCULATE_CLAUSE_COVERAGE;
+  options.calculateClauseUncoverage = options.calculateClauseUncoverage ?? DEFAULT_CALCULATE_CLAUSE_UNCOVERAGE;
+  options.calculateCoverageDetails = options.calculateCoverageDetails ?? DEFAULT_CALCULATE_COVERAGE_DETAILS;
+  options.disableHTMLOrdering = options.disableHTMLOrdering ?? DEFAULT_DISABLE_HTML_ORDERING;
+  options.buildStatementLevelHTML = options.buildStatementLevelHTML ?? DEFAULT_BUILD_STATEMENT_LEVEL_HTML;
 
   const compositeMeasureResource = MeasureBundleHelpers.extractCompositeMeasure(measureBundle);
 
@@ -790,7 +802,9 @@ function resolvePatientSource(patientBundles: fhir4.Bundle[], options: Calculati
     if (patientBundles.filter(pb => pb.entry?.length).length === 0) {
       throw new UnexpectedResource('No entries found in passed patient bundles');
     }
-    const patientSource = PatientSource.FHIRv401({ requireProfileTagging: options.trustMetaProfile ?? true });
+    const patientSource = PatientSource.FHIRv401({
+      requireProfileTagging: options.trustMetaProfile ?? DEFAULT_TRUST_META_PROFILE
+    });
     patientSource.loadBundles(patientBundles);
     return patientSource;
   }

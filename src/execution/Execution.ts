@@ -5,6 +5,7 @@ import { ValueSetResolver } from './ValueSetResolver';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
 import { retrieveELMInfo } from '../helpers/elm/ELMInfoCache';
 import { MeasureWithLibrary } from '../helpers/MeasureBundleHelpers';
+import { DEFAULT_MEASUREMENT_PERIOD_END, DEFAULT_MEASUREMENT_PERIOD_START } from '../constants';
 
 export async function execute(
   measure: MeasureWithLibrary,
@@ -117,12 +118,12 @@ export function getCQLIntervalEndpoints(options: CalculationOptions) {
   if (options.measurementPeriodStart) {
     start = parseTimeStringAsUTC(options.measurementPeriodStart);
   } else {
-    start = new Date('2019-01-01');
+    start = new Date(DEFAULT_MEASUREMENT_PERIOD_START);
   }
   if (options.measurementPeriodEnd) {
     end = parseTimeStringAsUTC(options.measurementPeriodEnd);
   } else {
-    end = new Date('2019-12-31');
+    end = new Date(DEFAULT_MEASUREMENT_PERIOD_END);
   }
   const startCql = DateTime.fromJSDate(start, 0); // No timezone offset for start
   const endCql = DateTime.fromJSDate(end, 0); // No timezone offset for stop
