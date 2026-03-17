@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "@types/fhir": "0.0.34",
-    "axios": "^0.21.1",
+    "axios": "^1.13.6",
     "commander": "^6.1.0",
     "cql-exec-fhir": "^2.1.6",
     "cql-execution": "^3.3.0",
@@ -32,7 +32,7 @@
     "@typescript-eslint/parser": "^5.45.0",
     "axios-mock-adapter": "^1.19.0",
     "cql-translation-service-client": "^0.6.1",
-    "docsify": "^4.13.1",
+    "docsify": "^4.11.4",
     "ecqm-bundler": "^0.4.1",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
