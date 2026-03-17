@@ -370,7 +370,7 @@ export async function calculate<T extends CalculationOptions>(
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
  * @param valueSetCache Cache of existing valuesets
- * @returns MeasureReport resource(s) for each patient or entire population according to standard https://www.hl7.org/fhir/measurereport.html
+ * @returns MeasureReport resource(s) for each patient or entire population according to standard https://hl7.org/fhir/R4/measurereport.html
  */
 export async function calculateMeasureReports(
   measureBundle: fhir4.Bundle,
@@ -390,7 +390,7 @@ export async function calculateMeasureReports(
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
  * @param valueSetCache Cache of existing valuesets
- * @returns MeasureReport resource for each patient according to standard https://www.hl7.org/fhir/measurereport.html
+ * @returns MeasureReport resource for each patient according to standard https://hl7.org/fhir/R4/measurereport.html
  */
 export async function calculateIndividualMeasureReports(
   measureBundle: fhir4.Bundle,
@@ -426,7 +426,7 @@ export async function calculateIndividualMeasureReports(
  * @param patientBundles List of bundles of patients to be executed.
  * @param options Options for calculation.
  * @param valueSetCache Cache of existing valuesets
- * @returns MeasureReport resource summary according to standard https://www.hl7.org/fhir/measurereport.html
+ * @returns MeasureReport resource summary according to standard https://hl7.org/fhir/R4/measurereport.html
  */
 export async function calculateAggregateMeasureReport(
   measureBundle: fhir4.Bundle,

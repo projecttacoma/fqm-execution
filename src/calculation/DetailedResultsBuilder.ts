@@ -133,7 +133,7 @@ export function handlePopulationValues(
   measureScoringCode?: string
 ): PopulationResult[] {
   /* Population logic guidance: https://mmshub.cms.gov/sites/default/files/Measure-Calculations.pdf
-   * Follows population requirements in table 3-1 here: https://hl7.org/fhir/us/cqfmeasures/measure-conformance.html#data-criteria
+   * Follows population requirements in table 3-1 here: https://hl7.org/fhir/us/cqfmeasures/STU5/measure-conformance.html#data-criteria
    *
    * For proportional: Setting values of populations if the correct populations are not set based on the following logic guidelines
    * Initial Population (IPP): The set of patients or episodes of care to be evaluated by the measure.

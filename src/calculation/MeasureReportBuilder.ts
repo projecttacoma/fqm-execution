@@ -62,7 +62,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
   private setupBasicStructure() {
     // simple fields
     this.report.period = {
-      start: this.options.measurementPeriodStart, // double check format of start and end that we're passing in https://www.hl7.org/fhir/datatypes.html#dateTime... we don't seem to be passing anything in from CLI
+      start: this.options.measurementPeriodStart, // double check format of start and end that we're passing in https://hl7.org/fhir/R4/datatypes.html#dateTime... we don't seem to be passing anything in from CLI
       end: this.options.measurementPeriodEnd
     };
     this.report.status = 'complete';
@@ -472,7 +472,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     }
   }
 
-  // http://build.fhir.org/ig/HL7/cqf-measures/ValueSet-aggregate-method.html
+  // https://terminology.hl7.org/5.5.0/ValueSet-measure-aggregate-method.html
   private aggregate(aggregation: string, observations: number[]) {
     // Note: add break for any non-returning case
     switch (aggregation) {
