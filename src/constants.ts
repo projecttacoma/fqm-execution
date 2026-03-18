@@ -21,7 +21,6 @@ export const DEFAULT_TRUST_META_PROFILE = true;
 /**
  * MeasureReportBuilder.ts / CompositeReportBuilder.ts Defaults
  */
-export const DEFAULT_IS_INDIVIDUAL_REPORT = true;
 export const DEFAULT_MEASURE_URL_FOR_REPORT = 'UnknownMeasure';
 
 /**

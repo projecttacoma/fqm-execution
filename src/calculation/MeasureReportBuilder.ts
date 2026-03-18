@@ -16,7 +16,7 @@ import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomE
 import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
 import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
 import { MeasureReportGroupStratifier } from 'fhir/r4';
-import { DEFAULT_IS_INDIVIDUAL_REPORT, DEFAULT_MEASURE_URL_FOR_REPORT } from '../constants';
+import { DEFAULT_MEASURE_URL_FOR_REPORT } from '../constants';
 
 export default class MeasureReportBuilder<T extends PopulationGroupResult> extends AbstractMeasureReportBuilder<T> {
   report: fhir4.MeasureReport;
@@ -42,7 +42,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     if (this.options.reportType) {
       this.isIndividual = this.options.reportType === 'individual';
     } else {
-      this.isIndividual = DEFAULT_IS_INDIVIDUAL_REPORT;
+      this.isIndividual = true;
     }
 
     // determine if we should be calculating SDE, TODO: Support SDEs for summary/subject-list.
