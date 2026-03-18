@@ -25,7 +25,7 @@ Guidelines covering project governance, including issue workflow and release exp
 ## Prerequisites
 
 - Any code editor that has TypeScript language support. [VS Code](https://code.visualstudio.com/) is most popular
-- [Node.js >=16.0.0](https://nodejs.org/en/) is supported, LTS (`>=18.0.0`) is recommended
+- [Node.js >=22.0.0](https://nodejs.org/en/) is supported, LTS (`>=24.0.0`) is recommended
 - [Git](https://git-scm.com/)
 
 ## Setup
