@@ -16,6 +16,7 @@ import { addValueSetsToMeasureBundle } from './helpers/MeasureBundleHelpers';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
 import { PatientSource } from 'cql-exec-fhir';
+import { DEFAULT_OUTPUT_FILE_NAME } from './constants';
 
 program.command('detailed', { isDefault: true }).action(() => {
   program.outputType = 'detailed';
@@ -303,8 +304,8 @@ populatePatientBundles().then(async patientBundles => {
 
     // --out-file flag specified but no file path provided
     if (program.outFile === true || (!program.outFile && program.outputType === 'valueSets')) {
-      // use output.json (default file path) since no file path was provided
-      writeToFile('output.json', JSON.stringify(result?.results, null, 2));
+      // use default output filename defined in constants.ts
+      writeToFile(DEFAULT_OUTPUT_FILE_NAME, JSON.stringify(result?.results, null, 2));
       // --out-file flag specified with a file path
     } else if (program.outFile) {
       writeToFile(program.outFile, JSON.stringify(result?.results, null, 2));

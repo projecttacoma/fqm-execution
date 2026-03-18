@@ -16,6 +16,7 @@ import { UnexpectedProperty, UnsupportedProperty } from '../types/errors/CustomE
 import { isDetailedResult } from '../helpers/DetailedResultsHelpers';
 import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
 import { MeasureReportGroupStratifier } from 'fhir/r4';
+import { DEFAULT_MEASURE_URL_FOR_REPORT } from '../constants';
 
 export default class MeasureReportBuilder<T extends PopulationGroupResult> extends AbstractMeasureReportBuilder<T> {
   report: fhir4.MeasureReport;
@@ -69,7 +70,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     this.report.type = this.isIndividual ? 'individual' : 'summary';
 
     // measure url from measure bundle
-    this.report.measure = this.measure.url || 'UnknownMeasure'; // or some other default?
+    this.report.measure = this.measure.url || DEFAULT_MEASURE_URL_FOR_REPORT;
     this.report.contained = [];
 
     // add narrative if specified
