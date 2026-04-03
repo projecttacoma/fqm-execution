@@ -16,7 +16,7 @@ import { addValueSetsToMeasureBundle } from './helpers/MeasureBundleHelpers';
 import { clearDebugFolder, dumpCQLs, dumpELMJSONs, dumpHTMLs, dumpObject, dumpVSMap } from './helpers/DebugHelpers';
 import { CalculationOptions, CalculatorFunctionOutput } from './types/Calculator';
 import { PatientSource } from 'cql-exec-fhir';
-import { DEFAULT_OUTPUT_FILE_NAME } from './constants';
+import { DEFAULT_OUTPUT_FILE_NAME, DEFAULT_REPORT_TYPE } from './constants';
 
 program.command('detailed', { isDefault: true }).action(() => {
   program.outputType = 'detailed';
@@ -128,7 +128,7 @@ async function calc(
     calcOptions.calculateCoverageDetails = true;
     result = await calculate(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'reports') {
-    calcOptions.reportType = program.reportType || 'individual';
+    calcOptions.reportType = program.reportType || DEFAULT_REPORT_TYPE;
     result = await calculateMeasureReports(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'gaps') {
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions, valueSetCache);

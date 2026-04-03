@@ -27,3 +27,4 @@ export const DEFAULT_MEASURE_URL_FOR_REPORT = 'UnknownMeasure';
  * cli.ts Defaults
  */
 export const DEFAULT_OUTPUT_FILE_NAME = 'output.json';
+export const DEFAULT_REPORT_TYPE = 'individual';
