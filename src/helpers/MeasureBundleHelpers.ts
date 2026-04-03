@@ -5,7 +5,7 @@ import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomEr
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
 import { ValueSetResolver } from '../execution/ValueSetResolver';
 import { ExtractedLibrary } from '../types/CQLTypes';
-import { DEFAULT_MEASUREMENT_PERIOD_START, DEFAULT_MEASUREMENT_PERIOD_END } from '../constants';
+import { DEFAULT_MEASUREMENT_PERIOD_START, DEFAULT_MEASUREMENT_PERIOD_END, DEFAULT_CQL_NAME } from '../constants';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -569,7 +569,7 @@ export function extractLibrariesFromBundle(
         if (elmEncoded.data) {
           const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
           const cql = {
-            name: library.name || library.id || 'unknown library',
+            name: library.name || library.id || DEFAULT_CQL_NAME,
             cql: decoded
           };
           cqls.push(cql);

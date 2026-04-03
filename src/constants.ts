@@ -22,6 +22,7 @@ export const DEFAULT_TRUST_META_PROFILE = true;
  * MeasureReportBuilder.ts / CompositeReportBuilder.ts Defaults
  */
 export const DEFAULT_MEASURE_URL_FOR_REPORT = 'UnknownMeasure';
+export const DEFAULT_CQL_NAME = 'unknown library';
 
 /**
  * cli.ts Defaults
