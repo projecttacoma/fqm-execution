@@ -5,6 +5,7 @@ import { UnexpectedProperty, UnexpectedResource } from '../types/errors/CustomEr
 import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
 import { ValueSetResolver } from '../execution/ValueSetResolver';
 import { ExtractedLibrary } from '../types/CQLTypes';
+import { DEFAULT_MEASUREMENT_PERIOD_START, DEFAULT_MEASUREMENT_PERIOD_END, DEFAULT_CQL_NAME } from '../constants';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -448,8 +449,6 @@ export function codeableConceptToPopulationType(concept: fhir4.CodeableConcept |
 
 /**
  * Pulls the measurement period out of the provided FHIR Measure resource, assuming one is set.
- * NOTE: the default start/end values are also set in Execution.ts
- * so if this date is changed from 2019 it must also be changed there
  *
  * @param measure FHIR Measure resource
  * @returns {CalculationOptions} object with only the measurement period start/end fields filled out,
@@ -457,8 +456,8 @@ export function codeableConceptToPopulationType(concept: fhir4.CodeableConcept |
  */
 export function extractMeasurementPeriod(measure: fhir4.Measure): CalculationOptions {
   return {
-    measurementPeriodStart: measure.effectivePeriod?.start || '2019-01-01',
-    measurementPeriodEnd: measure.effectivePeriod?.end || '2019-12-31'
+    measurementPeriodStart: measure.effectivePeriod?.start || DEFAULT_MEASUREMENT_PERIOD_START,
+    measurementPeriodEnd: measure.effectivePeriod?.end || DEFAULT_MEASUREMENT_PERIOD_END
   };
 }
 
@@ -570,7 +569,7 @@ export function extractLibrariesFromBundle(
         if (elmEncoded.data) {
           const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
           const cql = {
-            name: library.name || library.id || 'unknown library',
+            name: library.name || library.id || DEFAULT_CQL_NAME,
             cql: decoded
           };
           cqls.push(cql);

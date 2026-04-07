@@ -11,6 +11,7 @@ import {
 import { CompositeScoreType, PopulationType } from '../types/Enums';
 import { v4 as uuidv4 } from 'uuid';
 import { AbstractMeasureReportBuilder } from './AbstractMeasureReportBuilder';
+import { DEFAULT_MEASURE_URL_FOR_REPORT } from '../constants';
 
 export type CompositeMeasureReport = fhir4.MeasureReport & {
   group: (fhir4.MeasureReportGroup & {
@@ -163,7 +164,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           start: this.options.measurementPeriodStart,
           end: this.options.measurementPeriodEnd
         },
-        measure: compositeMeasure.url ?? 'UnknownMeasure',
+        measure: compositeMeasure.url ?? DEFAULT_MEASURE_URL_FOR_REPORT,
         group: groupsForMeasureReport,
         evaluatedResource: []
       };
@@ -198,7 +199,7 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           start: this.options.measurementPeriodStart,
           end: this.options.measurementPeriodEnd
         },
-        measure: compositeMeasure.url ?? 'UnknownMeasure',
+        measure: compositeMeasure.url ?? DEFAULT_MEASURE_URL_FOR_REPORT,
         group: [
           {
             population: [
