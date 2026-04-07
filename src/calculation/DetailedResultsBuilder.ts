@@ -5,6 +5,7 @@ import { getResult, hasResult, setResult, createOrSetResult } from './ClauseResu
 import { ELM, ELMStatement } from '../types/ELMTypes';
 import { PopulationType } from '../types/Enums';
 import * as cql from '../types/CQLTypes';
+import { UNKNOWN_GROUP_ID } from '../constants';
 
 /**
  * Create population values (aka results) for all populations in the population group using the results from the
@@ -110,7 +111,7 @@ export function createPopulationValues(
     }
   }
   const detailedResult: DetailedPopulationGroupResult = {
-    groupId: populationGroup.id || 'unknown',
+    groupId: populationGroup.id || UNKNOWN_GROUP_ID,
     statementResults: [],
     populationResults: populationResults,
     episodeResults: episodeResults,

@@ -52,7 +52,8 @@ import {
   DEFAULT_CALCULATE_SDES,
   DEFAULT_DISABLE_HTML_ORDERING,
   DEFAULT_TRUST_META_PROFILE,
-  DEFAULT_VERBOSE_CALCULATION_RESULTS
+  DEFAULT_VERBOSE_CALCULATION_RESULTS,
+  UNKNOWN_GROUP_ID
 } from '../constants';
 
 /**
@@ -195,7 +196,7 @@ export async function calculate<T extends CalculationOptions>(
         }
 
         // fix groupId to an auto incremented if it was not found.
-        if (detailedGroupResult.groupId === 'unknown') {
+        if (detailedGroupResult.groupId === UNKNOWN_GROUP_ID) {
           detailedGroupResult.groupId = `population-group-${i++}`;
         }
 
@@ -213,8 +214,8 @@ export async function calculate<T extends CalculationOptions>(
           mainLibraryName,
           executedELM,
           group,
-          options.calculateSDEs ?? false,
-          options.calculateRAVs ?? false
+          options.calculateSDEs ?? DEFAULT_CALCULATE_SDES,
+          options.calculateRAVs ?? DEFAULT_CALCULATE_RAVS
         );
 
         // adds result information to the statement results and builds up clause results

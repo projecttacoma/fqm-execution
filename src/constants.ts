@@ -29,3 +29,8 @@ export const DEFAULT_CQL_NAME = 'unknown library';
  */
 export const DEFAULT_OUTPUT_FILE_NAME = 'output.json';
 export const DEFAULT_REPORT_TYPE = 'individual';
+
+/**
+ * DetailedResultsBuilder.ts Defaults
+ */
+export const UNKNOWN_GROUP_ID = 'unknown';
