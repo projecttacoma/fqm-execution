@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   preset: 'ts-jest',
   collectCoverageFrom: ['src/**/*.ts'],
   coveragePathIgnorePatterns: [
@@ -16,3 +16,5 @@ module.exports = {
   testMatch: ['**/test/**/*.test.(ts|js)'],
   testEnvironment: 'node'
 };
+
+export default config;

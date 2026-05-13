@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { PatientSource } from 'cql-exec-fhir';
 import MeasureReportBuilder from '../../src/calculation/MeasureReportBuilder';
 import { getJSONFixture } from './helpers/testHelpers';

@@ -141,7 +141,7 @@ export interface SDEResult {
  * whether a value is validly typed (using usageValues const).
  */
 export const usageValues = ['supplemental-data', 'risk-adjustment-factor'] as const;
-export type SupplementalDataUsage = typeof usageValues[number];
+export type SupplementalDataUsage = (typeof usageValues)[number];
 export function isSupplementalDataUsage(u: unknown): u is SupplementalDataUsage {
   return usageValues.includes(u as SupplementalDataUsage);
 }
