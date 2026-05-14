@@ -11,12 +11,7 @@ const config = {
   ],
   moduleFileExtensions: ['ts', 'js', 'd.ts'],
   transform: {
-    '^.+\\.(ts|tsx)$': [
-      'ts-jest',
-      {
-        tsconfig: 'tsconfig.test.json'
-      }
-    ]
+    '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   testMatch: ['**/test/**/*.test.(ts|js)'],
   testEnvironment: 'node'
