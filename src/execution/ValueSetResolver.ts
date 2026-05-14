@@ -20,7 +20,7 @@ export class ValueSetResolver {
   }
 
   private authHeaderValue(): string {
-    return Uint8Array.from(`apikey:${this.apiKey}`).toBase64();
+    return new TextEncoder().encode(`apikey:${this.apiKey}`).toBase64();
   }
 
   async getExpansionForValuesetUrls(urls: string[]): Promise<[fhir4.ValueSet[], string[]]> {
