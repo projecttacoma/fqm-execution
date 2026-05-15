@@ -6,7 +6,10 @@ export abstract class AbstractMeasureReportBuilder<
 > {
   abstract report: R;
 
-  constructor(public measure: fhir4.Measure, public options: CalculationOptions) {}
+  constructor(
+    public measure: fhir4.Measure,
+    public options: CalculationOptions
+  ) {}
 
   abstract addAllResults(results: ExecutionResult<T>[]): void;
   abstract addPatientResults(result: ExecutionResult<T>): void;

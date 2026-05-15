@@ -496,7 +496,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
         // count	Count	The measure score is determined as the number of observations derived from the measure population.
         return observations.length;
       default:
-        throw new UnsupportedProperty(`Measure score aggregation type \"${aggregation}\" not supported`);
+        throw new UnsupportedProperty(`Measure score aggregation type "${aggregation}" not supported`);
     }
   }
 
@@ -614,7 +614,7 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
           value: denominatorCount2 === 0 ? 0 : (numeratorCount2 / denominatorCount2) * 1.0
         };
       default:
-        throw new UnsupportedProperty(`Measure score type \"${scoringCode}\" not supported`);
+        throw new UnsupportedProperty(`Measure score type "${scoringCode}" not supported`);
     }
   }
 

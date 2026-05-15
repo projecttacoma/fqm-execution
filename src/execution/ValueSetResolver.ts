@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { isVSACUrl, normalizeCanonical } from './VSACHelper';
+import 'core-js/proposals/array-buffer-base64';
 
 export class ValueSetResolver {
   protected apiKey: string;
@@ -19,7 +20,7 @@ export class ValueSetResolver {
   }
 
   private authHeaderValue(): string {
-    return Buffer.from(`apikey:${this.apiKey}`).toString('base64');
+    return new TextEncoder().encode(`apikey:${this.apiKey}`).toBase64();
   }
 
   async getExpansionForValuesetUrls(urls: string[]): Promise<[fhir4.ValueSet[], string[]]> {

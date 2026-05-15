@@ -745,7 +745,7 @@ export async function calculateQueryInfo(
     if (focalStatement) {
       statements = [focalStatement];
     } else {
-      console.warn(`Focused statement \"${options.focusedStatement}\" not found in root library.`);
+      console.warn(`Focused statement "${options.focusedStatement}" not found in root library.`);
     }
   }
   const allRetrieves = statements.flatMap(statement => {

@@ -6,6 +6,7 @@ import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
 import { ValueSetResolver } from '../execution/ValueSetResolver';
 import { ExtractedLibrary } from '../types/CQLTypes';
 import { DEFAULT_MEASUREMENT_PERIOD_START, DEFAULT_MEASUREMENT_PERIOD_END, DEFAULT_CQL_NAME } from '../constants';
+import 'core-js/proposals/array-buffer-base64';
 
 /**
  * The extension that defines the population basis. This is used to determine if the measure is an episode of care or
@@ -468,7 +469,7 @@ export function extractMeasurementPeriod(measure: fhir4.Measure): CalculationOpt
  * @return {boolean} If the statement is a function or not.
  */
 export function isValidLibraryURL(libraryName: string) {
-  const urlFormat = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+  const urlFormat = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
   const r = new RegExp(urlFormat);
   return r.test(libraryName);
 }
@@ -545,7 +546,7 @@ export function extractLibrariesFromBundle(
       const elmsEncoded = library.content?.filter(a => a.contentType === 'application/elm+json');
       elmsEncoded?.forEach(elmEncoded => {
         if (elmEncoded.data) {
-          const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
+          const decoded = new TextDecoder().decode(Uint8Array.fromBase64(elmEncoded.data));
           const elm = JSON.parse(decoded) as ELM;
           // If url matches and we have a defined rootLibVersion, check that version matches also
           if (library.url === rootLibId && (!rootLibVersion || library.version === rootLibVersion)) {
@@ -567,7 +568,7 @@ export function extractLibrariesFromBundle(
       const cqlsEncoded = library.content?.filter(a => a.contentType === 'text/cql');
       cqlsEncoded?.forEach(elmEncoded => {
         if (elmEncoded.data) {
-          const decoded = Buffer.from(elmEncoded.data, 'base64').toString('binary');
+          const decoded = new TextDecoder().decode(Uint8Array.fromBase64(elmEncoded.data));
           const cql = {
             name: library.name || library.id || DEFAULT_CQL_NAME,
             cql: decoded
