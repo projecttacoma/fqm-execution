@@ -11,7 +11,7 @@ FILES := $(shell find . -name "*.cql")
 translate:
 	$(info translating [${FILES}])
 	rm -f ./output/*.json
-	ts-node ./cql-translator.ts "$(FILES)"
+	npx ts-node ./cql-translator.ts "$(FILES)"
 
 clean:
 	-docker stop cql-translation-service
