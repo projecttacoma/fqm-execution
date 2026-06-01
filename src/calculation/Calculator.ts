@@ -55,6 +55,8 @@ import {
   DEFAULT_VERBOSE_CALCULATION_RESULTS,
   UNKNOWN_GROUP_ID
 } from '../constants';
+import { getMissingDependentValuesets } from '../execution/ValueSetHelper';
+import { ValueSetResolver } from '../execution/ValueSetResolver';
 
 /**
  * Calculate measure against a set of patients. Returning detailed results for each patient and population group.
@@ -695,8 +697,10 @@ export async function calculateLibraryDataRequirements(
  */
 export async function calculateDataRequirements(
   measureBundle: fhir4.Bundle,
-  options: CalculationOptions = {}
+  options: CalculationOptions = {},
+  valueSetCache: fhir4.ValueSet[] = []
 ): Promise<DRCalculationOutput> {
+  let dataRequirements: DRCalculationOutput;
   // Extract the library ELM, and the id of the root library, from the measure bundle
   const measure = MeasureBundleHelpers.extractMeasureFromBundle(measureBundle);
   const effectivePeriod = measure.effectivePeriod;
@@ -704,13 +708,64 @@ export async function calculateDataRequirements(
     measureBundle,
     measure
   );
-  const dataRequirements = await DataRequirementHelpers.getDataRequirements(
-    cqls,
-    rootLibIdentifier,
-    elmJSONs,
-    options,
-    effectivePeriod
-  );
+  console.log(options);
+  console.log(options.useExpandedCodeQueries);
+
+  if (options.useExpandedCodeQueries) {
+    const valueSets: fhir4.ValueSet[] = [];
+    const newCache: fhir4.ValueSet[] = [];
+
+    // Pass in existing cache to attempt any missing resolutions
+    const missingVS = getMissingDependentValuesets(measureBundle, options.useEffectiveDataRequirements, [
+      ...valueSetCache
+    ]);
+
+    if (missingVS.length > 0) {
+      if (!options.vsAPIKey || options.vsAPIKey.length == 0) {
+        throw new UnexpectedResource(
+          `Missing the following valuesets: ${missingVS.join(', ')}, and no API key was provided to resolve them`
+        );
+      }
+      const vsr = new ValueSetResolver(options.vsAPIKey || '');
+      const [expansions, errorMessages] = await vsr.getExpansionForValuesetUrls(missingVS);
+
+      if (errorMessages.length > 0) {
+        throw new Error(errorMessages.join('\n'));
+      }
+
+      valueSets.push(...expansions);
+
+      // Update cache to include new expansions
+      if (options.useValueSetCaching) {
+        newCache.push(...expansions);
+      }
+    }
+
+    measureBundle.entry?.forEach(e => {
+      if (e.resource?.resourceType === 'ValueSet') {
+        valueSets.push(e.resource as fhir4.ValueSet);
+      }
+    });
+
+    valueSets.push(...valueSetCache);
+
+    dataRequirements = await DataRequirementHelpers.getDataRequirements(
+      cqls,
+      rootLibIdentifier,
+      elmJSONs,
+      options,
+      effectivePeriod,
+      valueSets
+    );
+  } else {
+    dataRequirements = await DataRequirementHelpers.getDataRequirements(
+      cqls,
+      rootLibIdentifier,
+      elmJSONs,
+      options,
+      effectivePeriod
+    );
+  }
   dataRequirements.results.relatedArtifact = DataRequirementHelpers.getFlattenedRelatedArtifacts(measureBundle);
   return dataRequirements;
 }

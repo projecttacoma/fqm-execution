@@ -30,7 +30,8 @@ export async function getDataRequirements(
   rootLibIdentifier: ELMIdentifier,
   elmJSONs: ELM[],
   options: CalculationOptions = {},
-  effectivePeriod?: fhir4.Period
+  effectivePeriod?: fhir4.Period,
+  valueSets?: fhir4.ValueSet[]
 ): Promise<DRCalculationOutput> {
   const rootLib = elmJSONs.find(ej => ej.library.identifier == rootLibIdentifier);
 
@@ -80,7 +81,7 @@ export async function getDataRequirements(
     allRetrieves.map(retrieve => {
       const dr = generateDataRequirement(retrieve);
       addFiltersToDataRequirement(retrieve, dr, withErrors);
-      addFhirQueryPatternToDataRequirements(dr);
+      addFhirQueryPatternToDataRequirements(dr, options, valueSets);
       return dr;
     }),
     JSON.stringify
@@ -105,8 +106,18 @@ export async function getDataRequirements(
  * contains the query string.
  * @param dataRequirement  Data requirement to add FHIR Query Pattern to
  */
-export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.DataRequirement) {
-  const query: codeFilterQuery = createQueryFromCodeFilter(dataRequirement.codeFilter, dataRequirement.type);
+export function addFhirQueryPatternToDataRequirements(
+  dataRequirement: fhir4.DataRequirement,
+  options: CalculationOptions = {},
+  valueSets?: fhir4.ValueSet[]
+) {
+  // add option for expanded
+  const query: codeFilterQuery = createQueryFromCodeFilter(
+    dataRequirement.codeFilter,
+    dataRequirement.type,
+    options,
+    valueSets
+  );
 
   // Configure query string from query object
   let queryString = `/${query.endpoint}?`;
@@ -179,7 +190,12 @@ export function addFhirQueryPatternToDataRequirements(dataRequirement: fhir4.Dat
  * @returns query object consisting of an endpoint and params object containing the code/valueSet
  * and value pairs
  */
-function createQueryFromCodeFilter(codeFilterArray: fhir4.DataRequirementCodeFilter[] | undefined, type: string) {
+function createQueryFromCodeFilter(
+  codeFilterArray: fhir4.DataRequirementCodeFilter[] | undefined,
+  type: string,
+  options: CalculationOptions = {},
+  valueSets?: fhir4.ValueSet[]
+) {
   const query: codeFilterQuery = { endpoint: type, params: {} };
 
   codeFilterArray?.map(codeFilter => {
@@ -187,7 +203,17 @@ function createQueryFromCodeFilter(codeFilterArray: fhir4.DataRequirementCodeFil
     if (codeFilter?.code) {
       query.params[`${codeFilter.path}`] = codeFilter.code[0].code;
     } else if (codeFilter?.valueSet) {
-      query.params[`${codeFilter.path}:in`] = codeFilter.valueSet;
+      // if expanded is true, we want to use expanded code-based queries (code=value1,value2,value3... for all values in VS)
+      if (options.useExpandedCodeQueries === true) {
+        // Get all codes in valueset
+        const valueSet = valueSets?.find(vs => vs.url === codeFilter.valueSet);
+        const codes = valueSet?.expansion?.contains?.flatMap(c => (c.code !== undefined ? [c.code] : [])) ?? [];
+        console.log(codes);
+        query.params[`${codeFilter.path}`] = codes?.join(',');
+      } else {
+        // if expanded is false, use valueset queries (code:in=vs) - does this matter for type:in=vs too?
+        query.params[`${codeFilter.path}:in`] = codeFilter.valueSet;
+      }
     }
   });
 

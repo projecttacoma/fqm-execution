@@ -59,6 +59,8 @@ export interface CalculationOptions {
   focusedStatement?: string;
   /** Uses the Measure's contained effective-data-requirements Library to find dependent ValueSets */
   useEffectiveDataRequirements?: boolean;
+  /** if true, uses expanded code-based queries in data requirements calculation */
+  useExpandedCodeQueries?: boolean;
 }
 
 /**
