@@ -4,6 +4,7 @@ debug/
 .vscode
 **/.DS_Store
 test/unit/fixtures/elm/queries/output/*
+test/unit/fixtures/elm/output/*
 test/unit/fixtures/elm/queries/.start-translator
 coverage
 cache
