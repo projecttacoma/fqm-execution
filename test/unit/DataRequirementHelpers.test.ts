@@ -110,6 +110,48 @@ describe('DataRequirementHelpers', () => {
       }
     });
 
+    test('uses expanded code queries when option is set to true', () => {
+      const testDataReq: DataRequirement = {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
+              }
+            ]
+          }
+        ]
+      };
+      const valueSet = {
+        resourceType: 'ValueSet',
+        url: 'http://example.com',
+        expansion: {
+          contains: [{ code: 'value1' }, { code: 'value2' }, { code: 'value3' }]
+        }
+      } as fhir4.ValueSet;
+
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReq, { useExpandedCodeQueries: true }, [
+        valueSet
+      ]);
+
+      expect(testDataReq.extension?.length).toEqual(2);
+      if (testDataReq.extension) {
+        expect(testDataReq.extension[0].valueString).toEqual(
+          '/Procedure?code=value1,value2,value3&status=completed&patient=Patient/{{context.patientId}}'
+        );
+        expect(testDataReq.extension[1].valueString).toEqual(
+          '/Procedure?code=value1,value2,value3&status=completed&performer=Patient/{{context.patientId}}'
+        );
+      }
+    });
+
     test('add fhirQueryPattern extension with CodeFilter codes and valueSets, and date filters', () => {
       const testDataReqWithDateFilter: DataRequirement = {
         type: 'ServiceRequest',

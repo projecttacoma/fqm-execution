@@ -20,6 +20,7 @@ import { uniqBy } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
 import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
+import { DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE } from '../constants';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
 
 /**
@@ -111,8 +112,7 @@ export function addFhirQueryPatternToDataRequirements(
   options: CalculationOptions = {},
   valueSets?: fhir4.ValueSet[]
 ) {
-  // add option for expanded
-  const query: codeFilterQuery = createQueryFromCodeFilter(
+  const queries: codeFilterQuery[] = createQueriesFromCodeFilter(
     dataRequirement.codeFilter,
     dataRequirement.type,
     options,
@@ -120,10 +120,13 @@ export function addFhirQueryPatternToDataRequirements(
   );
 
   // Configure query string from query object
-  let queryString = `/${query.endpoint}?`;
-  for (const [key, value] of Object.entries(query.params)) {
-    queryString = queryString.concat(`${key}=${value}&`);
-  }
+  let queryStrings = queries.map(query => {
+    let queryString = `/${query.endpoint}?`;
+    for (const [key, value] of Object.entries(query.params)) {
+      queryString = queryString.concat(`${key}=${value}&`);
+    }
+    return queryString;
+  });
 
   if (dataRequirement.dateFilter) {
     dataRequirement.dateFilter.forEach(dateFilter => {
@@ -145,16 +148,27 @@ export function addFhirQueryPatternToDataRequirements(
 
       if (foundParams.length === 1) {
         if (dateFilter.valueDateTime) {
-          queryString = queryString.concat(`${foundParams[0].resource.code}=${dateFilter.valueDateTime}&`);
+          const valueDateTime = dateFilter.valueDateTime;
+          queryStrings = queryStrings.map(queryString =>
+            queryString.concat(`${foundParams[0].resource.code}=${valueDateTime}&`)
+          );
         } else if (dateFilter.valuePeriod) {
-          if (dateFilter.valuePeriod.start) {
-            queryString = queryString.concat(`${foundParams[0].resource.code}=ge${dateFilter.valuePeriod.start}&`);
+          const valuePeriod = dateFilter.valuePeriod;
+          if (valuePeriod.start) {
+            queryStrings = queryStrings.map(queryString =>
+              queryString.concat(`${foundParams[0].resource.code}=ge${valuePeriod.start}&`)
+            );
           }
-          if (dateFilter.valuePeriod.end) {
-            queryString = queryString.concat(`${foundParams[0].resource.code}=le${dateFilter.valuePeriod.end}&`);
+          if (valuePeriod.end) {
+            queryStrings = queryStrings.map(queryString =>
+              queryString.concat(`${foundParams[0].resource.code}=le${valuePeriod.end}&`)
+            );
           }
         } else if (dateFilter.valueDuration) {
-          queryString = queryString.concat(`${foundParams[0].resource.code}=${dateFilter.valueDuration.value}&`);
+          const valueDuration = dateFilter.valueDuration;
+          queryStrings = queryStrings.map(queryString =>
+            queryString.concat(`${foundParams[0].resource.code}=${valueDuration.value}&`)
+          );
         }
       } else if (foundParams.length > 1) {
         // assumed that multiple foundParams matches is an unexpected result
@@ -167,18 +181,20 @@ export function addFhirQueryPatternToDataRequirements(
   }
 
   // Create an extension for each way that exists for referencing the patient
-  (<any>patientSearchParameters)[dataRequirement.type]?.forEach((patientContext: string) => {
-    const fhirPathExtension: Extension = {
-      url: FHIR_QUERY_PATTERN_URL,
-      valueString: queryString.concat(`${patientContext}=Patient/{{context.patientId}}`)
-    };
+  queryStrings.forEach(queryString => {
+    (<any>patientSearchParameters)[dataRequirement.type]?.forEach((patientContext: string) => {
+      const fhirPathExtension: Extension = {
+        url: FHIR_QUERY_PATTERN_URL,
+        valueString: queryString.concat(`${patientContext}=Patient/{{context.patientId}}`)
+      };
 
-    // Add query to data requirement
-    if (dataRequirement.extension) {
-      dataRequirement.extension.push(fhirPathExtension);
-    } else {
-      dataRequirement.extension = [fhirPathExtension];
-    }
+      // Add query to data requirement
+      if (dataRequirement.extension) {
+        dataRequirement.extension.push(fhirPathExtension);
+      } else {
+        dataRequirement.extension = [fhirPathExtension];
+      }
+    });
   });
 }
 
@@ -190,34 +206,57 @@ export function addFhirQueryPatternToDataRequirements(
  * @returns query object consisting of an endpoint and params object containing the code/valueSet
  * and value pairs
  */
-function createQueryFromCodeFilter(
+function createQueriesFromCodeFilter(
   codeFilterArray: fhir4.DataRequirementCodeFilter[] | undefined,
   type: string,
   options: CalculationOptions = {},
   valueSets?: fhir4.ValueSet[]
 ) {
-  const query: codeFilterQuery = { endpoint: type, params: {} };
+  let queries: codeFilterQuery[] = [{ endpoint: type, params: {} }];
 
   codeFilterArray?.map(codeFilter => {
     // Prefer specific code filter over valueSet
     if (codeFilter?.code) {
-      query.params[`${codeFilter.path}`] = codeFilter.code[0].code;
+      queries = queries.map(query => ({
+        endpoint: query.endpoint,
+        params: { ...query.params, [`${codeFilter.path}`]: codeFilter.code?.[0].code }
+      }));
     } else if (codeFilter?.valueSet) {
       // if expanded is true, we want to use expanded code-based queries (code=value1,value2,value3... for all values in VS)
       if (options.useExpandedCodeQueries === true) {
         // Get all codes in valueset
         const valueSet = valueSets?.find(vs => vs.url === codeFilter.valueSet);
         const codes = valueSet?.expansion?.contains?.flatMap(c => (c.code !== undefined ? [c.code] : [])) ?? [];
-        console.log(codes);
-        query.params[`${codeFilter.path}`] = codes?.join(',');
+        const codeChunks = chunkArray(codes, DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE);
+        queries = queries.flatMap(query =>
+          codeChunks.map(codeChunk => ({
+            endpoint: query.endpoint,
+            params: { ...query.params, [`${codeFilter.path}`]: codeChunk.join(',') }
+          }))
+        );
       } else {
         // if expanded is false, use valueset queries (code:in=vs) - does this matter for type:in=vs too?
-        query.params[`${codeFilter.path}:in`] = codeFilter.valueSet;
+        queries = queries.map(query => ({
+          endpoint: query.endpoint,
+          params: { ...query.params, [`${codeFilter.path}:in`]: codeFilter.valueSet }
+        }));
       }
     }
   });
 
-  return query;
+  return queries;
+}
+
+function chunkArray<T>(values: T[], chunkSize: number): T[][] {
+  if (values.length === 0) {
+    return [[]];
+  }
+
+  const chunks: T[][] = [];
+  for (let startIndex = 0; startIndex < values.length; startIndex += chunkSize) {
+    chunks.push(values.slice(startIndex, startIndex + chunkSize));
+  }
+  return chunks;
 }
 
 /**

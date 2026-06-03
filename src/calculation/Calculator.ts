@@ -708,9 +708,6 @@ export async function calculateDataRequirements(
     measureBundle,
     measure
   );
-  console.log(options);
-  console.log(options.useExpandedCodeQueries);
-
   if (options.useExpandedCodeQueries) {
     const valueSets: fhir4.ValueSet[] = [];
     const newCache: fhir4.ValueSet[] = [];
