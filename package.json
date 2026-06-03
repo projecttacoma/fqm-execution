@@ -16,7 +16,7 @@
     "commander": "^6.1.0",
     "core-js": "^3.49.0",
     "cql-exec-fhir": "^2.1.6",
-    "cql-execution": "^3.3.1",
+    "cql-execution": "^3.3.2",
     "fhir-spec-tools": "^0.4.0",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21",
