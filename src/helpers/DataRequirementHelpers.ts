@@ -219,13 +219,12 @@ function createQueriesFromCodeFilter(
 ) {
   let queries: codeFilterQuery[] = [{ endpoint: type, params: {} }];
 
-  codeFilterArray?.map(codeFilter => {
+  codeFilterArray?.forEach(codeFilter => {
     // Prefer specific code filter over valueSet
     if (codeFilter?.code) {
-      queries = queries.map(query => ({
-        endpoint: query.endpoint,
-        params: { ...query.params, [`${codeFilter.path}`]: codeFilter.code?.[0].code }
-      }));
+      queries.forEach(query => {
+        query.params[`${codeFilter.path}`] = codeFilter.code?.[0].code;
+      });
     } else if (codeFilter?.valueSet) {
       // if expanded is true, we want to use expanded code-based queries (code=value1,value2,value3... for all values in VS)
       if (options.useExpandedCodeQueries === true) {
@@ -241,10 +240,9 @@ function createQueriesFromCodeFilter(
         );
       } else {
         // if expanded is false, use valueset queries (code:in=vs) - does this matter for type:in=vs too?
-        queries = queries.map(query => ({
-          endpoint: query.endpoint,
-          params: { ...query.params, [`${codeFilter.path}:in`]: codeFilter.valueSet }
-        }));
+        queries.forEach(query => {
+          query.params[`${codeFilter.path}:in`] = codeFilter.valueSet;
+        });
       }
     }
   });
