@@ -692,6 +692,7 @@ export async function calculateLibraryDataRequirements(
  *
  * @param measureBundle Bundle with a MeasureResource and all necessary data for execution.
  * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
  *
  * @returns FHIR Library of data requirements
  */

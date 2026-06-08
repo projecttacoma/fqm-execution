@@ -106,6 +106,8 @@ export async function getDataRequirements(
  * the specified endpoint, and adds a fhirQueryPattern extension to the data requirement that
  * contains the query string.
  * @param dataRequirement  Data requirement to add FHIR Query Pattern to
+ * @param options Options for calculation.
+ * @param valueSetCache Cache of existing valuesets
  */
 export function addFhirQueryPatternToDataRequirements(
   dataRequirement: fhir4.DataRequirement,
@@ -203,6 +205,9 @@ export function addFhirQueryPatternToDataRequirements(
  * query object containing each code/valueSet and corresponding value.
  * @param codeFilterArray codeFilter array from DataRequirement
  * @param type dataRequirement type
+ * @param options Options for calculation
+ * @param valueSetCache Cache of existing valuesets
+ *
  * @returns query object consisting of an endpoint and params object containing the code/valueSet
  * and value pairs
  */
