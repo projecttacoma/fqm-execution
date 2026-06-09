@@ -92,6 +92,11 @@ program
     "Uses the Measure's contained effective-data-requirements Library to find dependent ValueSets",
     false
   )
+  .option(
+    '--expanded-code-queries',
+    'Uses expanded code-based queries (code=value1,value2,value3... for all codes in vs) for data requirements calculation',
+    false
+  )
   .parse(process.argv);
 
 function parseBundle(filePath: string): fhir4.Bundle {
@@ -133,7 +138,7 @@ async function calc(
   } else if (program.outputType === 'gaps') {
     result = await calculateGapsInCare(measureBundle, patientBundles, calcOptions, valueSetCache);
   } else if (program.outputType === 'dataRequirements') {
-    result = calculateDataRequirements(measureBundle, calcOptions);
+    result = calculateDataRequirements(measureBundle, calcOptions, valueSetCache);
   } else if (program.outputType === 'libraryDataRequirements') {
     // in this case, measureBundle should be a library bundle
     result = calculateLibraryDataRequirements(measureBundle, calcOptions);
@@ -225,7 +230,8 @@ const calcOptions: CalculationOptions = {
   trustMetaProfile: parseTrustMetaProfile(program.trustMetaProfile),
   rootLibRef: program.rootLibRef,
   focusedStatement: program.focusedStatement,
-  useEffectiveDataRequirements: program.vsEffectiveDr
+  useEffectiveDataRequirements: program.vsEffectiveDr,
+  useExpandedCodeQueries: program.expandedCodeQueries
 };
 
 // Override the measurement period start/end in the options only if the user specified them

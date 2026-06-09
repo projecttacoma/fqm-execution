@@ -17,6 +17,7 @@ export const DEFAULT_CALCULATE_COVERAGE_DETAILS = false;
 export const DEFAULT_DISABLE_HTML_ORDERING = false;
 export const DEFAULT_BUILD_STATEMENT_LEVEL_HTML = false;
 export const DEFAULT_TRUST_META_PROFILE = true;
+export const DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE = 50;
 
 /**
  * MeasureReportBuilder.ts / CompositeReportBuilder.ts Defaults

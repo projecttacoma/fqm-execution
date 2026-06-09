@@ -3,6 +3,7 @@ import * as DataRequirementHelpers from '../../src/helpers/DataRequirementHelper
 import { CalculationOptions, DataTypeQuery } from '../../src/types/Calculator';
 import { DataRequirement } from 'fhir/r4';
 import { DateTime, Interval } from 'cql-execution';
+import { DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE } from '../../src/constants';
 import moment from 'moment';
 
 describe('DataRequirementHelpers', () => {
@@ -108,6 +109,86 @@ describe('DataRequirementHelpers', () => {
           '/Procedure?code:in=http://example.com&status=completed&performer=Patient/{{context.patientId}}'
         );
       }
+    });
+
+    test('uses expanded code queries when option is set to true', () => {
+      const testDataReq: DataRequirement = {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com'
+          },
+          {
+            path: 'status',
+            code: [
+              {
+                code: 'completed',
+                system: 'http://hl7.org/fhir/event-status'
+              }
+            ]
+          }
+        ]
+      };
+      const valueSet = {
+        resourceType: 'ValueSet',
+        url: 'http://example.com',
+        expansion: {
+          contains: [{ code: 'value1' }, { code: 'value2' }, { code: 'value3' }]
+        }
+      } as fhir4.ValueSet;
+
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReq, { useExpandedCodeQueries: true }, [
+        valueSet
+      ]);
+
+      expect(testDataReq.extension?.length).toEqual(2);
+      if (testDataReq.extension) {
+        expect(testDataReq.extension[0].valueString).toEqual(
+          '/Procedure?code=value1,value2,value3&status=completed&patient=Patient/{{context.patientId}}'
+        );
+        expect(testDataReq.extension[1].valueString).toEqual(
+          '/Procedure?code=value1,value2,value3&status=completed&performer=Patient/{{context.patientId}}'
+        );
+      }
+    });
+
+    test('chunks expanded code queries when valueset has more codes than the default chunk size', () => {
+      const testDataReq: DataRequirement = {
+        type: 'Procedure',
+        codeFilter: [
+          {
+            path: 'code',
+            valueSet: 'http://example.com'
+          }
+        ]
+      };
+      const expandedCodes = Array.from({ length: DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE + 1 }, (_, index) => ({
+        code: `value${index + 1}`
+      }));
+      const valueSet = {
+        resourceType: 'ValueSet',
+        url: 'http://example.com',
+        expansion: {
+          contains: expandedCodes
+        }
+      } as fhir4.ValueSet;
+      const firstCodeChunk = expandedCodes
+        .slice(0, DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE)
+        .map(({ code }) => code)
+        .join(',');
+      const secondCodeChunk = expandedCodes[DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE].code;
+
+      DataRequirementHelpers.addFhirQueryPatternToDataRequirements(testDataReq, { useExpandedCodeQueries: true }, [
+        valueSet
+      ]);
+
+      expect(testDataReq.extension?.map(extension => extension.valueString)).toEqual([
+        `/Procedure?code=${firstCodeChunk}&patient=Patient/{{context.patientId}}`,
+        `/Procedure?code=${firstCodeChunk}&performer=Patient/{{context.patientId}}`,
+        `/Procedure?code=${secondCodeChunk}&patient=Patient/{{context.patientId}}`,
+        `/Procedure?code=${secondCodeChunk}&performer=Patient/{{context.patientId}}`
+      ]);
     });
 
     test('add fhirQueryPattern extension with CodeFilter codes and valueSets, and date filters', () => {
