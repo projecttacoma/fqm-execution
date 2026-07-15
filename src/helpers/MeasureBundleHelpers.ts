@@ -449,6 +449,24 @@ export function codeableConceptToPopulationType(concept: fhir4.CodeableConcept |
 }
 
 /**
+ * Normalized the start date for a measurementPeriod to 00:00:00.000Z and
+ * the end date for a measurementPeriod to 23:59:59.999Z
+ * @param date
+ * @param isStartDate
+ * @returns
+ */
+export function normalizeMeasurementPeriodDate(date: string, isStartDate: boolean): string {
+  const fixedDate = new Date(date);
+  if (isStartDate) {
+    fixedDate.setUTCHours(0, 0, 0, 0);
+  } else {
+    fixedDate.setUTCHours(23, 59, 59, 999);
+  }
+
+  return fixedDate.toISOString();
+}
+
+/**
  * Pulls the measurement period out of the provided FHIR Measure resource, assuming one is set.
  *
  * @param measure FHIR Measure resource
@@ -457,8 +475,12 @@ export function codeableConceptToPopulationType(concept: fhir4.CodeableConcept |
  */
 export function extractMeasurementPeriod(measure: fhir4.Measure): CalculationOptions {
   return {
-    measurementPeriodStart: measure.effectivePeriod?.start || DEFAULT_MEASUREMENT_PERIOD_START,
-    measurementPeriodEnd: measure.effectivePeriod?.end || DEFAULT_MEASUREMENT_PERIOD_END
+    measurementPeriodStart: measure.effectivePeriod?.start
+      ? normalizeMeasurementPeriodDate(measure.effectivePeriod.start, true)
+      : DEFAULT_MEASUREMENT_PERIOD_START,
+    measurementPeriodEnd: measure.effectivePeriod?.end
+      ? normalizeMeasurementPeriodDate(measure.effectivePeriod.end, false)
+      : DEFAULT_MEASUREMENT_PERIOD_END
   };
 }
 

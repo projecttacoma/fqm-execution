@@ -972,7 +972,7 @@ describe('MeasureBundleHelpers tests', () => {
 
       const mpConfig = extractMeasurementPeriod(measureFixture);
 
-      expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
+      expect(mpConfig.measurementPeriodStart).toBe('2000-01-01T00:00:00.000Z');
       expect(mpConfig.measurementPeriodEnd).toBe('2019-12-31');
     });
 
@@ -988,7 +988,7 @@ describe('MeasureBundleHelpers tests', () => {
       const mpConfig = extractMeasurementPeriod(measureFixture);
 
       expect(mpConfig.measurementPeriodStart).toBe('2019-01-01');
-      expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
+      expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31T23:59:59.999Z');
     });
 
     it('Measurement period start and end set on measure', () => {
@@ -1003,8 +1003,8 @@ describe('MeasureBundleHelpers tests', () => {
 
       const mpConfig = extractMeasurementPeriod(measureFixture);
 
-      expect(mpConfig.measurementPeriodStart).toBe('2000-01-01');
-      expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31');
+      expect(mpConfig.measurementPeriodStart).toBe('2000-01-01T00:00:00.000Z');
+      expect(mpConfig.measurementPeriodEnd).toBe('2000-12-31T23:59:59.999Z');
     });
 
     it('Neither set on measure', () => {
