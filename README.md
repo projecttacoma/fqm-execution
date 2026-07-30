@@ -123,6 +123,7 @@ To calculate a FHIR-based eCQM, `fqm-execution` needs the following information:
 - One or more FHIR `Bundle` resources\*\* that contain:
   - One [FHIR Patient](http://hl7.org/fhir/R4/patient.html) resource
   - Any other FHIR resources that contain relevant data for the above patient that should be considered during measure calculation
+  - **NOTE**: These patient `Bundle`s should be provided together in a batch when possible to improve performance and execute measure-related processing once across the batch. Executing calculation functions against a single patient `Bundle` at a time will incur repeated measure-related processing for each patient
 
 \*`ValueSet` resources can be omitted if you follow the approach outlined in the [ValueSet Resolution](#valueset-resolution) section
 
