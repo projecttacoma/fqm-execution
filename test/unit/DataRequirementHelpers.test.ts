@@ -335,7 +335,7 @@ describe('DataRequirementHelpers', () => {
       const start = '2019-01-01';
       const end = '2020-01-01';
       const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+      const endCql = DateTime.fromJSDate(moment.utc(`${end}T23:59:59.999Z`, moment.ISO_8601, true).toDate(), 0);
       const options: CalculationOptions = { measurementPeriodStart: start, measurementPeriodEnd: end };
       const mp: fhir4.Period = { start: '2000-01-01', end: '2001-01-01' };
 
@@ -349,7 +349,7 @@ describe('DataRequirementHelpers', () => {
     const start = '2019-01-01';
     const end = '2020-01-01';
     const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-    const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+    const endCql = DateTime.fromJSDate(moment.utc(`${end}T23:59:59.999Z`, moment.ISO_8601, true).toDate(), 0);
     const mp: fhir4.Period = { start, end };
 
     expect(DataRequirementHelpers.extractDataRequirementsMeasurementPeriod({}, mp)).toEqual({
@@ -358,11 +358,11 @@ describe('DataRequirementHelpers', () => {
   });
 
   describe('createIntervalFromEndpoints', () => {
-    test('returns interval from start to end if both provided', () => {
+    test('returns interval from start to end if both provided and end is normalized', () => {
       const start = '2019-01-01';
       const end = '2022-01-01';
       const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+      const endCql = DateTime.fromJSDate(moment.utc(`${end}T23:59:59.999Z`, moment.ISO_8601, true).toDate(), 0);
 
       expect(DataRequirementHelpers.createIntervalFromEndpoints(start, end)).toEqual(new Interval(startCql, endCql));
     });

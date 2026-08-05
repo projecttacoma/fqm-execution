@@ -107,6 +107,24 @@ export async function execute(
 }
 
 /**
+ * Normalized the start date for a measurementPeriod to 00:00:00.000Z and
+ * the end date for a measurementPeriod to 23:59:59.999Z
+ * @param date
+ * @param isStartDate
+ * @returns
+ */
+export function normalizeMeasurementPeriodDate(date: string, isStartDate: boolean): string {
+  const fixedDate = new Date(date);
+  if (isStartDate) {
+    fixedDate.setUTCHours(0, 0, 0, 0);
+  } else {
+    fixedDate.setUTCHours(23, 59, 59, 999);
+  }
+
+  return fixedDate.toISOString();
+}
+
+/**
  * Takes in the calculation options and returns start and end dates to create a cql interval
  * @param options calculationOptions passed in by the user
  * @returns {startCql: Date, endCql: Date}, the start and end date of the calculationOptions
@@ -116,14 +134,28 @@ export function getCQLIntervalEndpoints(options: CalculationOptions) {
   let start;
   let end;
   if (options.measurementPeriodStart) {
+    if (!options.measurementPeriodStart.includes('T') && !options.measurementPeriodStart.includes(':')) {
+      options.measurementPeriodStart = normalizeMeasurementPeriodDate(options.measurementPeriodStart, true);
+    }
     start = parseTimeStringAsUTC(options.measurementPeriodStart);
   } else {
-    start = new Date(DEFAULT_MEASUREMENT_PERIOD_START);
+    let defaultMeasurementPeriodStart = DEFAULT_MEASUREMENT_PERIOD_START;
+    if (!DEFAULT_MEASUREMENT_PERIOD_START.includes('T') && !DEFAULT_MEASUREMENT_PERIOD_START.includes(':')) {
+      defaultMeasurementPeriodStart = normalizeMeasurementPeriodDate(DEFAULT_MEASUREMENT_PERIOD_START, true);
+    }
+    start = new Date(defaultMeasurementPeriodStart);
   }
   if (options.measurementPeriodEnd) {
+    if (!options.measurementPeriodEnd.includes('T') && !options.measurementPeriodEnd.includes(':')) {
+      options.measurementPeriodEnd = normalizeMeasurementPeriodDate(options.measurementPeriodEnd, false);
+    }
     end = parseTimeStringAsUTC(options.measurementPeriodEnd);
   } else {
-    end = new Date(DEFAULT_MEASUREMENT_PERIOD_END);
+    let defaultMeasurementPeriodEnd = DEFAULT_MEASUREMENT_PERIOD_END;
+    if (!DEFAULT_MEASUREMENT_PERIOD_END.includes('T') && !DEFAULT_MEASUREMENT_PERIOD_END.includes(':')) {
+      defaultMeasurementPeriodEnd = normalizeMeasurementPeriodDate(DEFAULT_MEASUREMENT_PERIOD_END, false);
+    }
+    end = new Date(defaultMeasurementPeriodEnd);
   }
   const startCql = DateTime.fromJSDate(start, 0); // No timezone offset for start
   const endCql = DateTime.fromJSDate(end, 0); // No timezone offset for stop
