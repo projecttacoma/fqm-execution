@@ -17,8 +17,7 @@ import {
 } from './elm/QueryFilterParser';
 import * as RetrievesHelper from './elm/RetrievesHelper';
 import { uniqBy } from 'lodash';
-import { DateTime, Interval } from 'cql-execution';
-import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
+import { Interval } from 'cql-execution';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
 import { DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE } from '../constants';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
@@ -309,43 +308,22 @@ export function extractDataRequirementsMeasurementPeriod(options: CalculationOpt
     return {};
   }
   const parameters: Record<string, Interval> = {};
+  let startCql: DateTime;
+  let endCql: DateTime;
 
   if (options.measurementPeriodStart || options.measurementPeriodEnd) {
-    parameters['Measurement Period'] = createIntervalFromEndpoints(
-      options.measurementPeriodStart,
-      options.measurementPeriodEnd
-    );
-  } else {
-    parameters['Measurement Period'] = createIntervalFromEndpoints(effectivePeriod?.start, effectivePeriod?.end);
-  }
-  return parameters;
-}
-
-/**
- * Creates a cql-execution interval from start to end. If either start or end is not present,
- * creates an interval with duration exactly one year using the present endpoint
- */
-export function createIntervalFromEndpoints(start?: string, end?: string) {
-  let startCql, endCql;
-  if (start && end) {
     ({ startCql, endCql } = Execution.getCQLIntervalEndpoints({
-      measurementPeriodStart: start,
-      measurementPeriodEnd: end
+      measurementPeriodStart: options.measurementPeriodStart,
+      measurementPeriodEnd: options.measurementPeriodEnd
     }));
   } else {
-    if (start) {
-      startCql = parseTimeStringAsUTC(start);
-      endCql = new Date(startCql);
-      endCql.setFullYear(startCql.getFullYear() + 1);
-    } else if (end) {
-      endCql = parseTimeStringAsUTC(end);
-      startCql = new Date(endCql);
-      startCql.setFullYear(endCql.getFullYear() - 1);
-    }
-    startCql = DateTime.fromJSDate(startCql, 0);
-    endCql = DateTime.fromJSDate(endCql, 0);
+    ({ startCql, endCql } = Execution.getCQLIntervalEndpoints({
+      measurementPeriodStart: effectivePeriod?.start,
+      measurementPeriodEnd: effectivePeriod?.end
+    }));
   }
-  return new Interval(startCql, endCql);
+  parameters['Measurement Period'] = new Interval(startCql, endCql);
+  return parameters;
 }
 
 function hasMeasurementPeriodInfo(options: CalculationOptions, effectivePeriod?: fhir4.Period) {
