@@ -1,6 +1,10 @@
 import { CalculationOptions, RawExecutionData, DebugOutput } from '../types/Calculator';
 import { DataProvider, DateTime, Interval, Executor, Results } from 'cql-execution';
-import { parseTimeStringAsUTC, getMissingDependentValuesets } from './ValueSetHelper';
+import {
+  parseTimeStringAsUTC,
+  parseTimeStringAsUTCConvertingToEndOfPrecision,
+  getMissingDependentValuesets
+} from './ValueSetHelper';
 import { ValueSetResolver } from './ValueSetResolver';
 import { UnexpectedResource } from '../types/errors/CustomErrors';
 import { retrieveELMInfo } from '../helpers/elm/ELMInfoCache';
@@ -120,10 +124,15 @@ export function getCQLIntervalEndpoints(options: CalculationOptions) {
   } else {
     start = new Date(DEFAULT_MEASUREMENT_PERIOD_START);
   }
+  // An end carrying no time is inclusive of the period it names, so it resolves to that period's last
+  // millisecond rather than midnight at its start — end of day for "2019-12-31", end of month for
+  // "2019-12", end of year for "2019", all three of which the README documents as valid here. This
+  // applies to the caller-supplied value and to the Measure.effectivePeriod.end default alike, since
+  // Calculator has already resolved one into the other by the time we get here.
   if (options.measurementPeriodEnd) {
-    end = parseTimeStringAsUTC(options.measurementPeriodEnd);
+    end = parseTimeStringAsUTCConvertingToEndOfPrecision(options.measurementPeriodEnd);
   } else {
-    end = new Date(DEFAULT_MEASUREMENT_PERIOD_END);
+    end = parseTimeStringAsUTCConvertingToEndOfPrecision(DEFAULT_MEASUREMENT_PERIOD_END);
   }
   const startCql = DateTime.fromJSDate(start, 0); // No timezone offset for start
   const endCql = DateTime.fromJSDate(end, 0); // No timezone offset for stop

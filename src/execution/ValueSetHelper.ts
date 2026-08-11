@@ -92,6 +92,40 @@ export function parseTimeStringAsUTCConvertingToEndOfYear(timeValue: string): Da
   return moment.utc(timeValue, moment.defaultFormatUtc).add(1, 'years').subtract(1, 'seconds').toDate();
 }
 
+// A FHIR `date`, at each of the three precisions the R4 `date` type allows.
+const YEAR_ONLY_REGEX = /^\d{4}$/;
+const YEAR_MONTH_REGEX = /^\d{4}-\d{2}$/;
+const FULL_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Create a Date from a UTC string, resolving a value that carries no time to the LAST millisecond of
+ * the period it names — the last millisecond of the year, of the month, or of the day, according to
+ * how much of the date was given.
+ *
+ * A measurement period end is inclusive of the period it names. FHIR R4 says so about the datatype
+ * this option defaults to: "The high value includes any matching date/time. i.e. 2012-02-03T10:00:00
+ * is in a period that has an end value of 2012-02-03" (Period.end). Parsing "2019-12-31" as
+ * start-of-day therefore drops everything recorded on the final day, and "2019" drops the final 364.
+ *
+ * Millisecond is the finest precision cql-execution's DateTime carries, and it truncates anything
+ * finer downward, so `.999` is the last representable instant of the day rather than an approximation
+ * of it: successor(2019-12-31T23:59:59.999) is 2020-01-01T00:00:00.000.
+ *
+ * A value that already carries a time is parsed exactly as parseTimeStringAsUTC would.
+ */
+export function parseTimeStringAsUTCConvertingToEndOfPrecision(timeValue: string): Date {
+  if (YEAR_ONLY_REGEX.test(timeValue)) {
+    return moment.utc(timeValue, 'YYYY').endOf('year').toDate();
+  }
+  if (YEAR_MONTH_REGEX.test(timeValue)) {
+    return moment.utc(timeValue, 'YYYY-MM').endOf('month').toDate();
+  }
+  if (FULL_DATE_REGEX.test(timeValue)) {
+    return moment.utc(timeValue, 'YYYY-MM-DD').endOf('day').toDate();
+  }
+  return parseTimeStringAsUTC(timeValue);
+}
+
 /**
  * Collates dependent valuesets from a measure by going through all of the valuesets listed in the relatedArtifacts of the measure bundle's libraries,
  * as well as the libraries dataCriteria's codeFilters, then finds all valuesets that are not already contained in the measure bundle.

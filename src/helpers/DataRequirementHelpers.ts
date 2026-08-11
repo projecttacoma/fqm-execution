@@ -18,7 +18,7 @@ import {
 import * as RetrievesHelper from './elm/RetrievesHelper';
 import { uniqBy } from 'lodash';
 import { DateTime, Interval } from 'cql-execution';
-import { parseTimeStringAsUTC } from '../execution/ValueSetHelper';
+import { parseTimeStringAsUTC, parseTimeStringAsUTCConvertingToEndOfPrecision } from '../execution/ValueSetHelper';
 import * as MeasureBundleHelpers from './MeasureBundleHelpers';
 import { DEFAULT_EXPANDED_CODE_QUERY_CHUNK_SIZE } from '../constants';
 const FHIR_QUERY_PATTERN_URL = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-fhirQueryPattern';
@@ -338,7 +338,10 @@ export function createIntervalFromEndpoints(start?: string, end?: string) {
       endCql = new Date(startCql);
       endCql.setFullYear(startCql.getFullYear() + 1);
     } else if (end) {
-      endCql = parseTimeStringAsUTC(end);
+      // Same inclusivity rule as the both-provided branch above, which reaches it through
+      // Execution.getCQLIntervalEndpoints. The duration stays exactly one year: the start is derived
+      // from the resolved end, so both endpoints move together.
+      endCql = parseTimeStringAsUTCConvertingToEndOfPrecision(end);
       startCql = new Date(endCql);
       startCql.setFullYear(endCql.getFullYear() - 1);
     }

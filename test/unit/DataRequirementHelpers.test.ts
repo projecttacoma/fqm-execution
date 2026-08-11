@@ -335,7 +335,8 @@ describe('DataRequirementHelpers', () => {
       const start = '2019-01-01';
       const end = '2020-01-01';
       const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+      // A date-only end is inclusive of the day it names, so it resolves to that day's last millisecond
+      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').endOf('day').toDate(), 0);
       const options: CalculationOptions = { measurementPeriodStart: start, measurementPeriodEnd: end };
       const mp: fhir4.Period = { start: '2000-01-01', end: '2001-01-01' };
 
@@ -349,7 +350,7 @@ describe('DataRequirementHelpers', () => {
     const start = '2019-01-01';
     const end = '2020-01-01';
     const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-    const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+    const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').endOf('day').toDate(), 0);
     const mp: fhir4.Period = { start, end };
 
     expect(DataRequirementHelpers.extractDataRequirementsMeasurementPeriod({}, mp)).toEqual({
@@ -362,7 +363,7 @@ describe('DataRequirementHelpers', () => {
       const start = '2019-01-01';
       const end = '2022-01-01';
       const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').endOf('day').toDate(), 0);
 
       expect(DataRequirementHelpers.createIntervalFromEndpoints(start, end)).toEqual(new Interval(startCql, endCql));
     });
@@ -381,8 +382,10 @@ describe('DataRequirementHelpers', () => {
     test('returns interval up to end with duration 1 year if start not provided', () => {
       const expectedStart = '2019-01-01';
       const end = '2020-01-01';
-      const startCql = DateTime.fromJSDate(moment.utc(expectedStart, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+      // The end is inclusive of the day it names, and the start is derived from it, so both endpoints
+      // move together and the duration stays exactly one year.
+      const startCql = DateTime.fromJSDate(moment.utc(expectedStart, 'YYYYMDDHHmm').endOf('day').toDate(), 0);
+      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').endOf('day').toDate(), 0);
 
       expect(DataRequirementHelpers.createIntervalFromEndpoints(undefined, end)).toEqual(
         new Interval(startCql, endCql)
