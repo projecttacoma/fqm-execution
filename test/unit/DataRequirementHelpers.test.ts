@@ -327,15 +327,22 @@ describe('DataRequirementHelpers', () => {
   });
 
   describe('extractDataRequirementsMeasurementPeriod', () => {
-    test('returns an empty object when no measurement info provided', () => {
-      expect(DataRequirementHelpers.extractDataRequirementsMeasurementPeriod({}, {})).toEqual({});
+    test('uses default measurement period when no measurement info provided', () => {
+      const start = '2019-01-01';
+      const end = '2019-12-31';
+      const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
+      const endCql = DateTime.fromJSDate(moment.utc(`${end}T23:59:59.999Z`, moment.ISO_8601, true).toDate(), 0);
+
+      expect(DataRequirementHelpers.extractDataRequirementsMeasurementPeriod({}, {})).toEqual({
+        'Measurement Period': new Interval(startCql, endCql)
+      });
     });
 
     test('uses measurement period from options when both provided', () => {
       const start = '2019-01-01';
       const end = '2020-01-01';
       const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+      const endCql = DateTime.fromJSDate(moment.utc(`${end}T23:59:59.999Z`, moment.ISO_8601, true).toDate(), 0);
       const options: CalculationOptions = { measurementPeriodStart: start, measurementPeriodEnd: end };
       const mp: fhir4.Period = { start: '2000-01-01', end: '2001-01-01' };
 
@@ -349,44 +356,11 @@ describe('DataRequirementHelpers', () => {
     const start = '2019-01-01';
     const end = '2020-01-01';
     const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-    const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
+    const endCql = DateTime.fromJSDate(moment.utc(`${end}T23:59:59.999Z`, moment.ISO_8601, true).toDate(), 0);
     const mp: fhir4.Period = { start, end };
 
     expect(DataRequirementHelpers.extractDataRequirementsMeasurementPeriod({}, mp)).toEqual({
       'Measurement Period': new Interval(startCql, endCql)
-    });
-  });
-
-  describe('createIntervalFromEndpoints', () => {
-    test('returns interval from start to end if both provided', () => {
-      const start = '2019-01-01';
-      const end = '2022-01-01';
-      const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
-
-      expect(DataRequirementHelpers.createIntervalFromEndpoints(start, end)).toEqual(new Interval(startCql, endCql));
-    });
-
-    test('returns interval from start with duration 1 year if end not provided', () => {
-      const start = '2019-01-01';
-      const expectedEnd = '2020-01-01';
-      const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(expectedEnd, 'YYYYMDDHHmm').toDate(), 0);
-
-      expect(DataRequirementHelpers.createIntervalFromEndpoints(start, undefined)).toEqual(
-        new Interval(startCql, endCql)
-      );
-    });
-
-    test('returns interval up to end with duration 1 year if start not provided', () => {
-      const expectedStart = '2019-01-01';
-      const end = '2020-01-01';
-      const startCql = DateTime.fromJSDate(moment.utc(expectedStart, 'YYYYMDDHHmm').toDate(), 0);
-      const endCql = DateTime.fromJSDate(moment.utc(end, 'YYYYMDDHHmm').toDate(), 0);
-
-      expect(DataRequirementHelpers.createIntervalFromEndpoints(undefined, end)).toEqual(
-        new Interval(startCql, endCql)
-      );
     });
   });
 });
