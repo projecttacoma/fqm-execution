@@ -304,9 +304,6 @@ export function generateDataRequirement(retrieve: DataTypeQuery): fhir4.DataRequ
  * and populates a parameters object including the extracted info to be passed into the parseQueryInfo function
  */
 export function extractDataRequirementsMeasurementPeriod(options: CalculationOptions, effectivePeriod?: fhir4.Period) {
-  if (!hasMeasurementPeriodInfo(options, effectivePeriod)) {
-    return {};
-  }
   const parameters: Record<string, Interval> = {};
   let startCql: DateTime;
   let endCql: DateTime;
@@ -324,12 +321,6 @@ export function extractDataRequirementsMeasurementPeriod(options: CalculationOpt
   }
   parameters['Measurement Period'] = new Interval(startCql, endCql);
   return parameters;
-}
-
-function hasMeasurementPeriodInfo(options: CalculationOptions, effectivePeriod?: fhir4.Period) {
-  return Boolean(
-    options.measurementPeriodStart || options.measurementPeriodEnd || effectivePeriod?.start || effectivePeriod?.end
-  );
 }
 
 /**

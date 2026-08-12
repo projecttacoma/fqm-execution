@@ -327,8 +327,15 @@ describe('DataRequirementHelpers', () => {
   });
 
   describe('extractDataRequirementsMeasurementPeriod', () => {
-    test('returns an empty object when no measurement info provided', () => {
-      expect(DataRequirementHelpers.extractDataRequirementsMeasurementPeriod({}, {})).toEqual({});
+    test('uses default measurement period when no measurement info provided', () => {
+      const start = '2019-01-01';
+      const end = '2019-12-31';
+      const startCql = DateTime.fromJSDate(moment.utc(start, 'YYYYMDDHHmm').toDate(), 0);
+      const endCql = DateTime.fromJSDate(moment.utc(`${end}T23:59:59.999Z`, moment.ISO_8601, true).toDate(), 0);
+
+      expect(DataRequirementHelpers.extractDataRequirementsMeasurementPeriod({}, {})).toEqual({
+        'Measurement Period': new Interval(startCql, endCql)
+      });
     });
 
     test('uses measurement period from options when both provided', () => {
