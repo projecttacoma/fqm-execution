@@ -5,7 +5,8 @@ import {
   Library,
   DateTime,
   NamedTypeSpecifier,
-  ListTypeSpecifier
+  ListTypeSpecifier,
+  Decimal
 } from 'cql-execution';
 import { CQLPatient } from '../../types/CQLPatient';
 import {
@@ -1089,7 +1090,7 @@ export function interpretGreaterOrEqual(
             birthDate.minute = 0;
             birthDate.second = 0;
             birthDate.millisecond = 0;
-            birthDate.timezoneOffset = 0;
+            birthDate.timezoneOffset = Decimal.from(0);
             const birthDateOffset = birthDate.add(years, DateTime.Unit.YEAR);
             // create an interval with this offset as the start and no end date.
             const period = {
