@@ -423,7 +423,9 @@ export function handleStratificationValues(
         // if the cqfm-appliesTo extension is present, then we want to consider the result of that
         // population in our stratifier result
         const appliesToExtension = strata.extension?.find(
-          e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo'
+          e =>
+            e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-appliesTo' ||
+            e.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-appliesTo'
         );
 
         let popValue = true;

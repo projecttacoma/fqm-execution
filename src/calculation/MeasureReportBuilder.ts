@@ -106,12 +106,16 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
           if (measurePopulation.criteria.expression === 'Numerator Observations') {
             this.numeratorAggregateMethod =
               measurePopulation.extension?.find(
-                e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
+                e =>
+                  e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod' ||
+                  e.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-aggregateMethod'
               )?.valueCode || '';
           } else if (measurePopulation.criteria.expression === 'Denominator Observations') {
             this.denominatorAggregateMethod =
               measurePopulation.extension?.find(
-                e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
+                e =>
+                  e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod' ||
+                  e.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-aggregateMethod'
               )?.valueCode || '';
           }
         } else {
@@ -536,7 +540,9 @@ export default class MeasureReportBuilder<T extends PopulationGroupResult> exten
     const observPop = measureGroup?.population?.find(p => p.code?.coding?.find(c => c.code === 'measure-observation'));
     const aggregation =
       observPop?.extension?.find(
-        e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod'
+        e =>
+          e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-aggregateMethod' ||
+          e.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-aggregateMethod'
       )?.valueCode || '';
 
     // Note: unit not currently available in data, so not included in this quantity (should be inferable from measure to whoever's using the score)

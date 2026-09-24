@@ -13,18 +13,26 @@ import 'core-js/proposals/array-buffer-base64';
  * patient based measure.
  */
 const POPULATION_BASIS_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-populationBasis';
+const UV_POPULATION_BASIS_EXT = 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-populationBasis';
 const SCORING_CODE_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring';
+const UV_SCORING_CODE_EXT = 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-scoring';
 const IMPROVEMENT_NOTATION_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-improvementNotation';
+const UV_IMPROVEMENT_NOTATION_EXT = 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-improvementNotation';
 const COMPOSITE_SCORING_CODE_EXT = 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-compositeScoring';
+const UV_COMPOSITE_SCORING_CODE_EXT = 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-compositeScoring';
 
 export function getImprovementNotationFromGroup(group?: fhir4.MeasureGroup): string | null {
   return (
-    group?.extension?.find(ext => ext.url === IMPROVEMENT_NOTATION_EXT)?.valueCodeableConcept?.coding?.[0].code ?? null
+    group?.extension?.find(ext => ext.url === IMPROVEMENT_NOTATION_EXT || ext.url === UV_IMPROVEMENT_NOTATION_EXT)
+      ?.valueCodeableConcept?.coding?.[0].code ?? null
   );
 }
 
 export function getScoringCodeFromGroup(group?: fhir4.MeasureGroup): string | null {
-  return group?.extension?.find(ext => ext.url === SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ?? null;
+  return (
+    group?.extension?.find(ext => ext.url === SCORING_CODE_EXT || ext.url === UV_SCORING_CODE_EXT)?.valueCodeableConcept
+      ?.coding?.[0].code ?? null
+  );
 }
 
 export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | undefined {
@@ -37,8 +45,8 @@ export function getScoringCodeFromMeasure(measure: fhir4.Measure): string | unde
 
 export function getCompositeScoringFromGroup(group?: fhir4.MeasureGroup): string {
   return (
-    group?.extension?.find(ext => ext.url === COMPOSITE_SCORING_CODE_EXT)?.valueCodeableConcept?.coding?.[0].code ??
-    'all-or-nothing'
+    group?.extension?.find(ext => ext.url === COMPOSITE_SCORING_CODE_EXT || ext.url === UV_COMPOSITE_SCORING_CODE_EXT)
+      ?.valueCodeableConcept?.coding?.[0].code ?? 'all-or-nothing'
   );
 }
 
@@ -63,7 +71,8 @@ export function extractComponentsFromMeasure(
       group.extension
         ?.filter(
           ext =>
-            ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' &&
+            (ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' ||
+              ext.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-component') &&
             ext.valueRelatedArtifact?.type === 'composed-of'
         )
         .map(ext => ext.valueRelatedArtifact)
@@ -137,7 +146,8 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
           e.resource?.group?.find(g =>
             g.extension?.find(
               e =>
-                e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring' &&
+                (e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-scoring' ||
+                  e.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-scoring') &&
                 e.valueCodeableConcept?.coding?.[0].code === 'composite'
             )
           ))
@@ -165,7 +175,9 @@ export function extractCompositeMeasure(measureBundle: fhir4.Bundle): fhir4.Meas
  */
 export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): string | null {
   const groupIdExtension = relatedArtifact.extension?.filter(
-    ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId'
+    ({ url }) =>
+      url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId' ||
+      url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-groupId'
   );
   if (groupIdExtension && groupIdExtension.length > 1) {
     throw new Error(
@@ -177,7 +189,9 @@ export function getGroupIdForComponent(relatedArtifact: fhir4.RelatedArtifact): 
 
 export function getGroupIdForComponentFromExtension(extension: fhir4.Extension): string | null {
   const groupIdExtension = extension.valueRelatedArtifact?.extension?.filter(
-    ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId'
+    ext =>
+      ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-groupId' ||
+      ext.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-groupId'
   );
 
   if (groupIdExtension && groupIdExtension.length > 1) {
@@ -196,7 +210,9 @@ export function getGroupIdForComponentFromExtension(extension: fhir4.Extension):
  */
 export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): number {
   const weightExtension = relatedArtifact.extension?.filter(
-    ({ url }) => url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
+    ({ url }) =>
+      url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight' ||
+      url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-weight'
   );
 
   if (weightExtension && weightExtension.length > 1) {
@@ -209,7 +225,9 @@ export function getWeightForComponent(relatedArtifact: fhir4.RelatedArtifact): n
 
 export function getWeightForComponentFromExtension(extension: fhir4.Extension): number {
   const weightExtension = extension.valueRelatedArtifact?.extension?.filter(
-    ext => ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight'
+    ext =>
+      ext.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-weight' ||
+      ext.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-weight'
   );
 
   if (weightExtension && weightExtension.length > 1) {
@@ -306,7 +324,9 @@ export function isCVMeasure(group?: fhir4.MeasureGroup, measureScoringCode?: str
  * @returns {boolean} true if this is an episode of care, false if it is a patient measure.
  */
 export function isEpisodeOfCareMeasure(measure: fhir4.Measure): boolean {
-  const popBasisExt = measure.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
+  const popBasisExt = measure.extension?.find(
+    ext => ext.url == POPULATION_BASIS_EXT || ext.url == UV_POPULATION_BASIS_EXT
+  );
   if (popBasisExt != undefined) {
     return popBasisExt.valueCode !== 'boolean';
   } else {
@@ -323,7 +343,9 @@ export function isEpisodeOfCareMeasure(measure: fhir4.Measure): boolean {
  * @returns {boolean} true if this is an episode of care, false if it is a patient measure.
  */
 export function isEpisodeOfCareGroup(measure: fhir4.Measure, group: fhir4.MeasureGroup): boolean {
-  const popBasisExt = group.extension?.find(ext => ext.url == POPULATION_BASIS_EXT);
+  const popBasisExt = group.extension?.find(
+    ext => ext.url == POPULATION_BASIS_EXT || ext.url == UV_POPULATION_BASIS_EXT
+  );
   if (popBasisExt != undefined) {
     return popBasisExt.valueCode !== 'boolean';
   } else if (
@@ -333,12 +355,14 @@ export function isEpisodeOfCareGroup(measure: fhir4.Measure, group: fhir4.Measur
     const populationsWithBasis = group.population?.filter(
       p =>
         codeableConceptToPopulationType(p.code) !== PopulationType.OBSERV &&
-        p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT) != null
+        p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT || ext.url === UV_POPULATION_BASIS_EXT) != null
     );
 
     if (populationsWithBasis && populationsWithBasis.length > 0) {
       return populationsWithBasis.some(
-        p => p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT)?.valueCode !== 'boolean'
+        p =>
+          p.extension?.find(ext => ext.url === POPULATION_BASIS_EXT || ext.url === UV_POPULATION_BASIS_EXT)
+            ?.valueCode !== 'boolean'
       );
     }
 
