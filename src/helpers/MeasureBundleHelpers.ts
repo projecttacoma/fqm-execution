@@ -383,7 +383,9 @@ export function isEpisodeOfCareGroup(measure: fhir4.Measure, group: fhir4.Measur
 export function getCriteriaReferenceIdFromPopulation(population: fhir4.MeasureGroupPopulation): string | null {
   return (
     population.extension?.find(
-      e => e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference'
+      e =>
+        e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-criteriaReference' ||
+        e.url === 'http://hl7.org/fhir/StructureDefinition/cqf-criteriaReference'
     )?.valueString ?? null
   );
 }
