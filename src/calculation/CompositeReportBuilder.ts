@@ -105,7 +105,8 @@ export class CompositeReportBuilder<T extends PopulationGroupResult> extends Abs
           this.groups[g.id] = { compositeScoringType: groupCompositeScoringType, componentMap: {} };
           g.extension?.forEach(e => {
             if (
-              e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' &&
+              (e.url === 'http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/cqfm-component' ||
+                e.url === 'http://hl7.org/fhir/uv/cqm/StructureDefinition/cqm-component') &&
               e.valueRelatedArtifact &&
               e.valueRelatedArtifact.resource &&
               g.id
